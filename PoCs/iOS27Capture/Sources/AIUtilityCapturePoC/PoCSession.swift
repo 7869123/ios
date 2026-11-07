@@ -48,7 +48,7 @@ import AIUtilityCore
             guard lifecycle.accepts(session) else { throw CancellationError() }
             try pip.prepare()
             observeAudioEvents(session: session)
-            capture.onTermination = { [weak self] in await self?.stop(expected: session) }
+            capture.onTermination = { [weak self] in await self?.stop(expected: session, captureAlreadyAttempted: true) }
             capture.presentPicker()
             lifecycle.didStart(session)
         }
@@ -60,14 +60,16 @@ import AIUtilityCore
     public func stop() async {
         await stop(expected: nil)
     }
-    private func stop(expected: UInt64?) async {
+    private func stop(expected: UInt64?, captureAlreadyAttempted: Bool = false) async {
         await lifecycle.stop(expected: expected) { [self] in
             audioObservers.forEach { NotificationCenter.default.removeObserver($0) }
             audioObservers.removeAll()
             revision += 1; translationTask?.cancel(); translationTask = nil
             // Detach producers before resource release suspends. Restart stays blocked.
             speech.stop(); pip.stop()
-            await capture.stop()
+            // Termination has already attempted capture release; only a user stop retries a failure.
+            if !captureAlreadyAttempted { await capture.stop() }
+            return capture.isStopped && pip.isStopped
         }
     }
     private func observeAudioEvents(session: UInt64) {
@@ -85,7 +87,9 @@ import AIUtilityCore
                     await self.stop(expected: session)
                     // No automatic restart or authorization after interruptions/route changes.
                     if self.lifecycle.revision == session {
-                        self.translationState = "音频中断、路由变化或媒体服务重置；已停止，请手动重新授权"
+                        self.translationState = self.lifecycle.phase == .idle
+                            ? "音频中断、路由变化或媒体服务重置；已停止，请手动重新授权"
+                            : "系统资源释放返回错误；禁止重新开始，请再次停止或结束 App"
                     }
                 }
             }

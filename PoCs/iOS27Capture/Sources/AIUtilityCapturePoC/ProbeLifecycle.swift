@@ -2,10 +2,10 @@
 /// A new session cannot begin until the previous asynchronous resource release finishes.
 @MainActor
 final class ProbeLifecycle {
-    enum Phase: Equatable { case idle, starting, running, stopping }
+    enum Phase: Equatable { case idle, starting, running, stopping, releaseFailed }
     private(set) var phase: Phase = .idle
     private(set) var revision: UInt64 = 0
-    private var releaseTask: Task<Void, Never>?
+    private var releaseTask: Task<Bool, Never>?
 
     func begin() -> UInt64? {
         guard phase == .idle else { return nil }
@@ -23,7 +23,7 @@ final class ProbeLifecycle {
     }
     func beginStop(expected: UInt64? = nil) -> UInt64? {
         guard expected == nil || expected == revision,
-              phase == .starting || phase == .running else { return nil }
+              phase == .starting || phase == .running || phase == .releaseFailed else { return nil }
         phase = .stopping
         return revision
     }
@@ -32,16 +32,19 @@ final class ProbeLifecycle {
         phase = .idle
     }
     /// Every caller awaits the same release; nobody can observe idle before release finishes.
-    func stop(expected: UInt64? = nil, release: @escaping @MainActor () async -> Void) async {
-        guard expected == nil || expected == revision else { return }
-        if let releaseTask { await releaseTask.value; return }
-        guard let session = beginStop(expected: expected) else { return }
+    @discardableResult
+    func stop(expected: UInt64? = nil, release: @escaping @MainActor () async -> Bool) async -> Bool {
+        guard expected == nil || expected == revision else { return false }
+        if let releaseTask { return await releaseTask.value }
+        guard let session = beginStop(expected: expected) else { return phase == .idle }
         let task = Task { @MainActor [self] in
-            await release()
+            let succeeded = await release()
             releaseTask = nil
-            didStop(session)
+            if succeeded { didStop(session) }
+            else { phase = .releaseFailed }
+            return succeeded
         }
         releaseTask = task
-        await task.value
+        return await task.value
     }
 }

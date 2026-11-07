@@ -73,6 +73,7 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
     private var callbacks: CaptureCallbacks?
     private var starting = false
     private var startTask: Task<Void, Never>?
+    var isStopped: Bool { lifecycle.phase == .idle }
     var onTermination: (() async -> Void)?
     public init(speech: LocalSpeechProbe) { self.speech = speech; super.init() }
     public func presentPicker() {
@@ -136,7 +137,7 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
     public func stop() async {
         await lifecycle.stop { [self] in await release() }
     }
-    private func release() async {
+    private func release() async -> Bool {
         let picker = SCContentSharingPicker.shared
         if let callbacks { picker.remove(callbacks) }
         picker.isActive = false
@@ -144,22 +145,31 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         let stoppingStream = stream
         let stoppingOutput = output
         let stoppingCallbacks = callbacks
-        startTask = nil; stream = nil; output = nil; callbacks = nil
+        startTask = nil
         pendingStart?.cancel()
         await pendingStart?.value
-        if let stoppingStream { try? await stoppingStream.stopCapture() }
+        if let stoppingStream {
+            do { try await stoppingStream.stopCapture() }
+            catch {
+                // Keep ownership and block a replacement stream until an explicit stop retry succeeds.
+                state = "stopCapture 返回错误；禁止重新开始，请再次停止或结束 App，勿认定系统已释放"
+                return false
+            }
+        }
         withExtendedLifetime((stoppingOutput, stoppingCallbacks)) {}
+        stream = nil; output = nil; callbacks = nil
         starting = false
         state = "已停止；无真机结论"
+        return true
     }
     fileprivate func terminate(session: UInt64, source: ObjectIdentifier?, message: String) async {
         guard lifecycle.accepts(session), source == nil || source == stream.map(ObjectIdentifier.init) else { return }
         let notify = onTermination
         await stop()
         // stop() keeps restart blocked until release finishes. No stale callback may stop a newer session.
-        guard lifecycle.revision == session, lifecycle.phase == .idle else { return }
+        guard lifecycle.revision == session else { return }
         await notify?()
-        if lifecycle.revision == session { state = message }
+        if lifecycle.revision == session, lifecycle.phase == .idle { state = message }
     }
 }
 

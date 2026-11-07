@@ -11,7 +11,7 @@ import Testing
     let gate = ProbeLifecycle()
     _ = try #require(gate.begin())
     let pause = ReleasePause()
-    let stop = Task { @MainActor in await gate.stop { await pause.wait() } }
+    let stop = Task { @MainActor in await gate.stop { await pause.wait(); return true } }
     for _ in 0..<1_000 { if pause.continuation != nil { break }; await Task.yield() }
     let started = pause.continuation != nil
     #expect(started)
@@ -32,7 +32,7 @@ import Testing
     var releases = 0
     var completed = 0
     let first = Task { @MainActor in
-        await gate.stop { releases += 1; await pause.wait() }
+        await gate.stop { releases += 1; await pause.wait(); return true }
         completed += 1
     }
     for _ in 0..<1_000 { if pause.continuation != nil { break }; await Task.yield() }
@@ -40,7 +40,7 @@ import Testing
     #expect(started)
     guard started else { first.cancel(); return }
     let second = Task { @MainActor in
-        await gate.stop { releases += 1 }
+        await gate.stop { releases += 1; return true }
         completed += 1
     }
     await Task.yield()
@@ -57,10 +57,10 @@ import Testing
 @Test @MainActor func staleFailureDoesNotReleaseNewSessionResources() async throws {
     let gate = ProbeLifecycle()
     let old = try #require(gate.begin())
-    await gate.stop {}
+    await gate.stop { true }
     let current = try #require(gate.begin())
     var accidentallyReleased = false
-    await gate.stop(expected: old) { accidentallyReleased = true }
+    await gate.stop(expected: old) { accidentallyReleased = true; return true }
     #expect(!accidentallyReleased)
     #expect(gate.accepts(current))
 }
@@ -69,9 +69,53 @@ import Testing
     let gate = ProbeLifecycle()
     _ = try #require(gate.begin())
     var releases = 0
-    await gate.stop { releases += 1 }
-    await gate.stop { releases += 1 }
+    await gate.stop { releases += 1; return true }
+    await gate.stop { releases += 1; return true }
     #expect(releases == 1)
+}
+
+@Test @MainActor func failedReleaseBlocksRestartUntilExplicitStopRetry() async throws {
+    let gate = ProbeLifecycle()
+    _ = try #require(gate.begin())
+    var releases = 0
+    let first = await gate.stop { releases += 1; return false }
+    #expect(!first)
+    #expect(gate.phase == .releaseFailed)
+    #expect(gate.begin() == nil)
+    #expect(!gate.accepts(gate.revision))
+    let retry = await gate.stop { releases += 1; return true }
+    #expect(retry)
+    #expect(releases == 2)
+    #expect(gate.phase == .idle)
+    #expect(gate.begin() != nil)
+}
+
+@Test @MainActor func concurrentStopFailureIsSharedWithoutImplicitRetry() async throws {
+    let gate = ProbeLifecycle()
+    _ = try #require(gate.begin())
+    let pause = ReleasePause()
+    var releases = 0
+    let first = Task { @MainActor in
+        await gate.stop { releases += 1; await pause.wait(); return false }
+    }
+    for _ in 0..<1_000 { if pause.continuation != nil { break }; await Task.yield() }
+    let started = pause.continuation != nil
+    #expect(started)
+    guard started else { first.cancel(); return }
+    var joined = false
+    let second = Task { @MainActor in
+        joined = true
+        return await gate.stop { releases += 1; return true }
+    }
+    for _ in 0..<1_000 { if joined { break }; await Task.yield() }
+    #expect(joined)
+    pause.resume()
+    let firstResult = await first.value
+    let secondResult = await second.value
+    #expect(!firstResult && !secondResult)
+    #expect(releases == 1)
+    #expect(gate.phase == .releaseFailed)
+    #expect(gate.begin() == nil)
 }
 
 @Test @MainActor func duplicateStartIsRejected() throws {

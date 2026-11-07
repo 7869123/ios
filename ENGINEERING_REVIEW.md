@@ -25,6 +25,7 @@ PoC 环境为 macOS 27.0.1 / Xcode 27.1 (27A9275) / iOS SDK 27.1。
 | P1 | 两个 PiP delegate conformance 在实际日志中有 ConformanceIsolation 警告，Swift 6 将报错 | 真正 nonisolated 入口，UI 异步回 MainActor，同步暂停查询加锁；Swift 6 编译验证 |
 | P1 | PiP stop 保留 controller/timebase；无音频 interruption / route / media-services 统一停止 | 清理 timer/controller/timebase；中断安全停止，人工重启，不承诺自动恢复 |
 | P1 | 缺少生命周期回归；编译证据与文档冲突 | 可移植状态机测试、真机符号检查、独立运行证据 |
+| P1（交付复查补充） | stopCapture 与音频会话停用使用 try?；SDK 失败仍显示已停止 | 保留失败状态/资源引用、禁止重启、显式停止重试；不伪装系统已释放 |
 | P2 | Speech 默认 en-US，仅单次识别，final/error 后不继续；缓冲格式、语言包兼容待测 | 保留明确边界；本轮不扩展连续 ASR/语言 UI |
 | P2 | displayLayer enqueue/flush/status/readiness 自 iOS 18 弃用 | 后续迁移 sampleBufferRenderer；本轮不扩大渲染改动 |
 | P2 | RMS 仅 float32；端序、packed/对齐、非有限值、实际多声道格式未实测 | 不把计数或不支持的 RMS 当成功；后续格式实验 |
@@ -63,6 +64,13 @@ Linux、Apple 包通过；PoC 12 项生命周期、模拟器、Swift 6 iphoneos 
 修复为诊断 Release 明确保留本地符号（STRIP_INSTALLED_PRODUCT=NO / COPY_PHASE_STRIP=NO），继续核验实际可执行文件，
 不删除检查、不关闭 Release 优化。另将新回调代理改为 MainActor + nonisolated 协议入口，移除代理上不必要的 unchecked Sendable。
 已通过普通 merge 保留 Claude 后续 03c3e40 和 d7859b0，UI、资源及其截图脚本相对该基线无工程审查改动。
+
+第四轮 `d05afad` / [42376873996](https://github.com/7869123/ios/actions/runs/42376873996)：四个 job 全部 success，
+Core 各平台 36 通过/1 跳过，生命周期各 12 通过，AppleServices 2 通过/1 跳过；13/13 预安装检查通过。
+最后复查另发现停止异常被吞掉的问题，已补 releaseFailed 状态：失败保留句柄，禁止 begin，
+再次显式 stop 才重试；并发停止共享同一次失败；终止通知只关闭其余资源，不隐式重试采集。
+新增两项失败/重试回归，修复后的结果必须再次验证，不能沿用第四轮成功结论。
+Claude 此后继续 UI 到 4e0f8d2；本轮固定 d7859b0 集成基线，PR 三点差异不改 UI，最新 UI 组合需另验。
 
 低成本检查：`python scripts/check_repository.py`、`git diff --check`；只是源码卫生/plist 检查。
 完整验证：当前审查分支手动触发 `.github/workflows/swift.yml`，同时设置

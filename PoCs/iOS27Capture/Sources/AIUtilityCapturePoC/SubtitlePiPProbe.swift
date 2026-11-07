@@ -27,9 +27,11 @@ private final class PlaybackState: @unchecked Sendable {
     private var timebase: CMTimebase?
     private nonisolated let playback = PlaybackState()
     private var ownsAudioSession = false
+    var isStopped: Bool { controller == nil && timer == nil && !ownsAudioSession }
     public override init() { super.init(); displayLayer.videoGravity = .resizeAspect }
     public func prepare() throws {
         stop()
+        guard isStopped else { throw ProbeError.pictureInPictureUnavailable }
         do { try prepareResources() }
         catch { stop(); throw error }
     }
@@ -72,8 +74,13 @@ private final class PlaybackState: @unchecked Sendable {
         displayLayer.controlTimebase = nil; timebase = nil
         playback.paused = true
         if ownsAudioSession {
-            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-            ownsAudioSession = false
+            do {
+                try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+                ownsAudioSession = false
+            } catch {
+                state = "音频会话释放返回错误；请再次停止，勿认定系统已释放"
+                return
+            }
         }
         state = "已停止；无真机结论"
     }
