@@ -17,7 +17,7 @@ import AIUtilityCore
                     Label("选择截图", systemImage: "photo.badge.plus").frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent).disabled(recognizing || translating)
                 if recognizing { ProgressView("正在本地识别…") }
-                Text(ocrStatus).font(.caption).foregroundStyle(.secondary)
+                Text(ocrStatus).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             }
             TranslationPanel(feature: .discordScreenshot, input: $app.screenshotDraft, translating: $translating, inputLocked: recognizing)
         }
@@ -45,7 +45,7 @@ import AIUtilityCore
             UtilityCard {
                 Label("当前支持字幕文本翻译", systemImage: "text.bubble")
                 Text("粘贴已转写的字幕文字。跨 App 音频、连续语音识别和 PiP 字幕仍在技术验证阶段，尚未接入此入口。")
-                    .font(.subheadline).foregroundStyle(.secondary)
+                    .font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
             }
             TranslationPanel(feature: .videoSubtitle, input: $app.subtitleDraft, translating: $translating)
         }
@@ -85,7 +85,7 @@ import AIUtilityCore
                     Button("取消", role: .cancel) { operation?.cancel() }
                 }
             }
-            Text(status).font(.caption).foregroundStyle(.secondary)
+            Text(status).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             if !output.isEmpty {
                 Divider()
                 HStack {

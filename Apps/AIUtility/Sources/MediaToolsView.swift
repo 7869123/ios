@@ -29,7 +29,7 @@ struct MediaTool: Identifiable, Sendable {
                             StatusChip(status: .planned)
                             Text(tool.detail)
                             Text("此入口用于浏览开发范围，当前不会发起下载或宣称处理成功。")
-                                .font(.caption).foregroundStyle(.secondary)
+                                .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                         }
                     }.navigationTitle(tool.title).navigationBarTitleDisplayMode(.inline)
                 } label: {
@@ -40,11 +40,11 @@ struct MediaTool: Identifiable, Sendable {
                                 .background(UtilityTheme.planned.opacity(0.12), in: RoundedRectangle(cornerRadius: UtilityTheme.radiusIcon))
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(tool.title).font(.headline).foregroundStyle(UtilityTheme.ink)
-                                Text(tool.detail).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                Text(tool.detail).font(.caption).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(2)
                             }
                             StatusChip(status: .planned)
                             Spacer()
-                            Image(systemName: "chevron.right").foregroundStyle(.secondary)
+                            Image(systemName: "chevron.right").foregroundStyle(UtilityTheme.inkSecondary)
                         }
                     }
                 }.buttonStyle(.plain)

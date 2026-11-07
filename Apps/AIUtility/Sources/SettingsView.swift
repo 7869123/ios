@@ -29,7 +29,7 @@ import AIUtilityCore
                     .utilityField()
                 Button("获取官方模型目录") { discoverModels() }.disabled(busy)
                 Text("读取目录不会保存候选 Key，也不代表该模型已通过生成验证。")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 modelField("截图翻译模型", value: $screenshotModel)
                 modelField("字幕翻译模型", value: $subtitleModel)
                 Button("验证并保存 Key 与两个模型") { saveKey() }
@@ -42,7 +42,7 @@ import AIUtilityCore
                     }
                 }
                 Text("保存或切换将进行真实模型调用，可能收费。验证失败时保留原 Key 和绑定。切换模型无需重新输入 Key。")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 if busy { HStack { ProgressView(); Button("取消验证", role: .cancel) { operation?.cancel() } } }
                 Text(message).font(.subheadline).textSelection(.enabled)
             }
@@ -50,7 +50,7 @@ import AIUtilityCore
                 Text("调用与隐私").font(.headline)
                 Text(budget).font(.subheadline)
                 Text("Key 不写入普通偏好或日志。截图本地识别，仅主动提交的文字发送到供应商；当前 Key、常见凭据及邮箱会先按规则脱敏，规则不保证发现所有隐私。")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 Button("刷新会话预算") { Task { await refreshBudget() } }
             }
         }

@@ -11,7 +11,10 @@ import AIUtilityAppleServices
         WindowGroup {
             RootView().environmentObject(model).environment(wallpaper).environment(appearance).tint(UtilityTheme.cyan).preferredColorScheme(.light)
             #if DEBUG
-                .task { Self.applyReviewOrientation(); await Self.captureReviewScreenshot() }
+                .task {
+                    Self.applyReviewOrientation()
+                    await Self.captureReviewScreenshot(model: model, wallpaper: wallpaper, appearance: appearance)
+                }
             #endif
         }
     }
@@ -26,26 +29,48 @@ extension AIUtilityApp {
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
     }
 
-    /// CI review screenshots only: `-AIUtilityCapture <name>` renders the key window after the UI
-    /// settles and writes Documents/<name>.png plus <name>.txt (window size and interface orientation).
-    /// Rendering the window itself means the image always matches the real interface orientation.
-    static func captureReviewScreenshot() async {
+    /// CI review screenshots only: `-AIUtilityCapture <name>` renders after the UI settles and writes
+    /// Documents/<name>.png plus <name>.txt. Portrait renders the real key window. iPadOS ignores the
+    /// orientation request for multitasking apps, so with `-AIUtilityPreviewLandscape` (and the scene
+    /// still portrait) the same RootView is rendered in an off-screen window of the swapped size; the
+    /// .txt records which mode produced the image. Nothing is rotated after capture.
+    static func captureReviewScreenshot(model: AppModel, wallpaper: WallpaperStore, appearance: AppearanceStore) async {
         let args = ProcessInfo.processInfo.arguments
         guard let index = args.firstIndex(of: "-AIUtilityCapture"), index + 1 < args.count else { return }
         let name = args[index + 1]
         try? await Task.sleep(for: .seconds(6))
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first,
               let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return }
-        let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
-            _ = window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+        let wantsLandscape = args.contains("-AIUtilityPreviewLandscape")
+        let image: UIImage
+        let info: String
+        if wantsLandscape && !scene.interfaceOrientation.isLandscape {
+            let size = CGSize(width: max(window.bounds.width, window.bounds.height),
+                              height: min(window.bounds.width, window.bounds.height))
+            let offscreen = UIWindow(windowScene: scene)
+            offscreen.frame = CGRect(origin: .zero, size: size)
+            offscreen.windowLevel = UIWindow.Level(rawValue: UIWindow.Level.normal.rawValue - 1)
+            let host = UIHostingController(rootView: RootView()
+                .environmentObject(model).environment(wallpaper).environment(appearance)
+                .tint(UtilityTheme.cyan).preferredColorScheme(.light))
+            host.traitOverrides.horizontalSizeClass = window.traitCollection.horizontalSizeClass
+            offscreen.rootViewController = host
+            offscreen.isHidden = false
+            try? await Task.sleep(for: .seconds(4))
+            image = UIGraphicsImageRenderer(bounds: offscreen.bounds).image { _ in
+                _ = offscreen.drawHierarchy(in: offscreen.bounds, afterScreenUpdates: true)
+            }
+            offscreen.isHidden = true
+            info = "mode=offscreen-landscape-layout window=\(Int(size.width))x\(Int(size.height)) (scene stayed portrait; no status bar or safe-area insets)\n"
+        } else {
+            image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
+                _ = window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+            }
+            let orientation = scene.interfaceOrientation.isLandscape ? "landscape" : "portrait"
+            info = "mode=device window=\(Int(window.bounds.width))x\(Int(window.bounds.height)) orientation=\(orientation)\n"
         }
         let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         try? image.pngData()?.write(to: documents.appendingPathComponent("\(name).png"))
-        let orientation: String = switch scene.interfaceOrientation {
-        case .portrait: "portrait"; case .portraitUpsideDown: "portraitUpsideDown"
-        case .landscapeLeft: "landscapeLeft"; case .landscapeRight: "landscapeRight"; default: "unknown"
-        }
-        let info = "window=\(Int(window.bounds.width))x\(Int(window.bounds.height)) orientation=\(orientation)\n"
         try? info.write(to: documents.appendingPathComponent("\(name).txt"), atomically: true, encoding: .utf8)
     }
 }

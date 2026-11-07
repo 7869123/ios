@@ -9,6 +9,8 @@ enum UtilityTheme {
     static let brandStrong = Color(red: 0.04, green: 0.44, blue: 0.76)  // #0B6FC2
     static let aqua = Color(red: 0.24, green: 0.80, blue: 0.90)         // #3CCBE6
     static let ink = Color(red: 0.08, green: 0.16, blue: 0.24)          // #14283C
+    /// Secondary text: darker than system .secondary so it stays readable over wallpapers.
+    static let inkSecondary = ink.opacity(0.74)
     static let canvas = Color(red: 0.95, green: 0.97, blue: 0.99)       // #F2F8FD
     static let surface = Color.white
     static let stroke = brand.opacity(0.16)
@@ -99,7 +101,9 @@ struct GlassSurface<S: InsettableShape>: ViewModifier {
             ? GlassStyle.reducedTransparency
             : GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
         content
-            .shadow(color: .white.opacity(0.85 * style.legibilityBoost), radius: 1.5)
+            // Two-pass white halo keeps dark text readable over busy wallpaper at high transparency.
+            .shadow(color: .white.opacity(0.95 * style.legibilityBoost), radius: 1)
+            .shadow(color: .white.opacity(0.75 * style.legibilityBoost), radius: 3)
             .background {
                 ZStack {
                     shape.fill(.ultraThinMaterial).opacity(style.materialOpacity)
@@ -185,7 +189,7 @@ struct StatusChip: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("AIUTILITY / WORKSPACE").font(.caption.monospaced().weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             Text(title).font(.largeTitle.bold()).foregroundStyle(UtilityTheme.ink)
-            Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
+            Text(subtitle).font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12)
     }
 }
