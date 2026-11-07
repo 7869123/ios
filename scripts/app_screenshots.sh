@@ -25,6 +25,23 @@ rt=[r for r in json.load(sys.stdin)["runtimes"] if r["identifier"]==rid]
 t=[d for d in (rt[0].get("supportedDeviceTypes",[]) if rt else []) if pat.search(d["name"])]
 print(t[-1]["identifier"] if t else "")' "$runtime" "$1"
 }
+# Launch the app so it renders its own window (true interface orientation, no rotation guessing)
+# and copy Documents/<name>.png out of the sandbox. Falls back to the raw simctl framebuffer.
+capture() {
+  local udid="$1" orient="$2"; shift 2
+  local name="$label-$orient"
+  xcrun simctl terminate "$udid" "$bundle" >/dev/null 2>&1 || true
+  xcrun simctl launch "$udid" "$bundle" "$@" -AIUtilityCapture "$name" && sleep 12
+  local data; data=$(xcrun simctl get_app_container "$udid" "$bundle" data 2>/dev/null || true)
+  if [ -n "$data" ] && [ -f "$data/Documents/$name.png" ]; then
+    cp "$data/Documents/$name.png" "$out/$name.png"
+    echo "$name: in-app capture, $(cat "$data/Documents/$name.txt" 2>/dev/null)"
+  else
+    xcrun simctl io "$udid" screenshot "$out/$name-raw.png"
+    echo "$name: in-app capture missing; saved raw simctl framebuffer as $name-raw.png (not rotated)"
+  fi
+  echo "$name: $(sips -g pixelWidth -g pixelHeight "$out/$name"*.png | awk '/pixel/{printf "%s=%s ", $1, $2}')"
+}
 shoot() {
   local label="$1" type="$2"
   [ -n "$type" ] || { echo "$label: no device type"; return 1; }
@@ -34,15 +51,8 @@ shoot() {
   xcrun simctl boot "$udid" && xcrun simctl bootstatus "$udid" -b >/dev/null || return 1
   xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 || true
   xcrun simctl install "$udid" "$app" || return 1
-  xcrun simctl launch "$udid" "$bundle" && sleep 8
-  xcrun simctl io "$udid" screenshot "$out/$label-portrait.png"
-  xcrun simctl terminate "$udid" "$bundle" || true
-  xcrun simctl launch "$udid" "$bundle" -AIUtilityPreviewLandscape && sleep 8
-  xcrun simctl io "$udid" screenshot "$out/$label-landscape.png"
-  # simctl captures the framebuffer in device orientation; rotate if it came out portrait-shaped.
-  w=$(sips -g pixelWidth "$out/$label-landscape.png" | awk '/pixelWidth/{print $2}')
-  h=$(sips -g pixelHeight "$out/$label-landscape.png" | awk '/pixelHeight/{print $2}')
-  if [ "$w" -lt "$h" ]; then sips -r 270 "$out/$label-landscape.png" >/dev/null; echo "rotated landscape capture"; fi
+  capture "$udid" portrait
+  capture "$udid" landscape -AIUtilityPreviewLandscape
   xcrun simctl shutdown "$udid" || true
   xcrun simctl delete "$udid" || true
 }

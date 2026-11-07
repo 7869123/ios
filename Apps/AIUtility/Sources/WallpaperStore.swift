@@ -71,11 +71,12 @@ enum WallpaperMode: String, Sendable {
     private(set) var image: UIImage?
     private(set) var layout = WallpaperLayout()
     /// White overlay opacity over the wallpaper, keeps text readable.
-    private(set) var scrim: Double = 0.55
-    static let scrimRange: ClosedRange<Double> = 0.2...0.85
+    private(set) var scrim: Double = WallpaperStore.defaultScrim
+    nonisolated static let scrimRange: ClosedRange<Double> = 0...1
+    /// Default wallpaper mask (外观 → 壁纸遮罩强度).
+    nonisolated static let defaultScrim = 0.18
     /// Keeps the bundled illustration's face in frame in both orientations.
     static let bundledLayout = WallpaperLayout(focusX: 0.5, focusY: 0.33, zoom: 1)
-    static let bundledScrim = 0.35
 
     private let defaults = UserDefaults.standard
 
@@ -93,7 +94,7 @@ enum WallpaperMode: String, Sendable {
             // First launch, or custom file missing: fall back to the bundled default if present.
             if let bundled = Self.bundledImage() {
                 mode = .bundled; image = bundled
-                if stored != .bundled { layout = Self.bundledLayout; scrim = Self.bundledScrim; return }
+                if stored != .bundled { layout = Self.bundledLayout; scrim = Self.defaultScrim; return }
             } else {
                 mode = .plain
             }
@@ -131,7 +132,7 @@ enum WallpaperMode: String, Sendable {
         if let bundled = Self.bundledImage() {
             image = bundled
             setMode(.bundled)
-            update(layout: Self.bundledLayout, scrim: Self.bundledScrim)
+            update(layout: Self.bundledLayout, scrim: Self.defaultScrim)
         } else {
             usePlainBackdrop()
         }

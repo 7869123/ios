@@ -6,11 +6,12 @@ import AIUtilityAppleServices
 @main @MainActor struct AIUtilityApp: App {
     @StateObject private var model = AppModel()
     @State private var wallpaper = WallpaperStore()
+    @State private var appearance = AppearanceStore()
     var body: some Scene {
         WindowGroup {
-            RootView().environmentObject(model).environment(wallpaper).tint(UtilityTheme.cyan).preferredColorScheme(.light)
+            RootView().environmentObject(model).environment(wallpaper).environment(appearance).tint(UtilityTheme.cyan).preferredColorScheme(.light)
             #if DEBUG
-                .task { Self.applyReviewOrientation() }
+                .task { Self.applyReviewOrientation(); await Self.captureReviewScreenshot() }
             #endif
         }
     }
@@ -23,6 +24,29 @@ extension AIUtilityApp {
         guard ProcessInfo.processInfo.arguments.contains("-AIUtilityPreviewLandscape"),
               let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
+    }
+
+    /// CI review screenshots only: `-AIUtilityCapture <name>` renders the key window after the UI
+    /// settles and writes Documents/<name>.png plus <name>.txt (window size and interface orientation).
+    /// Rendering the window itself means the image always matches the real interface orientation.
+    static func captureReviewScreenshot() async {
+        let args = ProcessInfo.processInfo.arguments
+        guard let index = args.firstIndex(of: "-AIUtilityCapture"), index + 1 < args.count else { return }
+        let name = args[index + 1]
+        try? await Task.sleep(for: .seconds(6))
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first,
+              let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return }
+        let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
+            _ = window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+        }
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        try? image.pngData()?.write(to: documents.appendingPathComponent("\(name).png"))
+        let orientation: String = switch scene.interfaceOrientation {
+        case .portrait: "portrait"; case .portraitUpsideDown: "portraitUpsideDown"
+        case .landscapeLeft: "landscapeLeft"; case .landscapeRight: "landscapeRight"; default: "unknown"
+        }
+        let info = "window=\(Int(window.bounds.width))x\(Int(window.bounds.height)) orientation=\(orientation)\n"
+        try? info.write(to: documents.appendingPathComponent("\(name).txt"), atomically: true, encoding: .utf8)
     }
 }
 #endif

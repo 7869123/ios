@@ -7,6 +7,10 @@ import SwiftUI
     let open: (Workspace) -> Void
     @State private var showLiveCaptionInfo = false
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(AppearanceStore.self) private var appearance: AppearanceStore?
+    private var heroStyle: GlassStyle {
+        reduceTransparency ? .reducedTransparency : GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
+    }
 
     private struct Tile: Identifiable {
         let id: String
@@ -116,11 +120,16 @@ import SwiftUI
                     .foregroundStyle(UtilityTheme.brandStrong)
             }
             .foregroundStyle(.white)
+            // Legibility over a translucent banner: soft dark shadow under white text.
+            .shadow(color: UtilityTheme.ink.opacity(0.45 * heroStyle.legibilityBoost), radius: 3, y: 1)
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 ZStack(alignment: .topTrailing) {
-                    RoundedRectangle(cornerRadius: 22).fill(UtilityTheme.deepGradient).opacity(reduceTransparency ? 1 : 0.94)
+                    RoundedRectangle(cornerRadius: 22).fill(UtilityTheme.deepGradient).opacity(heroStyle.heroOpacity)
+                    // Local shading behind the text column, stronger as the banner gets more transparent.
+                    LinearGradient(colors: [UtilityTheme.ink.opacity(0.30 * heroStyle.legibilityBoost), .clear],
+                                   startPoint: .leading, endPoint: .trailing)
                     SlantBar(slant: 0.6).fill(.white.opacity(0.10)).frame(width: 220, height: 120).offset(x: 40, y: -10)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 22))

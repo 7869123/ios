@@ -16,6 +16,7 @@ import AIUtilityCore
     var body: some View {
         WorkspacePage {
             PageHeader(title: "连接与偏好", subtitle: "Keychain 存储 · 模型验证后提交")
+            AppearanceSettingsCard()
             WallpaperSettingsCard()
             UtilityCard {
                 Picker("配置供应商", selection: $provider) {

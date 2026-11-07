@@ -22,8 +22,6 @@ enum UtilityTheme {
     static let spacing: CGFloat = 16
     static let pagePadding: CGFloat = 24
     static let pageMaxWidth: CGFloat = 1080
-    /// White tint over the material on glass surfaces.
-    static let glassTint: Double = 0.30
 
     /// Decorative only (accent bars, halos): white text on it does not meet contrast.
     static let brandGradient = LinearGradient(colors: [brand, aqua], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -88,21 +86,28 @@ private struct DefaultBackdrop: View {
     }
 }
 
-/// Translucent "frosted glass" surface for cards and chips so the wallpaper stays visible:
-/// the thinnest system material plus a light white tint. Falls back to solid white when the user
-/// turns on Reduce Transparency.
+/// Translucent "frosted glass" surface for cards, tiles and chips. How see-through it is comes from
+/// the user's 界面透明度 (AppearanceStore → GlassStyle): white tint and blur material both fade as
+/// transparency rises. Edges stay visible through a white inner line plus a faint dark outer line, and
+/// dark text gains a soft white halo at high transparency. Reduce Transparency forces solid white.
 struct GlassSurface<S: InsettableShape>: ViewModifier {
     let shape: S
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(AppearanceStore.self) private var appearance: AppearanceStore?
     func body(content: Content) -> some View {
-        content.background {
-            if reduceTransparency {
-                shape.fill(UtilityTheme.surface)
-            } else {
-                shape.fill(.ultraThinMaterial).overlay(shape.fill(Color.white.opacity(UtilityTheme.glassTint)))
+        let style = reduceTransparency
+            ? GlassStyle.reducedTransparency
+            : GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
+        content
+            .shadow(color: .white.opacity(0.85 * style.legibilityBoost), radius: 1.5)
+            .background {
+                ZStack {
+                    shape.fill(.ultraThinMaterial).opacity(style.materialOpacity)
+                    shape.fill(Color.white.opacity(style.whiteTint))
+                }
             }
-        }
-        .overlay(shape.strokeBorder(Color.white.opacity(0.55), lineWidth: 1))
+            .overlay(shape.strokeBorder(Color.white.opacity(0.6 + 0.3 * style.legibilityBoost), lineWidth: 1))
+            .overlay(shape.stroke(UtilityTheme.ink.opacity(0.06 + 0.10 * style.legibilityBoost), lineWidth: 0.5))
     }
 }
 
