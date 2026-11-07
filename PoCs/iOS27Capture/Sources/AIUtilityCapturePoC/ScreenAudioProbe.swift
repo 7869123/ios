@@ -165,29 +165,29 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
 
 /// A distinct observer/delegate per session carries the identity even for picker callbacks with nil streams.
 @available(iOS 27.0, *)
-private final class CaptureCallbacks: NSObject, SCContentSharingPickerObserver, SCStreamDelegate, @unchecked Sendable {
+@MainActor private final class CaptureCallbacks: NSObject, SCContentSharingPickerObserver, SCStreamDelegate {
     private weak var owner: ScreenAudioProbe?
     private let session: UInt64
     @MainActor init(owner: ScreenAudioProbe, session: UInt64) {
         self.owner = owner; self.session = session
     }
-    func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
+    nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
         let identity = stream.map(ObjectIdentifier.init)
         Task { @MainActor [weak self] in
             guard let self else { return }
             self.owner?.update(filter: filter, stream: identity, session: self.session)
         }
     }
-    func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
+    nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
         terminate(stream: stream, message: "系统选择器已取消")
     }
-    func contentSharingPickerStartDidFailWithError(_ error: Error) {
+    nonisolated func contentSharingPickerStartDidFailWithError(_ error: Error) {
         terminate(stream: nil, message: "系统选择器启动失败")
     }
-    func stream(_ stream: SCStream, didStopWithError error: Error) {
+    nonisolated func stream(_ stream: SCStream, didStopWithError error: Error) {
         terminate(stream: stream, message: "系统终止采集；需人工检查中断原因")
     }
-    private func terminate(stream: SCStream?, message: String) {
+    nonisolated private func terminate(stream: SCStream?, message: String) {
         let identity = stream.map(ObjectIdentifier.init)
         Task { @MainActor [weak self] in
             guard let self else { return }

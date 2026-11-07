@@ -121,21 +121,30 @@ AIUTILITY_KEYCHAIN_TESTS=1 swift test --package-path Packages/AIUtilityAppleServ
 
 ## CI 与 iOS 27 诊断工程
 
-`.github/workflows/swift.yml` 包含 Linux Swift 6.0.3 Core 测试、macOS Core / Apple 测试、Apple iOS 模拟器构建。当前未配置 Git 远程，因此这些工作流**没有运行结果**。
+`.github/workflows/swift.yml` 包含 Linux Swift 6.0.3 Core / PoC 生命周期测试、macOS Core / Apple 测试、Apple SDK/App 构建。远程已配置为 `7869123/ios`，现为 public。旧成功记录与当前独立审查的逐轮结果见 ENGINEERING_REVIEW.md，不要把历史记录归于修改后的源码。
 
-手动触发并设置 `build_poc=true` 时，额外要求 runner 的 iOS SDK 至少为 27，然后通过 XcodeGen 生成并构建诊断 Host。SDK 不足会明确失败，不以跳过分支伪装 PoC 通过。PoC 的 Swift 5 语言模式用于隔离新 SDK 的回调隔离迁移；Core 与 AppleServices 保持 Swift 6。
+手动在目标审查分支触发，`build_apple=true` 运行普通 Apple/App；`build_poc=true` 独立运行 xcode-27 上的诊断 Host、iphoneos Archive、未签名 IPA 和预安装检查。SDK 不足明确失败。PoC 包与 Host 已改为 Swift 6；macOS 13 最低版本只服务可移植生命周期测试，采集仍要求 iOS 27。
 
 Mac 本地步骤：
 
 ```sh
 xcodebuild -version
 xcrun --sdk iphoneos --show-sdk-version
+swift test --package-path PoCs/iOS27Capture
 cd PoCs/iOS27Capture
 # 需要已安装 XcodeGen
 xcodegen generate --spec project.yml
 xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe \
   -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build
+xcodebuild archive -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe \
+  -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+  -archivePath ../../artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive \
+  -derivedDataPath ../../artifacts/poc-archive-build \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+  STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO
 ```
 
-真机安装需在生成工程中选择开发团队与 iPad，使用 Xcode 正常签名构建。模拟器编译只能检查符号与类型，不能验证跨 App 音频或 PiP 的实际行为。详细设备流程见 [IOS_POC.md](IOS_POC.md)。Windows 无 Xcode，无法在本机完成上述 Apple 构建。
+真机安装需用户控制的签名环境、可用 Team/唯一 Bundle ID、描述文件及设备配对。当前用户普通 Apple ID 且不能首次 USB 配对，安装仍受阻。Simulator 不提供 ScreenCaptureKit，只编译占位 Host 与其余可用模块；必须以 iphoneos Archive 及真机类符号检查证明采集代码未被剔除。两种编译都不证明跨 App 音频或 PiP 运行成功。详细流程见 [INSTALL_PREFLIGHT.md](INSTALL_PREFLIGHT.md)。Windows 不安装 Swift/Xcode。
+
+诊断 Release Archive 保留本地符号以供 `nm | swift-demangle` 核验真实类；仍使用 Release 优化且不签名，不上传构建缓存或 dSYM。普通发行包的符号剥离策略后续另行验证。

@@ -231,6 +231,7 @@ jobs:
             -archivePath ../../artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive \
             -derivedDataPath ../../artifacts/poc-archive-build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO \
             > ../../artifacts/poc/archive.log 2>&1
           archive_code=$?
           printf 'poc_device_archive=%s\n' "$archive_code" >> ../../artifacts/poc/exit-codes.txt

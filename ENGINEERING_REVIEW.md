@@ -57,6 +57,13 @@ Linux Core 和 11 项生命周期测试通过；macOS 生命周期测试及模�
 修复是在回调入口取 ObjectIdentifier，跨隔离仅传身份；不再传 SCStream，也不新增 unchecked 包装。
 PiP 的 ConformanceIsolation 诊断已消失，弃用警告仍保留。补充停止调用方 Task 被取消时释放仍完成的回归。
 
+第三轮 `518dc35` / [42376481364](https://github.com/7869123/ios/actions/runs/42376481364)：
+Linux、Apple 包通过；PoC 12 项生命周期、模拟器、Swift 6 iphoneos Archive 均通过，IPA 已生成。
+新增的类符号检查失败：默认 Release Archive 剥离本地符号，nm 只剩导入符号，不能据此判断代码被剔除。
+修复为诊断 Release 明确保留本地符号（STRIP_INSTALLED_PRODUCT=NO / COPY_PHASE_STRIP=NO），继续核验实际可执行文件，
+不删除检查、不关闭 Release 优化。另将新回调代理改为 MainActor + nonisolated 协议入口，移除代理上不必要的 unchecked Sendable。
+已通过普通 merge 保留 Claude 后续 03c3e40 和 d7859b0，UI、资源及其截图脚本相对该基线无工程审查改动。
+
 低成本检查：`python scripts/check_repository.py`、`git diff --check`；只是源码卫生/plist 检查。
 完整验证：当前审查分支手动触发 `.github/workflows/swift.yml`，同时设置
 `build_apple=true`、`build_poc=true`、`publish_previews=false`。
