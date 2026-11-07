@@ -116,6 +116,19 @@ jobs:
           retention-days: 7
           if-no-files-found: error
           include-hidden-files: false
+      - name: Print downscaled iPad mini previews into the log (review aid)
+        if: always() && steps.checkout.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          for n in ipad-mini-landscape ipad-mini-portrait; do
+            f="artifacts/app/screenshots/$n.png"
+            [ -f "$f" ] || { echo "missing $f"; continue; }
+            sips -s format jpeg -s formatOptions 60 -Z 900 "$f" --out "$RUNNER_TEMP/$n.jpg" >/dev/null
+            echo "=====BEGIN $n.jpg====="
+            base64 -i "$RUNNER_TEMP/$n.jpg" | fold -w 2000
+            echo "=====END $n.jpg====="
+          done
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux
