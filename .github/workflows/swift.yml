@@ -203,6 +203,36 @@ jobs:
           (cd artifacts/ipa && zip -qry PoC-unsigned.ipa Payload)
           unzip -l artifacts/ipa/PoC-unsigned.ipa | tail -n 5 | tee -a artifacts/poc/ipa-contents.log
           shasum -a 256 artifacts/ipa/PoC-unsigned.ipa | tee -a artifacts/poc/ipa-contents.log
+      - name: Pre-install audit of the packaged app
+        shell: bash
+        run: |
+          set -euo pipefail
+          app=$(ls -d artifacts/ipa/Payload/*.app)
+          plist="$app/Info.plist"
+          exe="$app/$(plutil -extract CFBundleExecutable raw -o - "$plist")"
+          fail=0
+          check() { if eval "$2"; then echo "PASS  $1"; else echo "FAIL  $1"; fail=1; fi; }
+          {
+            echo "== Info.plist (built)"; plutil -p "$plist"
+            echo "== linked frameworks"; otool -L "$exe"
+            echo "== Xcode-generated entitlements (.xcent) for the archive"
+            xcent=$(find artifacts/poc-archive-build -name '*.xcent' -print 2>/dev/null || true)
+            if [ -n "$xcent" ]; then for f in $xcent; do echo "-- $f"; plutil -p "$f" || cat "$f"; done; else echo "none generated"; fi
+            echo "== embedded.mobileprovision"; ls "$app/embedded.mobileprovision" 2>/dev/null || echo "absent (expected for unsigned IPA)"
+            echo "== checks"
+            check "CFBundleIdentifier == com.aiutility.capture-probe" '[ "$(plutil -extract CFBundleIdentifier raw -o - "$plist")" = com.aiutility.capture-probe ]'
+            check "MinimumOSVersion >= 27" '[ "$(plutil -extract MinimumOSVersion raw -o - "$plist" | cut -d. -f1)" -ge 27 ]'
+            check "NSSpeechRecognitionUsageDescription non-empty" '[ -n "$(plutil -extract NSSpeechRecognitionUsageDescription raw -o - "$plist")" ]'
+            check "UIBackgroundModes contains audio" 'plutil -extract UIBackgroundModes json -o - "$plist" | grep -q "\"audio\""'
+            check "UIBackgroundModes contains screen-capture" 'plutil -extract UIBackgroundModes json -o - "$plist" | grep -q "\"screen-capture\""'
+            check "binary links ScreenCaptureKit (capture code not compiled out)" 'otool -L "$exe" | grep -q ScreenCaptureKit.framework'
+            check "binary links Speech" 'otool -L "$exe" | grep -q Speech.framework'
+            check "binary links AVKit" 'otool -L "$exe" | grep -q AVKit.framework'
+            check "no NSMicrophoneUsageDescription (PoC does not use mic)" '! plutil -extract NSMicrophoneUsageDescription raw -o - "$plist" >/dev/null 2>&1'
+            check "IPA is unsigned" '! codesign -v "$app" >/dev/null 2>&1'
+          } > artifacts/poc/preinstall-audit.log 2>&1
+          cat artifacts/poc/preinstall-audit.log
+          test "$fail" -eq 0
       - uses: actions/upload-artifact@v4
         id: ipa
         with:
@@ -220,6 +250,7 @@ jobs:
             artifacts/poc/simulator-build.log
             artifacts/poc/archive.log
             artifacts/poc/ipa-contents.log
+            artifacts/poc/preinstall-audit.log
             artifacts/poc/exit-codes.txt
           retention-days: 7
           if-no-files-found: warn
