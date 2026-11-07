@@ -20,7 +20,7 @@
 实际命令（Python 使用已有 Codex 运行时中的 python.exe）：
 
 ```powershell
-& 'C:/Users/7869/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' scripts/verify_core.py --output validation/round2-core
+python scripts/verify_core.py --output validation/round2-core
 ```
 
 验证启动器退出码 **2**。该码表示缺少编译器，**不是 Swift 返回了 2**。启动器准备执行的 `swift --version`、`swift build --package-path Packages/AIUtilityCore`、`swift test --package-path Packages/AIUtilityCore` 均为 not_started；没有启动 Swift 进程，因此其退出码在 JSON 中为 null。

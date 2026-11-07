@@ -19,7 +19,7 @@ SwiftUI App 位于 Apps/AIUtility。`bash scripts/ci_app.sh` 生成真实 Xcode 
 2026-11-07 第二轮仍没有可用 Swift 编译器，没有安装大型全局依赖。下面的验证脚本**只调用真实 Swift**，不使用语法解析替代；默认关闭付费 API / Keychain 集成测试：
 
 ```powershell
-& 'C:/Users/7869/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' scripts/verify_core.py --output validation/round2-core
+python scripts/verify_core.py --output validation/round2-core
 ```
 
 实际启动器退出码 **2**；三个命令为 not_started，Swift 退出码为 null，执行测试 **0**。这不表示 Swift 编译失败产生诊断，而是编译进程没有启动。记录在 validation/round2-core/。本轮源码修复和回归测试未经类型检查。
@@ -55,7 +55,7 @@ docker run --rm -v "$PWD:/workspace" -w /workspace swift:6.0.3 \
 
 ```powershell
 $env:PYTHONPATH = (Join-Path (Get-Location) 'artifacts/qa-python')
-& 'C:/Users/7869/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' scripts/check_repository.py --swift-grammar
+python scripts/check_repository.py --swift-grammar
 git diff --check
 ```
 
