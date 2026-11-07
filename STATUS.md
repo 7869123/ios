@@ -1,5 +1,12 @@
 # AIUtility 开发状态
 
+## iOS 27 PoC 安装前审查（2026-11-07）
+
+- 真机安装暂停：用户仅能远程控制 Windows 11，iPad 无法 USB 连接，无付费开发者账号。**PoC 未通过任何真机验证。**
+- xcode-27 上模拟器构建、真机 Release archive、未签名 IPA 打包与 10 项预安装审查全部通过；真机二进制确认链接 ScreenCaptureKit / Speech / AVKit。
+- 免费 Personal Team：官方资料显示本 PoC 用到的 Background Modes 对免费层级可用，ScreenCaptureKit / PiP / Speech 无需 entitlement；但 `screen-capture` 在免费签名下能否实际授权采集未确认。Windows 侧载工具首次配对需 USB（第三方资料）。
+- 完整报告与 Windows + 免费 Apple ID 安装步骤见 [INSTALL_PREFLIGHT.md](INSTALL_PREFLIGHT.md)。
+
 ## iOS 27 PoC CI 修正（2026-11-07）
 
 - **原因**：`poc-sdk` 一直失败，是因为 `macos-latest` 镜像（macOS 26）最高只有 iOS 26.5 SDK，过不了 “Require iOS 27 SDK” 检查，PoC 源码从未被编译。

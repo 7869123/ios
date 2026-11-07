@@ -23,6 +23,10 @@
 - iphoneos archive 首次真实编译两文件，报 `SCStream.updateContentFilter` 与 `SCStreamConfiguration.minimumFrameInterval` 在 iOS 上 unavailable。已修正：删去 `minimumFrameInterval`（屏幕帧本就丢弃）；采集中收到选择器范围更新时忽略并提示先停止，不再调用 `updateContentFilter`。
 - 尚余 warning：SubtitlePiPProbe 的 PiP delegate conformance 跨 main actor 隔离（Swift 6 下为错误）；`AVSampleBufferDisplayLayer` 的 enqueue/flush/status 等自 iOS 18 弃用。
 
+### 安装前审查（2026-11-07）
+
+模拟器条件编译已修复（仅 Host 在无 ScreenCaptureKit 时显示占位界面，真机采集代码不变），并新增 `NSScreenCaptureUsageDescription`（防御性添加，iOS 是否强制要求未确认）。Bundle ID、Info.plist、隐私说明、后台模式、entitlements 与免费 Personal Team 结论见 [INSTALL_PREFLIGHT.md](INSTALL_PREFLIGHT.md)。
+
 ### 待真机验证的新增风险
 
 1. **音频会话类别**：SubtitlePiPProbe 当前使用 `.playback` + `.moviePlayback` + `.mixWithOthers`。`.playback` 与 `.playAndRecord` 在后台存活、与来源 App 混音/打断、路由及采集是否被系统静音方面可能不同；需在 iPad 上分别对比后台采集持续性与 RMS。
