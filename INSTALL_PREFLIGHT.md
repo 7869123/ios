@@ -40,7 +40,7 @@
 
 | 键 | 值 | 结论 |
 |---|---|---|
-| CFBundleIdentifier | `com.aiutility.capture-probe` | 免费团队安装时**必须改成你自己唯一的 ID**，例如 `com.<你的名字>.captureprobe`。原 ID 很可能已被他人注册，也无法在你的 Personal Team 下使用 |
+| CFBundleIdentifier | `com.aiutility.capture-probe` | 签名时使用所属 Team 可注册的唯一 ID，例如 `com.<你的名字>.captureprobe`。未查询原 ID 是否被占用；不能凭未签名产物断言它可用或不可用 |
 | CFBundleDisplayName / Version | AIUtility Probe / 0.1 (1) | — |
 | MinimumOSVersion | 27.0 | iPadOS 27.2 满足 |
 | UIDeviceFamily | 1, 2（iPhone、iPad） | iPad mini 6 满足 |
@@ -66,7 +66,7 @@
 ### 已验证（官方）
 
 - **Background Modes 对免费层级可用**：Apple「Supported capabilities (iOS)」表格中，"Apple Developer"（免费）一列勾选了 Background modes。没有勾选的包括 Push、iCloud、Siri、Associated domains、Sign in with Apple、Game Center、In-App Purchase、Network extensions 等。本 PoC 都不使用。
-- **其他能力无需 entitlement**：ScreenCaptureKit（iOS 27 起）、`SCContentSharingPicker`、`capturesAudio`、PiP、Speech 的官方文档和示例都没有提到 entitlement 或付费账号。
+- **参考文档未列出专属 entitlement**：当前参考的 ScreenCaptureKit iOS 示例、PiP、Speech 页面没有要求这些额外声明。这是文档观察，不是免费团队签名或系统授权的验证；未签名 CI 不会检查 Team 的权限。
 - **免费签名的数量和期限**：最多 10 个 App ID（7 天后过期）；最多 3 台设备；每台设备最多 3 个 App；描述文件 7 天过期，到期需重签重装。Personal Team 的证书和描述文件只能在 Xcode 中管理。
 - **iOS 16 起需开启开发者模式**：安装开发签名的 App 前，要在「设置 > 隐私与安全性 > 开发者模式」中开启。该开关在设备与电脑配对后才会出现。
 
@@ -81,15 +81,17 @@
 3. 后台持续采集、本地 Speech 和 PiP 能否同时长期运行。这个问题与账号类型无关，属于 PoC 本身的验证目标。
 4. 能否采集到其他 App 的音频。目前没有任何官方示例证明可以。
 
-**结论**：从已有资料看，本 PoC 不依赖付费账号独有的 capability，免费 Personal Team **在资料上**可以签名本 App。但"签名成功"不等于"能采集"，第 1、2 项必须在真机上确认。
+**结论**：没有发现当前参考资料列出的付费独有能力要求；免费 Personal Team 是否能签名并取得所有所需权限仍需实际验证。不能用文档未提 entitlement 或 CI 无 `.xcent` 推导权限已满足。"签名成功"也不等于"能采集"，第 1、2 项必须在真机上确认。
 
-## 5. 尚存的代码风险（未修改，待真机验证）
+## 5. 代码风险与独立修复
+
+独立工程审查见 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md)。并发停止、迟到回调、PiP 隔离与资源清理正在单独 PR 中修复，不能把旧运行 42366153728 当作修复后的验证。Swift 6 编译及回归结果以该报告的最终运行记录为准。
 
 - 音频会话使用 `.playback`；它与 `.playAndRecord` 对后台采集的影响不同，需要对比验证。
-- `ScreenAudioProbe.start()` 失败时会重复执行 stop。
+- 原实现 `ScreenAudioProbe.start()` 失败时会重复执行 stop；独立修复使用共用释放屏障，需同时核对回归和 SDK 编译证据。
 - Host 的 ASR 写死为 `en-US`，需改为目标内容语言。
 - 采集中更换共享范围目前被忽略，需先停止再重新选择。
-- 编译警告：PiP delegate 跨 main actor 隔离；`AVSampleBufferDisplayLayer` 的 enqueue/flush 等方法自 iOS 18 弃用。
+- 旧编译警告：PiP delegate 跨 main actor 隔离；独立修复显式拆分 nonisolated 回调与 MainActor 更新。`AVSampleBufferDisplayLayer` 的 enqueue/flush 等方法自 iOS 18 弃用，迁移仍待后续处理。
 
 ## 6. 未来通过 Windows + 免费 Apple ID 签名安装的步骤
 

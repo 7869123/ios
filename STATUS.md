@@ -1,5 +1,12 @@
 # AIUtility 开发状态
 
+## 独立工程审查（2026-11-07，验证进行中）
+
+- 仓库已 public；main 保持 f17d20d，UI 分支 claude/ecstatic-planck-rzpvn6 保持独立，工程修复在 codex/poc-engineering-audit。
+- 只读证据与 P0/P1/P2 分级、修复范围和实际 CI 失败原因见 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md)。未修改 UI/资源/Core。
+- 旧 PoC 运行 42366153728 已证明 SDK 27.1 Archive、未签名 IPA、11 项预安装检查通过；下文早期“10 项”“没有 SDK/IPA”属于历史记录。
+- 修复后正在验证 Swift 6 与生命周期回归。编译不等于真机采集；iPad、免费签名和首次 USB 配对阻碍仍未解除。
+
 ## 批量开发节奏与 CI 成本（2026-11-07）
 
 - 改为批量本地开发、集中验证。PR 更新只跑 Linux Core；macOS 完整验证（Apple 包、App、截图）改为手动 `build_apple`，合并前必须通过；push 只在 main 触发完整链；同一引用的新运行取消旧运行。此前每次推送 PR 分支会触发两次 macOS 完整构建。

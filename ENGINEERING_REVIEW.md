@@ -51,6 +51,12 @@ Linux Core 36 通过/1 跳过，初版生命周期 8 通过；PoC macOS 测试�
 后续同时补充共用异步停止屏障，确保并发 stop 都等待同一份释放，并增加三项实际释放回归。
 完整最终结果、逐 Job 状态与命令退出码将在验证后补充到本节及 STATUS.md。
 
+第二轮 `a0fd2c7` / [42376094393](https://github.com/7869123/ios/actions/runs/42376094393)：
+Linux Core 和 11 项生命周期测试通过；macOS 生命周期测试及模拟器构建通过。
+真实 iphoneos Swift 6 Archive 退出 65，诊断为回调把非 Sendable `SCStream` 传入 MainActor（ScreenAudioProbe 两处）。
+修复是在回调入口取 ObjectIdentifier，跨隔离仅传身份；不再传 SCStream，也不新增 unchecked 包装。
+PiP 的 ConformanceIsolation 诊断已消失，弃用警告仍保留。补充停止调用方 Task 被取消时释放仍完成的回归。
+
 低成本检查：`python scripts/check_repository.py`、`git diff --check`；只是源码卫生/plist 检查。
 完整验证：当前审查分支手动触发 `.github/workflows/swift.yml`，同时设置
 `build_apple=true`、`build_poc=true`、`publish_previews=false`。

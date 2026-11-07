@@ -7,6 +7,24 @@ import Testing
     func resume() { continuation?.resume(); continuation = nil }
 }
 
+@Test @MainActor func cancellingStopCallerStillFinishesResourceRelease() async throws {
+    let gate = ProbeLifecycle()
+    _ = try #require(gate.begin())
+    let pause = ReleasePause()
+    let stop = Task { @MainActor in await gate.stop { await pause.wait() } }
+    for _ in 0..<1_000 { if pause.continuation != nil { break }; await Task.yield() }
+    let started = pause.continuation != nil
+    #expect(started)
+    guard started else { stop.cancel(); return }
+    stop.cancel()
+    #expect(gate.phase == .stopping)
+    #expect(gate.begin() == nil)
+    pause.resume()
+    await stop.value
+    #expect(gate.phase == .idle)
+    #expect(gate.begin() != nil)
+}
+
 @Test @MainActor func concurrentStopsAwaitOneActualRelease() async throws {
     let gate = ProbeLifecycle()
     _ = try #require(gate.begin())

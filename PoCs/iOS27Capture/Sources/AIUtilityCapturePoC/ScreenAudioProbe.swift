@@ -89,8 +89,8 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         state = "请选择整个屏幕；本操作需要系统授权"
         picker.present()
     }
-    fileprivate func update(filter: SCContentFilter, stream source: SCStream?, session: UInt64) {
-        guard lifecycle.accepts(session), source == nil || source === stream, !starting else { return }
+    fileprivate func update(filter: SCContentFilter, stream source: ObjectIdentifier?, session: UInt64) {
+        guard lifecycle.accepts(session), source == nil || source == stream.map(ObjectIdentifier.init), !starting else { return }
         if stream != nil {
             // SCStream.updateContentFilter is unavailable on iOS (iOS 27.1 SDK); ignore range changes while capturing.
             state = "采集中忽略范围更新；如需更换范围请先停止"
@@ -152,8 +152,8 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         starting = false
         state = "已停止；无真机结论"
     }
-    fileprivate func terminate(session: UInt64, source: SCStream?, message: String) async {
-        guard lifecycle.accepts(session), source == nil || source === stream else { return }
+    fileprivate func terminate(session: UInt64, source: ObjectIdentifier?, message: String) async {
+        guard lifecycle.accepts(session), source == nil || source == stream.map(ObjectIdentifier.init) else { return }
         let notify = onTermination
         await stop()
         // stop() keeps restart blocked until release finishes. No stale callback may stop a newer session.
@@ -172,9 +172,10 @@ private final class CaptureCallbacks: NSObject, SCContentSharingPickerObserver, 
         self.owner = owner; self.session = session
     }
     func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
+        let identity = stream.map(ObjectIdentifier.init)
         Task { @MainActor [weak self] in
             guard let self else { return }
-            self.owner?.update(filter: filter, stream: stream, session: self.session)
+            self.owner?.update(filter: filter, stream: identity, session: self.session)
         }
     }
     func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
@@ -187,9 +188,10 @@ private final class CaptureCallbacks: NSObject, SCContentSharingPickerObserver, 
         terminate(stream: stream, message: "系统终止采集；需人工检查中断原因")
     }
     private func terminate(stream: SCStream?, message: String) {
+        let identity = stream.map(ObjectIdentifier.init)
         Task { @MainActor [weak self] in
             guard let self else { return }
-            await self.owner?.terminate(session: self.session, source: stream, message: message)
+            await self.owner?.terminate(session: self.session, source: identity, message: message)
         }
     }
 }
