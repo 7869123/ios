@@ -55,18 +55,49 @@ enum WallpaperError: Error {
     case unreadable, encodeFailed
 }
 
-/// Local-only wallpaper: a downscaled JPEG in Application Support plus layout in UserDefaults.
+enum WallpaperMode: String, Sendable {
+    /// User-chosen image stored locally.
+    case custom
+    /// Bundled DefaultWallpaper.jpg (user-supplied 2026-11-07, see UIUX_SPEC.md for usage limits).
+    case bundled
+    /// Plain designed backdrop, no image.
+    case plain
+}
+
+/// Wallpaper state: custom image (local JPEG in Application Support), bundled default, or none.
+/// Layout and scrim live in UserDefaults.
 @Observable @MainActor final class WallpaperStore {
+    private(set) var mode: WallpaperMode = .bundled
     private(set) var image: UIImage?
     private(set) var layout = WallpaperLayout()
     /// White overlay opacity over the wallpaper, keeps text readable.
     private(set) var scrim: Double = 0.55
     static let scrimRange: ClosedRange<Double> = 0.2...0.85
+    /// Keeps the bundled illustration's face in frame in both orientations.
+    static let bundledLayout = WallpaperLayout(focusX: 0.5, focusY: 0.33, zoom: 1)
+    static let bundledScrim = 0.5
 
     private let defaults = UserDefaults.standard
 
+    var hasBundledDefault: Bool { Self.bundledURL != nil }
+    private static let bundledURL = Bundle.main.url(forResource: "DefaultWallpaper", withExtension: "jpg")
+
     init() {
-        if let data = try? Data(contentsOf: Self.fileURL) { image = UIImage(data: data) }
+        let stored = defaults.string(forKey: Keys.mode).flatMap(WallpaperMode.init(rawValue:))
+        let customImage = (try? Data(contentsOf: Self.fileURL)).flatMap(UIImage.init(data:))
+        switch stored {
+        case .custom? where customImage != nil, nil where customImage != nil:
+            mode = .custom; image = customImage
+        case .plain?: mode = .plain
+        default:
+            // First launch, or custom file missing: fall back to the bundled default if present.
+            if let bundled = Self.bundledImage() {
+                mode = .bundled; image = bundled
+                if stored != .bundled { layout = Self.bundledLayout; scrim = Self.bundledScrim; return }
+            } else {
+                mode = .plain
+            }
+        }
         if defaults.object(forKey: Keys.focusX) != nil {
             layout = WallpaperLayout(focusX: defaults.double(forKey: Keys.focusX),
                                      focusY: defaults.double(forKey: Keys.focusY),
@@ -81,6 +112,7 @@ enum WallpaperError: Error {
         try FileManager.default.createDirectory(at: Self.directory, withIntermediateDirectories: true)
         try imageData.write(to: Self.fileURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
         image = decoded
+        setMode(.custom)
         update(layout: layout, scrim: scrim)
     }
 
@@ -93,11 +125,34 @@ enum WallpaperError: Error {
         defaults.set(self.scrim, forKey: Keys.scrim)
     }
 
-    func remove() {
+    /// Deletes any custom image and shows the bundled default (or the plain backdrop if none is bundled).
+    func restoreDefault() {
+        try? FileManager.default.removeItem(at: Self.fileURL)
+        if let bundled = Self.bundledImage() {
+            image = bundled
+            setMode(.bundled)
+            update(layout: Self.bundledLayout, scrim: Self.bundledScrim)
+        } else {
+            usePlainBackdrop()
+        }
+    }
+
+    /// Plain designed backdrop; deletes any custom image.
+    func usePlainBackdrop() {
         try? FileManager.default.removeItem(at: Self.fileURL)
         image = nil
-        layout = WallpaperLayout()
-        for key in [Keys.focusX, Keys.focusY, Keys.zoom] { defaults.removeObject(forKey: key) }
+        setMode(.plain)
+    }
+
+    private func setMode(_ mode: WallpaperMode) {
+        self.mode = mode
+        defaults.set(mode.rawValue, forKey: Keys.mode)
+    }
+
+    private static func bundledImage() -> UIImage? {
+        bundledURL
+            .flatMap { try? Data(contentsOf: $0) }
+            .flatMap(UIImage.init(data:))
     }
 
     /// Decodes any ImageIO-supported image (JPEG, PNG, HEIC…), applies EXIF orientation, downsizes the
@@ -121,6 +176,7 @@ enum WallpaperError: Error {
 
     private enum Keys {
         static let focusX = "wallpaper.focusX", focusY = "wallpaper.focusY", zoom = "wallpaper.zoom", scrim = "wallpaper.scrim"
+        static let mode = "wallpaper.mode"
     }
     private static var directory: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Wallpaper", isDirectory: true)

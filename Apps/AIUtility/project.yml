@@ -11,7 +11,7 @@ targets:
   AIUtility:
     type: application
     platform: iOS
-    sources: [Sources]
+    sources: [Sources, Resources]
     dependencies:
       - package: AIUtilityCore
       - package: AIUtilityAppleServices

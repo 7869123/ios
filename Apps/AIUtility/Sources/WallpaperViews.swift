@@ -169,7 +169,7 @@ struct WallpaperDraft: Identifiable {
             HStack {
                 Text("壁纸").font(.headline)
                 Spacer()
-                if store.image != nil { StatusChip(status: .available) }
+                Text(modeTitle).font(.caption.weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             }
             Text("选择一张图片作为页面背景。图片只保存在本机 App 目录，会缩小到长边 3000 像素并去除位置等元数据，不会上传。")
                 .font(.caption).foregroundStyle(.secondary)
@@ -195,6 +195,10 @@ struct WallpaperDraft: Identifiable {
         }
     }
 
+    private var modeTitle: String {
+        switch store.mode { case .custom: "自定义壁纸"; case .bundled: "默认壁纸"; case .plain: "纯色背景" }
+    }
+
     @ViewBuilder private var buttons: some View {
         PhotosPicker(selection: $photoItem, matching: .images) {
             Label(store.image == nil ? "从照片选择" : "从照片更换", systemImage: "photo.on.rectangle")
@@ -208,8 +212,18 @@ struct WallpaperDraft: Identifiable {
                 draft = WallpaperDraft(image: image, data: nil, layout: store.layout, scrim: store.scrim)
             } label: { Label("调整位置", systemImage: "arrow.up.and.down.and.arrow.left.and.right") }
                 .buttonStyle(.bordered).disabled(loading)
-            Button(role: .destructive) { store.remove(); message = "已恢复默认背景。" } label: { Label("恢复默认", systemImage: "arrow.uturn.backward") }
-                .buttonStyle(.bordered).disabled(loading)
+        }
+        if store.mode == .custom || (store.mode == .plain && store.hasBundledDefault) {
+            Button { store.restoreDefault(); message = "已使用默认壁纸。" } label: {
+                Label("使用默认壁纸", systemImage: "arrow.uturn.backward")
+            }
+            .buttonStyle(.bordered).disabled(loading)
+        }
+        if store.mode != .plain {
+            Button(role: .destructive) { store.usePlainBackdrop(); message = "已改为纯色背景。" } label: {
+                Label("纯色背景", systemImage: "square.slash")
+            }
+            .buttonStyle(.bordered).disabled(loading)
         }
     }
 
