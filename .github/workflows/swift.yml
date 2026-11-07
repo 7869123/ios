@@ -14,6 +14,10 @@ on:
         description: 'Require an iOS 27 SDK and compile the diagnostic host (not device acceptance)'
         type: boolean
         default: false
+      publish_previews:
+        description: 'Commit downscaled app screenshots to validation/ui-preview on this branch (needs build_apple)'
+        type: boolean
+        default: false
 permissions:
   contents: read
 env:
@@ -84,6 +88,8 @@ jobs:
   app:
     needs: [core-linux, apple]
     runs-on: macos-latest
+    permissions:
+      contents: write
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
@@ -116,19 +122,24 @@ jobs:
           retention-days: 7
           if-no-files-found: error
           include-hidden-files: false
-      - name: Print downscaled iPad mini previews into the log (review aid)
-        if: always() && steps.checkout.outcome == 'success'
-        continue-on-error: true
+      - name: Commit downscaled previews to this branch (manual review runs only)
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_previews
         shell: bash
+        env:
+          TOKEN: ${{ github.token }}
         run: |
-          for n in ipad-mini-landscape ipad-mini-portrait; do
+          set -euo pipefail
+          mkdir -p validation/ui-preview
+          for n in ipad-mini-landscape ipad-mini-portrait iphone-landscape iphone-portrait; do
             f="artifacts/app/screenshots/$n.png"
-            [ -f "$f" ] || { echo "missing $f"; continue; }
-            sips -s format jpeg -s formatOptions 60 -Z 900 "$f" --out "$RUNNER_TEMP/$n.jpg" >/dev/null
-            echo "=====BEGIN $n.jpg====="
-            base64 -i "$RUNNER_TEMP/$n.jpg" | fold -w 2000
-            echo "=====END $n.jpg====="
+            [ -f "$f" ] && sips -s format jpeg -s formatOptions 70 -Z 1200 "$f" --out "validation/ui-preview/$n.jpg" >/dev/null
           done
+          printf 'run=%s\nsha=%s\n' "${{ github.run_id }}" "${{ github.sha }}" > validation/ui-preview/SOURCE.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add validation/ui-preview
+          git commit -m "Update UI review previews from run ${{ github.run_id }}" || { echo "no changes"; exit 0; }
+          git push "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}" "HEAD:${{ github.ref_name }}"
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux
