@@ -21,7 +21,8 @@ func invalidKeyRollsBackAllBindings(_ provider: ProviderID) async throws {
     await #expect(throws: AIUtilityError.unauthorized) {
         try await coordinator.saveKey(provider: provider, key: APIKey("bad-key"), models: [.discordScreenshot: "new-image"])
     }
-    let saved = try #require(store.load(provider: provider))
+    let savedRecord = try store.load(provider: provider)
+    let saved = try #require(savedRecord)
     #expect(saved.key.withValue { $0 == "original-key" })
     #expect(saved.models == [.discordScreenshot: "old-image", .videoSubtitle: "old-video"])
 }
@@ -98,7 +99,8 @@ func invalidKeyRollsBackAllBindings(_ provider: ProviderID) async throws {
     await #expect(throws: AIUtilityError.storageFailure) {
         try await coordinator.saveKey(provider: .openAI, key: APIKey("new-key"), models: [.videoSubtitle: "new"])
     }
-    let old = try #require(store.load(provider: .openAI))
+    let oldRecord = try store.load(provider: .openAI)
+    let old = try #require(oldRecord)
     #expect(old.key.withValue { $0 == "old-key" })
     #expect(old.models[.videoSubtitle] == "old")
 }

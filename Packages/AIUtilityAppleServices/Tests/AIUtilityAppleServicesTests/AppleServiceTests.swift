@@ -12,7 +12,8 @@ func keychainReplacesSingleProviderRecordAtomically() throws {
         models: [.discordScreenshot: "a", .videoSubtitle: "b"]))
     try store.replace(provider: .openAI, configuration: ProviderConfiguration(key: APIKey("fake-second"),
         models: [.discordScreenshot: "c", .videoSubtitle: "d"]))
-    let config = try #require(store.load(provider: .openAI))
+    let storedConfiguration = try store.load(provider: .openAI)
+    let config = try #require(storedConfiguration)
     #expect(config.key.withValue { $0 == "fake-second" })
     #expect(config.models == [.discordScreenshot: "c", .videoSubtitle: "d"])
     #expect(try store.load(provider: .anthropic)?.models == nil)

@@ -34,7 +34,8 @@ func truncationAndRefusalNeverCountAsValidation(_ provider: ProviderID) async th
         await #expect(throws: expected) {
             try await coordinator.saveKey(provider: provider, key: APIKey("candidate-key"), models: [.videoSubtitle: "new"])
         }
-        let saved = try #require(store.load(provider: provider))
+        let savedRecord = try store.load(provider: provider)
+        let saved = try #require(savedRecord)
         #expect(saved.key.withValue { $0 == "old-key" })
         #expect(saved.models == [.discordScreenshot: "old", .videoSubtitle: "old"])
     }
@@ -83,7 +84,8 @@ func truncationAndRefusalNeverCountAsValidation(_ provider: ProviderID) async th
     task.cancel()
     await adapter.release()
     await #expect(throws: AIUtilityError.cancelled) { try await task.value }
-    let old = try #require(store.load(provider: .openAI))
+    let oldRecord = try store.load(provider: .openAI)
+    let old = try #require(oldRecord)
     #expect(old.key.withValue { $0 == "old-key" })
     #expect(old.models[.videoSubtitle] == "old")
 }
@@ -102,7 +104,8 @@ func truncationAndRefusalNeverCountAsValidation(_ provider: ProviderID) async th
     }
     await adapter.release()
     try await replacement.value
-    let saved = try #require(store.load(provider: .openAI))
+    let savedRecord = try store.load(provider: .openAI)
+    let saved = try #require(savedRecord)
     #expect(saved.key.withValue { $0 == "new-key" })
     #expect(saved.models[.videoSubtitle] == "new")
 }

@@ -13,7 +13,9 @@ func officialWireFormat(_ provider: ProviderID) async throws {
     let request = try #require(requests.first)
     #expect(request.httpMethod == "POST")
     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer test-key-only")
-    let body = try #require(JSONSerialization.jsonObject(with: try #require(request.httpBody)) as? [String: Any])
+    let requestData = try #require(request.httpBody)
+    let requestJSON = try JSONSerialization.jsonObject(with: requestData)
+    let body = try #require(requestJSON as? [String: Any])
     #expect(body["model"] as? String == "chosen-model")
     switch provider {
     case .openAI:
