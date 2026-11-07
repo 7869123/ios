@@ -67,6 +67,7 @@ import SwiftUI
             Text("工作台").font(.largeTitle.bold()).foregroundStyle(UtilityTheme.ink)
             Text("翻译、字幕与媒体工具的统一入口").font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
         }
+        .legibleOnWallpaper()
     }
 
     private var providerSummary: some View {
@@ -147,6 +148,7 @@ import SwiftUI
                 SlantBar().fill(UtilityTheme.brand).frame(width: 16, height: 14)
                 Text(title).font(.title3.bold()).foregroundStyle(UtilityTheme.ink)
             }
+            .legibleOnWallpaper()
             .accessibilityAddTraits(.isHeader)
             LazyVGrid(columns: columns, spacing: UtilityTheme.spacing) {
                 ForEach(tiles) { tile in

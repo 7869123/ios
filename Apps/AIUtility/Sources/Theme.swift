@@ -10,7 +10,7 @@ enum UtilityTheme {
     static let aqua = Color(red: 0.24, green: 0.80, blue: 0.90)         // #3CCBE6
     static let ink = Color(red: 0.08, green: 0.16, blue: 0.24)          // #14283C
     /// Secondary text: darker than system .secondary so it stays readable over wallpapers.
-    static let inkSecondary = ink.opacity(0.74)
+    static let inkSecondary = ink.opacity(0.85)
     static let canvas = Color(red: 0.95, green: 0.97, blue: 0.99)       // #F2F8FD
     static let surface = Color.white
     static let stroke = brand.opacity(0.16)
@@ -135,6 +135,24 @@ extension View {
     func utilityField() -> some View { modifier(UtilityFieldStyle()) }
 }
 
+/// Text placed directly on the page backdrop (headers, section titles): when a wallpaper image is
+/// showing, add a layered white halo so dark text reads over any part of the picture. No effect on
+/// the plain backdrop.
+struct LegibleOnWallpaper: ViewModifier {
+    @Environment(WallpaperStore.self) private var wallpaper: WallpaperStore?
+    func body(content: Content) -> some View {
+        let on = wallpaper?.image != nil
+        content
+            .shadow(color: .white.opacity(on ? 0.95 : 0), radius: 1)
+            .shadow(color: .white.opacity(on ? 0.85 : 0), radius: 4)
+            .shadow(color: .white.opacity(on ? 0.55 : 0), radius: 10)
+    }
+}
+
+extension View {
+    func legibleOnWallpaper() -> some View { modifier(LegibleOnWallpaper()) }
+}
+
 /// Press feedback for tappable cards: slight scale and dim; no scale when Reduce Motion is on.
 struct PressableCardStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -190,7 +208,9 @@ struct StatusChip: View {
             Text("AIUTILITY / WORKSPACE").font(.caption.monospaced().weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             Text(title).font(.largeTitle.bold()).foregroundStyle(UtilityTheme.ink)
             Text(subtitle).font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
-        }.frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12)
+        }
+        .legibleOnWallpaper()
+        .frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12)
     }
 }
 

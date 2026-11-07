@@ -38,8 +38,8 @@ struct GlassStyle: Equatable, Sendable {
     var heroOpacity: Double {
         transparency <= 0.9 ? 1 - 0.22 * (transparency / 0.9) : 0.78 - 2.8 * (transparency - 0.9)
     }
-    /// 0 until 0.6, then ramps to 1: strength of legibility aids (text halo, hero text shading).
-    var legibilityBoost: Double { min(1, max(0, (transparency - 0.6) / 0.4)) }
+    /// 0 until 0.5, then ramps to full strength at 0.8: legibility aids (text halo, hero text shading).
+    var legibilityBoost: Double { min(1, max(0, (transparency - 0.5) / 0.3)) }
 
     static let reducedTransparency = GlassStyle(transparency: 0)
 }
