@@ -1,0 +1,45 @@
+name: Swift validation
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      build_poc:
+        description: 'Require an iOS 27 SDK and compile the diagnostic host (not device acceptance)'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  core-linux:
+    runs-on: ubuntu-latest
+    container: swift:6.0.3
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: swift test --package-path Packages/AIUtilityCore
+  apple:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: xcodebuild -version
+      - run: swift test --package-path Packages/AIUtilityCore
+      - run: swift test --package-path Packages/AIUtilityAppleServices
+      - name: Compile Apple package for iOS Simulator
+        working-directory: Packages/AIUtilityAppleServices
+        run: xcodebuild -scheme AIUtilityAppleServices -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/apple-build CODE_SIGNING_ALLOWED=NO build
+  poc-sdk:
+    if: github.event_name == 'workflow_dispatch' && inputs.build_poc
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require iOS 27 SDK
+        run: |
+          version=$(xcrun --sdk iphoneos --show-sdk-version)
+          test "${version%%.*}" -ge 27
+      - run: brew install xcodegen
+      - working-directory: PoCs/iOS27Capture
+        run: xcodegen generate --spec project.yml
+      - working-directory: PoCs/iOS27Capture
+        run: xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build

@@ -1,0 +1,23 @@
+name: AIUtilityCaptureProbe
+options:
+  deploymentTarget:
+    iOS: '27.0'
+packages:
+  AIUtilityCapturePoC:
+    path: .
+targets:
+  AIUtilityCaptureProbe:
+    type: application
+    platform: iOS
+    sources: [Host]
+    dependencies:
+      - package: AIUtilityCapturePoC
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.aiutility.capture-probe
+        SWIFT_VERSION: '5.0'
+        TARGETED_DEVICE_FAMILY: '1,2'
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Host/Info.plist
+    scheme:
+      gatherCoverageData: false
