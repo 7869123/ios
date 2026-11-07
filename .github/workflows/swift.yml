@@ -1,5 +1,5 @@
 name: Swift validation
-# Cost policy (private repo, macOS minutes bill at 10x):
+# Validation policy (repository public; standard hosted runners):
 # - pull_request: Linux Core only (every PR update).
 # - push: only main, full chain (post-merge verification).
 # - workflow_dispatch: build_apple = full macOS validation (required before merging a PR),
@@ -54,9 +54,11 @@ jobs:
           build_code=$?
           swift test --package-path Packages/AIUtilityCore > artifacts/core-linux/core-tests.log 2>&1
           test_code=$?
-          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\n' "$version_code" "$build_code" "$test_code" > artifacts/core-linux/exit-codes.txt
+          swift test --package-path PoCs/iOS27Capture > artifacts/core-linux/poc-lifecycle-tests.log 2>&1
+          lifecycle_code=$?
+          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\npoc_lifecycle_tests=%s\n' "$version_code" "$build_code" "$test_code" "$lifecycle_code" > artifacts/core-linux/exit-codes.txt
           cat artifacts/core-linux/*.log
-          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0
+          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0 && test "$lifecycle_code" -eq 0
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -65,6 +67,7 @@ jobs:
             artifacts/core-linux/swift-version.log
             artifacts/core-linux/core-build.log
             artifacts/core-linux/core-tests.log
+            artifacts/core-linux/poc-lifecycle-tests.log
             artifacts/core-linux/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
@@ -188,6 +191,14 @@ jobs:
           version=$(xcrun --sdk iphoneos --show-sdk-version)
           echo "iphoneos SDK: $version"
           test "${version%%.*}" -ge 27
+      - name: Run portable PoC lifecycle regressions (not device framework tests)
+        run: |
+          set +e
+          swift test --package-path PoCs/iOS27Capture > artifacts/poc/lifecycle-tests.log 2>&1
+          code=$?
+          printf 'poc_lifecycle_tests=%s\n' "$code" > artifacts/poc/exit-codes.txt
+          cat artifacts/poc/lifecycle-tests.log
+          exit "$code"
       - run: brew install xcodegen
       - name: Generate and compile the diagnostic host with preserved exit codes
         id: simbuild
@@ -199,7 +210,7 @@ jobs:
           generate_code=$?
           xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build > ../../artifacts/poc/simulator-build.log 2>&1
           build_code=$?
-          printf 'xcodegen_generate=%s\npoc_simulator_build=%s\n' "$generate_code" "$build_code" > ../../artifacts/poc/exit-codes.txt
+          printf 'xcodegen_generate=%s\npoc_simulator_build=%s\n' "$generate_code" "$build_code" >> ../../artifacts/poc/exit-codes.txt
           cat ../../artifacts/poc/generate.log
           grep -E 'error:|warning:|BUILD (SUCCEEDED|FAILED)|\*\* ' ../../artifacts/poc/simulator-build.log | head -200
           tail -n 40 ../../artifacts/poc/simulator-build.log
@@ -263,6 +274,7 @@ jobs:
           {
             echo "== Info.plist (built)"; plutil -p "$plist"
             echo "== linked frameworks"; otool -L "$exe"
+            nm "$exe" | xcrun swift-demangle > artifacts/poc/device-symbols.log
             echo "== Xcode-generated entitlements (.xcent) for the archive"
             xcent=$(find artifacts/poc-archive-build -name '*.xcent' -print 2>/dev/null || true)
             if [ -n "$xcent" ]; then for f in $xcent; do echo "-- $f"; plutil -p "$f" || cat "$f"; done; else echo "none generated"; fi
@@ -277,6 +289,8 @@ jobs:
             check "binary links ScreenCaptureKit (capture code not compiled out)" 'otool -L "$exe" | grep -q ScreenCaptureKit.framework'
             check "binary links Speech" 'otool -L "$exe" | grep -q Speech.framework'
             check "binary links AVKit" 'otool -L "$exe" | grep -q AVKit.framework'
+            check "binary contains real ScreenAudioProbe" 'grep -q AIUtilityCapturePoC.ScreenAudioProbe artifacts/poc/device-symbols.log'
+            check "binary contains real PoCSession" 'grep -q AIUtilityCapturePoC.PoCSession artifacts/poc/device-symbols.log'
             check "no NSMicrophoneUsageDescription (PoC does not use mic)" '! plutil -extract NSMicrophoneUsageDescription raw -o - "$plist" >/dev/null 2>&1'
             check "IPA is unsigned" '! codesign -v "$app" >/dev/null 2>&1'
           } > artifacts/poc/preinstall-audit.log 2>&1
@@ -300,6 +314,8 @@ jobs:
             artifacts/poc/archive.log
             artifacts/poc/ipa-contents.log
             artifacts/poc/preinstall-audit.log
+            artifacts/poc/device-symbols.log
+            artifacts/poc/lifecycle-tests.log
             artifacts/poc/exit-codes.txt
           retention-days: 7
           if-no-files-found: warn

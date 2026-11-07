@@ -62,38 +62,46 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
 }
 
 @available(iOS 27.0, *)
-@MainActor public final class ScreenAudioProbe: NSObject, ObservableObject, SCContentSharingPickerObserver, SCStreamDelegate {
+@MainActor public final class ScreenAudioProbe: NSObject, ObservableObject {
     @Published public private(set) var state = "未验证：等待系统选择器"
     @Published public private(set) var metrics: CaptureMetrics?
     private var stream: SCStream?
     private var output: CaptureOutput?
     private let speech: LocalSpeechProbe
     private let queue = DispatchQueue(label: "com.aiutility.poc.audio")
-    private var active = false
+    private let lifecycle = ProbeLifecycle()
+    private var callbacks: CaptureCallbacks?
     private var starting = false
+    private var startTask: Task<Void, Never>?
     var onTermination: (() async -> Void)?
     public init(speech: LocalSpeechProbe) { self.speech = speech; super.init() }
     public func presentPicker() {
-        guard !active, !starting else { return }
-        active = true
+        guard let session = lifecycle.begin() else { return }
+        metrics = nil
+        let callbacks = CaptureCallbacks(owner: self, session: session)
+        self.callbacks = callbacks
         let picker = SCContentSharingPicker.shared
         var configuration = SCContentSharingPickerConfiguration()
         configuration.showsMicrophoneControl = false
         configuration.showsCameraControl = false
         picker.defaultConfiguration = configuration
-        picker.add(self); picker.isActive = true
+        picker.add(callbacks); picker.isActive = true
         state = "请选择整个屏幕；本操作需要系统授权"
         picker.present()
     }
-    private func start(filter: SCContentFilter) async {
-        guard active, !starting else { return }
+    fileprivate func update(filter: SCContentFilter, stream source: SCStream?, session: UInt64) {
+        guard lifecycle.accepts(session), source == nil || source === stream, !starting else { return }
         if stream != nil {
             // SCStream.updateContentFilter is unavailable on iOS (iOS 27.1 SDK); ignore range changes while capturing.
             state = "采集中忽略范围更新；如需更换范围请先停止"
             return
         }
         starting = true
-        defer { starting = false }
+        startTask = Task { @MainActor [weak self] in await self?.start(filter: filter, session: session) }
+    }
+    private func start(filter: SCContentFilter, session: UInt64) async {
+        guard lifecycle.accepts(session) else { return }
+        defer { if lifecycle.revision == session { starting = false } }
         let configuration = SCStreamConfiguration()
         configuration.capturesAudio = true
         configuration.excludesCurrentProcessAudio = true
@@ -102,46 +110,84 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         configuration.width = 16; configuration.height = 16
         // minimumFrameInterval is unavailable on iOS (iOS 27.1 SDK); screen frames are discarded anyway.
         let output = CaptureOutput(speech: speech.sink) { [weak self] metrics in
-            Task { @MainActor [weak self] in self?.metrics = metrics }
+            Task { @MainActor [weak self] in
+                guard let self, self.lifecycle.accepts(session) else { return }
+                self.metrics = metrics
+            }
         }
-        let stream = SCStream(filter: filter, configuration: configuration, delegate: self)
+        let stream = SCStream(filter: filter, configuration: configuration, delegate: callbacks)
         self.output = output; self.stream = stream
         do {
             // iOS sample uses a screen output on every stream. Screen frames are discarded.
             try stream.addStreamOutput(output, type: .screen, sampleHandlerQueue: queue)
             try stream.addStreamOutput(output, type: .audio, sampleHandlerQueue: queue)
             try await stream.startCapture()
-            guard active else { try? await stream.stopCapture(); return }
+            // stop() owns this stream and waits for this task before stopping it exactly once.
+            guard lifecycle.accepts(session), !Task.isCancelled else { return }
+            lifecycle.didStart(session)
             state = "startCapture 已返回；跨 App 音频仍需核验"
         } catch {
-            await stop(); await onTermination?()
-            state = "采集启动失败；检查权限、SDK 和签名"
+            // Do not await our own startTask from inside it. A separate termination task owns cleanup.
+            Task { @MainActor [weak self] in
+                await self?.terminate(session: session, source: nil, message: "采集启动失败；检查权限、SDK 和签名")
+            }
         }
     }
     public func stop() async {
-        active = false
+        guard let session = lifecycle.beginStop() else { return }
         let picker = SCContentSharingPicker.shared
-        picker.remove(self); picker.isActive = false
-        if let stream { try? await stream.stopCapture() }
-        stream = nil; output = nil; state = "已停止；无真机结论"
+        if let callbacks { picker.remove(callbacks) }
+        picker.isActive = false
+        let pendingStart = startTask
+        let stoppingStream = stream
+        let stoppingOutput = output
+        let stoppingCallbacks = callbacks
+        startTask = nil; stream = nil; output = nil; callbacks = nil
+        pendingStart?.cancel()
+        await pendingStart?.value
+        if let stoppingStream { try? await stoppingStream.stopCapture() }
+        withExtendedLifetime((stoppingOutput, stoppingCallbacks)) {}
+        starting = false
+        lifecycle.didStop(session)
+        state = "已停止；无真机结论"
     }
-    nonisolated public func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
-        Task { @MainActor [weak self] in await self?.start(filter: filter) }
+    fileprivate func terminate(session: UInt64, source: SCStream?, message: String) async {
+        guard lifecycle.accepts(session), source == nil || source === stream else { return }
+        await stop()
+        // stop() keeps restart blocked until release finishes. No stale callback may stop a newer session.
+        guard lifecycle.revision == session, lifecycle.phase == .idle else { return }
+        await onTermination?()
+        if lifecycle.revision == session { state = message }
     }
-    nonisolated public func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
+}
+
+/// A distinct observer/delegate per session carries the identity even for picker callbacks with nil streams.
+@available(iOS 27.0, *)
+private final class CaptureCallbacks: NSObject, SCContentSharingPickerObserver, SCStreamDelegate, @unchecked Sendable {
+    private weak var owner: ScreenAudioProbe?
+    private let session: UInt64
+    @MainActor init(owner: ScreenAudioProbe, session: UInt64) {
+        self.owner = owner; self.session = session
+    }
+    func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
         Task { @MainActor [weak self] in
-            await self?.stop(); await self?.onTermination?()
+            guard let self else { return }
+            self.owner?.update(filter: filter, stream: stream, session: self.session)
         }
     }
-    nonisolated public func contentSharingPickerStartDidFailWithError(_ error: Error) {
-        Task { @MainActor [weak self] in
-            await self?.stop(); await self?.onTermination?(); self?.state = "系统选择器启动失败"
-        }
+    func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
+        terminate(stream: stream, message: "系统选择器已取消")
     }
-    nonisolated public func stream(_ stream: SCStream, didStopWithError error: Error) {
+    func contentSharingPickerStartDidFailWithError(_ error: Error) {
+        terminate(stream: nil, message: "系统选择器启动失败")
+    }
+    func stream(_ stream: SCStream, didStopWithError error: Error) {
+        terminate(stream: stream, message: "系统终止采集；需人工检查中断原因")
+    }
+    private func terminate(stream: SCStream?, message: String) {
         Task { @MainActor [weak self] in
-            guard self?.stream === stream else { return }
-            await self?.stop(); await self?.onTermination?(); self?.state = "系统终止采集；需人工检查中断原因"
+            guard let self else { return }
+            await self.owner?.terminate(session: self.session, source: stream, message: message)
         }
     }
 }

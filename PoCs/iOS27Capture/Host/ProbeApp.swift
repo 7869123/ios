@@ -9,7 +9,9 @@ import AIUtilityCapturePoC
 // ScreenCaptureKit is only importable from the iphoneos SDK; the iphonesimulator SDK does not
 // provide it, so PoCSession / ScreenAudioProbe are compiled out there. The device build keeps the
 // full capture UI unchanged; the simulator build only gets a placeholder so the target compiles.
-#if canImport(ScreenCaptureKit)
+#if !targetEnvironment(simulator) && !canImport(ScreenCaptureKit)
+#error("iphoneos must compile the real ScreenCaptureKit probe; a device placeholder is forbidden")
+#elseif canImport(ScreenCaptureKit)
 @available(iOS 27.0, *)
 @MainActor struct ProbeView: View {
     @StateObject private var session = PoCSession()
