@@ -101,7 +101,7 @@ jobs:
     runs-on: macos-latest
     permissions:
       contents: write
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         id: checkout
@@ -111,7 +111,7 @@ jobs:
         run: bash scripts/ci_app.sh
       - name: Capture home review screenshots (iPad mini primary, iPhone compatibility)
         continue-on-error: true
-        timeout-minutes: 12
+        timeout-minutes: 25
         run: bash scripts/app_screenshots.sh
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'

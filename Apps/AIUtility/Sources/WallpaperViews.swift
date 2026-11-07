@@ -59,10 +59,10 @@ struct WallpaperDraft: Identifiable {
                 }
 
                 Text("拖动调整位置，双指缩放。预览框按本机屏幕比例显示；同一设置会自动适配竖屏和横屏，可切换方向检查。")
-                    .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                    .font(.footnote).foregroundStyle(UtilityTheme.inkSecondary).multilineTextAlignment(.center)
 
                 HStack(spacing: 12) {
-                    Image(systemName: "circle.lefthalf.filled").foregroundStyle(.secondary)
+                    Image(systemName: "circle.lefthalf.filled").foregroundStyle(UtilityTheme.inkSecondary)
                     Text("文字可读性遮罩").font(.subheadline)
                     Slider(value: $scrim, in: WallpaperStore.scrimRange)
                     Text("\(Int(scrim * 100))%").font(.subheadline.monospacedDigit()).frame(width: 44, alignment: .trailing)
@@ -177,7 +177,7 @@ struct WallpaperDraft: Identifiable {
                 Text(modeTitle).font(.caption.weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             }
             Text("选择一张图片作为页面背景。图片只保存在本机 App 目录，会缩小到长边 3000 像素并去除位置等元数据，不会上传。")
-                .font(.caption).foregroundStyle(.secondary)
+                .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             if let image = store.image {
                 WindowThumbnail(image: image, layout: store.layout, scrim: store.scrim)
             }
@@ -186,7 +186,7 @@ struct WallpaperDraft: Identifiable {
                 VStack(alignment: .leading, spacing: 12) { buttons }
             }
             if loading { ProgressView("正在处理图片…") }
-            if let message { Text(message).font(.subheadline).foregroundStyle(.secondary) }
+            if let message { Text(message).font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary) }
         }
         .onChange(of: photoItem) { _, item in
             guard let item else { return }

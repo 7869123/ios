@@ -65,7 +65,7 @@ import SwiftUI
                     .font(.caption.weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             }
             Text("工作台").font(.largeTitle.bold()).foregroundStyle(UtilityTheme.ink)
-            Text("翻译、字幕与媒体工具的统一入口").font(.subheadline).foregroundStyle(.secondary)
+            Text("翻译、字幕与媒体工具的统一入口").font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
         }
     }
 
@@ -88,7 +88,7 @@ import SwiftUI
     private func summaryChip(label: String, value: String) -> some View {
         Button { open(.settings) } label: {
             HStack(spacing: 6) {
-                Text(label).foregroundStyle(.secondary)
+                Text(label).foregroundStyle(UtilityTheme.inkSecondary)
                 Text(value).fontWeight(.semibold).foregroundStyle(UtilityTheme.ink)
             }
             .font(.footnote)
@@ -182,7 +182,7 @@ import SwiftUI
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.headline).foregroundStyle(UtilityTheme.ink)
-                Text(detail).font(.footnote).foregroundStyle(.secondary).lineLimit(2, reservesSpace: true)
+                Text(detail).font(.footnote).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(2, reservesSpace: true)
             }
         }
         .padding(18)

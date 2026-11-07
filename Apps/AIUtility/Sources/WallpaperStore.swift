@@ -185,6 +185,15 @@ enum WallpaperMode: String, Sendable {
     private static var fileURL: URL { directory.appendingPathComponent("wallpaper.jpg") }
 }
 
+private struct WindowSizeKey: EnvironmentKey { static let defaultValue: CGSize = .zero }
+extension EnvironmentValues {
+    /// Size of the window hosting this view, measured by RootView (zero before the first layout).
+    var windowSize: CGSize {
+        get { self[WindowSizeKey.self] }
+        set { self[WindowSizeKey.self] = newValue }
+    }
+}
+
 /// Current window size (follows rotation, Split View and Stage Manager).
 @MainActor enum WindowMetrics {
     static var size: CGSize {
@@ -215,10 +224,11 @@ struct WindowAlignedWallpaper: View {
     let image: UIImage
     let layout: WallpaperLayout
     let scrim: Double
+    @Environment(\.windowSize) private var windowSize
     var body: some View {
         GeometryReader { proxy in
             let frame = proxy.frame(in: .global)
-            let window = WindowMetrics.size
+            let window = windowSize == .zero ? WindowMetrics.size : windowSize
             ZStack(alignment: .topLeading) {
                 WallpaperCanvas(image: image, layout: layout, container: window)
                     .offset(x: -frame.minX, y: -frame.minY)

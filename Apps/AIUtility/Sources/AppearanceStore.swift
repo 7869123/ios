@@ -66,7 +66,7 @@ struct GlassStyle: Equatable, Sendable {
             .disabled(wallpaper.mode == .plain)
             if reduceTransparency {
                 Label("系统已开启「降低透明度」，面板暂时以不透明方式显示；关闭后恢复此处设置。", systemImage: "accessibility")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             }
             Button {
                 appearance.restoreDefaults()
@@ -74,7 +74,7 @@ struct GlassStyle: Equatable, Sendable {
             } label: { Label("恢复默认外观", systemImage: "arrow.counterclockwise") }
                 .buttonStyle(.bordered)
             Text("默认：界面透明度 \(Int(AppearanceStore.defaultPanelTransparency * 100))%，壁纸遮罩 \(Int(WallpaperStore.defaultScrim * 100))%。调整立即生效并自动保存。")
-                .font(.caption).foregroundStyle(.secondary)
+                .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
         }
     }
 
@@ -87,7 +87,7 @@ struct GlassStyle: Equatable, Sendable {
             }
             Slider(value: value, in: 0...1) { Text(title) } minimumValueLabel: { Text("0%").font(.caption2) } maximumValueLabel: { Text("100%").font(.caption2) }
                 .accessibilityValue("\(Int((value.wrappedValue * 100).rounded()))%")
-            Text(caption).font(.caption).foregroundStyle(.secondary)
+            Text(caption).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
         }
     }
 }

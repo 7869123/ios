@@ -17,13 +17,16 @@ r.sort(key=lambda x:[int(p) for p in x["version"].split(".")])
 print(r[-1]["identifier"] if r else "")')
 echo "runtime: $runtime"
 [ -n "$runtime" ] || { echo "no available iOS runtime"; exit 1; }
-# Pick the newest device type this runtime supports whose name matches the pattern.
+# Pick a device type this runtime supports: the first pattern (in priority order) that matches wins,
+# newest match within a pattern.
 pick_type() {
   xcrun simctl list runtimes -j | python3 -c 'import json,sys,re
-rid,pat=sys.argv[1],re.compile(sys.argv[2])
+rid=sys.argv[1]; pats=[re.compile(p) for p in sys.argv[2:]]
 rt=[r for r in json.load(sys.stdin)["runtimes"] if r["identifier"]==rid]
-t=[d for d in (rt[0].get("supportedDeviceTypes",[]) if rt else []) if pat.search(d["name"])]
-print(t[-1]["identifier"] if t else "")' "$runtime" "$1"
+types=rt[0].get("supportedDeviceTypes",[]) if rt else []
+for pat in pats:
+    t=[d for d in types if pat.search(d["name"])]
+    if t: print(t[-1]["identifier"]); break' "$runtime" "$@"
 }
 # Launch the app so it renders its own window (true interface orientation, no rotation guessing)
 # and copy Documents/<name>.png out of the sandbox. Falls back to the raw simctl framebuffer.
@@ -57,7 +60,8 @@ shoot() {
   xcrun simctl delete "$udid" || true
 }
 failed=0
-shoot ipad-mini "$(pick_type '^iPad mini')" || failed=1
-shoot iphone "$(pick_type '^iPhone [0-9]+( Pro)?$')" || failed=1
+# iPad mini 6 and iPad mini (A17 Pro) share the 744x1133 pt screen.
+shoot ipad-mini "$(pick_type 'iPad mini \(A17 Pro\)' 'iPad mini \(6th generation\)' '^iPad mini')" || failed=1
+shoot iphone "$(pick_type '^iPhone 17$' '^iPhone 16$' '^iPhone 15$' '^iPhone [0-9]+$')" || failed=1
 ls -la "$out"
 exit "$failed"

@@ -18,7 +18,20 @@ enum Workspace: String, CaseIterable, Identifiable {
 @MainActor struct RootView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selected: Workspace? = .home
+    @State private var windowSize: CGSize = .zero
     var body: some View {
+        content
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear { windowSize = proxy.size }
+                        .onChange(of: proxy.size) { _, size in windowSize = size }
+                }
+                .ignoresSafeArea()
+            }
+            .environment(\.windowSize, windowSize)
+    }
+    @ViewBuilder private var content: some View {
         if sizeClass == .regular {
             NavigationSplitView {
                 List(Workspace.allCases, selection: $selected) { item in
@@ -28,7 +41,7 @@ enum Workspace: String, CaseIterable, Identifiable {
                 .safeAreaInset(edge: .bottom) {
                     HStack(spacing: 8) {
                         SlantBar().fill(UtilityTheme.brandGradient).frame(width: 18, height: 5)
-                        Text("TOOLS FOR YOUR DAY").font(.caption.monospaced()).foregroundStyle(.secondary)
+                        Text("TOOLS FOR YOUR DAY").font(.caption.monospaced()).foregroundStyle(UtilityTheme.inkSecondary)
                     }.padding()
                 }
             } detail: {
