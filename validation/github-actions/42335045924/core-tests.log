@@ -1,0 +1,289 @@
+[0/1] Planning build
+Building for debugging...
+[0/11] Write sources
+[1/12] Write swift-version-24593BA9C3E375BF.txt
+[2/12] Wrapping AST for AIUtilityCore for debugging
+[4/16] Emitting module AIUtilityCoreTests
+[5/19] Compiling AIUtilityCoreTests PrivacyTests.swift
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:37:65: note: expanded code originates here
+ 35 |             try await coordinator.saveKey(provider: provider, key: APIKey("candidate-key"), models: [.videoSubtitle: "new"])
+ 36 |         }
+ 37 |         let saved = try #require(store.load(provider: provider))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, provider, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode("provider"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 38 |         #expect(saved.key.withValue { $0 == "old-key" })
+ 39 |         #expect(saved.models == [.discordScreenshot: "old", .videoSubtitle: "old"])
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:86:58: note: expanded code originates here
+ 84 |     await adapter.release()
+ 85 |     await #expect(throws: AIUtilityError.cancelled) { try await task.value }
+ 86 |     let old = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 87 |     #expect(old.key.withValue { $0 == "old-key" })
+ 88 |     #expect(old.models[.videoSubtitle] == "old")
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:105:60: note: expanded code originates here
+103 |     await adapter.release()
+104 |     try await replacement.value
+105 |     let saved = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+106 |     #expect(saved.key.withValue { $0 == "new-key" })
+107 |     #expect(saved.models[.videoSubtitle] == "new")
+[6/19] Compiling AIUtilityCoreTests RegressionTests.swift
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:37:65: note: expanded code originates here
+ 35 |             try await coordinator.saveKey(provider: provider, key: APIKey("candidate-key"), models: [.videoSubtitle: "new"])
+ 36 |         }
+ 37 |         let saved = try #require(store.load(provider: provider))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, provider, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode("provider"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 38 |         #expect(saved.key.withValue { $0 == "old-key" })
+ 39 |         #expect(saved.models == [.discordScreenshot: "old", .videoSubtitle: "old"])
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:86:58: note: expanded code originates here
+ 84 |     await adapter.release()
+ 85 |     await #expect(throws: AIUtilityError.cancelled) { try await task.value }
+ 86 |     let old = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 87 |     #expect(old.key.withValue { $0 == "old-key" })
+ 88 |     #expect(old.models[.videoSubtitle] == "old")
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:105:60: note: expanded code originates here
+103 |     await adapter.release()
+104 |     try await replacement.value
+105 |     let saved = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+106 |     #expect(saved.key.withValue { $0 == "new-key" })
+107 |     #expect(saved.models[.videoSubtitle] == "new")
+[7/19] Compiling AIUtilityCoreTests TestSupport.swift
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:37:65: note: expanded code originates here
+ 35 |             try await coordinator.saveKey(provider: provider, key: APIKey("candidate-key"), models: [.videoSubtitle: "new"])
+ 36 |         }
+ 37 |         let saved = try #require(store.load(provider: provider))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, provider, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode("provider"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 38 |         #expect(saved.key.withValue { $0 == "old-key" })
+ 39 |         #expect(saved.models == [.discordScreenshot: "old", .videoSubtitle: "old"])
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:86:58: note: expanded code originates here
+ 84 |     await adapter.release()
+ 85 |     await #expect(throws: AIUtilityError.cancelled) { try await task.value }
+ 86 |     let old = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 87 |     #expect(old.key.withValue { $0 == "old-key" })
+ 88 |     #expect(old.models[.videoSubtitle] == "old")
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/RegressionTests.swift:105:60: note: expanded code originates here
+103 |     await adapter.release()
+104 |     try await replacement.value
+105 |     let saved = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+106 |     #expect(saved.key.withValue { $0 == "new-key" })
+107 |     #expect(saved.models[.videoSubtitle] == "new")
+[8/19] Compiling AIUtilityCoreTests AdapterTests.swift
+macro expansion #require:1:60: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/AdapterTests.swift:16:114: note: expanded code originates here
+ 14 |     #expect(request.httpMethod == "POST")
+ 15 |     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer test-key-only")
+ 16 |     let body = try #require(JSONSerialization.jsonObject(with: try #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkCast(JSONSerialization.jsonObject(with: try #require(request.httpBody)), as: ([String: Any]).self, expression: .__fromBinaryOperation(.__fromSyntaxNode("JSONSerialization.jsonObject(with: try #require(request.httpBody))"), "as?", .__fromSyntaxNode("[String: Any]")), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                            `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 17 |     #expect(body["model"] as? String == "chosen-model")
+ 18 |     switch provider {
+
+macro expansion #require:1:56: warning: no calls to throwing functions occur within 'try' expression
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/AdapterTests.swift:16:114: note: expanded code originates here
+ 14 |     #expect(request.httpMethod == "POST")
+ 15 |     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer test-key-only")
+ 16 |     let body = try #require(JSONSerialization.jsonObject(with: try #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkCast(JSONSerialization.jsonObject(with: try #require(request.httpBody)), as: ([String: Any]).self, expression: .__fromBinaryOperation(.__fromSyntaxNode("JSONSerialization.jsonObject(with: try #require(request.httpBody))"), "as?", .__fromSyntaxNode("[String: Any]")), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                        `- warning: no calls to throwing functions occur within 'try' expression
+    +-------------------------------------------------------------------
+ 17 |     #expect(body["model"] as? String == "chosen-model")
+ 18 |     switch provider {
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/ConfigurationTests.swift:24:61: note: expanded code originates here
+ 22 |         try await coordinator.saveKey(provider: provider, key: APIKey("bad-key"), models: [.discordScreenshot: "new-image"])
+ 23 |     }
+ 24 |     let saved = try #require(store.load(provider: provider))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, provider, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode("provider"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 25 |     #expect(saved.key.withValue { $0 == "original-key" })
+ 26 |     #expect(saved.models == [.discordScreenshot: "old-image", .videoSubtitle: "old-video"])
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/ConfigurationTests.swift:101:58: note: expanded code originates here
+ 99 |         try await coordinator.saveKey(provider: .openAI, key: APIKey("new-key"), models: [.videoSubtitle: "new"])
+100 |     }
+101 |     let old = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+102 |     #expect(old.key.withValue { $0 == "old-key" })
+103 |     #expect(old.models[.videoSubtitle] == "old")
+[9/19] Compiling AIUtilityCoreTests ConfigurationTests.swift
+macro expansion #require:1:60: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/AdapterTests.swift:16:114: note: expanded code originates here
+ 14 |     #expect(request.httpMethod == "POST")
+ 15 |     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer test-key-only")
+ 16 |     let body = try #require(JSONSerialization.jsonObject(with: try #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkCast(JSONSerialization.jsonObject(with: try #require(request.httpBody)), as: ([String: Any]).self, expression: .__fromBinaryOperation(.__fromSyntaxNode("JSONSerialization.jsonObject(with: try #require(request.httpBody))"), "as?", .__fromSyntaxNode("[String: Any]")), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                            `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 17 |     #expect(body["model"] as? String == "chosen-model")
+ 18 |     switch provider {
+
+macro expansion #require:1:56: warning: no calls to throwing functions occur within 'try' expression
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/AdapterTests.swift:16:114: note: expanded code originates here
+ 14 |     #expect(request.httpMethod == "POST")
+ 15 |     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer test-key-only")
+ 16 |     let body = try #require(JSONSerialization.jsonObject(with: try #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkCast(JSONSerialization.jsonObject(with: try #require(request.httpBody)), as: ([String: Any]).self, expression: .__fromBinaryOperation(.__fromSyntaxNode("JSONSerialization.jsonObject(with: try #require(request.httpBody))"), "as?", .__fromSyntaxNode("[String: Any]")), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                        `- warning: no calls to throwing functions occur within 'try' expression
+    +-------------------------------------------------------------------
+ 17 |     #expect(body["model"] as? String == "chosen-model")
+ 18 |     switch provider {
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/ConfigurationTests.swift:24:61: note: expanded code originates here
+ 22 |         try await coordinator.saveKey(provider: provider, key: APIKey("bad-key"), models: [.discordScreenshot: "new-image"])
+ 23 |     }
+ 24 |     let saved = try #require(store.load(provider: provider))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, provider, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode("provider"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 25 |     #expect(saved.key.withValue { $0 == "original-key" })
+ 26 |     #expect(saved.models == [.discordScreenshot: "old-image", .videoSubtitle: "old-video"])
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/ConfigurationTests.swift:101:58: note: expanded code originates here
+ 99 |         try await coordinator.saveKey(provider: .openAI, key: APIKey("new-key"), models: [.videoSubtitle: "new"])
+100 |     }
+101 |     let old = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+102 |     #expect(old.key.withValue { $0 == "old-key" })
+103 |     #expect(old.models[.videoSubtitle] == "old")
+[10/19] Compiling AIUtilityCoreTests LiveAPITests.swift
+macro expansion #require:1:60: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/AdapterTests.swift:16:114: note: expanded code originates here
+ 14 |     #expect(request.httpMethod == "POST")
+ 15 |     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer test-key-only")
+ 16 |     let body = try #require(JSONSerialization.jsonObject(with: try #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkCast(JSONSerialization.jsonObject(with: try #require(request.httpBody)), as: ([String: Any]).self, expression: .__fromBinaryOperation(.__fromSyntaxNode("JSONSerialization.jsonObject(with: try #require(request.httpBody))"), "as?", .__fromSyntaxNode("[String: Any]")), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                            `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 17 |     #expect(body["model"] as? String == "chosen-model")
+ 18 |     switch provider {
+
+macro expansion #require:1:56: warning: no calls to throwing functions occur within 'try' expression
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/AdapterTests.swift:16:114: note: expanded code originates here
+ 14 |     #expect(request.httpMethod == "POST")
+ 15 |     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer test-key-only")
+ 16 |     let body = try #require(JSONSerialization.jsonObject(with: try #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkCast(JSONSerialization.jsonObject(with: try #require(request.httpBody)), as: ([String: Any]).self, expression: .__fromBinaryOperation(.__fromSyntaxNode("JSONSerialization.jsonObject(with: try #require(request.httpBody))"), "as?", .__fromSyntaxNode("[String: Any]")), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                        `- warning: no calls to throwing functions occur within 'try' expression
+    +-------------------------------------------------------------------
+ 17 |     #expect(body["model"] as? String == "chosen-model")
+ 18 |     switch provider {
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/ConfigurationTests.swift:24:61: note: expanded code originates here
+ 22 |         try await coordinator.saveKey(provider: provider, key: APIKey("bad-key"), models: [.discordScreenshot: "new-image"])
+ 23 |     }
+ 24 |     let saved = try #require(store.load(provider: provider))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, provider, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode("provider"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+ 25 |     #expect(saved.key.withValue { $0 == "original-key" })
+ 26 |     #expect(saved.models == [.discordScreenshot: "old-image", .videoSubtitle: "old-video"])
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /__w/ios/ios/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/ConfigurationTests.swift:101:58: note: expanded code originates here
+ 99 |         try await coordinator.saveKey(provider: .openAI, key: APIKey("new-key"), models: [.videoSubtitle: "new"])
+100 |     }
+101 |     let old = try #require(store.load(provider: .openAI))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.load(provider: $1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAI, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "load", ("provider", .__fromSyntaxNode(".openAI"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+102 |     #expect(old.key.withValue { $0 == "old-key" })
+103 |     #expect(old.models[.videoSubtitle] == "old")
+error: fatalError

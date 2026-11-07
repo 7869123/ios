@@ -1,0 +1,41 @@
+{
+  "repository": "7869123/ios",
+  "repository_private": true,
+  "date": "2026-11-07",
+  "compiler": "Swift 6.0.3 (swift-6.0.3-RELEASE)",
+  "target": "x86_64-unknown-linux-gnu",
+  "first_attempt": {
+    "run_id": 42335045924,
+    "commit": "b77c821bfa322238bf7c44d3cd1f8e235e806c69",
+    "conclusion": "failure",
+    "swift_version_exit": 0,
+    "core_build_exit": 0,
+    "core_test_exit": 1,
+    "failure": "Swift Testing macro expansion: nested #require and throwing calls inside #require",
+    "failure_artifact_uploaded": true
+  },
+  "verified_success": {
+    "run_id": 42335206895,
+    "url": "https://github.com/7869123/ios/actions/runs/42335206895",
+    "commit": "3263a5a2aeb49ff0486c460cfe785353b01787e9",
+    "core_git_tree": "d46721ec6971276d934aaaa75867ace4fc603208",
+    "conclusion": "success",
+    "swift_version_exit": 0,
+    "core_build_exit": 0,
+    "core_test_exit": 0,
+    "test_functions_discovered": 37,
+    "test_functions_passed": 36,
+    "test_functions_skipped": 1,
+    "test_functions_failed": 0,
+    "parameterized_argument_executions": 18,
+    "swift_testing_summary": "Test run with 37 tests passed after 0.086 seconds.",
+    "skipped_test": "liveOfficialAPI(_:)",
+    "artifact_uploaded": true
+  },
+  "counting_note": "The Swift Testing aggregate includes the disabled integration test. The per-test log has 36 passed functions and 1 skipped function; XCTest's compatibility preamble reports 0 and is not the Swift Testing count.",
+  "live_api_calls_verified": false,
+  "apple_services_compiled": false,
+  "ios_sdk_compiled": false,
+  "ipad_device_verified": false,
+  "windows_swift_installed": false
+}

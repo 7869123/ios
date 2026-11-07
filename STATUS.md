@@ -1,6 +1,28 @@
 # AIUtility 开发状态
 
-## GitHub Actions 接入准备（2026-11-07）
+## 当前真实验证结论（2026-11-07）
+
+**AIUtilityCore 已在 GitHub Actions 的 Swift 6.0.3 / Linux 上真实编译并通过单元测试。** 仓库为用户的私有仓库 [7869123/ios](https://github.com/7869123/ios)，main 使用普通 push，已有历史和源码完整保留。
+
+| 项目 | 实际结果 |
+|---|---|
+| 已验证运行 | [42335206895](https://github.com/7869123/ios/actions/runs/42335206895)，源提交 3263a5a |
+| `swift --version` | 退出 0，Swift 6.0.3，x86_64-unknown-linux-gnu |
+| `swift build --package-path Packages/AIUtilityCore` | 退出 0，真实编译通过 |
+| `swift test --package-path Packages/AIUtilityCore` | 退出 0，测试模块编译并执行通过 |
+| Swift Testing 逐项统计 | 发现 37 项；36 通过、1 跳过、0 失败；参数化部分实际执行 18 组参数 |
+| 跳过内容 | liveOfficialAPI，未提供/使用真实 API Key，未进行付费调用 |
+| 真实修复 | 首次运行中测试宏递归展开、宏内 throwing 调用错误；已拆为独立读取/解析再断言，未删断言 |
+| 日志保存 | 失败和成功两轮均成功上传且下载核对四个指定证据文件；未上传 .build 或构建缓存 |
+| Apple / iOS / 真机 | Apple 包、Keychain、Vision、iOS SDK、iPad 音频/Speech/PiP 均未验证 |
+
+Swift Testing 聚合输出为“37 tests passed”，含禁用项；本报告按逐项记录列为 36 实际通过 + 1 跳过。XCTest 兼容层的 0 tests 不是 Swift Testing 的运行数。完整记录及原始日志见 [验证证据](validation/github-actions/README.md) 和 [机器摘要](validation/github-actions/summary.json)。
+
+Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token 仅由系统凭据管理器保管/在内存使用。推送前对全部可达 Git 历史扫描，未发现真实密钥/私钥/个人邮箱或大文件，历史开发路径已披露。所有既定媒体工具、截图翻译、实时字幕和《Blue Archive》UI 仍在范围内；本轮没有扩展正式 UI。
+
+以下保留各轮历史过程，旧的“未编译/0 项执行”只描述当时状态。
+
+## GitHub Actions 接入准备（历史过程）
 
 按最新要求停止尝试 Windows Swift 工具链。现有 workflow 已收紧为默认只验证 Core，失败时尝试上传四个明确日志文件与真实退出码，保留 7 天，不上传 API Key、.build 或构建缓存。Apple / PoC 仅手动开启，且依赖 Core 成功。
 
@@ -8,9 +30,9 @@
 
 本段记录推送前准备状态，尚未取得远端编译结果。Core 是否通过以稍后记录的 Actions 运行和真实测试统计为准。接入步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。`scripts/github_actions.py` 仅从系统凭据管理器在内存读取 GitHub 授权，日志存入忽略的 artifacts/，不打印或保存 Token。
 
-## 第二轮工程验证（2026-11-07）
+## 第二轮工程验证（历史：2026-11-07）
 
-**仍未通过真实 Swift 编译与测试。** 基线 `f2b766e` 和现有源码完整保留；没有重建项目，没有安装大型全局依赖。本轮的源码修复属于静态审计成果，不能称为编译错误已修复或测试通过。
+**第二轮结束时尚未通过真实 Swift 编译与测试。** 基线 `f2b766e` 和现有源码完整保留；没有重建项目，没有安装大型全局依赖。该轮源码修复属于静态审计成果；其后真实 CI 结果见本文首节。
 
 | 项目 | 第二轮实际结果 |
 |---|---|

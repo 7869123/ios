@@ -2,7 +2,13 @@
 
 当前优先使用 GitHub Actions，按用户要求不再尝试安装 Windows Swift 工具链。目标私有仓库已配置为 `7869123/ios`；创建仓库、推送现有提交、查看失败日志和继续修复的步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。真实运行记录以 STATUS.md 为准。
 
-## 第二轮真实编译验证入口
+## 已取得的真实编译结果
+
+[GitHub Actions 42335206895](https://github.com/7869123/ios/actions/runs/42335206895) 在官方 swift:6.0.3 Linux 容器成功执行版本、Core build、Core test，三个命令退出码均为 0。Swift Testing 逐项记录为 36 通过、1 个真实 API 测试跳过、0 失败；6 个参数化测试共执行 18 组输入。完整原始日志保存于 [validation/github-actions](validation/github-actions/README.md)。
+
+首轮 Core build 本身已成功，但测试模块因 #require 宏用法编译失败；修复后重推并通过。没有以静态解析替代编译。Apple/macOS/iOS 任务默认跳过，不能据此宣称 Apple 包或真机通过。
+
+## 第二轮真实编译验证入口（历史环境阻碍）
 
 2026-11-07 第二轮仍没有可用 Swift 编译器，没有安装大型全局依赖。下面的验证脚本**只调用真实 Swift**，不使用语法解析替代；默认关闭付费 API / Keychain 集成测试：
 

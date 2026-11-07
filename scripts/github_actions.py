@@ -21,7 +21,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["inspect", "runs", "jobs", "logs", "dispatch"])
+    parser.add_argument("command", choices=["inspect", "runs", "jobs", "logs", "evidence", "dispatch"])
     parser.add_argument("--repository", default="7869123/ios")
     parser.add_argument("--run-id", type=int)
     parser.add_argument("--sha")
@@ -88,16 +88,31 @@ def main():
     else:
         if not args.run_id:
             parser.error("--run-id required")
-        data = request("/actions/runs/" + str(args.run_id) + "/logs")
+        if args.command == "evidence":
+            artifacts = request("/actions/runs/" + str(args.run_id) + "/artifacts")
+            candidates = [item for item in artifacts.get("artifacts", [])
+                          if item["name"].startswith("core-linux-evidence-") and not item.get("expired")]
+            if not candidates:
+                raise RuntimeError("Core CI evidence artifact not available")
+            artifact = max(candidates, key=lambda item: item["created_at"])
+            data = request("/actions/artifacts/" + str(artifact["id"]) + "/zip")
+        else:
+            data = request("/actions/runs/" + str(args.run_id) + "/logs")
         if not isinstance(data, bytes):
             raise RuntimeError("Expected CI log archive")
         output = (ROOT / args.output / str(args.run_id)).resolve()
         if not output.is_relative_to(ROOT / "artifacts"):
             parser.error("logs must be saved under artifacts/")
         output.mkdir(parents=True, exist_ok=True)
-        (output / "logs.zip").write_bytes(data)
+        if args.command == "evidence":
+            output = output / "evidence"
+            output.mkdir(exist_ok=True)
+        (output / ("evidence.zip" if args.command == "evidence" else "logs.zip")).write_bytes(data)
         files = []
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            expected = {"swift-version.log", "core-build.log", "core-tests.log", "exit-codes.txt"}
+            if args.command == "evidence" and set(archive.namelist()) != expected:
+                raise RuntimeError("Unexpected files in Core evidence artifact")
             for member in archive.infolist():
                 if member.is_dir():
                     continue

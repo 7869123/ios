@@ -64,6 +64,8 @@ artifact 名为 `core-linux-evidence-运行ID-尝试次数`，保留 7 天；只
 
 目标仓库现已指定为 `https://github.com/7869123/ios.git`，API 确认为私有，用户已通过 Git Credential Manager 浏览器登录。运行记录见 STATUS.md；iOS 真机功能仍需独立验收。
 
+main 已成功推送，首轮测试编译错误已修复。[已通过运行 42335206895](https://github.com/7869123/ios/actions/runs/42335206895)：版本/build/test 退出码全部 0，36 项通过、1 项真实 API 测试跳过。失败 artifact 也已实际下载验证，包含且仅包含四个预期日志。
+
 维护辅助命令（需要系统凭据管理器已有登录，不传 Token 参数）：
 
 ```sh
@@ -72,6 +74,7 @@ python scripts/github_actions.py inspect
 python scripts/github_actions.py runs --sha YOUR_COMMIT_SHA
 python scripts/github_actions.py jobs --run-id RUN_ID
 python scripts/github_actions.py logs --run-id RUN_ID
+python scripts/github_actions.py evidence --run-id RUN_ID
 ```
 
 helper 不打印 Token，不将认证头转发给签名下载地址，CI 日志只写到被忽略的 artifacts/。`dispatch` 子命令可在 push 未触发时手动运行 main 的 Core workflow；不启用 Apple 选项。

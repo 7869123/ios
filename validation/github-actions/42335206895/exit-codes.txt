@@ -1,0 +1,3 @@
+swift_version=0
+core_build=0
+core_tests=0

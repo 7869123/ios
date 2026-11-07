@@ -2,6 +2,8 @@
 
 **结论：未进行 Apple SDK 编译、签名、安装或真机测试，不能认定成功。** 用户首台目标为 iPad mini 6 / iPadOS 27.2（用户提供，未实机核验）。Windows 不能生成可签名的 iOS 构建；当前没有 IPA。
 
+2026-11-07 已通过的是 [Linux Core CI](https://github.com/7869123/ios/actions/runs/42335206895)，该次 apple 和 poc-sdk 均为 skipped。Core 单测通过没有验证本文件任何 iOS 采集、Speech、PiP 或系统权限结论；下列 SDK 符号和生命周期风险仍待处理。
+
 ## 第二轮静态审计：需真实 SDK 核对的符号
 
 本轮仅审阅代码和官方资料，没有 Apple SDK。`#if canImport` / `@available` 只控制源码条件，不证明这些调用已编译；Swift 5 模式、`@preconcurrency` 与 `@unchecked Sendable` 也不证明线程安全。

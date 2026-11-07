@@ -49,8 +49,8 @@ def main():
             "source_file_count": len(hashes),
             "file_sha256": hashes,
             "history_sha256": hashlib.sha256(bundle_bytes).hexdigest(),
-            "verification_report": "validation/round2-core/summary.json",
-            "notice": "Read STATUS.md: no Swift compilation/test or Apple-device success is implied by this archive.",
+            "verification_report": "validation/github-actions/summary.json",
+            "notice": "Read STATUS.md for actual Linux Core CI evidence. Apple SDK and device validation remain incomplete.",
         }
         output.writestr("REVIEW_MANIFEST.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     with zipfile.ZipFile(destination) as check:

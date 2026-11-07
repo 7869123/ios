@@ -1,8 +1,8 @@
 # 给后续 AI / 工程审查者
 
-先阅读 STATUS.md 和 validation/round2-audit.md。**当前没有 Swift 编译或测试通过结论，执行数为 0。** 不要把测试声明、静态审阅、文档核对或 ZIP 完整性当成编译结果。
+先阅读 STATUS.md 和 validation/github-actions/README.md。**当前 Core 已通过真实 Linux Swift 6.0.3 编译和单元测试：36 通过、1 跳过、0 失败。** Apple SDK、真实 API 和 iPad 功能仍未验证。早期第二轮 ZIP e2ac66b 的“0 项执行”是历史状态，不能混用于当前版本。
 
-此 ZIP 包含第二轮提交的全部受 Git 跟踪文件、机器验证记录与 `AIUtility-history.bundle`。不包含 .git 工作目录、构建缓存、Python 依赖、环境变量或真实 API Key。`REVIEW_MANIFEST.json` 给出提交、逐文件 SHA-256 和 bundle 校验值；包外 `.zip.sha256` 校验整个 ZIP。
+使用 scripts/package_review.py 生成的 ZIP 包含其 HEAD 的全部受 Git 跟踪文件、验证记录与 `AIUtility-history.bundle`。不包含 .git 工作目录、构建缓存、Python 依赖、环境变量或真实 API Key。`REVIEW_MANIFEST.json` 给出提交、逐文件 SHA-256 和 bundle 校验值；包外 `.zip.sha256` 校验整个 ZIP。
 
 直接解压即可检查源码。若要恢复第一轮和第二轮提交：
 
