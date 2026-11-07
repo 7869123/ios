@@ -1,13 +1,30 @@
 import SwiftUI
+import UIKit
 import AIUtilityCore
 import AIUtilityAppleServices
 
 @main @MainActor struct AIUtilityApp: App {
     @StateObject private var model = AppModel()
     var body: some Scene {
-        WindowGroup { RootView().environmentObject(model).tint(UtilityTheme.cyan).preferredColorScheme(.light) }
+        WindowGroup {
+            RootView().environmentObject(model).tint(UtilityTheme.cyan).preferredColorScheme(.light)
+            #if DEBUG
+                .task { Self.applyReviewOrientation() }
+            #endif
+        }
     }
 }
+
+#if DEBUG
+extension AIUtilityApp {
+    /// CI review screenshots only: `-AIUtilityPreviewLandscape` rotates the simulator to landscape.
+    static func applyReviewOrientation() {
+        guard ProcessInfo.processInfo.arguments.contains("-AIUtilityPreviewLandscape"),
+              let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+        scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
+    }
+}
+#endif
 
 /// A single composition root keeps the shared key coordinator and session budget alive.
 @MainActor final class AppModel: ObservableObject {

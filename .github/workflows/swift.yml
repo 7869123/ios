@@ -84,7 +84,7 @@ jobs:
   app:
     needs: [core-linux, apple]
     runs-on: macos-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         id: checkout
@@ -92,6 +92,17 @@ jobs:
           persist-credentials: false
       - name: Generate and compile the native SwiftUI App
         run: bash scripts/ci_app.sh
+      - name: Capture home review screenshots (iPad mini primary, iPhone compatibility)
+        continue-on-error: true
+        timeout-minutes: 12
+        run: bash scripts/app_screenshots.sh
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.checkout.outcome == 'success'
+        with:
+          name: app-screenshots-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/app/screenshots/
+          retention-days: 7
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
