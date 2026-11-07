@@ -5,9 +5,10 @@ import AIUtilityAppleServices
 
 @main @MainActor struct AIUtilityApp: App {
     @StateObject private var model = AppModel()
+    @State private var wallpaper = WallpaperStore()
     var body: some Scene {
         WindowGroup {
-            RootView().environmentObject(model).tint(UtilityTheme.cyan).preferredColorScheme(.light)
+            RootView().environmentObject(model).environment(wallpaper).tint(UtilityTheme.cyan).preferredColorScheme(.light)
             #if DEBUG
                 .task { Self.applyReviewOrientation() }
             #endif

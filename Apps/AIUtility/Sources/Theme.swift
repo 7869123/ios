@@ -46,7 +46,23 @@ struct SlantBar: Shape {
 
 /// Page backdrop: soft vertical gradient, a fine diagonal line field in the top-trailing corner
 /// and two translucent halos. Purely decorative and hidden from accessibility.
+/// A user wallpaper, when set, replaces the default backdrop (see WallpaperStore).
 struct WorkspaceBackdrop: View {
+    @Environment(WallpaperStore.self) private var wallpaper: WallpaperStore?
+    var body: some View {
+        Group {
+            if let wallpaper, let image = wallpaper.image {
+                WindowAlignedWallpaper(image: image, layout: wallpaper.layout, scrim: wallpaper.scrim)
+            } else {
+                DefaultBackdrop()
+            }
+        }
+        .ignoresSafeArea()
+        .accessibilityHidden(true)
+    }
+}
+
+private struct DefaultBackdrop: View {
     var body: some View {
         ZStack {
             LinearGradient(colors: [UtilityTheme.canvas, .white], startPoint: .top, endPoint: .bottom)
@@ -67,8 +83,6 @@ struct WorkspaceBackdrop: View {
                 context.fill(halo2, with: .color(UtilityTheme.brand.opacity(0.06)))
             }
         }
-        .ignoresSafeArea()
-        .accessibilityHidden(true)
     }
 }
 

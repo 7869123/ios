@@ -68,6 +68,16 @@ import SwiftUI
         HStack(spacing: 10) {
             summaryChip(label: "截图", value: app.screenshotProvider.title)
             summaryChip(label: "字幕", value: app.subtitleProvider.title)
+            Button { open(.settings) } label: {
+                Label("壁纸", systemImage: "photo")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(UtilityTheme.brandStrong)
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(.white, in: Capsule())
+                    .overlay(Capsule().strokeBorder(UtilityTheme.stroke))
+            }
+            .buttonStyle(PressableCardStyle())
+            .accessibilityLabel("更换壁纸，打开设置")
         }
     }
 
