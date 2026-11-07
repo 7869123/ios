@@ -43,8 +43,13 @@ PoC 环境为 macOS 27.0.1 / Xcode 27.1 (27A9275) / iOS SDK 27.1。
 
 ## 第三阶段：验证记录
 
-本文件初始提交时尚未运行修改后的 Apple CI，不能将旧 run 归于本次源码。
-完整结果、运行 ID、逐 Job 状态与命令退出码将在验证后补充到本节及 STATUS.md。
+初轮修复 `857d150` 的手动运行 [42375947069](https://github.com/7869123/ios/actions/runs/42375947069)：
+Linux Core 36 通过/1 跳过，初版生命周期 8 通过；PoC macOS 测试真实编译失败：
+包未声明 macOS 最低版本，SwiftPM 默认为 12.0，与 Core 的 13.0 冲突。
+已补充 macOS 13（只用于可移植测试，iOS 仍要求 27），没有删除测试或降低采集目标。
+同轮 PR 自动运行 42375948027 只运行 Linux，不是全链路验证。
+后续同时补充共用异步停止屏障，确保并发 stop 都等待同一份释放，并增加三项实际释放回归。
+完整最终结果、逐 Job 状态与命令退出码将在验证后补充到本节及 STATUS.md。
 
 低成本检查：`python scripts/check_repository.py`、`git diff --check`；只是源码卫生/plist 检查。
 完整验证：当前审查分支手动触发 `.github/workflows/swift.yml`，同时设置

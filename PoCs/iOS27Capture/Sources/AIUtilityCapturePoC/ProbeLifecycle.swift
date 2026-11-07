@@ -5,6 +5,7 @@ final class ProbeLifecycle {
     enum Phase: Equatable { case idle, starting, running, stopping }
     private(set) var phase: Phase = .idle
     private(set) var revision: UInt64 = 0
+    private var releaseTask: Task<Void, Never>?
 
     func begin() -> UInt64? {
         guard phase == .idle else { return nil }
@@ -29,5 +30,18 @@ final class ProbeLifecycle {
     func didStop(_ revision: UInt64) {
         guard self.revision == revision, phase == .stopping else { return }
         phase = .idle
+    }
+    /// Every caller awaits the same release; nobody can observe idle before release finishes.
+    func stop(expected: UInt64? = nil, release: @escaping @MainActor () async -> Void) async {
+        guard expected == nil || expected == revision else { return }
+        if let releaseTask { await releaseTask.value; return }
+        guard let session = beginStop(expected: expected) else { return }
+        let task = Task { @MainActor [self] in
+            await release()
+            releaseTask = nil
+            didStop(session)
+        }
+        releaseTask = task
+        await task.value
     }
 }

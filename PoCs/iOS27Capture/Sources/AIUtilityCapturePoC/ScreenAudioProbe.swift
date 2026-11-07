@@ -134,7 +134,9 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         }
     }
     public func stop() async {
-        guard let session = lifecycle.beginStop() else { return }
+        await lifecycle.stop { [self] in await release() }
+    }
+    private func release() async {
         let picker = SCContentSharingPicker.shared
         if let callbacks { picker.remove(callbacks) }
         picker.isActive = false
@@ -148,15 +150,15 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         if let stoppingStream { try? await stoppingStream.stopCapture() }
         withExtendedLifetime((stoppingOutput, stoppingCallbacks)) {}
         starting = false
-        lifecycle.didStop(session)
         state = "已停止；无真机结论"
     }
     fileprivate func terminate(session: UInt64, source: SCStream?, message: String) async {
         guard lifecycle.accepts(session), source == nil || source === stream else { return }
+        let notify = onTermination
         await stop()
         // stop() keeps restart blocked until release finishes. No stale callback may stop a newer session.
         guard lifecycle.revision == session, lifecycle.phase == .idle else { return }
-        await onTermination?()
+        await notify?()
         if lifecycle.revision == session { state = message }
     }
 }

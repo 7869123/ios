@@ -1,6 +1,61 @@
 import Testing
 @testable import AIUtilityCapturePoC
 
+@MainActor private final class ReleasePause {
+    var continuation: CheckedContinuation<Void, Never>?
+    func wait() async { await withCheckedContinuation { continuation = $0 } }
+    func resume() { continuation?.resume(); continuation = nil }
+}
+
+@Test @MainActor func concurrentStopsAwaitOneActualRelease() async throws {
+    let gate = ProbeLifecycle()
+    _ = try #require(gate.begin())
+    let pause = ReleasePause()
+    var releases = 0
+    var completed = 0
+    let first = Task { @MainActor in
+        await gate.stop { releases += 1; await pause.wait() }
+        completed += 1
+    }
+    for _ in 0..<1_000 { if pause.continuation != nil { break }; await Task.yield() }
+    let started = pause.continuation != nil
+    #expect(started)
+    guard started else { first.cancel(); return }
+    let second = Task { @MainActor in
+        await gate.stop { releases += 1 }
+        completed += 1
+    }
+    await Task.yield()
+    #expect(completed == 0)
+    #expect(gate.begin() == nil)
+    pause.resume()
+    await first.value; await second.value
+    #expect(releases == 1)
+    #expect(completed == 2)
+    #expect(gate.phase == .idle)
+    #expect(gate.begin() != nil)
+}
+
+@Test @MainActor func staleFailureDoesNotReleaseNewSessionResources() async throws {
+    let gate = ProbeLifecycle()
+    let old = try #require(gate.begin())
+    await gate.stop {}
+    let current = try #require(gate.begin())
+    var accidentallyReleased = false
+    await gate.stop(expected: old) { accidentallyReleased = true }
+    #expect(!accidentallyReleased)
+    #expect(gate.accepts(current))
+}
+
+@Test @MainActor func repeatedStopAfterCompletionDoesNotReleaseTwice() async throws {
+    let gate = ProbeLifecycle()
+    _ = try #require(gate.begin())
+    var releases = 0
+    await gate.stop { releases += 1 }
+    await gate.stop { releases += 1 }
+    #expect(releases == 1)
+}
+
 @Test @MainActor func duplicateStartIsRejected() throws {
     let gate = ProbeLifecycle()
     let session = try #require(gate.begin())

@@ -18,7 +18,6 @@ import AIUtilityCore
     /// Nil means local ASR-only diagnostics, clearly marked in the host.
     public init(engine: TranslationEngine? = nil, provider: ProviderID = .openAI, targetLanguage: String = "简体中文") {
         capture = ScreenAudioProbe(speech: speech)
-        capture.onTermination = { [weak self] in await self?.stop() }
         if engine != nil { translationState = "等待 final 语音段" }
         speech.onFinalText = { [weak self] text in
             guard let self, let engine, self.lifecycle.accepts(self.lifecycle.revision) else { return }
@@ -49,6 +48,7 @@ import AIUtilityCore
             guard lifecycle.accepts(session) else { throw CancellationError() }
             try pip.prepare()
             observeAudioEvents(session: session)
+            capture.onTermination = { [weak self] in await self?.stop(expected: session) }
             capture.presentPicker()
             lifecycle.didStart(session)
         }
@@ -61,20 +61,20 @@ import AIUtilityCore
         await stop(expected: nil)
     }
     private func stop(expected: UInt64?) async {
-        guard let session = lifecycle.beginStop(expected: expected) else { return }
-        audioObservers.forEach { NotificationCenter.default.removeObserver($0) }
-        audioObservers.removeAll()
-        revision += 1; translationTask?.cancel(); translationTask = nil
-        // Detach producers before the first suspension; old cleanup cannot stop a new session.
-        speech.stop(); pip.stop()
-        await capture.stop()
-        lifecycle.didStop(session)
+        await lifecycle.stop(expected: expected) { [self] in
+            audioObservers.forEach { NotificationCenter.default.removeObserver($0) }
+            audioObservers.removeAll()
+            revision += 1; translationTask?.cancel(); translationTask = nil
+            // Detach producers before resource release suspends. Restart stays blocked.
+            speech.stop(); pip.stop()
+            await capture.stop()
+        }
     }
     private func observeAudioEvents(session: UInt64) {
         for name in [AVAudioSession.interruptionNotification, AVAudioSession.routeChangeNotification,
                      AVAudioSession.mediaServicesWereLostNotification, AVAudioSession.mediaServicesWereResetNotification] {
             let token = NotificationCenter.default.addObserver(forName: name,
-                object: AVAudioSession.sharedInstance(), queue: .main) { [weak self] notification in
+                object: nil, queue: .main) { [weak self] notification in
                 let interruptionEnded = name == AVAudioSession.interruptionNotification &&
                     (notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt) == AVAudioSession.InterruptionType.ended.rawValue
                 let ownCategoryChange = name == AVAudioSession.routeChangeNotification &&
