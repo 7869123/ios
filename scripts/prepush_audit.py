@@ -24,6 +24,11 @@ RULES = {
 }
 
 
+# Placeholder local identity, Claude co-authoring, and the CI bot that commits review previews.
+ALLOWED_AUTHORS = {"aiutility@localhost", "noreply@anthropic.com",
+                   "41898283+github-actions[bot]@users.noreply.github.com"}
+
+
 def main():
     rows = git("rev-list", "--objects", "--all").decode().splitlines()
     findings, large, local_paths = [], [], set()
@@ -45,14 +50,15 @@ def main():
         for rule, pattern in RULES.items():
             for match in re.finditer(pattern, data):
                 value = match.group()
-                if rule == "personal_email" and value.rsplit(b"@", 1)[1].lower() in (b"example.com", b"example.org"):
+                if rule == "personal_email" and value.rsplit(b"@", 1)[1].lower() in (
+                        b"example.com", b"example.org", b"anthropic.com", b"users.noreply.github.com", b"localhost"):
                     continue
                 findings.append({"path": path, "rule": rule, "object": oid,
                                  "line": data[:match.start()].count(b"\n") + 1,
                                  "fingerprint": hashlib.sha256(value).hexdigest()[:12]})
     author_emails = set(git("log", "--all", "--format=%ae%n%ce").decode().splitlines())
     unexpected_authors = [hashlib.sha256(email.encode()).hexdigest()[:12]
-                          for email in author_emails if email not in {"aiutility@localhost"}]
+                          for email in author_emails if email not in ALLOWED_AUTHORS]
     report = {
         "head": git("rev-parse", "HEAD").decode().strip(),
         "reachable_blobs_scanned": blob_count,

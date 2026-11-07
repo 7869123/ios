@@ -41,7 +41,23 @@ swift build --package-path Packages/AIUtilityCore
 swift test --package-path Packages/AIUtilityCore
 ```
 
-无需配置任何仓库 API Secret。付费 API 与 Keychain 集成测试均关闭。当前普通源码 push / pull_request 还会在 Core 后运行 Apple 包验证，随后编译 SwiftUI App；仅 Markdown 或 validation 证据变更不重复构建。手动 workflow 通过 build_apple 开启 Apple/App，iOS 27 PoC 仍需显式 build_poc。默认跳过的运行时测试和 PoC 不能标成通过。
+无需配置任何仓库 API Secret。付费 API 与 Keychain 集成测试均关闭。
+
+### 触发策略（2026-11-07 起，节省私有仓库 macOS 分钟）
+
+私有仓库的 macOS 分钟按 10 倍计费。此前每次推送到 PR 分支都会同时触发 push 和 pull_request 两次完整的 macOS 构建，现已调整为：
+
+| 事件 | 运行的 job | 说明 |
+|---|---|---|
+| pull_request（每次 PR 更新） | core-linux | 仅 Linux，快速检查 |
+| push | 只在 main 上触发：core-linux → apple → app | 合并后的完整验证（PR 分支上的 push 不再重复触发） |
+| 手动 workflow_dispatch，`build_apple` | core-linux → apple → app（含截图） | **合并 PR 前必须跑一次并通过** |
+| 手动，`build_poc` | core-linux → poc-sdk（xcode-27） | 仅在 PoC 源码或其 CI 变更时需要 |
+| 手动，`publish_previews`（配合 `build_apple`） | app 末尾提交缩小的截图到 `validation/ui-preview/` | 该 job 为此拥有 `contents: write` |
+
+同一分支或引用上的新运行会自动取消尚在进行的旧运行（`concurrency`）。仅 Markdown 或 validation 证据变更不触发构建。
+
+开发节奏：批量本地开发，推送前运行 `scripts/prepush_check.sh`（语法、资源、diff 与敏感信息扫描），一批相关改动完成后再手动跑一次 `build_apple` 完整验证；失败时根据真实日志集中修复后再触发。默认跳过的运行时测试和 PoC 不能标成通过。
 
 打开仓库 **Actions → Swift validation → 对应 main 提交的运行**。如果 Actions 被禁用，先在 Settings → Actions → General 允许此仓库运行所用官方 actions；不需要增加工作流写权限。手动 Run workflow 也可以补触发，首次只选 main，两个 Apple 选项保持关闭。
 
