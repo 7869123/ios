@@ -1,11 +1,13 @@
 # AIUtility
 
-原生 iOS / iPadOS 工具箱，Swift + SwiftUI。当前优先后端工程验证；没有正式产品 UI。
+原生 iOS / iPadOS 工具箱，Swift + SwiftUI。Apple 包验证后已建立可编译的初步 SwiftUI App；UI 运行时和真机仍待验收。
 
 - [实际状态与阻碍](STATUS.md)
 - [环境、构建与测试](BUILD.md)
 - [模块与安全约束](ARCHITECTURE.md)
 - [iOS 27 采集 / PiP 技术 PoC 与真机验收](IOS_POC.md)
+- [SwiftUI App 与构建入口](Apps/AIUtility/README.md)
+- [前端架构](FRONTEND.md) · [交接](HANDOFF.md) · [后续验证准备](VALIDATION_PLAN.md)
 
 `Packages/AIUtilityCore` 无 Apple UI 依赖；`Packages/AIUtilityAppleServices` 实现 Keychain 与本地 Vision OCR；`PoCs/iOS27Capture` 是隔离的诊断工程。
 

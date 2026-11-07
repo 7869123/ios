@@ -5,7 +5,7 @@ import AIUtilityAppleServices
 @main @MainActor struct AIUtilityApp: App {
     @StateObject private var model = AppModel()
     var body: some Scene {
-        WindowGroup { RootView().environmentObject(model).tint(UtilityTheme.cyan) }
+        WindowGroup { RootView().environmentObject(model).tint(UtilityTheme.cyan).preferredColorScheme(.light) }
     }
 }
 

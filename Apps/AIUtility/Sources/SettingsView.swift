@@ -68,13 +68,18 @@ import AIUtilityCore
     private func loadBindings() async {
         let selected = provider
         candidateKey = ""; catalogue = []
+        hasSavedKey = false; screenshotModel = ""; subtitleModel = ""
+        message = "正在读取此供应商的已保存配置…"
         do {
             let models = try await app.services.configurations.models(provider: selected)
             guard !Task.isCancelled, provider == selected else { return }
             hasSavedKey = !models.isEmpty
             screenshotModel = models[.discordScreenshot] ?? ""
             subtitleModel = models[.videoSubtitle] ?? ""
-        } catch { message = UserFacingError.text(error) }
+            message = hasSavedKey ? "已读取模型绑定；切换模型会先验证。" : "尚未配置此供应商，请输入 Key 和模型。"
+        } catch {
+            if !Task.isCancelled, provider == selected { message = UserFacingError.text(error) }
+        }
         await refreshBudget()
     }
     private func refreshBudget() async {

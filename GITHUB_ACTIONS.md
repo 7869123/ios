@@ -33,7 +33,7 @@ GitHub 官方流程见 [推送本地仓库](https://docs.github.com/en/migration
 
 ## 3. 找到真实 Actions 结果
 
-首次 push 会触发 **Swift validation → core-linux**，依次执行：
+源码 push 会触发 **Swift validation → core-linux**，依次执行：
 
 ```sh
 swift --version
@@ -41,7 +41,7 @@ swift build --package-path Packages/AIUtilityCore
 swift test --package-path Packages/AIUtilityCore
 ```
 
-无需配置任何仓库 API Secret。付费 API 与 Keychain 集成测试均关闭。普通 push / pull_request 只跑 Core；macOS 和 iOS 27 PoC 需手动运行 workflow 并显式选择 `build_apple` / `build_poc`，且先通过 Core。不要因这两个任务默认跳过而认为 Apple 功能已验证。
+无需配置任何仓库 API Secret。付费 API 与 Keychain 集成测试均关闭。当前普通源码 push / pull_request 还会在 Core 后运行 Apple 包验证，随后编译 SwiftUI App；仅 Markdown 或 validation 证据变更不重复构建。手动 workflow 通过 build_apple 开启 Apple/App，iOS 27 PoC 仍需显式 build_poc。默认跳过的运行时测试和 PoC 不能标成通过。
 
 打开仓库 **Actions → Swift validation → 对应 main 提交的运行**。如果 Actions 被禁用，先在 Settings → Actions → General 允许此仓库运行所用官方 actions；不需要增加工作流写权限。手动 Run workflow 也可以补触发，首次只选 main，两个 Apple 选项保持关闭。
 

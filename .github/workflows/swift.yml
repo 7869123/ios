@@ -1,7 +1,9 @@
 name: Swift validation
 on:
   push:
+    paths-ignore: ['**/*.md', 'validation/**']
   pull_request:
+    paths-ignore: ['**/*.md', 'validation/**']
   workflow_dispatch:
     inputs:
       build_apple:
