@@ -16,6 +16,13 @@
 - Apple 官方 iOS 示例只采集**屏幕画面和麦克风**。**目前没有任何官方示例证明 iOS 上能采到其他 App 播放的音频**；`capturesAudio` 文档存在不等于跨 App 系统音频可用，这正是本 PoC 需要真机回答的核心问题。
 - `com.apple.developer.persistent-content-capture` **只适用于 macOS**（VNC 类持续屏幕采集），iOS 用不到，本工程不应也不需要申请或声明它。
 
+### xcode-27 首次真实编译结果（2026-11-07）
+
+- 实测环境：macOS 27.0.1、Xcode 27.1（27A9275）、`iphoneos27.1` / `iphonesimulator27.1`（不是 README 写的 27.0 beta）。
+- Simulator 构建退出 65：ScreenCaptureKit 在 Simulator SDK 不可导入，`PoCSession` / `ScreenAudioProbe` 被 `#if canImport(ScreenCaptureKit)` 剔除，Host 找不到类型。PoC 只能用 iphoneos SDK 验证编译。
+- iphoneos archive 首次真实编译两文件，报 `SCStream.updateContentFilter` 与 `SCStreamConfiguration.minimumFrameInterval` 在 iOS 上 unavailable。已修正：删去 `minimumFrameInterval`（屏幕帧本就丢弃）；采集中收到选择器范围更新时忽略并提示先停止，不再调用 `updateContentFilter`。
+- 尚余 warning：SubtitlePiPProbe 的 PiP delegate conformance 跨 main actor 隔离（Swift 6 下为错误）；`AVSampleBufferDisplayLayer` 的 enqueue/flush/status 等自 iOS 18 弃用。
+
 ### 待真机验证的新增风险
 
 1. **音频会话类别**：SubtitlePiPProbe 当前使用 `.playback` + `.moviePlayback` + `.mixWithOthers`。`.playback` 与 `.playAndRecord` 在后台存活、与来源 App 混音/打断、路由及采集是否被系统静音方面可能不同；需在 iPad 上分别对比后台采集持续性与 RMS。
@@ -30,8 +37,8 @@
 |---|---|---|
 | ScreenAudioProbe：`SCContentSharingPicker.shared`、`SCContentSharingPickerConfiguration`、`showsMicrophoneControl`、`showsCameraControl`、`add/remove`、`isActive`、`present()` | iOS 27 声明、选择器配置类型及 MainActor 标注 | 整屏选择、授权拒绝、取消、其他 App 范围 |
 | `SCContentSharingPickerObserver` 三个回调、`SCStreamDelegate.stream(_:didStopWithError:)` | Swift 参数标签、isolation、filter/stream 的 Sendable 声明 | 取消和旧回调是否可能晚于新会话 |
-| `SCStream(filter:configuration:delegate:)`、`addStreamOutput`、`.screen/.audio`、`startCapture/stopCapture/updateContentFilter` | iOS 可用性、async/throws 导入、输出协议签名 | 后台存活、音频来源与停止行为 |
-| `SCStreamConfiguration.capturesAudio/excludesCurrentProcessAudio/sampleRate/channelCount/width/height/minimumFrameInterval` | iOS 27 属性可用性、类型与范围 | 16×16 / 1 FPS 屏幕配置能否启动；实际采样率；不采自身音频 |
+| `SCStream(filter:configuration:delegate:)`、`addStreamOutput`、`.screen/.audio`、`startCapture/stopCapture`（`updateContentFilter` 在 iOS 不可用，已移除） | iOS 可用性、async/throws 导入、输出协议签名 | 后台存活、音频来源与停止行为 |
+| `SCStreamConfiguration.capturesAudio/excludesCurrentProcessAudio/sampleRate/channelCount/width/height`（`minimumFrameInterval` 在 iOS 不可用，已移除） | iOS 27 属性可用性、类型与范围 | 16×16 屏幕配置能否启动（帧率无法限制）；实际采样率；不采自身音频 |
 | `CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer`、`CMAudioFormatDescriptionGetStreamBasicDescription`、`UnsafeMutableAudioBufferListPointer` | 参数标签、可选指针、内存对齐与 retained block buffer 生命周期 | PCM 格式、端序、Float 对齐、RMS；非 float 格式目前不测 RMS |
 | LocalSpeechProbe：`requestAuthorization`、`supportsOnDeviceRecognition`、`requiresOnDeviceRecognition`、`recognitionTask`、`appendAudioSampleBuffer/endAudio` | Speech 协议隔离、buffer API 签名 | 本地语言包、后台支持、时长限制、PCM 接受情况、partial/final 时机 |
 | SubtitlePiPProbe：`AVPictureInPictureController.ContentSource(sampleBufferDisplayLayer:playbackDelegate:)`、`isPictureInPicturePossible`、所有 playback/delegate 方法 | AVKit 签名和 completionHandler 的隔离/Sendable 标注 | 真正出现 PiP 且字幕跨 App 刷新；系统控件行为 |

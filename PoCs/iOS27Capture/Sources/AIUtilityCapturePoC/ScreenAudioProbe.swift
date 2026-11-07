@@ -87,9 +87,9 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
     }
     private func start(filter: SCContentFilter) async {
         guard active, !starting else { return }
-        if let stream {
-            do { try await stream.updateContentFilter(filter) }
-            catch { state = "更新采集范围失败" }
+        if stream != nil {
+            // SCStream.updateContentFilter is unavailable on iOS (iOS 27.1 SDK); ignore range changes while capturing.
+            state = "采集中忽略范围更新；如需更换范围请先停止"
             return
         }
         starting = true
@@ -100,7 +100,7 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         configuration.sampleRate = 48_000
         configuration.channelCount = 1
         configuration.width = 16; configuration.height = 16
-        configuration.minimumFrameInterval = CMTime(value: 1, timescale: 1)
+        // minimumFrameInterval is unavailable on iOS (iOS 27.1 SDK); screen frames are discarded anyway.
         let output = CaptureOutput(speech: speech.sink) { [weak self] metrics in
             Task { @MainActor [weak self] in self?.metrics = metrics }
         }
