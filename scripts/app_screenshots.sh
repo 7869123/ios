@@ -17,11 +17,13 @@ r.sort(key=lambda x:[int(p) for p in x["version"].split(".")])
 print(r[-1]["identifier"] if r else "")')
 echo "runtime: $runtime"
 [ -n "$runtime" ] || { echo "no available iOS runtime"; exit 1; }
+# Pick the newest device type this runtime supports whose name matches the pattern.
 pick_type() {
-  xcrun simctl list devicetypes -j | python3 -c 'import json,sys,re
-pat=re.compile(sys.argv[1])
-t=[d for d in json.load(sys.stdin)["devicetypes"] if pat.search(d["name"])]
-print(t[-1]["identifier"] if t else "")' "$1"
+  xcrun simctl list runtimes -j | python3 -c 'import json,sys,re
+rid,pat=sys.argv[1],re.compile(sys.argv[2])
+rt=[r for r in json.load(sys.stdin)["runtimes"] if r["identifier"]==rid]
+t=[d for d in (rt[0].get("supportedDeviceTypes",[]) if rt else []) if pat.search(d["name"])]
+print(t[-1]["identifier"] if t else "")' "$runtime" "$1"
 }
 shoot() {
   local label="$1" type="$2"
@@ -46,6 +48,6 @@ shoot() {
 }
 failed=0
 shoot ipad-mini "$(pick_type '^iPad mini')" || failed=1
-shoot iphone "$(pick_type '^iPhone [0-9]+$')" || failed=1
+shoot iphone "$(pick_type '^iPhone [0-9]+( Pro)?$')" || failed=1
 ls -la "$out"
 exit "$failed"
