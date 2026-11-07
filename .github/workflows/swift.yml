@@ -223,6 +223,7 @@ jobs:
             check "CFBundleIdentifier == com.aiutility.capture-probe" '[ "$(plutil -extract CFBundleIdentifier raw -o - "$plist")" = com.aiutility.capture-probe ]'
             check "MinimumOSVersion >= 27" '[ "$(plutil -extract MinimumOSVersion raw -o - "$plist" | cut -d. -f1)" -ge 27 ]'
             check "NSSpeechRecognitionUsageDescription non-empty" '[ -n "$(plutil -extract NSSpeechRecognitionUsageDescription raw -o - "$plist")" ]'
+            check "NSScreenCaptureUsageDescription non-empty" '[ -n "$(plutil -extract NSScreenCaptureUsageDescription raw -o - "$plist")" ]'
             check "UIBackgroundModes contains audio" 'plutil -extract UIBackgroundModes json -o - "$plist" | grep -q "\"audio\""'
             check "UIBackgroundModes contains screen-capture" 'plutil -extract UIBackgroundModes json -o - "$plist" | grep -q "\"screen-capture\""'
             check "binary links ScreenCaptureKit (capture code not compiled out)" 'otool -L "$exe" | grep -q ScreenCaptureKit.framework'
