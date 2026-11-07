@@ -11,7 +11,7 @@
 
 `Packages/AIUtilityCore` 无 Apple UI 依赖；`Packages/AIUtilityAppleServices` 实现 Keychain 与本地 Vision OCR；`PoCs/iOS27Capture` 是隔离的诊断工程。
 
-**Core 已通过真实 Linux Swift 6.0.3 编译与测试：36 项通过、1 项真实 API 测试跳过、0 失败。** [Actions 证据](https://github.com/7869123/ios/actions/runs/42335206895)。Apple SDK、真实 API、Keychain/Vision 和 iPad 真机仍未验证；具体边界见 STATUS.md。
+**Linux/macOS Core、Apple 包 SDK 和初步 SwiftUI App 的两个 iOS SDK 构建已通过。** [最新 Actions 证据](https://github.com/7869123/ios/actions/runs/42354651780)。Core 各 36 项通过/1 跳过；macOS Vision 2 项通过/Keychain 1 项跳过。真实 API、UI 交互、iOS 运行时与 iPad 真机仍未验证；具体边界见 STATUS.md。
 
 Apple 应用中的真实服务接线示例（模型 ID 来自供应商目录，不预设默认型号）：
 

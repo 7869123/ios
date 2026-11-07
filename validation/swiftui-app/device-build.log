@@ -1,0 +1,781 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj -scheme AIUtility -sdk iphoneos -destination generic/platform=iOS -derivedDataPath /Users/runner/work/ios/ios/artifacts/app-device-build CODE_SIGNING_ALLOWED=NO build
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    SDKROOT = iphoneos26.5
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  AIUtilityCore: /Users/runner/work/ios/ios/Packages/AIUtilityCore
+  AIUtilityAppleServices: /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (5 targets)
+    Target 'AIUtility' in project 'AIUtility'
+        ➜ Explicit dependency on target 'AIUtilityCore' in project 'AIUtilityCore'
+        ➜ Explicit dependency on target 'AIUtilityAppleServices' in project 'AIUtilityAppleServices'
+    Target 'AIUtilityAppleServices' in project 'AIUtilityAppleServices'
+        ➜ Explicit dependency on target 'AIUtilityAppleServices' in project 'AIUtilityAppleServices'
+        ➜ Explicit dependency on target 'AIUtilityCore' in project 'AIUtilityCore'
+    Target 'AIUtilityAppleServices' in project 'AIUtilityAppleServices'
+        ➜ Explicit dependency on target 'AIUtilityCore' in project 'AIUtilityCore'
+    Target 'AIUtilityCore' in project 'AIUtilityCore'
+        ➜ Explicit dependency on target 'AIUtilityCore' in project 'AIUtilityCore'
+    Target 'AIUtilityCore' in project 'AIUtilityCore' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 11fe08d3683388e453e57fdb5ea21dfd
+Build description path: /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/XCBuildData/11fe08d3683388e453e57fdb5ea21dfd.xcbuilddata
+ClangStatCache /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -o /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-create-build-directory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-create-build-directory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility-ebd8c78b82b857d8769745a12792bd3f-VFS-iphoneos/all-product-headers.yaml
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility-ebd8c78b82b857d8769745a12792bd3f-VFS-iphoneos/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-create-build-directory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos
+
+CreateBuildDirectory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-create-build-directory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-create-build-directory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks
+
+CreateBuildDirectory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-create-build-directory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-create-build-directory /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_const_extract_protocols.json (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftFileList (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftConstValuesFileList (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.LinkFileList (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-OutputFileMap.json (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.modulemap (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.modulemap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.DependencyStaticMetadataFileList (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.DependencyMetadataFileList (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.DependencyMetadataFileList
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/AIUtilityCore.modulemap /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.modulemap (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.modulemap /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_const_extract_protocols.json (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftFileList (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftConstValuesFileList (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.LinkFileList (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-OutputFileMap.json (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.modulemap (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.modulemap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.DependencyStaticMetadataFileList (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.DependencyMetadataFileList (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.DependencyMetadataFileList
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/AIUtilityAppleServices.modulemap /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.modulemap (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.modulemap /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_const_extract_protocols.json (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftFileList (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftConstValuesFileList (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.LinkFileList (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-OutputFileMap.json (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.hmap (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.hmap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.DependencyStaticMetadataFileList (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.DependencyMetadataFileList (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-project-headers.hmap (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-own-target-headers.hmap (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-generated-files.hmap (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-all-target-headers.hmap (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-all-non-framework-target-headers.hmap (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-DebugDylibPath-normal-arm64.txt (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-DebugDylibInstallName-normal-arm64.txt (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    write-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-DebugDylibInstallName-normal-arm64.txt
+
+MkDir /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    /bin/mkdir -p /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app
+
+SwiftDriver AIUtilityCore normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-SwiftDriver -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityCore -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitycore -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_const_extract_protocols.json -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_SwiftConcurrencyShims-B9CNXWLIK61MAT3BDMUIKTZRL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_AvailabilityInternal-AC42FT72C7XNXY5CANWUE2DUU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdarg-A32DL7YKYTAL4BACEJDNR748U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stddef-2WKWX3BBYIFSSMGWCAA4C49AP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ptrcheck-53YZRW53H8POIB197MXU5XJ18.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_float-1G9ZCKHFND2E62YZJ4SPSPU5D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/SwiftShims-4WW14LQPAF57RACPESCP8WAHY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdbool-8QRCPH5EZF2B5ZADT2MCWIHOI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ptrauth-3DAQZATRLAC1WNWDKVB8ZV9UY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_DarwinFoundation1-BY05BWF92HMZNW3PUH0CBYTWT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_DarwinFoundation2-1K8OC66NQPQVWDIPOVADVY5OT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_limits-7Z3XAHA3EQ0ICUH0ZRT1TN1TK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/sys_types-CRFO1OQ8P95IMO2GVRS3UO24V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdint-5J3VO3XAGQ86849RMS06G2A77.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_DarwinFoundation3-923V5YH3DWA6PRZ1ASUDHBJL7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_inttypes-4K60JEX4CA624DDOZC47P1P8J.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Darwin-8IQM8H8PSFWLE915WQ2TCTP7Z.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ObjectiveC-2YX7UH12BH54TTLR4E2RK8R3G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/os_object-ET9Y1CX8F37A6FWXWVSXTG2GJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/os_workgroup-AZ7RIQ21VAPSV2RBE4QIA2JBK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Dispatch-5B160WKTQ263OK3SQXCR095NA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/XPC-9HRFBHHP8F4V4PAS551G2G002.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreFoundation-EL144PRMDAEH92KKPJNNXLO38.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CFNetwork-EOSHYZZ7AJM2FKILT6CJAU3XZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Security-C3RWR0AMFQ30AWJWVY1B2DP4R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Foundation-B4V1LVO1777NL68CQ0K62IBFO.pcm
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ AIUtilityCore (in target 'AIUtilityCore' from project 'AIUtilityCore')
+
+EmitSwiftModule normal arm64 (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 Compiling\ OCRService.swift,\ OfficialAPIAdapter.swift /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/OCRService.swift /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/OfficialAPIAdapter.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/OCRService.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/OfficialAPIAdapter.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 Compiling\ ProviderGateway.swift,\ TranslationEngine.swift /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/ProviderGateway.swift /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/TranslationEngine.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/ProviderGateway.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/TranslationEngine.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 Compiling\ ConfigurationCoordinator.swift,\ Domain.swift,\ HTTPTransport.swift /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/ConfigurationCoordinator.swift /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/Domain.swift /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/HTTPTransport.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/ConfigurationCoordinator.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/Domain.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityCore/Sources/AIUtilityCore/HTTPTransport.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for AIUtilityCore (in target 'AIUtilityCore' from project 'AIUtilityCore')
+
+SwiftDriver\ Compilation\ Requirements AIUtilityCore normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityCore -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitycore -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_const_extract_protocols.json -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling ConfigurationCoordinator.swift, Domain.swift, HTTPTransport.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+
+SwiftMergeGeneratedHeaders /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/AIUtilityCore-Swift.h /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-Swift.h (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-Swift.h -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/AIUtilityCore-Swift.h
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftmodule (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftmodule /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/arm64-apple-ios.swiftmodule
+
+SwiftDriverJobDiscovery normal arm64 Compiling ProviderGateway.swift, TranslationEngine.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftdoc (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftdoc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/arm64-apple-ios.abi.json /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.abi.json (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.abi.json /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftsourceinfo (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftsourceinfo /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling OCRService.swift, OfficialAPIAdapter.swift (in target 'AIUtilityCore' from project 'AIUtilityCore')
+
+SwiftDriver\ Compilation AIUtilityCore normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-Swift-Compilation -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityCore -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitycore -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_const_extract_protocols.json -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.o normal (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios16.0 -r -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -O0 -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -filelist /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.LinkFileList -nostdlib -Xlinker -object_path_lto -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_lto.o -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftmodule @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-linker-args.resp -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.o
+
+SwiftDriver AIUtilityAppleServices normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-SwiftDriver -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityAppleServices -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilityappleservices -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_const_extract_protocols.json -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+ExtractAppIntentsMetadata (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.fk7ez5/Metal.xctoolchain --module-name AIUtilityCore --sdk-root /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 16.0 --bundle-identifier aiutilitycore.AIUtilityCore --output /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.appintents --target-triple arm64-apple-ios16.0 --binary-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.o --dependency-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore_dependency_info.dat --stringsdata-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftFileList --metadata-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/AIUtilityCore.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.SwiftConstValuesFileList --force --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-11-07 08:19:06.527 appintentsmetadataprocessor[7264:25073] Starting appintentsmetadataprocessor export
+2026-11-07 08:19:06.564 appintentsmetadataprocessor[7264:25073] Extracted no relevant App Intents symbols, skipping writing output
+
+RegisterExecutionPolicyException /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.o (in target 'AIUtilityCore' from project 'AIUtilityCore')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityCore
+    builtin-RegisterExecutionPolicyException /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityCore.o
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/DataDetection-7JE77LDWWFW7NITEOO2AKA2R8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/UniformTypeIdentifiers-E638Z34HODNUGJDVVZ0ZX3QFZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreAudioTypes-23JFZ4V05MWJR87MEUN6AQ2I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/dnssd-35G4JRNUL2IWZ3YFFAHE2D99D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreMIDI-28YM8HVV3BYD153OAL9BO665M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/IOSurface-9VE2UU83PBHEDBGAIZX6J89J9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_intrinsics-EAFZX208RC0PJ6FHX0WFCH28I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_tgmath-C06YXEYIRJPY4N2PQUUWJIUPP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Metal-8SWIRFDG5C42Y2YDFMDXR7SYG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AudioToolbox-4M82CKC0N0H047O8KMMZSSZ7G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/OpenGLES-DGCHLJO6GSVJPHK3W7I3QGCL2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/MachO-2DSX9V37HVIEPVKNL7J5YAD6N.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/simd-7WQEBQ1TMICWVI302E3B1IQZV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdatomic-2SCUQN5GM0CTUSC97K9H5CYET.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreAudio-CBIHLHARQH9C2FL1QAA706BQO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreGraphics-5X3ZE67I9EZLEPVF3D2KVP4ZA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/os-ATIVFI9RM30ROWGQOIYGS1F1I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Network-B59USHLZGDK29ZQQIED532PL3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ImageIO-9JHD4RVA981X0PUKDZD0R16SK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreVideo-74KP6XR2EIRJ0BIFK39FKQID.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AVRouting-ANSB8Q8LMMAJZI6ZYYQWRXZCF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreMedia-8E40N42YN0SJX9ZALNBBBFAG9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Accelerate-CQDTGWYI4K3JD9NUH9SUIP3MP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreML-DSQD8VBCWJ517P98YOEZZG9G0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/QuartzCore-EY7VYF5T4LSX5GX832WNZEUNU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreImage-CNS68CT413XZX7WU7WRTF9P0B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Vision-8BX71O39DGU31HAU8B28AA5Z0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/MediaToolbox-C3Z5UT2GO57L7J7ATFZIFUMK3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AVFAudio-7IYUMNB1IBWYDZVABGR7E5ZV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AVFoundation-IGYB3TLP7JK3VU1Y0OWBC88M.pcm
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ AIUtilityAppleServices (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+
+EmitSwiftModule normal arm64 (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 Compiling\ VisionOCRService.swift /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices/Sources/AIUtilityAppleServices/VisionOCRService.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices/Sources/AIUtilityAppleServices/VisionOCRService.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 Compiling\ KeychainCredentialStore.swift /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices/Sources/AIUtilityAppleServices/KeychainCredentialStore.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices/Sources/AIUtilityAppleServices/KeychainCredentialStore.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftCompile normal arm64 Compiling\ AIUtilityServices.swift /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices/Sources/AIUtilityAppleServices/AIUtilityServices.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices/Sources/AIUtilityAppleServices/AIUtilityServices.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for AIUtilityAppleServices (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+
+SwiftDriver\ Compilation\ Requirements AIUtilityAppleServices normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityAppleServices -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilityappleservices -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_const_extract_protocols.json -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling KeychainCredentialStore.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+
+SwiftMergeGeneratedHeaders /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/AIUtilityAppleServices-Swift.h /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-Swift.h (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-Swift.h -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/AIUtilityAppleServices-Swift.h
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftmodule (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftmodule /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftdoc (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftdoc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/arm64-apple-ios.abi.json /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.abi.json (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.abi.json /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftsourceinfo (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftsourceinfo /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+SwiftDriver AIUtility normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-SwiftDriver -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtility -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios17.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-generated-files.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-own-target-headers.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility-ebd8c78b82b857d8769745a12792bd3f-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-project-headers.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling AIUtilityServices.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_float-9YKEHE2AO10LB1CBD4MCCC0SO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_SwiftConcurrencyShims-8LC38CVGBVI4CQ1GKHABSTHDP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdarg-4VOPVH76V0NF1FDOTGVLJ8I40.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ptrcheck-4RE9IPVA3BEYVLLLAZIG155I8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/DeveloperToolsSupport-BNJMC23CDWUWMG9F6AR2VWA0U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdbool-5J15RRURD36RES1RA080ZQFV8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ptrauth-60I6D5QUHCSEA5B8QBRY3C1EK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/SwiftShims-2VTQLIC3ZI3SJONEK58H2ANN6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stddef-EKTYB0DN1UYKDIUYW90XVP7JI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_AvailabilityInternal-109DJETPY8FLIN6UCM8EHT2U.pcm
+
+SwiftDriverJobDiscovery normal arm64 Compiling VisionOCRService.swift (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+
+SwiftDriver\ Compilation AIUtilityAppleServices normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj
+    builtin-Swift-Compilation -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityAppleServices -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilityappleservices -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_const_extract_protocols.json -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility/AIUtility.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.o normal (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios16.0 -r -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -O0 -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/Developer/Library/Frameworks -filelist /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.LinkFileList -nostdlib -Xlinker -object_path_lto -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_lto.o -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftmodule @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-linker-args.resp -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.o
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_DarwinFoundation1-77KHFPD4WGVTQ0LSBBD0W1WCI.pcm
+
+ExtractAppIntentsMetadata (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.fk7ez5/Metal.xctoolchain --module-name AIUtilityAppleServices --sdk-root /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 16.0 --bundle-identifier aiutilityappleservices.AIUtilityAppleServices --output /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.appintents --target-triple arm64-apple-ios16.0 --binary-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.o --dependency-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices_dependency_info.dat --stringsdata-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftFileList --metadata-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/AIUtilityAppleServices.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.SwiftConstValuesFileList --force --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-11-07 08:19:10.602 appintentsmetadataprocessor[7480:25699] Starting appintentsmetadataprocessor export
+2026-11-07 08:19:10.610 appintentsmetadataprocessor[7480:25699] Extracted no relevant App Intents symbols, skipping writing output
+
+RegisterExecutionPolicyException /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.o (in target 'AIUtilityAppleServices' from project 'AIUtilityAppleServices')
+    cd /Users/runner/work/ios/ios/Packages/AIUtilityAppleServices
+    builtin-RegisterExecutionPolicyException /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtilityAppleServices.o
+
+ProcessInfoPlistFile /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Info.plist /Users/runner/work/ios/ios/Apps/AIUtility/Info.plist (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-infoPlistUtility /Users/runner/work/ios/ios/Apps/AIUtility/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Info.plist
+
+Ld /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/__preview.dylib normal (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0 -dynamiclib -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -O0 -L/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -install_name @rpath/AIUtility.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_dependency_info.dat -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/__preview.dylib
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ExtensionFoundation-EV2IFSLSZWH788EL1J3RRKZC1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_limits-5HUJF8T1YDN3MLUX2ZE0PU1S2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_DarwinFoundation2-DRG56S4DA8V4IG1I9KILLDDMU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_tgmath-BFR4KBT4PWAN1254L9Z0UT01U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdint-31L54RT4O4WVMVRMJVC92DRBD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/sys_types-405NWGCDXB95M1WCPY1YGWNTQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_DarwinFoundation3-2G7L8FWEBZRGD6CMSVAFU4SIC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_stdatomic-3YFDA0BPJMYR6OD0JT7G336FM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_intrinsics-3ZVEWJJ2NB0IFPT18SVHEH3NT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_Builtin_inttypes-EQWHGHDDABALHM9MJQ46NYK9D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Darwin-118U3BNSZMYZ43EVSIO8CU66D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/simd-5L7SY8S0D5E85LAQV5NX0IZ4K.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/MachO-5XIP8Q9PRAN0WLSK8Q6250ME5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ObjectiveC-ACSMLZYWZ0UEWOYMUJA1TT2D2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/os_object-33THK5F987HJOGB89PG5ZLGHM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/os_workgroup-3U9VU8TMU72O89BT82O50CURW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Dispatch-80FYMRVII9CZM9QB8WV62X34H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Spatial-NT6YO6IPHYAR3Y5Y5AUSSC1P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/XPC-1IZINW22JH5K7FFLX6VYBE51L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreFoundation-2JNTP5TQULP0EUNBUGBGM34S0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/dnssd-4QITY2PHS9I00HEQ569R0R8CA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/os-56407PF3MLSBVRP1FSWFVVH70.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreGraphics-EHUKCF031BFOKOILPJCHJ16NO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CFNetwork-D3PPC5N19HN9I02FUMYCIOLD0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Security-49YAS5KV4GXA729XF7VICL3FI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreAudioTypes-ESJYLDJ1YJXVRGMCQO8QBE4A8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/ImageIO-61E6KM1VQ931A07BLBQSAKUQ2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreText-1CIWLDIH7AMUSVA9GJQSMRCTO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreAudio-C99R7MP266BDRKG7120YTYPFG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Foundation-2JMDHNLKM4XO7NBPJKPCKKS87.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreTransferable-8XRF4VVVHEX9OLZ0D8P7USH53.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/OSLog-B61DQ6EPRWFF9F8UMPBT7VL5V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Symbols-F587J07U6WQ64V2OGT68X7NCQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Accessibility-C3IM35Y00ZRZ3VEV7FE8KKYNH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/UniformTypeIdentifiers-32OETHS6JJXYYO152BIL71TEJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Network-2TFEO2DLNIVYZUB01OI4WLR39.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/FileProvider-DZGBYIPSDRZKJNYV7G8ZI98T8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreMIDI-BO5HT0HWCCGBZNSQMWVV10L09.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/_LocationEssentials-4PYGA49KQWXFBKBAH0HBOIO7Y.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/UIUtilities-2IRLQDNJQ40AAFAN3612N353B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreData-CIZAHWH81O89HOYB30OWYC6V5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AudioToolbox-D57GMFND7OCHWKXX7YUR3JVBD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreLocation-2TD5IZ4FV5FJTIUKTO80TPPCA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/UserNotifications-2E9092GTIMEE3KI550U2XS6RN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/DataDetection-DA60KSSB5TWM3GJ3O9HXZ9NEF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/IOSurface-8L8AJKIMN2EXITL8AXOFD4W4S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AVRouting-BH4EXFMEMA7495SYJFF0C606.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/OpenGLES-EH9P3ZNBYTDYXRKY1OUDAM36T.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Metal-35IMI13EGRPZW3TRKMNWCI32G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreVideo-BBVLU6MP5G536GW6IVJRXZYTV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreMedia-24F6H296W2LFQQ28QHN5WD8O1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreML-D570EHKLC0ED5S68VPBVXRUUR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/QuartzCore-BP5SEKO625QAM5F1MJGRA4CKK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Accelerate-3TQ28OY85X6KWLLG51JB2CAO4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/SwiftUICore-ABJXOTZTM8QH7J7MWSC08T0RK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/CoreImage-6V28DQWKFMEBH32SQ4BH42VKC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/MediaToolbox-76M49NND7OTO2PJPBL300F0ZY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Vision-2V78VR8CTVMHCMTD9O6Y8GW5M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AVFAudio-6HLJX8CM1VPJ89G04H1J1AVPD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/UIKit-2ZWRVIDV506UUBWV8MML08Y6H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/AVFoundation-66HMXNLNQWP3KXSKEHVV560P7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Photos-8FHQFTNUBU4RZH23QX5XIEJE7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/SwiftUI-CL6FANX8GWX4SO44PCSFRIE2I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/PhotosUI-8KNY081TU9VAH38E3HPX4JP1U.pcm
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ AIUtility (in target 'AIUtility' from project 'AIUtility')
+
+EmitSwiftModule normal arm64 (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+
+
+SwiftCompile normal arm64 Compiling\ AIUtilityApp.swift,\ MediaToolsView.swift /Users/runner/work/ios/ios/Apps/AIUtility/Sources/AIUtilityApp.swift /Users/runner/work/ios/ios/Apps/AIUtility/Sources/MediaToolsView.swift (in target 'AIUtility' from project 'AIUtility')
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Apps/AIUtility/Sources/AIUtilityApp.swift (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Apps/AIUtility/Sources/MediaToolsView.swift (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+
+
+SwiftCompile normal arm64 Compiling\ Theme.swift,\ TranslationViews.swift /Users/runner/work/ios/ios/Apps/AIUtility/Sources/Theme.swift /Users/runner/work/ios/ios/Apps/AIUtility/Sources/TranslationViews.swift (in target 'AIUtility' from project 'AIUtility')
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Apps/AIUtility/Sources/Theme.swift (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Apps/AIUtility/Sources/TranslationViews.swift (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+
+
+SwiftCompile normal arm64 Compiling\ RootView.swift,\ SettingsView.swift /Users/runner/work/ios/ios/Apps/AIUtility/Sources/RootView.swift /Users/runner/work/ios/ios/Apps/AIUtility/Sources/SettingsView.swift (in target 'AIUtility' from project 'AIUtility')
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Apps/AIUtility/Sources/RootView.swift (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+
+
+SwiftCompile normal arm64 /Users/runner/work/ios/ios/Apps/AIUtility/Sources/SettingsView.swift (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for AIUtility (in target 'AIUtility' from project 'AIUtility')
+
+SwiftDriver\ Compilation\ Requirements AIUtility normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtility -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios17.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-generated-files.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-own-target-headers.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility-ebd8c78b82b857d8769745a12792bd3f-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-project-headers.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling AIUtilityApp.swift, MediaToolsView.swift (in target 'AIUtility' from project 'AIUtility')
+
+SwiftDriverJobDiscovery normal arm64 Compiling RootView.swift, SettingsView.swift (in target 'AIUtility' from project 'AIUtility')
+
+SwiftMergeGeneratedHeaders /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources/AIUtility-Swift.h /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-Swift.h (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-Swift.h -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources/AIUtility-Swift.h
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftmodule (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftmodule /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftdoc (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftdoc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/arm64-apple-ios.abi.json /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.abi.json (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.abi.json /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftsourceinfo (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftsourceinfo /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling Theme.swift, TranslationViews.swift (in target 'AIUtility' from project 'AIUtility')
+
+SwiftDriver\ Compilation AIUtility normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-Swift-Compilation -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtility -Onone @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios17.0 -g -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/ios/ios/artifacts/app-device-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/ios/ios/artifacts/app-device-build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-generated-files.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-own-target-headers.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility-ebd8c78b82b857d8769745a12792bd3f-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-project-headers.hmap -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-Swift.h -working-directory /Users/runner/work/ios/ios/Apps/AIUtility -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility.debug.dylib normal (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0 -dynamiclib -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -O0 -L/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos -L/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -filelist /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.LinkFileList -install_name @rpath/AIUtility.debug.dylib -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.swiftmodule @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility-linker-args.resp -Wl,-no_warn_duplicate_libraries -Wl,-no_warn_duplicate_libraries -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility.debug.dylib -Xlinker -add_ast_path -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore.swiftmodule @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityCore.build/Debug-iphoneos/AIUtilityCore.build/Objects-normal/arm64/AIUtilityCore-linker-args.resp -Xlinker -add_ast_path -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices.swiftmodule @/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtilityAppleServices.build/Debug-iphoneos/AIUtilityAppleServices.build/Objects-normal/arm64/AIUtilityAppleServices-linker-args.resp
+
+ConstructStubExecutorLinkFileList /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-ExecutorLinkFileList-normal-arm64.txt (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    construct-stub-executor-link-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility.debug.dylib /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'AIUtility' from project 'AIUtility')
+
+Ld /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility normal (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0 -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -O0 -L/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -F/Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility-ExecutorLinkFileList-normal-arm64.txt /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility.debug.dylib -o /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility
+
+CopySwiftLibs /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility.debug.dylib --scan-folder /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Frameworks --scan-folder /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/PlugIns --scan-folder /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/SystemExtensions --scan-folder /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Extensions --platform iphoneos --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.fk7ez5/Metal.xctoolchain --toolchain /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.fk7ez5/Metal.xctoolchain --module-name AIUtility --sdk-root /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 17.0 --bundle-identifier com.aiutility.app --output /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app --target-triple arm64-apple-ios17.0 --binary-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/AIUtility --dependency-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility_dependency_info.dat --stringsdata-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftFileList --metadata-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/Objects-normal/arm64/AIUtility.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-11-07 08:19:17.292 appintentsmetadataprocessor[7570:25911] Starting appintentsmetadataprocessor export
+2026-11-07 08:19:17.294 appintentsmetadataprocessor[7570:25911] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+
+AppIntentsSSUTraining (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Info.plist --temp-dir-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/ssu --bundle-id com.aiutility.app --product-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app --extracted-metadata-path /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Metadata.appintents --metadata-file-list /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Intermediates.noindex/AIUtility.build/Debug-iphoneos/AIUtility.build/AIUtility.DependencyMetadataFileList --source-file /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app/Info.plist --archive-ssu-assets
+2026-11-07 08:19:17.329 appintentsnltrainingprocessor[7573:25915] Parsing options for appintentsnltrainingprocessor
+2026-11-07 08:19:17.330 appintentsnltrainingprocessor[7573:25915] Starting AppIntents SSU YAML Generation
+2026-11-07 08:19:17.330 appintentsnltrainingprocessor[7573:25915] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-RegisterExecutionPolicyException /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app
+
+Validate /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    builtin-validationUtility /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app (in target 'AIUtility' from project 'AIUtility')
+    cd /Users/runner/work/ios/ios/Apps/AIUtility
+    /usr/bin/touch -c /Users/runner/work/ios/ios/artifacts/app-device-build/Build/Products/Debug-iphoneos/AIUtility.app
+
+** BUILD SUCCEEDED **

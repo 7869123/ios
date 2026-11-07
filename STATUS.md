@@ -1,5 +1,24 @@
 # AIUtility 开发状态
 
+## 第二阶段初步 SwiftUI App 完成构建验证（2026-11-07）
+
+[最终全链路 CI 42354651780](https://github.com/7869123/ios/actions/runs/42354651780)，源码 `19d0e02`：Linux、Apple 包、SwiftUI App 全部成功。第一阶段完成记录已提交为 `6c0fdf4`，在此之后才开始 App 代码。
+
+| 范围 | 真实结果 |
+|---|---|
+| Linux Core / macOS Core | 各 36 项通过、1 项真实 API 集成测试跳过、0 失败 |
+| AppleServices macOS | 2 项 Vision 测试通过、1 项 Keychain 运行时测试跳过、0 失败 |
+| Apple 包 SDK | Simulator 与 iphoneos 未签名构建成功 |
+| SwiftUI App | XcodeGen 生成、Simulator 构建、iphoneos 构建全部退出 0 |
+| 页面 | 原创浅色青蓝工作台；自适应导航、截图 OCR/翻译、字幕文本翻译、设置、媒体功能目录 |
+| 服务接线 | 唯一 AppModel 持有真实 Services；共享 Key、独立模型、验证保存/切换、目录、取消、预算与安全错误文案接入 |
+| Core 改动 | 生产源码相对 051d58c 未变；仅修复真实 Apple CI 发现的一处测试宏兼容问题 |
+| 尚未验收 | UI 交互/布局截图、真实 API、iOS Keychain/真实截图 OCR、iOS 27 音频/Speech/PiP、签名安装与 iPad 真机 |
+
+工程入口见 [Apps/AIUtility](Apps/AIUtility/README.md)，架构见 FRONTEND.md，交接见 HANDOFF.md，后续验证见 VALIDATION_PLAN.md。证据、实际退出码和源码树摘要见 [validation/swiftui-app](validation/swiftui-app/summary.json)。媒体目录为明确标记的后续能力，并未虚构下载或转换实现。
+
+本轮所有 push 保留原历史、未强制推送。没有提交真实 Key、Token、证书或签名产物；没有在 Windows 安装 Swift。下文为各阶段历史记录，当前能力边界以上表为准。
+
 ## 第一阶段 Apple 验证通过（2026-11-07）
 
 [运行 42353675493](https://github.com/7869123/ios/actions/runs/42353675493)，源码提交 `a11ccc4`：Linux Core 与 macOS Apple 验证全部成功。macOS 26.7.2 / Xcode 26.6 / Apple Swift 6.3.3 / iOS SDK 26.5。
@@ -11,7 +30,7 @@
 
 证据保存在 [validation/apple-platform](validation/apple-platform/summary.json)。这些结果不等于真实 Keychain/iOS OCR、签名安装、iPad 跨 App 音频、Speech/PiP 或三家真实 API 已通过。runner 缺少 iOS 27 SDK，iOS 27 PoC 未编译。
 
-第二阶段 SwiftUI App 在上述第一阶段成功后开始；当前阶段记录提交时尚未加入前端代码。
+第二阶段 SwiftUI App 在上述第一阶段成功后开始；第一阶段记录提交时尚未加入前端代码，后续结果见本文首节。
 
 ## 当前真实验证结论（2026-11-07）
 

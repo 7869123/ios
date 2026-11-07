@@ -12,11 +12,13 @@
 
 Apple CI 将保存明确的环境、测试、SDK 构建日志和每步退出码；仅保存日志，不保存缓存、凭据、证书或签名产物。普通 push 后保持 Linux 与 Apple 两平台验证；手动 workflow 可选择 Apple / PoC。
 
-## 第二阶段（初步 App 已通过首次构建，最终记录待收尾）
+## 第二阶段（初步 App 已通过最终构建验证）
 
-源码位于 Apps/AIUtility，提交 67c3278，首次全链路 CI https://github.com/7869123/ios/actions/runs/42354193152 已成功：Core Linux、Apple 包测试/SDK 构建、SwiftUI App 模拟器与设备 SDK 构建。工程由 XcodeGen 2.46.0 生成，未签名。
+源码位于 Apps/AIUtility，最终源码提交 19d0e02，全链路 CI https://github.com/7869123/ios/actions/runs/42354651780 已成功：Core Linux、Apple 包测试/SDK 构建、SwiftUI App 模拟器与设备 SDK 构建。工程由 XcodeGen 2.46.0 生成，未签名。证据见 validation/swiftui-app/，包含 App/Core/AppleServices tree hash，可核对收尾文档提交没有改变已测试源码。
 
 已建立自适应导航、截图 OCR/文本翻译、字幕文本翻译、媒体目录与共享 Key 设置页。复用生产 Services；Core 生产源码未重写。完整前端边界见 FRONTEND.md，后续运行时准备见 VALIDATION_PLAN.md。UI 交互、真实 API、真实截图质量及真机未验收。
+
+下一步优先在模拟器执行 UI 操作验收并保存截图，再由用户提供受控测试账户进行真实 API 验证。Keychain 在真实 iOS 签名上下文验证；不要把 macOS Vision 合成图成功套用到所有 iPad 截图。runner 目前没有 iOS 27 SDK，独立采集 PoC 的 SDK 和生命周期风险仍未解除。
 
 ## 第三阶段（未完成）
 

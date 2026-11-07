@@ -2,7 +2,7 @@
 
 Apple 第一阶段已通过：见 [42353675493](https://github.com/7869123/ios/actions/runs/42353675493)。`bash scripts/ci_apple.sh` 保存环境、macOS Core/AppleServices 测试、iOS 模拟器/设备 SDK 未签名构建的五个退出码，均为 0。环境 Xcode 26.6、Swift 6.3.3、iOS SDK 26.5。普通 push 现在同时保留 Linux 与 Apple 验证；无需 Windows Swift。Keychain 运行时测试仍关闭；iOS 27 SDK、签名和真机另行验证。
 
-SwiftUI App 位于 Apps/AIUtility。`bash scripts/ci_app.sh` 生成真实 Xcode 工程，并构建 Simulator/iphoneos 两个目标。首次成功运行 [42354193152](https://github.com/7869123/ios/actions/runs/42354193152)，source 67c3278，四个退出码均为 0。生成的 .xcodeproj、DerivedData 和 .app 不提交、不上传；只保存五个指定日志。App 构建步骤依赖 Linux 和 Apple 验证通过。
+SwiftUI App 位于 Apps/AIUtility。`bash scripts/ci_app.sh` 生成真实 Xcode 工程，并构建 Simulator/iphoneos 两个目标。最终成功运行 [42354651780](https://github.com/7869123/ios/actions/runs/42354651780)，source 19d0e02，四个退出码均为 0。生成的 .xcodeproj、DerivedData 和 .app 不提交、不上传；只保存五个指定日志。App 构建步骤依赖 Linux 和 Apple 验证通过。
 
 单独在 Mac 使用 XcodeGen 生成工程的步骤见 Apps/AIUtility/README.md。普通源码或工作流改动触发完整验证；仅 Markdown/validation 证据更新不重复消耗构建任务。签名、安装与运行时计划见 VALIDATION_PLAN.md。
 

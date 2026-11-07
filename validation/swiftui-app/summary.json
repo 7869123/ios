@@ -1,0 +1,40 @@
+{
+  "source_commit": "19d0e027aa1cba08b7ef1a26a887081b5062cd49",
+  "run_id": 42354651780,
+  "url": "https://github.com/7869123/ios/actions/runs/42354651780",
+  "result": "success",
+  "app_tree": "32ed9d83a239ddeaacd6ccdecc284a03adf7d7d6",
+  "core_tree": "18b443c90ab6317c4bf7fac01b5de6387327780a",
+  "apple_services_tree": "0961814567b143fb7842fed3505dd901d8187f7c",
+  "tests": {
+    "linux_core": {
+      "passed": 36,
+      "skipped": 1
+    },
+    "mac_core": {
+      "passed": 36,
+      "skipped": 1
+    },
+    "mac_services": {
+      "passed": 2,
+      "skipped": 1
+    }
+  },
+  "app_exit_codes": {
+    "environment": 0,
+    "generate": 0,
+    "simulator-build": 0,
+    "device-build": 0
+  },
+  "ui_runtime_tested": false,
+  "signed_or_installed": false,
+  "live_api_tested": false,
+  "ios_27_poc_tested": false,
+  "log_normalization": "Line endings and trailing whitespace normalized in versioned copies",
+  "original_log_sha256": {
+    "device-build.log": "d6b5a7efe5d6850ac3a1655023296f890e2a571133fcf37dfdf29ad60426de2a",
+    "environment.log": "f978f0635d57b6516337576988e87e0fa353022e858bb742d3294c0ab2da8e32",
+    "generate.log": "d3f78d609db4bee00dbf3ff75b8cc37b929d1201d26c0f73d7b4b2b8571b11dd",
+    "simulator-build.log": "457774a3d34e538f0881444294c55e8f0576d97c111af9207cae0fa21042c6c5"
+  }
+}

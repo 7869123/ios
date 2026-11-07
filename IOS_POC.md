@@ -1,6 +1,8 @@
 # iOS 27 跨 App 音频与 PiP 字幕 PoC
 
-**结论：未进行 Apple SDK 编译、签名、安装或真机测试，不能认定成功。** 用户首台目标为 iPad mini 6 / iPadOS 27.2（用户提供，未实机核验）。Windows 不能生成可签名的 iOS 构建；当前没有 IPA。
+**本 iOS 27 采集 PoC 尚未进行 SDK 编译、签名、安装或真机测试，不能认定成功。** 用户首台目标为 iPad mini 6 / iPadOS 27.2（用户提供，未实机核验）。当前没有 IPA。
+
+普通 AppleServices 与 SwiftUI App 已在 [42354651780](https://github.com/7869123/ios/actions/runs/42354651780) 通过 iOS SDK 26.5 编译，macOS 两项 Vision 测试通过；这些不包含此 PoC。runner 的 Xcode 26.6 不提供 iOS 27 SDK；本文采集/Speech/PiP 符号及生命周期问题仍待处理。
 
 2026-11-07 已通过的是 [Linux Core CI](https://github.com/7869123/ios/actions/runs/42335206895)，该次 apple 和 poc-sdk 均为 skipped。Core 单测通过没有验证本文件任何 iOS 采集、Speech、PiP 或系统权限结论；下列 SDK 符号和生命周期风险仍待处理。
 

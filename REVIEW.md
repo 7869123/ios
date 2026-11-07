@@ -1,6 +1,6 @@
 # 给后续 AI / 工程审查者
 
-先阅读 STATUS.md 和 validation/github-actions/README.md。**当前 Core 已通过真实 Linux Swift 6.0.3 编译和单元测试：36 通过、1 跳过、0 失败。** Apple SDK、真实 API 和 iPad 功能仍未验证。早期第二轮 ZIP e2ac66b 的“0 项执行”是历史状态，不能混用于当前版本。
+先阅读 STATUS.md、HANDOFF.md 与 validation/swiftui-app/README.md。**当前 Linux/macOS Core、Apple 包与初步 SwiftUI App 两个 iOS SDK 构建均已通过。** Core 各 36 通过/1 跳过；macOS Vision 2 通过/Keychain 1 跳过。UI 运行时、真实 API、iOS Keychain/真实截图与 iPad 采集功能仍未验证。早期 ZIP 的“0 项执行”是历史状态，不能混用于当前版本。
 
 使用 scripts/package_review.py 生成的 ZIP 包含其 HEAD 的全部受 Git 跟踪文件、验证记录与 `AIUtility-history.bundle`。不包含 .git 工作目录、构建缓存、Python 依赖、环境变量或真实 API Key。`REVIEW_MANIFEST.json` 给出提交、逐文件 SHA-256 和 bundle 校验值；包外 `.zip.sha256` 校验整个 ZIP。
 
