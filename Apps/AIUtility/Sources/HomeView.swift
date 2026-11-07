@@ -111,7 +111,7 @@ import SwiftUI
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 ZStack(alignment: .topTrailing) {
-                    RoundedRectangle(cornerRadius: 22).fill(UtilityTheme.brandGradient)
+                    RoundedRectangle(cornerRadius: 22).fill(UtilityTheme.deepGradient)
                     SlantBar(slant: 0.6).fill(.white.opacity(0.10)).frame(width: 220, height: 120).offset(x: 40, y: -10)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 22))
@@ -156,7 +156,7 @@ import SwiftUI
                         if status == .planned {
                             RoundedRectangle(cornerRadius: UtilityTheme.radiusIcon).fill(UtilityTheme.planned.opacity(0.12))
                         } else {
-                            RoundedRectangle(cornerRadius: UtilityTheme.radiusIcon).fill(UtilityTheme.brandGradient)
+                            RoundedRectangle(cornerRadius: UtilityTheme.radiusIcon).fill(UtilityTheme.deepGradient)
                         }
                     }
                 Spacer()

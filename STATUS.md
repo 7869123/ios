@@ -1,5 +1,11 @@
 # AIUtility 开发状态
 
+## UI 目标更正与首页原型（2026-11-07）
+
+- UI 目标更正为 **iOS 原生结构 + 原创明快蓝白青风格**，不复刻任何游戏界面、不使用游戏素材。规范见 [UIUX_SPEC.md](UIUX_SPEC.md)。
+- 新增首页工作台 `HomeView`（默认首页）、设计 token、斜角装饰、背景纹理、按压反馈；规划中功能明确标"规划中"，实时字幕标"PoC · 未经真机验证"。
+- CI `app` job 在 iPad mini 与 iPhone 模拟器截取首页竖/横屏截图（artifact `app-screenshots-*`）供审核。Core、API 服务、iOS 27 PoC 未改动。
+
 ## iOS 27 PoC 安装前审查（2026-11-07）
 
 - 真机安装暂停：用户仅能远程控制 Windows 11，iPad 无法 USB 连接，无付费开发者账号。**PoC 未通过任何真机验证。**
@@ -65,7 +71,7 @@
 
 Swift Testing 聚合输出为“37 tests passed”，含禁用项；本报告按逐项记录列为 36 实际通过 + 1 跳过。XCTest 兼容层的 0 tests 不是 Swift Testing 的运行数。完整记录及原始日志见 [验证证据](validation/github-actions/README.md) 和 [机器摘要](validation/github-actions/summary.json)。
 
-Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token 仅由系统凭据管理器保管/在内存使用。推送前对全部可达 Git 历史扫描，未发现真实密钥/私钥/个人邮箱或大文件，历史开发路径已披露。所有既定媒体工具、截图翻译、实时字幕和《Blue Archive》UI 仍在范围内；本轮没有扩展正式 UI。
+Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token 仅由系统凭据管理器保管/在内存使用。推送前对全部可达 Git 历史扫描，未发现真实密钥/私钥/个人邮箱或大文件，历史开发路径已披露。所有既定媒体工具、截图翻译、实时字幕仍在范围内；本轮没有扩展正式 UI（UI 目标已于 2026-11-07 更正为 iOS 原生结构 + 原创明快蓝白青风格，见 UIUX_SPEC.md）。
 
 以下保留各轮历史过程，旧的“未编译/0 项执行”只描述当时状态。
 
@@ -163,6 +169,6 @@ Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token �
 - SauceNAO / 搜图 Bot 酱。
 - 统一下载任务与历史记录。
 - Discord 截图翻译、视频翻译。
-- 最终 SwiftUI 界面高保真复刻《Blue Archive（蔚蓝档案）》的布局与交互视觉；本轮没有制作正式 UI 或游戏素材。
+- 最终 SwiftUI 界面：iOS 原生结构 + 原创明快蓝白青风格（2026-11-07 更正，不再以复刻任何游戏界面为目标），见 UIUX_SPEC.md。
 
 上述媒体与搜图功能尚未实现，不计入本轮完成项；它们没有被移出后续范围。

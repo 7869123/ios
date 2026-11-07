@@ -7,7 +7,7 @@ iOS / iPadOS 17+，Swift 6。依赖已经通过 Apple SDK 验证的 AIUtilityCor
 - 字幕页接入 videoSubtitle 模型绑定，当前只接受字幕文本；没有假装可跨 App 采集或转写音频。
 - 设置页读取已有模型绑定，候选 Key 只在 SecureField 内存中；可获取官方目录、验证并原子保存 Key/两个绑定，或复用已有 Key 独立验证切换模型。验证可能收费，按钮旁明确提示。
 - 媒体工具页保留全部已确认功能目录，显示“后续开发/尚未实现”，没有伪造下载成功。
-- 青蓝/白/深色、原创几何装饰和系统 SF Symbols 提供后续蔚蓝档案风格方向，未使用游戏素材。布局视觉及交互尚需运行时验证。
+- iOS 原生结构 + 原创明快蓝白青风格（token、组件与验收见 [UIUX_SPEC.md](../../UIUX_SPEC.md)）；仅用 SF Symbols，未使用任何游戏素材。首页工作台原型由 CI 在 iPad mini / iPhone 模拟器截图供审核。
 
 唯一 AppModel 持有生产 Services，保证共享 Key 协调器与会话预算不被每个页面重新创建。偏好只保存两个功能所选供应商；Key 不写 UserDefaults。错误仅显示 Core 的安全分类，源文本、Key 和服务商错误原文不写日志。退出操作页面取消未完成任务。
 

@@ -12,8 +12,8 @@ enum UtilityTheme {
     static let canvas = Color(red: 0.95, green: 0.97, blue: 0.99)       // #F2F8FD
     static let surface = Color.white
     static let stroke = brand.opacity(0.16)
-    static let planned = Color(red: 0.42, green: 0.49, blue: 0.56)      // #6B7D8F
-    static let poc = Color(red: 0.80, green: 0.47, blue: 0.05)          // #CC780D
+    static let planned = Color(red: 0.36, green: 0.42, blue: 0.48)      // #5B6B7B (5.5:1 on white)
+    static let poc = Color(red: 0.66, green: 0.37, blue: 0.0)           // #A85F00 (4.9:1 on white)
     /// Kept for existing call sites: the tint colour.
     static let cyan = brandStrong
 
@@ -23,7 +23,10 @@ enum UtilityTheme {
     static let pagePadding: CGFloat = 24
     static let pageMaxWidth: CGFloat = 1080
 
+    /// Decorative only (accent bars, halos): white text on it does not meet contrast.
     static let brandGradient = LinearGradient(colors: [brand, aqua], startPoint: .topLeading, endPoint: .bottomTrailing)
+    /// Behind white text or glyphs: white is 5.2:1 on brandStrong and 3.5:1 on brand.
+    static let deepGradient = LinearGradient(colors: [brandStrong, brand], startPoint: .topLeading, endPoint: .bottomTrailing)
 }
 
 /// Slanted accent bar: a parallelogram used as the signature decoration on cards and headers.
