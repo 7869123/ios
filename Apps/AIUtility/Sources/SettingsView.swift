@@ -26,6 +26,7 @@ import AIUtilityCore
                     .font(.subheadline)
                 SecureField(hasSavedKey ? "替换 Key（留空则使用已保存 Key）" : "输入 API Key", text: $candidateKey)
                     .textInputAutocapitalization(.never).autocorrectionDisabled().privacySensitive().disabled(busy)
+                    .utilityField()
                 Button("获取官方模型目录") { discoverModels() }.disabled(busy)
                 Text("读取目录不会保存候选 Key，也不代表该模型已通过生成验证。")
                     .font(.caption).foregroundStyle(.secondary)
@@ -60,6 +61,7 @@ import AIUtilityCore
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.subheadline.bold())
             TextField("填写官方模型 ID", text: value).textInputAutocapitalization(.never).autocorrectionDisabled().disabled(busy)
+                .utilityField()
             if !catalogue.isEmpty {
                 Menu("从目录选择") {
                     ForEach(catalogue, id: \.id) { item in Button(item.displayName ?? item.id) { value.wrappedValue = item.id } }

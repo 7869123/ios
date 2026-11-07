@@ -18,6 +18,7 @@ struct WallpaperDraft: Identifiable {
     let image: UIImage
     let onSave: (WallpaperLayout, Double) -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppearanceStore.self) private var appearance: AppearanceStore?
     @State private var layout: WallpaperLayout
     @State private var scrim: Double
     @State private var landscape: Bool
@@ -110,17 +111,21 @@ struct WallpaperDraft: Identifiable {
     /// Faint stand-ins for page content so readability over the wallpaper can be judged.
     private func mockContent(size: CGSize) -> some View {
         let unit = size.width / 30
+        let glass = GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
+        let panel = Color.white.opacity(max(0.08, glass.whiteTint + 0.25 * glass.materialOpacity))
         return HStack(alignment: .top, spacing: unit) {
             if landscape {
-                RoundedRectangle(cornerRadius: unit * 0.6).fill(.white.opacity(0.6))
+                RoundedRectangle(cornerRadius: unit * 0.6).fill(panel)
                     .frame(width: size.width * 0.26)
             }
             VStack(alignment: .leading, spacing: unit) {
                 RoundedRectangle(cornerRadius: unit * 0.3).fill(UtilityTheme.ink.opacity(0.75)).frame(width: unit * 6, height: unit * 1.1)
-                RoundedRectangle(cornerRadius: unit * 0.8).fill(UtilityTheme.deepGradient).frame(height: unit * 4)
+                RoundedRectangle(cornerRadius: unit * 0.8).fill(UtilityTheme.deepGradient).opacity(glass.heroOpacity).frame(height: unit * 4)
                 HStack(spacing: unit * 0.6) {
                     ForEach(0..<(landscape ? 3 : 2), id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: unit * 0.6).fill(.white.opacity(0.55)).frame(height: unit * 3.6)
+                        RoundedRectangle(cornerRadius: unit * 0.6).fill(panel)
+                            .overlay(RoundedRectangle(cornerRadius: unit * 0.6).strokeBorder(.white.opacity(0.7), lineWidth: 0.5))
+                            .frame(height: unit * 3.6)
                     }
                 }
             }

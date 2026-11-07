@@ -75,7 +75,7 @@ import AIUtilityCore
             }.disabled(translating)
             Text("原文").font(.headline)
             TextEditor(text: $input).frame(minHeight: 150, maxHeight: 250)
-                .scrollContentBackground(.hidden).padding(8).background(UtilityTheme.canvas, in: RoundedRectangle(cornerRadius: 10))
+                .scrollContentBackground(.hidden).utilityField()
                 .accessibilityLabel("待翻译文字").disabled(translating || inputLocked)
             HStack {
                 Button("翻译") { translate() }.buttonStyle(.borderedProminent)

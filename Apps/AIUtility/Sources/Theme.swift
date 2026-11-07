@@ -115,6 +115,22 @@ extension View {
     func glassSurface<S: InsettableShape>(_ shape: S) -> some View { modifier(GlassSurface(shape: shape)) }
 }
 
+/// Text inputs on glass panels: a light semi-opaque base and hairline border so the tappable area
+/// stays visible at any panel transparency; solid white with Reduce Transparency.
+struct UtilityFieldStyle: ViewModifier {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, 10).padding(.vertical, 8)
+            .background(Color.white.opacity(reduceTransparency ? 1 : 0.72), in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(UtilityTheme.ink.opacity(0.14), lineWidth: 1))
+    }
+}
+
+extension View {
+    func utilityField() -> some View { modifier(UtilityFieldStyle()) }
+}
+
 /// Press feedback for tappable cards: slight scale and dim; no scale when Reduce Motion is on.
 struct PressableCardStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion

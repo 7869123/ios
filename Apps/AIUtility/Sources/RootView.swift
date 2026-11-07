@@ -33,13 +33,13 @@ enum Workspace: String, CaseIterable, Identifiable {
                 }
             } detail: {
                 let item = selected ?? .home
-                NavigationStack { page(item).navigationTitle(item == .home ? "" : item.title) }
+                NavigationStack { page(item).navigationTitle(item == .home ? "" : item.title).navigationBarTitleDisplayMode(.inline) }
                     .id(item)
             }
         } else {
             TabView(selection: Binding(get: { selected ?? .home }, set: { selected = $0 })) {
                 ForEach(Workspace.allCases) { item in
-                    NavigationStack { page(item).navigationTitle(item == .home ? "" : item.title) }
+                    NavigationStack { page(item).navigationTitle(item == .home ? "" : item.title).navigationBarTitleDisplayMode(.inline) }
                         .tabItem { Label(item.title, systemImage: item.icon) }
                         .tag(item)
                 }

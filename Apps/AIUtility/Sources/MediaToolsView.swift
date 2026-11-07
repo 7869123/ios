@@ -26,20 +26,23 @@ struct MediaTool: Identifiable, Sendable {
                     WorkspacePage {
                         PageHeader(title: tool.title, subtitle: "后续开发")
                         UtilityCard {
-                            Label("尚未实现", systemImage: "clock")
+                            StatusChip(status: .planned)
                             Text(tool.detail)
                             Text("此入口用于浏览开发范围，当前不会发起下载或宣称处理成功。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
-                    }.navigationTitle(tool.title)
+                    }.navigationTitle(tool.title).navigationBarTitleDisplayMode(.inline)
                 } label: {
                     UtilityCard {
                         HStack(spacing: 16) {
-                            Image(systemName: tool.icon).font(.title2).foregroundStyle(UtilityTheme.cyan).frame(width: 34)
+                            Image(systemName: tool.icon).font(.title3.weight(.semibold)).foregroundStyle(UtilityTheme.planned)
+                                .frame(width: 44, height: 44)
+                                .background(UtilityTheme.planned.opacity(0.12), in: RoundedRectangle(cornerRadius: UtilityTheme.radiusIcon))
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(tool.title).font(.headline).foregroundStyle(UtilityTheme.ink)
-                                Text("后续开发").font(.caption).foregroundStyle(.secondary)
+                                Text(tool.detail).font(.caption).foregroundStyle(.secondary).lineLimit(2)
                             }
+                            StatusChip(status: .planned)
                             Spacer()
                             Image(systemName: "chevron.right").foregroundStyle(.secondary)
                         }
