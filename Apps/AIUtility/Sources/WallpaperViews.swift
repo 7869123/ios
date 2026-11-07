@@ -112,7 +112,7 @@ struct WallpaperDraft: Identifiable {
         let unit = size.width / 30
         return HStack(alignment: .top, spacing: unit) {
             if landscape {
-                RoundedRectangle(cornerRadius: unit * 0.6).fill(.white.opacity(0.75))
+                RoundedRectangle(cornerRadius: unit * 0.6).fill(.white.opacity(0.6))
                     .frame(width: size.width * 0.26)
             }
             VStack(alignment: .leading, spacing: unit) {
@@ -120,7 +120,7 @@ struct WallpaperDraft: Identifiable {
                 RoundedRectangle(cornerRadius: unit * 0.8).fill(UtilityTheme.deepGradient).frame(height: unit * 4)
                 HStack(spacing: unit * 0.6) {
                     ForEach(0..<(landscape ? 3 : 2), id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: unit * 0.6).fill(.white.opacity(0.92)).frame(height: unit * 3.6)
+                        RoundedRectangle(cornerRadius: unit * 0.6).fill(.white.opacity(0.55)).frame(height: unit * 3.6)
                     }
                 }
             }

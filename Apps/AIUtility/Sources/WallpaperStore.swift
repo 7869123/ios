@@ -75,7 +75,7 @@ enum WallpaperMode: String, Sendable {
     static let scrimRange: ClosedRange<Double> = 0.2...0.85
     /// Keeps the bundled illustration's face in frame in both orientations.
     static let bundledLayout = WallpaperLayout(focusX: 0.5, focusY: 0.33, zoom: 1)
-    static let bundledScrim = 0.5
+    static let bundledScrim = 0.35
 
     private let defaults = UserDefaults.standard
 

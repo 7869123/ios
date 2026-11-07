@@ -6,6 +6,7 @@ import SwiftUI
     @EnvironmentObject private var app: AppModel
     let open: (Workspace) -> Void
     @State private var showLiveCaptionInfo = false
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     private struct Tile: Identifiable {
         let id: String
@@ -73,8 +74,7 @@ import SwiftUI
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(UtilityTheme.brandStrong)
                     .padding(.horizontal, 12).padding(.vertical, 8)
-                    .background(.white, in: Capsule())
-                    .overlay(Capsule().strokeBorder(UtilityTheme.stroke))
+                    .glassSurface(Capsule())
             }
             .buttonStyle(PressableCardStyle())
             .accessibilityLabel("更换壁纸，打开设置")
@@ -89,8 +89,7 @@ import SwiftUI
             }
             .font(.footnote)
             .padding(.horizontal, 12).padding(.vertical, 8)
-            .background(.white, in: Capsule())
-            .overlay(Capsule().strokeBorder(UtilityTheme.stroke))
+            .glassSurface(Capsule())
         }
         .buttonStyle(PressableCardStyle())
         .accessibilityLabel("\(label)翻译供应商：\(value)，打开设置")
@@ -106,7 +105,7 @@ import SwiftUI
                 VStack(alignment: .leading, spacing: 6) {
                     Text("跨 App 实时字幕 · PiP").font(.title2.bold())
                     Text("采集其他 App 的音频，本地识别后在画中画中显示字幕。当前为独立诊断 PoC，尚未接入本 App，也未经真机验证。")
-                        .font(.subheadline).opacity(0.92)
+                        .font(.subheadline)
                         .multilineTextAlignment(.leading)
                 }
                 Spacer(minLength: 8)
@@ -121,12 +120,12 @@ import SwiftUI
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 ZStack(alignment: .topTrailing) {
-                    RoundedRectangle(cornerRadius: 22).fill(UtilityTheme.deepGradient)
+                    RoundedRectangle(cornerRadius: 22).fill(UtilityTheme.deepGradient).opacity(reduceTransparency ? 1 : 0.94)
                     SlantBar(slant: 0.6).fill(.white.opacity(0.10)).frame(width: 220, height: 120).offset(x: 40, y: -10)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 22))
             }
-            .shadow(color: UtilityTheme.brand.opacity(0.25), radius: 18, y: 8)
+            .shadow(color: UtilityTheme.brand.opacity(0.18), radius: 16, y: 6)
         }
         .buttonStyle(PressableCardStyle())
         .accessibilityElement(children: .combine)
@@ -179,13 +178,12 @@ import SwiftUI
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(UtilityTheme.surface, in: RoundedRectangle(cornerRadius: UtilityTheme.radiusCard))
-        .overlay(RoundedRectangle(cornerRadius: UtilityTheme.radiusCard).strokeBorder(UtilityTheme.stroke))
+        .glassSurface(RoundedRectangle(cornerRadius: UtilityTheme.radiusCard))
         .overlay(alignment: .topLeading) {
             SlantBar().fill(status == .planned ? AnyShapeStyle(UtilityTheme.planned.opacity(0.4)) : AnyShapeStyle(UtilityTheme.brandGradient))
                 .frame(width: 40, height: 4).padding(.leading, 18)
         }
-        .shadow(color: UtilityTheme.brand.opacity(0.06), radius: 12, y: 4)
+        .shadow(color: UtilityTheme.brand.opacity(0.05), radius: 10, y: 3)
         .contentShape(RoundedRectangle(cornerRadius: UtilityTheme.radiusCard))
         .accessibilityElement(children: .combine)
     }

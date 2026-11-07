@@ -22,6 +22,8 @@ enum UtilityTheme {
     static let spacing: CGFloat = 16
     static let pagePadding: CGFloat = 24
     static let pageMaxWidth: CGFloat = 1080
+    /// White tint over the material on glass surfaces.
+    static let glassTint: Double = 0.30
 
     /// Decorative only (accent bars, halos): white text on it does not meet contrast.
     static let brandGradient = LinearGradient(colors: [brand, aqua], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -86,6 +88,28 @@ private struct DefaultBackdrop: View {
     }
 }
 
+/// Translucent "frosted glass" surface for cards and chips so the wallpaper stays visible:
+/// the thinnest system material plus a light white tint. Falls back to solid white when the user
+/// turns on Reduce Transparency.
+struct GlassSurface<S: InsettableShape>: ViewModifier {
+    let shape: S
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    func body(content: Content) -> some View {
+        content.background {
+            if reduceTransparency {
+                shape.fill(UtilityTheme.surface)
+            } else {
+                shape.fill(.ultraThinMaterial).overlay(shape.fill(Color.white.opacity(UtilityTheme.glassTint)))
+            }
+        }
+        .overlay(shape.strokeBorder(Color.white.opacity(0.55), lineWidth: 1))
+    }
+}
+
+extension View {
+    func glassSurface<S: InsettableShape>(_ shape: S) -> some View { modifier(GlassSurface(shape: shape)) }
+}
+
 /// Press feedback for tappable cards: slight scale and dim; no scale when Reduce Motion is on.
 struct PressableCardStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -125,12 +149,11 @@ struct StatusChip: View {
         VStack(alignment: .leading, spacing: UtilityTheme.spacing) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(20)
-            .background(UtilityTheme.surface, in: RoundedRectangle(cornerRadius: UtilityTheme.radiusCard))
-            .overlay(RoundedRectangle(cornerRadius: UtilityTheme.radiusCard).strokeBorder(UtilityTheme.stroke))
+            .glassSurface(RoundedRectangle(cornerRadius: UtilityTheme.radiusCard))
             .overlay(alignment: .topLeading) {
                 SlantBar().fill(UtilityTheme.brandGradient).frame(width: 40, height: 4).padding(.leading, 20)
             }
-            .shadow(color: UtilityTheme.brand.opacity(0.06), radius: 12, y: 4)
+            .shadow(color: UtilityTheme.brand.opacity(0.05), radius: 10, y: 3)
     }
 }
 
