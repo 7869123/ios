@@ -1,6 +1,6 @@
 # 构建与测试
 
-当前优先使用 GitHub Actions，按用户要求不再尝试安装 Windows Swift 工具链。创建个人私有仓库、推送现有提交、查看失败日志和继续修复的完整步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。尚未配置远程或运行 CI。
+当前优先使用 GitHub Actions，按用户要求不再尝试安装 Windows Swift 工具链。目标私有仓库已配置为 `7869123/ios`；创建仓库、推送现有提交、查看失败日志和继续修复的步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。真实运行记录以 STATUS.md 为准。
 
 ## 第二轮真实编译验证入口
 

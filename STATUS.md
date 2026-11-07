@@ -4,7 +4,9 @@
 
 按最新要求停止尝试 Windows Swift 工具链。现有 workflow 已收紧为默认只验证 Core，失败时尝试上传四个明确日志文件与真实退出码，保留 7 天，不上传 API Key、.build 或构建缓存。Apple / PoC 仅手动开启，且依赖 Core 成功。
 
-目前未收到个人 GitHub 私有仓库地址，尚无 origin；Git Credential Manager 可用，但没有确认已登录的 GitHub 账户。尚未推送或运行 Actions，Core 实际编译/测试通过数仍为 0。接入与认证步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。这不是新的编译验证成功记录。
+已配置用户指定的 origin：`https://github.com/7869123/ios.git`，用户已通过浏览器手动登录。GitHub API 确认仓库为 private 且具备 push 权限，首次推送前远程为空。历史敏感模式扫描检查 59 个 blob，未发现密钥/Token/私钥、真实个人邮箱或大文件；最大 blob 为 11,979 字节。历史文档含本地开发路径，提交使用占位作者；这些环境元数据保留在既有历史中。
+
+本段记录推送前准备状态，尚未取得远端编译结果。Core 是否通过以稍后记录的 Actions 运行和真实测试统计为准。接入步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。`scripts/github_actions.py` 仅从系统凭据管理器在内存读取 GitHub 授权，日志存入忽略的 artifacts/，不打印或保存 Token。
 
 ## 第二轮工程验证（2026-11-07）
 
