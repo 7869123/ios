@@ -1,5 +1,12 @@
 # AIUtility 开发状态
 
+## 批量开发节奏与 CI 成本（2026-11-07）
+
+- 改为批量本地开发、集中验证。PR 更新只跑 Linux Core；macOS 完整验证（Apple 包、App、截图）改为手动 `build_apple`，合并前必须通过；push 只在 main 触发完整链；同一引用的新运行取消旧运行。此前每次推送 PR 分支会触发两次 macOS 完整构建。
+- 新增 `scripts/prepush_check.sh`：Swift 语法（tree-sitter，非类型检查）、源码卫生、plist、workflow YAML 与 shell 语法、资源完整性、`git diff --check`、个人信息与密钥扫描（已推送历史只报告，HEAD 与待推送提交有发现即阻止）。
+- 本批 UI：输入框统一样式、inline 导航标题、媒体工具"规划中"样式与首页一致、壁纸预览跟随透明度设置。Core、AppleServices、iOS 27 PoC 未改动。
+- 截至本批，透明度/外观改动（72fee54 起）尚未经 Apple SDK 编译：Actions 自 2026-11-07 12:16 UTC 起无法分配 runner。
+
 ## 透明度与「外观」设置（2026-11-07）
 
 - 只调整透明度，不改布局。默认：毛玻璃白色叠层 10%（原 30%），材质不透明度 25%，壁纸遮罩 18%（原 35%），首页主卡 78%（原 94%）。
