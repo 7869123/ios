@@ -108,18 +108,58 @@ jobs:
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux
-    runs-on: macos-latest
+    # xcode-27 is arm64-only and ships Xcode 27.0 beta with the iOS 27.0 SDK.
+    # macos-latest still points to the macOS 26 image, whose newest SDK is iphoneos26.5.
+    runs-on: xcode-27
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        id: checkout
         with:
           persist-credentials: false
+      - name: Record actual runner, Xcode and SDK versions
+        shell: bash
+        run: |
+          mkdir -p artifacts/poc
+          {
+            echo "== sw_vers"; sw_vers
+            echo "== uname -m"; uname -m
+            echo "== xcode-select -p"; xcode-select -p
+            echo "== xcodebuild -version"; xcodebuild -version
+            echo "== xcodebuild -showsdks"; xcodebuild -showsdks
+            echo "== xcrun --sdk iphoneos --show-sdk-version"; xcrun --sdk iphoneos --show-sdk-version
+          } 2>&1 | tee artifacts/poc/environment.log
       - name: Require iOS 27 SDK
+        shell: bash
         run: |
           version=$(xcrun --sdk iphoneos --show-sdk-version)
+          echo "iphoneos SDK: $version"
           test "${version%%.*}" -ge 27
       - run: brew install xcodegen
-      - working-directory: PoCs/iOS27Capture
-        run: xcodegen generate --spec project.yml
-      - working-directory: PoCs/iOS27Capture
-        run: xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build
+      - name: Generate and compile the diagnostic host with preserved exit codes
+        shell: bash
+        working-directory: PoCs/iOS27Capture
+        run: |
+          set +e
+          xcodegen generate --spec project.yml > ../../artifacts/poc/generate.log 2>&1
+          generate_code=$?
+          xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build > ../../artifacts/poc/simulator-build.log 2>&1
+          build_code=$?
+          printf 'xcodegen_generate=%s\npoc_simulator_build=%s\n' "$generate_code" "$build_code" > ../../artifacts/poc/exit-codes.txt
+          cat ../../artifacts/poc/generate.log
+          grep -E 'error:|warning:|BUILD (SUCCEEDED|FAILED)|\*\* ' ../../artifacts/poc/simulator-build.log | head -200
+          tail -n 40 ../../artifacts/poc/simulator-build.log
+          cat ../../artifacts/poc/exit-codes.txt
+          test "$generate_code" -eq 0 && test "$build_code" -eq 0
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.checkout.outcome == 'success'
+        with:
+          name: poc-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/poc/environment.log
+            artifacts/poc/generate.log
+            artifacts/poc/simulator-build.log
+            artifacts/poc/exit-codes.txt
+          retention-days: 7
+          if-no-files-found: warn
+          include-hidden-files: false

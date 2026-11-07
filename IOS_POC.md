@@ -2,9 +2,25 @@
 
 **本 iOS 27 采集 PoC 尚未进行 SDK 编译、签名、安装或真机测试，不能认定成功。** 用户首台目标为 iPad mini 6 / iPadOS 27.2（用户提供，未实机核验）。当前没有 IPA。
 
-普通 AppleServices 与 SwiftUI App 已在 [42354651780](https://github.com/7869123/ios/actions/runs/42354651780) 通过 iOS SDK 26.5 编译，macOS 两项 Vision 测试通过；这些不包含此 PoC。runner 的 Xcode 26.6 不提供 iOS 27 SDK；本文采集/Speech/PiP 符号及生命周期问题仍待处理。
+普通 AppleServices 与 SwiftUI App 已在 [42354651780](https://github.com/7869123/ios/actions/runs/42354651780) 通过 iOS SDK 26.5 编译，macOS 两项 Vision 测试通过；这些不包含此 PoC。该 runner（macos-latest，Xcode 26.6）最高只有 iOS 26.5 SDK，这就是 PoC 编译检查一直失败的原因；poc-sdk 现改用 `xcode-27` runner，见下节。本文采集/Speech/PiP 符号及生命周期问题仍待处理。
 
 2026-11-07 已通过的是 [Linux Core CI](https://github.com/7869123/ios/actions/runs/42335206895)，该次 apple 和 poc-sdk 均为 skipped。Core 单测通过没有验证本文件任何 iOS 采集、Speech、PiP 或系统权限结论；下列 SDK 符号和生命周期风险仍待处理。
+
+## 2026-11-07 CI runner 与官方资料复核
+
+**PoC 的 SDK 编译之前一直没有成功，原因是 runner 镜像而非源码：** `poc-sdk` job 原先使用 `macos-latest`，该标签目前指向 macOS 26 镜像，最高只有 iOS 26.5 SDK（`iphoneos26.5`），“Require iOS 27 SDK” 检查必然失败，PoC 源码从未进入编译。现已改为 `runs-on: xcode-27`（actions/runner-images 提供 `xcode-27` / `xcode-27-xlarge`，仅 arm64；镜像 README 列出 Xcode 27.0 beta 27A5228h 与 iOS 27.0 SDK `iphoneos27.0`）。镜像 README 快照写 macOS 26.5.2，而 2026-10-15 GitHub 公告称该镜像已 GA 且运行在 macOS 27，二者不一致；workflow 现在先记录 `sw_vers`、`xcodebuild -version`、`xcodebuild -showsdks`，以实际运行日志为准。首次编译结果记录在对应 PR 中；编译通过也只代表 Simulator SDK 类型检查，不代表签名、安装或真机能力。
+
+已确认的资料边界：
+
+- `SCContentSharingPicker`（及 iOS 上的 ScreenCaptureKit 采集路径）是 **iOS 27 beta API**，声明与行为可能在正式版前变化，编译诊断需对照当次 SDK 版本记录。
+- Apple 官方 iOS 示例只采集**屏幕画面和麦克风**。**目前没有任何官方示例证明 iOS 上能采到其他 App 播放的音频**；`capturesAudio` 文档存在不等于跨 App 系统音频可用，这正是本 PoC 需要真机回答的核心问题。
+- `com.apple.developer.persistent-content-capture` **只适用于 macOS**（VNC 类持续屏幕采集），iOS 用不到，本工程不应也不需要申请或声明它。
+
+### 待真机验证的新增风险
+
+1. **音频会话类别**：SubtitlePiPProbe 当前使用 `.playback` + `.moviePlayback` + `.mixWithOthers`。`.playback` 与 `.playAndRecord` 在后台存活、与来源 App 混音/打断、路由及采集是否被系统静音方面可能不同；需在 iPad 上分别对比后台采集持续性与 RMS。
+2. **ScreenAudioProbe.start() 失败时会重复 stop**：`startCapture` 抛错后 catch 先 `await stop()`，再调用 `onTermination`，而 PoCSession 的 `onTermination` 又调用 `capture.stop()`，导致 `stopCapture`/picker 移除执行两次；picker 取消、启动失败和 didStop 回调路径同样如此。需确认重复调用是否安全，或加入幂等/会话身份保护。
+3. **Host 的 ASR 语言写死为 en-US**：`LocalSpeechProbe.start(locale:)` 默认 `en-US`，PoCSession 调用时未传入语言，Host 也不能选择。需改为目标内容语言（例如日语/中文来源素材）并确认对应本地语言包支持 on-device 识别。
 
 ## 第二轮静态审计：需真实 SDK 核对的符号
 
@@ -36,11 +52,11 @@
 
 ## 官方依据及可确认边界
 
-2026-11-07 阅读了 [Apple 的 iOS 27 ScreenCaptureKit 示例](https://developer.apple.com/documentation/screencapturekit/capturing-screen-content-on-ios) 及其官方 DocC JSON。示例描述 iOS 27 的系统选择器、SCStream 与后台模式。代码使用 SCContentSharingPicker 授权，不通过私有 API 或悄悄录制。
+2026-11-07 阅读了 [Apple 的 iOS 27 ScreenCaptureKit 示例](https://developer.apple.com/documentation/screencapturekit/capturing-screen-content-on-ios) 及其官方 DocC JSON。示例描述 iOS 27 的系统选择器、SCStream 与后台模式，但只采集屏幕画面与麦克风，未演示采集其他 App 的音频。代码使用 SCContentSharingPicker 授权，不通过私有 API 或悄悄录制。
 
 另核对 [capturesAudio](https://developer.apple.com/documentation/screencapturekit/scstreamconfiguration/capturesaudio) 与 [AVKit sample-buffer ContentSource](https://developer.apple.com/documentation/avkit/avpictureinpicturecontroller/contentsource-swift.class/init(samplebufferdisplaylayer:playbackdelegate:))。这些文档说明有相应接口；是否能在目标 iPad 后台持续收到其他 App 的非静音音频、持续本地识别并刷新字幕 PiP，仍是本 PoC 要验证的问题。
 
-没有默认启用 `com.apple.developer.persistent-content-capture`：Apple 对该 [VNC 持续采集权限](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.persistent-content-capture) 要求申请，不能把一行 entitlement 当成已经取得授权。本诊断工程先验证普通系统选择器路径；若签名或运行时提示额外能力要求，应记录原始系统分类并按官方流程处理。
+没有声明 `com.apple.developer.persistent-content-capture`：该 [VNC 持续采集权限](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.persistent-content-capture) 只适用于 macOS，iOS 用不到，本工程不需要它。本诊断工程验证普通系统选择器路径；若签名或运行时提示额外能力要求，应记录原始系统分类并按官方流程处理。
 
 ## 已写的可运行路径（等待实际构建）
 

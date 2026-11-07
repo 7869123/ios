@@ -1,5 +1,13 @@
 # AIUtility 开发状态
 
+## iOS 27 PoC CI 修正（2026-11-07）
+
+- **原因**：`poc-sdk` 一直失败，是因为 `macos-latest` 镜像（macOS 26）最高只有 iOS 26.5 SDK，过不了 “Require iOS 27 SDK” 检查，PoC 源码从未被编译。
+- **修正**：`poc-sdk` 改为 `runs-on: xcode-27`（arm64，镜像列出 Xcode 27.0 beta 27A5228h / iphoneos27.0），并在日志中记录 `sw_vers`、`xcodebuild -version`、`xcodebuild -showsdks` 以核实实际 macOS（README 快照写 26.5.2，GitHub 公告称 macOS 27）。其余 job 仍用 `macos-latest`。首次编译结果、退出码与关键日志见对应 PR。
+- **API 边界**：`SCContentSharingPicker` 是 iOS 27 beta API；Apple 官方示例只采集屏幕画面与麦克风，没有官方示例证明能采到其他 App 的音频；`persistent-content-capture` 权限只适用于 macOS，iOS 用不到。
+- **待真机验证的风险**：音频会话 `.playback` 与 `.playAndRecord` 对后台采集的影响；`ScreenAudioProbe.start()` 失败时会重复 stop；Host 的 ASR 写死为 en-US，需改为目标语言。详见 [IOS_POC.md](IOS_POC.md)。
+- ReplayKit 对照探针暂不新增，待首次编译结果后再决定。
+
 ## 第二阶段初步 SwiftUI App 完成构建验证（2026-11-07）
 
 [最终全链路 CI 42354651780](https://github.com/7869123/ios/actions/runs/42354651780)，源码 `19d0e02`：Linux、Apple 包、SwiftUI App 全部成功。第一阶段完成记录已提交为 `6c0fdf4`，在此之后才开始 App 代码。
