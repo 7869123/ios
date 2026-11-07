@@ -1,0 +1,43 @@
+{
+  "stage": "Apple platform compilation and macOS tests",
+  "commit": "a11ccc400ad55f7bd4a91d6d2d4bdddb204023a2",
+  "run_id": 42353675493,
+  "url": "https://github.com/7869123/ios/actions/runs/42353675493",
+  "result": "success",
+  "macos": "26.7.2",
+  "xcode": "26.6 (17F113)",
+  "apple_swift": "6.3.3",
+  "ios_sdk": "26.5",
+  "exit_codes": {
+    "environment": 0,
+    "mac-core-tests": 0,
+    "mac-services-tests": 0,
+    "ios-simulator-build": 0,
+    "ios-device-build": 0
+  },
+  "core_test_functions": {
+    "passed": 36,
+    "skipped": 1,
+    "failed": 0
+  },
+  "apple_test_functions": {
+    "passed": 2,
+    "skipped": 1,
+    "failed": 0
+  },
+  "vision_generated_image_mac_smoke_test": true,
+  "linux_core_ci_passed": true,
+  "keychain_runtime_tested": false,
+  "ios_runtime_tested": false,
+  "ios_27_poc_compiled": false,
+  "signed_or_installed": false,
+  "live_provider_api_tested": false,
+  "log_normalization": "Versioned logs normalize line endings and trailing whitespace; original downloaded artifacts retained separately.",
+  "original_log_sha256": {
+    "environment.log": "d339d187be917e224c106e46bf269ba8492085ab06f98e3f64127e53e0aae607",
+    "ios-device-build.log": "c9e354dbce892b8bad21a361cd6ff7afcc3431108a43df288ceabeee63ad62a5",
+    "ios-simulator-build.log": "59a06e623f92cc4a79fc2b8d6ca3069a5c1f8b8ad04e52ea0ca52bfe316cc806",
+    "mac-core-tests.log": "e0d98743dda1aa52d02caca04dae849dae4ea1d52595e222743c4a84d39af912",
+    "mac-services-tests.log": "f184deb6d3a3533053d61ac8f45ee9ffd35ceff299e14eea9956b698a5ef27d8"
+  }
+}

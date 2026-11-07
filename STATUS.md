@@ -1,5 +1,18 @@
 # AIUtility 开发状态
 
+## 第一阶段 Apple 验证通过（2026-11-07）
+
+[运行 42353675493](https://github.com/7869123/ios/actions/runs/42353675493)，源码提交 `a11ccc4`：Linux Core 与 macOS Apple 验证全部成功。macOS 26.7.2 / Xcode 26.6 / Apple Swift 6.3.3 / iOS SDK 26.5。
+
+- macOS Core：36 项通过、1 项真实 API 测试跳过、0 失败；Linux Core 同样通过。
+- AppleServices：2 项 Vision 测试实际通过（合成英文图识别、非法数据拒绝），1 项 Keychain 运行时测试按配置跳过。
+- Keychain、Vision、生产服务入口及其 Core 依赖通过 iOS Simulator 与 iphoneos SDK 的真实未签名构建，两个退出码均为 0。
+- 唯一所需源码调整是测试表达式拆分，修复 Apple Swift Testing 的可选链宏展开错误；没有重写 Core 生产逻辑、删测试或使用空实现。
+
+证据保存在 [validation/apple-platform](validation/apple-platform/summary.json)。这些结果不等于真实 Keychain/iOS OCR、签名安装、iPad 跨 App 音频、Speech/PiP 或三家真实 API 已通过。runner 缺少 iOS 27 SDK，iOS 27 PoC 未编译。
+
+第二阶段 SwiftUI App 在上述第一阶段成功后开始；当前阶段记录提交时尚未加入前端代码。
+
 ## 当前真实验证结论（2026-11-07）
 
 **AIUtilityCore 已在 GitHub Actions 的 Swift 6.0.3 / Linux 上真实编译并通过单元测试。** 仓库为用户的私有仓库 [7869123/ios](https://github.com/7869123/ios)，main 使用普通 push，已有历史和源码完整保留。

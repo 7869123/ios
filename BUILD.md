@@ -1,5 +1,7 @@
 # 构建与测试
 
+Apple 第一阶段已通过：见 [42353675493](https://github.com/7869123/ios/actions/runs/42353675493)。`bash scripts/ci_apple.sh` 保存环境、macOS Core/AppleServices 测试、iOS 模拟器/设备 SDK 未签名构建的五个退出码，均为 0。环境 Xcode 26.6、Swift 6.3.3、iOS SDK 26.5。普通 push 现在同时保留 Linux 与 Apple 验证；无需 Windows Swift。Keychain 运行时测试仍关闭；iOS 27 SDK、签名和真机另行验证。
+
 当前优先使用 GitHub Actions，按用户要求不再尝试安装 Windows Swift 工具链。目标私有仓库已配置为 `7869123/ios`；创建仓库、推送现有提交、查看失败日志和继续修复的步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。真实运行记录以 STATUS.md 为准。
 
 ## 已取得的真实编译结果
