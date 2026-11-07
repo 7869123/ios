@@ -25,6 +25,9 @@ def main():
     parser.add_argument("--repository", default="7869123/ios")
     parser.add_argument("--run-id", type=int)
     parser.add_argument("--sha")
+    parser.add_argument("--apple", action="store_true", help="Enable Apple package / iOS SDK validation on dispatch")
+    parser.add_argument("--poc", action="store_true", help="Enable the separate iOS 27 PoC SDK build on dispatch")
+    parser.add_argument("--evidence-kind", choices=["core-linux", "apple", "app"], default="core-linux")
     parser.add_argument("--output", default="artifacts/github-ci")
     args = parser.parse_args()
     parts = args.repository.split("/")
@@ -83,15 +86,15 @@ def main():
         jobs = request("/actions/runs/" + str(args.run_id) + "/jobs")
         result = [{key: job.get(key) for key in ("id", "name", "status", "conclusion", "steps")} for job in jobs.get("jobs", [])]
     elif args.command == "dispatch":
-        request("/actions/workflows/swift.yml/dispatches", {"ref": "main", "inputs": {"build_apple": False, "build_poc": False}})
-        result = {"dispatched": "swift.yml", "ref": "main", "apple_enabled": False}
+        request("/actions/workflows/swift.yml/dispatches", {"ref": "main", "inputs": {"build_apple": args.apple, "build_poc": args.poc}})
+        result = {"dispatched": "swift.yml", "ref": "main", "apple_enabled": args.apple, "poc_enabled": args.poc}
     else:
         if not args.run_id:
             parser.error("--run-id required")
         if args.command == "evidence":
             artifacts = request("/actions/runs/" + str(args.run_id) + "/artifacts")
             candidates = [item for item in artifacts.get("artifacts", [])
-                          if item["name"].startswith("core-linux-evidence-") and not item.get("expired")]
+                          if item["name"].startswith(args.evidence_kind + "-evidence-") and not item.get("expired")]
             if not candidates:
                 raise RuntimeError("Core CI evidence artifact not available")
             artifact = max(candidates, key=lambda item: item["created_at"])
@@ -105,12 +108,17 @@ def main():
             parser.error("logs must be saved under artifacts/")
         output.mkdir(parents=True, exist_ok=True)
         if args.command == "evidence":
-            output = output / "evidence"
+            output = output / ("evidence" if args.evidence_kind == "core-linux" else args.evidence_kind + "-evidence")
             output.mkdir(exist_ok=True)
         (output / ("evidence.zip" if args.command == "evidence" else "logs.zip")).write_bytes(data)
         files = []
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             expected = {"swift-version.log", "core-build.log", "core-tests.log", "exit-codes.txt"}
+            if args.evidence_kind == "apple":
+                expected = {"environment.log", "mac-core-tests.log", "mac-services-tests.log",
+                            "ios-simulator-build.log", "ios-device-build.log", "exit-codes.txt"}
+            elif args.evidence_kind == "app":
+                expected = {"environment.log", "generate.log", "simulator-build.log", "device-build.log", "exit-codes.txt"}
             if args.command == "evidence" and set(archive.namelist()) != expected:
                 raise RuntimeError("Unexpected files in Core evidence artifact")
             for member in archive.infolist():

@@ -54,21 +54,31 @@ jobs:
           if-no-files-found: error
           include-hidden-files: false
   apple:
-    if: github.event_name == 'workflow_dispatch' && (inputs.build_apple || inputs.build_poc)
+    if: github.event_name != 'workflow_dispatch' || inputs.build_apple || inputs.build_poc
     needs: core-linux
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        id: checkout
         with:
           persist-credentials: false
-      - run: swift --version
-      - run: xcodebuild -version
-      - run: swift test --package-path Packages/AIUtilityCore
-      - run: swift test --package-path Packages/AIUtilityAppleServices
-      - name: Compile Apple package for iOS Simulator
-        working-directory: Packages/AIUtilityAppleServices
-        run: xcodebuild -scheme AIUtilityAppleServices -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/apple-build CODE_SIGNING_ALLOWED=NO build
+      - name: Validate real macOS packages and both iOS SDK targets
+        run: bash scripts/ci_apple.sh
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.checkout.outcome == 'success'
+        with:
+          name: apple-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/apple/environment.log
+            artifacts/apple/mac-core-tests.log
+            artifacts/apple/mac-services-tests.log
+            artifacts/apple/ios-simulator-build.log
+            artifacts/apple/ios-device-build.log
+            artifacts/apple/exit-codes.txt
+          retention-days: 7
+          if-no-files-found: error
+          include-hidden-files: false
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux
