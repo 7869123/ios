@@ -27,7 +27,8 @@ import Testing
 @Test func debugDescriptionsNeverContainCredentialsOrSource() throws {
     let key = try APIKey("private-key-123")
     #expect(!String(reflecting: key).contains("private-key"))
-    #expect(!String(describing: Mirror(reflecting: key).children.first?.value).contains("private-key"))
+    let reflectedValue = String(describing: Mirror(reflecting: key).children.first?.value)
+    #expect(!reflectedValue.contains("private-key"))
     #expect(!String(reflecting: try sampleRequest()).contains("Hello"))
     #expect(!String(reflecting: GenerationResult(text: "private response")).contains("private response"))
     #expect(throws: AIUtilityError.invalidCredential) { try APIKey("key\r\nInjected: value") }
