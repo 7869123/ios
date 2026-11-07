@@ -15,10 +15,11 @@
 | 项 | 结果 |
 |---|---|
 | Runner | `xcode-27-arm64`，macOS 27.0.1，Xcode 27.1（27A9275），SDK `iphoneos27.1` / `iphonesimulator27.1`【已验证·CI】 |
-| 模拟器构建 | 运行 [42365940395](https://github.com/7869123/ios/actions/runs/42365940395)（3b1fa1c）**通过**（之前三次均为退出码 65）【已验证·CI】 |
+| 最新运行 | [42366153728](https://github.com/7869123/ios/actions/runs/42366153728)（18b6622），整个运行结论 **success**：core-linux、apple、app、poc-sdk 全部通过【已验证·CI】 |
+| 模拟器构建 | 通过（3b1fa1c 起；之前三次均为退出码 65）【已验证·CI】 |
 | 真机 Release archive（不签名） | 通过【已验证·CI】 |
-| 预安装审查 | 10/10 PASS（见第 3 节）【已验证·CI】 |
-| 未签名 IPA | artifact `PoC-unsigned-ipa-<run_id>-1`，保留 7 天；最新运行见 PR #1 |
+| 预安装审查 | 11/11 PASS（见第 3 节）【已验证·CI】 |
+| 未签名 IPA | artifact `PoC-unsigned-ipa-42366153728-1`，保留 7 天（2026-11-14 过期）；IPA 的 SHA-256 记录在同次 `poc-evidence-42366153728-1` 的 `ipa-contents.log` 中【已验证·CI】 |
 | 编译证据 | artifact `poc-evidence-<run_id>-1`，包含 environment / generate / simulator-build / archive / ipa-contents / preinstall-audit / exit-codes 七个日志 |
 
 ### 模拟器条件编译修复
@@ -53,7 +54,7 @@
 | 项 | 当前状态 | 依据与结论 |
 |---|---|---|
 | `NSSpeechRecognitionUsageDescription` | 已声明，非空【已验证·CI】 | 缺少此键时 App 会在请求授权时崩溃【已验证·官方】 |
-| `NSScreenCaptureUsageDescription` | 本轮新增（18b6622），CI 会检查非空 | ScreenCaptureKit 总览页要求添加此键【已验证·官方】。但 iOS 官方示例没有列出它，iOS 是否强制要求【未确认】。属于防御性添加，不影响签名 |
+| `NSScreenCaptureUsageDescription` | 本轮新增（18b6622），运行 42366153728 检查非空 PASS【已验证·CI】 | ScreenCaptureKit 总览页要求添加此键【已验证·官方】。但 iOS 官方示例没有列出它，iOS 是否强制要求【未确认】。属于防御性添加，不影响签名 |
 | `NSMicrophoneUsageDescription` | 未声明（CI 检查为不存在）【已验证·CI】 | PoC 在系统选择器中关闭了麦克风选项，不采集麦克风 |
 | `UIBackgroundModes: audio` | 已声明【已验证·CI】 | PiP 依赖它（"Audio, AirPlay, and Picture in Picture"）。PiP 没有单独的 capability【已验证·官方】 |
 | `UIBackgroundModes: screen-capture` | 已声明【已验证·CI】 | 官方后台模式文档列出了它，适用 iOS/iPadOS【已验证·官方】 |
@@ -108,7 +109,7 @@
 
 ### 每次安装或续签（可在远程 Windows 上完成）
 
-7. 下载 IPA：打开 PR #1 中最新一次运行的页面，在底部 Artifacts 下载 `PoC-unsigned-ipa-<run_id>-1`。解压得到 `PoC-unsigned.ipa`，可对照 `ipa-contents.log` 中的 SHA-256 校验。
+7. 下载 IPA：打开 PR #1 中最新一次运行的页面（目前为 42366153728），在底部 Artifacts 下载 `PoC-unsigned-ipa-<run_id>-1`（过期后需在 Actions 手动运行 Swift validation 并勾选 build_poc 重新生成）。解压得到 `PoC-unsigned.ipa`，可对照 `ipa-contents.log` 中的 SHA-256 校验。
 8. 在 Sideloadly 中：
    - 选中 iPad，把 IPA 拖进窗口，输入专用 Apple ID；
    - 在 Advanced options 中把 Bundle ID 改成你自己的，例如 `com.<你的名字>.captureprobe`；
