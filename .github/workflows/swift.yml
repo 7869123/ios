@@ -111,7 +111,7 @@ jobs:
     # xcode-27 is arm64-only and ships Xcode 27.0 beta with the iOS 27.0 SDK.
     # macos-latest still points to the macOS 26 image, whose newest SDK is iphoneos26.5.
     runs-on: xcode-27
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         id: checkout
@@ -151,6 +151,54 @@ jobs:
           tail -n 40 ../../artifacts/poc/simulator-build.log
           cat ../../artifacts/poc/exit-codes.txt
           test "$generate_code" -eq 0 && test "$build_code" -eq 0
+      - name: Archive unsigned Release build for iphoneos
+        id: archive
+        shell: bash
+        working-directory: PoCs/iOS27Capture
+        run: |
+          set +e
+          xcodebuild archive -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath ../../artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive \
+            -derivedDataPath ../../artifacts/poc-archive-build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            > ../../artifacts/poc/archive.log 2>&1
+          archive_code=$?
+          printf 'poc_device_archive=%s\n' "$archive_code" >> ../../artifacts/poc/exit-codes.txt
+          grep -E 'error:|ARCHIVE (SUCCEEDED|FAILED)|\*\* ' ../../artifacts/poc/archive.log | head -200
+          tail -n 40 ../../artifacts/poc/archive.log
+          test "$archive_code" -eq 0
+      - name: Package Payload into PoC-unsigned.ipa
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive
+          shopt -s nullglob
+          apps=("$archive"/Products/Applications/*.app)
+          test "${#apps[@]}" -eq 1 || { echo "expected exactly one .app, found ${#apps[@]}"; exit 1; }
+          app="${apps[0]}"
+          {
+            echo "== app: $(basename "$app")"
+            echo "== Info.plist UIBackgroundModes"; plutil -extract UIBackgroundModes json -o - "$app/Info.plist" || echo none
+            echo "== code signature (expected unsigned)"; codesign -dv "$app" 2>&1 || true
+            echo "== lipo"; lipo -info "$app/$(plutil -extract CFBundleExecutable raw -o - "$app/Info.plist")"
+            echo "== all .appex in archive"; find "$archive" -name '*.appex' -print
+            echo "== .app/PlugIns"; ls -la "$app/PlugIns" 2>/dev/null || echo "no PlugIns directory (no app extensions)"
+          } 2>&1 | tee artifacts/poc/ipa-contents.log
+          # Every extension in the archive must live inside the app's PlugIns/ folder.
+          stray=$(find "$archive" -name '*.appex' -not -path "$app/PlugIns/*" -print)
+          test -z "$stray" || { echo "appex outside .app/PlugIns: $stray"; exit 1; }
+          rm -rf artifacts/ipa && mkdir -p artifacts/ipa/Payload
+          ditto "$app" "artifacts/ipa/Payload/$(basename "$app")"
+          (cd artifacts/ipa && zip -qry PoC-unsigned.ipa Payload)
+          unzip -l artifacts/ipa/PoC-unsigned.ipa | tail -n 5 | tee -a artifacts/poc/ipa-contents.log
+          shasum -a 256 artifacts/ipa/PoC-unsigned.ipa | tee -a artifacts/poc/ipa-contents.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PoC-unsigned-ipa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/ipa/PoC-unsigned.ipa
+          retention-days: 7
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -159,6 +207,8 @@ jobs:
             artifacts/poc/environment.log
             artifacts/poc/generate.log
             artifacts/poc/simulator-build.log
+            artifacts/poc/archive.log
+            artifacts/poc/ipa-contents.log
             artifacts/poc/exit-codes.txt
           retention-days: 7
           if-no-files-found: warn
