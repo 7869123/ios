@@ -71,6 +71,7 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
     private let queue = DispatchQueue(label: "com.aiutility.poc.audio")
     private let lifecycle = ProbeLifecycle()
     private var callbacks: CaptureCallbacks?
+    private var pickerRegistered = false
     private var starting = false
     private var startTask: Task<Void, Never>?
     var isStopped: Bool { lifecycle.phase == .idle }
@@ -86,7 +87,7 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         configuration.showsMicrophoneControl = false
         configuration.showsCameraControl = false
         picker.defaultConfiguration = configuration
-        picker.add(callbacks); picker.isActive = true
+        picker.add(callbacks); pickerRegistered = true; picker.isActive = true
         state = "请选择整个屏幕；本操作需要系统授权"
         picker.present()
     }
@@ -139,7 +140,8 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
     }
     private func release() async -> Bool {
         let picker = SCContentSharingPicker.shared
-        if let callbacks { picker.remove(callbacks) }
+        if pickerRegistered, let callbacks { picker.remove(callbacks) }
+        pickerRegistered = false
         picker.isActive = false
         let pendingStart = startTask
         let stoppingStream = stream
