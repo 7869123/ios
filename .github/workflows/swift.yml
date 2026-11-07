@@ -108,7 +108,8 @@ jobs:
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux
-    # xcode-27 is arm64-only and ships Xcode 27.0 beta with the iOS 27.0 SDK.
+    # xcode-27 is arm64-only. Run 42364724953 measured macOS 27.0.1, Xcode 27.1 (27A9275), iphoneos27.1;
+    # the image README snapshot (Xcode 27.0 beta / iphoneos27.0) was stale.
     # macos-latest still points to the macOS 26 image, whose newest SDK is iphoneos26.5.
     runs-on: xcode-27
     timeout-minutes: 25
@@ -128,6 +129,10 @@ jobs:
             echo "== xcodebuild -version"; xcodebuild -version
             echo "== xcodebuild -showsdks"; xcodebuild -showsdks
             echo "== xcrun --sdk iphoneos --show-sdk-version"; xcrun --sdk iphoneos --show-sdk-version
+            for sdk in iphoneos iphonesimulator; do
+              echo "== ScreenCaptureKit in $sdk SDK"
+              ls -d "$(xcrun --sdk "$sdk" --show-sdk-path)/System/Library/Frameworks/ScreenCaptureKit.framework" 2>/dev/null || echo "absent"
+            done
           } 2>&1 | tee artifacts/poc/environment.log
       - name: Require iOS 27 SDK
         shell: bash
@@ -137,6 +142,7 @@ jobs:
           test "${version%%.*}" -ge 27
       - run: brew install xcodegen
       - name: Generate and compile the diagnostic host with preserved exit codes
+        id: simbuild
         shell: bash
         working-directory: PoCs/iOS27Capture
         run: |
@@ -150,9 +156,13 @@ jobs:
           grep -E 'error:|warning:|BUILD (SUCCEEDED|FAILED)|\*\* ' ../../artifacts/poc/simulator-build.log | head -200
           tail -n 40 ../../artifacts/poc/simulator-build.log
           cat ../../artifacts/poc/exit-codes.txt
-          test "$generate_code" -eq 0 && test "$build_code" -eq 0
+          printf 'generate=%s\nbuild=%s\n' "$generate_code" "$build_code" >> "$GITHUB_OUTPUT"
+          # Do not stop here: the iphoneos archive is an independent compile. The job is
+          # failed by the last step if the simulator build failed.
+          test "$generate_code" -eq 0
       - name: Archive unsigned Release build for iphoneos
         id: archive
+        if: steps.simbuild.outputs.generate == '0'
         shell: bash
         working-directory: PoCs/iOS27Capture
         run: |
@@ -194,6 +204,7 @@ jobs:
           unzip -l artifacts/ipa/PoC-unsigned.ipa | tail -n 5 | tee -a artifacts/poc/ipa-contents.log
           shasum -a 256 artifacts/ipa/PoC-unsigned.ipa | tee -a artifacts/poc/ipa-contents.log
       - uses: actions/upload-artifact@v4
+        id: ipa
         with:
           name: PoC-unsigned-ipa-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/ipa/PoC-unsigned.ipa
@@ -213,3 +224,9 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
           include-hidden-files: false
+      - name: Fail job if the simulator build failed
+        if: always() && steps.simbuild.outputs.build != '0'
+        shell: bash
+        run: |
+          echo "simulator build exit code: ${{ steps.simbuild.outputs.build }}"
+          exit 1
