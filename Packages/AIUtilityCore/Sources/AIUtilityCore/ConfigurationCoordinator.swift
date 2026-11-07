@@ -33,8 +33,12 @@ public actor ConfigurationCoordinator {
         var bindings = try load(provider)?.models ?? [:]
         bindings.merge(updates) { _, new in new }
         guard !bindings.isEmpty else { throw AIUtilityError.invalidRequest }
-        for model in Set(bindings.values).sorted() {
-            try await validate(provider: provider, key: key, model: model, timeout: timeout)
+        let validationModels = Set(bindings.values).sorted()
+        // One validation deadline for the whole transaction, rather than timeout per binding.
+        try await withDeadline(timeout) {
+            for model in validationModels {
+                try await self.validate(provider: provider, key: key, model: model, timeout: timeout)
+            }
         }
         try commit(provider, configuration: ProviderConfiguration(key: key, models: bindings))
     }

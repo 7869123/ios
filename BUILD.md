@@ -1,6 +1,39 @@
 # 构建与测试
 
-## 当前本机结果
+## 第二轮真实编译验证入口
+
+2026-11-07 第二轮仍没有可用 Swift 编译器，没有安装大型全局依赖。下面的验证脚本**只调用真实 Swift**，不使用语法解析替代；默认关闭付费 API / Keychain 集成测试：
+
+```powershell
+& 'C:/Users/7869/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' scripts/verify_core.py --output validation/round2-core
+```
+
+实际启动器退出码 **2**；三个命令为 not_started，Swift 退出码为 null，执行测试 **0**。这不表示 Swift 编译失败产生诊断，而是编译进程没有启动。记录在 validation/round2-core/。本轮源码修复和回归测试未经类型检查。
+
+在已有 Swift 6 环境，使用任意正常 Python 3.9+（Windows 可替换为已有 python.exe 路径）：
+
+```sh
+python3 scripts/verify_core.py --output artifacts/core-verification
+# 或直接执行：
+swift --version
+swift build --package-path Packages/AIUtilityCore
+swift test --package-path Packages/AIUtilityCore
+```
+
+启动器会保存各命令真实输出/退出码；全部成功退出 0，已启动但存在失败退出 1，缺编译器退出 2。只有实际 Swift 测试日志能给出测试运行数量，声明扫描不作为计数来源。普通验证会关闭 `AIUTILITY_LIVE_TESTS` 与 `AIUTILITY_KEYCHAIN_TESTS`，不读取真实凭据。
+
+最小成本路径是使用已有 Linux 宿主或用户自己的 GitHub 仓库触发现有 CI；本轮无 remote，CI 未运行。审查者若**已经安装 Docker**，可以在解压目录运行以下官方 Swift 6.0.3 容器命令：
+
+```sh
+docker run --rm -v "$PWD:/workspace" -w /workspace swift:6.0.3 \
+  bash -lc 'swift --version && swift build --package-path Packages/AIUtilityCore && swift test --package-path Packages/AIUtilityCore'
+```
+
+此命令尚未在当前 Windows 执行，首次会下载镜像；本轮没有为此安装 Docker、WSL、Visual Studio 或 Swift。新 Linux CI 保存 core-linux-evidence 日志与退出码，任务有时限。不要将 CI 配置存在描述为 CI 通过。
+
+源码审查包生成：先提交，再运行 `python scripts/package_review.py`；仅打包 HEAD 的受跟踪源码及完整 Git 历史 bundle，忽略凭据、缓存和未跟踪数据，并检查 ZIP CRC、bundle 和 SHA-256。详见 REVIEW.md。
+
+## 第一轮本机记录（历史）
 
 2026-11-07：Windows 未安装 Swift，实际调用 `scripts/test.ps1` 因缺少 Swift 退出，没有执行 Swift 测试。本仓库未包含可安装 IPA，也没有已完成签名的正式 App 工程。
 

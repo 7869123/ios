@@ -107,9 +107,17 @@ public struct OfficialAPIAdapter: AIProviderAdapter {
             switch provider {
             case .openAI:
                 let response = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-                if response.status == "incomplete" { throw AIUtilityError.outputTruncated }
+                if response.status == "incomplete" {
+                    if response.incomplete_details?.reason == "content_filter" { throw AIUtilityError.contentRejected }
+                    if response.incomplete_details?.reason == "max_output_tokens" { throw AIUtilityError.outputTruncated }
+                    throw AIUtilityError.malformedResponse
+                }
                 guard response.status == "completed", response.error == nil else { throw AIUtilityError.malformedResponse }
-                let blocks = response.output.flatMap { $0.content ?? [] }
+                let messages = response.output.filter { $0.type == "message" }
+                guard messages.allSatisfy({ $0.status == nil || $0.status == "completed" }) else {
+                    throw AIUtilityError.malformedResponse
+                }
+                let blocks = messages.flatMap { $0.content ?? [] }
                 guard !blocks.contains(where: { $0.type == "refusal" }) else { throw AIUtilityError.contentRejected }
                 text = blocks.filter { $0.type == "output_text" }.compactMap(\.text).joined(separator: "\n")
                 tokens = response.usage?.output_tokens
@@ -117,6 +125,7 @@ public struct OfficialAPIAdapter: AIProviderAdapter {
                 let response = try JSONDecoder().decode(AnthropicResponse.self, from: data)
                 if response.stop_reason == "max_tokens" { throw AIUtilityError.outputTruncated }
                 if response.stop_reason == "refusal" { throw AIUtilityError.contentRejected }
+                if response.content.contains(where: { $0.type == "refusal" }) { throw AIUtilityError.contentRejected }
                 guard ["end_turn", "stop_sequence"].contains(response.stop_reason) else { throw AIUtilityError.malformedResponse }
                 text = response.content.filter { $0.type == "text" }.compactMap(\.text).joined(separator: "\n")
                 tokens = response.usage?.output_tokens
@@ -125,6 +134,9 @@ public struct OfficialAPIAdapter: AIProviderAdapter {
                 guard let choice = response.choices.first else { throw AIUtilityError.malformedResponse }
                 if choice.finish_reason == "length" { throw AIUtilityError.outputTruncated }
                 if choice.finish_reason == "content_filter" { throw AIUtilityError.contentRejected }
+                if let refusal = choice.message.refusal, !refusal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    throw AIUtilityError.contentRejected
+                }
                 guard choice.finish_reason == "stop" else { throw AIUtilityError.malformedResponse }
                 text = choice.message.content ?? ""
                 tokens = response.usage?.completion_tokens
@@ -140,9 +152,9 @@ public struct OfficialAPIAdapter: AIProviderAdapter {
         if response.status == 403 { return .forbidden }
         // Only inspect machine codes. Raw vendor messages may echo secrets/user content.
         let envelope = try? JSONDecoder().decode(ErrorEnvelope.self, from: response.body)
-        let code = envelope?.error.code ?? envelope?.error.type ?? ""
-        if ["insufficient_quota", "credit_balance_too_low", "billing_error"].contains(code) { return .quotaExceeded }
-        if ["model_not_found", "invalid_model", "model_not_available"].contains(code) { return .modelUnavailable }
+        let codes = [envelope?.error.code, envelope?.error.type].compactMap { $0 }
+        if codes.contains(where: { ["insufficient_quota", "credit_balance_too_low", "billing_error"].contains($0) }) { return .quotaExceeded }
+        if codes.contains(where: { ["model_not_found", "invalid_model", "model_not_available"].contains($0) }) { return .modelUnavailable }
         switch response.status {
         case 401: return .unauthorized
         case 403: return .forbidden
@@ -173,16 +185,28 @@ private struct ModelPage: Decodable {
     let last_id: String?
 }
 private struct ErrorEnvelope: Decodable {
-    struct Detail: Decodable { let code: String?; let type: String? }
+    struct Detail: Decodable {
+        let code: String?
+        let type: String?
+        private enum CodingKeys: String, CodingKey { case code, type }
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            // An unexpected code type must not hide a usable error.type or HTTP status.
+            code = try? container.decode(String.self, forKey: .code)
+            type = try? container.decode(String.self, forKey: .type)
+        }
+    }
     let error: Detail
 }
 private struct ContentBlock: Decodable { let type: String; let text: String? }
 private struct Usage: Decodable { let output_tokens: Int?; let completion_tokens: Int? }
 private struct OpenAIResponse: Decodable {
-    struct Output: Decodable { let type: String; let content: [ContentBlock]? }
+    struct Output: Decodable { let type: String; let status: String?; let content: [ContentBlock]? }
     struct Failure: Decodable { let code: String? }
+    struct Incomplete: Decodable { let reason: String? }
     let status: String
     let error: Failure?
+    let incomplete_details: Incomplete?
     let output: [Output]
     let usage: Usage?
 }
@@ -193,7 +217,7 @@ private struct AnthropicResponse: Decodable {
 }
 private struct DeepSeekResponse: Decodable {
     struct Choice: Decodable {
-        struct Message: Decodable { let content: String? }
+        struct Message: Decodable { let content: String?; let refusal: String? }
         let message: Message
         let finish_reason: String
     }

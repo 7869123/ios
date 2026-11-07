@@ -1,5 +1,31 @@
 # AIUtility 开发状态
 
+## 第二轮工程验证（2026-11-07）
+
+**仍未通过真实 Swift 编译与测试。** 基线 `f2b766e` 和现有源码完整保留；没有重建项目，没有安装大型全局依赖。本轮的源码修复属于静态审计成果，不能称为编译错误已修复或测试通过。
+
+| 项目 | 第二轮实际结果 |
+|---|---|
+| 可用环境 | Windows 无 Swift/C++/Windows SDK、Docker/Podman、可用 WSL；现有 Node 执行环境也是 win32；无 Git remote / gh / 已配置 SSH 编译入口 |
+| 验证命令 | `python scripts/verify_core.py --output validation/round2-core`；实际使用既有 Codex Python 路径 |
+| 验证启动器退出码 | **2**（找不到 Swift） |
+| Swift 编译器退出码 | **null / 不适用**：`swift --version`、`swift build`、`swift test` 均未启动 Swift 进程 |
+| Swift 测试 | 实际执行 **0**；通过 0、失败 0，属于环境阻塞 |
+| 测试源码 | 现有 **40 个 @Test 声明**（Core 37 / Apple 3，含参数化与默认禁用的集成测试）；均不能据此认定通过 |
+| 已改源码 | OpenAI 过滤/截断分类和 message 读取、错误 code/type 容错、整批模型验证的总时限 |
+| 新增回归场景 | 迟到成功与取消、并发保存/切换、跨供应商编辑、三家拒绝/截断回滚、重试取消、分页预算 |
+| CI | 已补构建/测试日志与退出码保存、job 时限；**未触发运行** |
+| Apple SDK / 真机 | 均未验证；已列出具体符号、隔离与生命周期风险 |
+| 审查交付 | `scripts/package_review.py` 生成源码 ZIP、完整历史 bundle、SHA-256 与清单；流程见 REVIEW.md |
+
+本轮没有执行 tree-sitter。Python 脚本检查、Git 差异检查和打包校验只对各自范围有效，均不能代替 Swift 编译。详细结果见 [第二轮审计](validation/round2-audit.md) 与 [机器报告](validation/round2-core/summary.json)。
+
+最小成本下一步：将 ZIP 放入已有 Swift 6/Linux 环境执行 Core 编译/测试，或推送至用户自己的仓库触发已准备的 Linux CI。当前缺少可用入口，本轮没有擅自创建远程仓库。Apple 部分仍需 Mac、iOS 27 SDK 和目标 iPad。
+
+以下保留第一轮交付记录，历史测试数量不代表当前数量。
+
+## 第一轮记录
+
 记录日期：2026-11-07（Asia/Shanghai）。本轮交付为实际源码、自动化测试和本地 Git 提交，尚未通过 Swift 编译及设备验收。
 
 ## 环境检查
@@ -39,7 +65,7 @@
 
 语法解析不是 Swift 类型检查；测试源码存在不等于测试通过。CI 文件已准备，但当前没有远程仓库，未触发任何云端工作流。后续编译可能暴露类型或 SDK 兼容问题，需依据真实编译结果修正。
 
-当前有 29 个 @Test 声明，供应商参数化后展开更多用例；不代表已执行或通过。原始结果摘要见 [本轮验证记录](validation/2026-11-07-windows.md)。
+第一轮有 29 个 @Test 声明，供应商参数化后展开更多用例；不代表已执行或通过。原始结果摘要见 [第一轮验证记录](validation/2026-11-07-windows.md)。
 
 ## 当前阻碍及下一步
 

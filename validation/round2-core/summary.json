@@ -1,0 +1,49 @@
+{
+  "executed_at_utc": "2026-11-07T03:25:17.435667+00:00",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "swift_executable": null,
+  "live_api_tests_enabled": false,
+  "commands": [
+    {
+      "name": "swift-version",
+      "command": [
+        "swift",
+        "--version"
+      ],
+      "status": "not_started",
+      "exit_code": null,
+      "reason": "Swift executable not found; no Swift process was started",
+      "log": "swift-version.log"
+    },
+    {
+      "name": "core-build",
+      "command": [
+        "swift",
+        "build",
+        "--package-path",
+        "Packages/AIUtilityCore"
+      ],
+      "status": "not_started",
+      "exit_code": null,
+      "reason": "Swift executable not found; no Swift process was started",
+      "log": "core-build.log"
+    },
+    {
+      "name": "core-tests",
+      "command": [
+        "swift",
+        "test",
+        "--package-path",
+        "Packages/AIUtilityCore"
+      ],
+      "status": "not_started",
+      "exit_code": null,
+      "reason": "Swift executable not found; no Swift process was started",
+      "log": "core-tests.log"
+    }
+  ],
+  "swift_tests_executed": 0,
+  "test_count_note": "0 means no compiler was available; null means consult the actual test log",
+  "apple_sdk_verified": false,
+  "device_verified": false
+}

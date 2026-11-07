@@ -31,7 +31,7 @@ Core 是独立 Swift Package，跨平台测试时只替换 HTTPTransport 与 Cre
 
 官方端点封装在一个实现中，共享 HTTP 机制，生成请求与响应按三家分别编码/解码。模型名完全由发现结果/调用者指定；不把目录里的任意模型视为可用的文本生成模型，也不因为“型号存在”而跳过生成验证。
 
-OpenAI incomplete、DeepSeek length、Anthropic max_tokens 均为 outputTruncated；拒绝/过滤为 contentRejected；空文本与结构不符为 malformedResponse。不会把推理文本或截断文本当成成功翻译。
+OpenAI incomplete 按原因区分：max_output_tokens 为 outputTruncated，content_filter 为 contentRejected，未知原因为 malformedResponse。DeepSeek length、Anthropic max_tokens 为 outputTruncated；拒绝/过滤为 contentRejected；空文本与结构不符为 malformedResponse。只读取完成的 message 文本，不把推理文本或截断文本当成成功翻译。
 
 2026-11-07 已核对：[DeepSeek 模型](https://api-docs.deepseek.com/api/list-models/)、[Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/)、[Anthropic 模型](https://platform.claude.com/docs/en/api/models/list)、[Messages](https://platform.claude.com/docs/en/api/messages/create)、[版本](https://platform.claude.com/docs/en/api/versioning)、[OpenAI 模型](https://developers.openai.com/api/reference/resources/models/methods/list)、[文本生成](https://developers.openai.com/api/docs/guides/text)。本轮采用 OpenAI Docs 技能核对 OpenAI 接口。接口资料核对不代表账户、模型权限或真实调用通过。
 

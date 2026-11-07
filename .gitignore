@@ -10,3 +10,6 @@ xcuserdata/
 PoCs/**/Generated/
 PoCs/**/*.xcodeproj/
 artifacts/
+/review/
+__pycache__/
+*.py[cod]

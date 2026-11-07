@@ -10,6 +10,7 @@ actor ScriptedTransport: HTTPTransport {
         case failure(AIUtilityError)
         case waitForCancellation
         case echoInput
+        case delayed(HTTPResponse, nanoseconds: UInt64)
     }
     private var steps: [Step]
     private(set) var requests: [URLRequest] = []
@@ -22,6 +23,9 @@ actor ScriptedTransport: HTTPTransport {
         switch steps.removeFirst() {
         case .response(let response): return response
         case .failure(let error): throw error
+        case .delayed(let response, let nanoseconds):
+            try await Task.sleep(nanoseconds: nanoseconds)
+            return response
         case .waitForCancellation:
             try await Task.sleep(nanoseconds: 60_000_000_000)
             throw AIUtilityError.malformedResponse
@@ -36,6 +40,30 @@ actor ScriptedTransport: HTTPTransport {
         if !requests.isEmpty { return }
         await withCheckedContinuation { waiters.append($0) }
     }
+}
+
+/// Deterministic barrier for the response/cancel race. Does not resume until released by the test.
+actor GatedAdapter: AIProviderAdapter {
+    nonisolated let provider = ProviderID.openAI
+    private var entered = false
+    private var entrance: CheckedContinuation<Void, Never>?
+    private var response: CheckedContinuation<GenerationResult, Never>?
+    func listModels(key: APIKey, timeout: TimeInterval,
+                    beforeRequest: @escaping @Sendable () async throws -> Void) async throws -> [AIModel] {
+        try await beforeRequest()
+        return [AIModel(id: "model")]
+    }
+    func generate(_ request: GenerationRequest, key: APIKey, timeout: TimeInterval) async throws -> GenerationResult {
+        entered = true
+        entrance?.resume(); entrance = nil
+        // Deliberately returns a late success even after cancellation. Gateway must reject it.
+        return await withCheckedContinuation { response = $0 }
+    }
+    func waitUntilEntered() async {
+        if entered { return }
+        await withCheckedContinuation { entrance = $0 }
+    }
+    func release() { response?.resume(returning: GenerationResult(text: "OK")); response = nil }
 }
 
 /// Only test code has an in-memory store. Production never falls back to this.

@@ -83,7 +83,7 @@ func modelDiscovery(_ provider: ProviderID) async throws {
             try await gateway(.openAI, transport).generate(provider: .openAI, key: APIKey("test-key"), request: sampleRequest())
         }
     }
-    let transport = ScriptedTransport([response(#"{"status":"incomplete","output":[]}"#)])
+    let transport = ScriptedTransport([response(#"{"status":"incomplete","incomplete_details":{"reason":"max_output_tokens"},"output":[]}"#)])
     await #expect(throws: AIUtilityError.outputTruncated) {
         try await gateway(.openAI, transport).generate(provider: .openAI, key: APIKey("test-key"), request: sampleRequest())
     }

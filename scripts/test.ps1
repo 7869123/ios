@@ -6,6 +6,8 @@ if (-not (Get-Command swift -ErrorAction SilentlyContinue)) {
 }
 & swift --version
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& swift build --package-path (Join-Path $aiutilityRoot 'Packages/AIUtilityCore')
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & swift test --package-path (Join-Path $aiutilityRoot 'Packages/AIUtilityCore')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if ($IsMacOS) {

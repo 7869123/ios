@@ -13,13 +13,35 @@ permissions:
 jobs:
   core-linux:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     container: swift:6.0.3
     steps:
       - uses: actions/checkout@v4
-      - run: swift --version
-      - run: swift test --package-path Packages/AIUtilityCore
+      - name: Real compiler and offline tests with preserved exit codes
+        shell: bash
+        env:
+          AIUTILITY_LIVE_TESTS: '0'
+          AIUTILITY_KEYCHAIN_TESTS: '0'
+        run: |
+          mkdir -p artifacts/core-linux
+          set +e
+          swift --version > artifacts/core-linux/swift-version.log 2>&1
+          version_code=$?
+          swift build --package-path Packages/AIUtilityCore > artifacts/core-linux/core-build.log 2>&1
+          build_code=$?
+          swift test --package-path Packages/AIUtilityCore > artifacts/core-linux/core-tests.log 2>&1
+          test_code=$?
+          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\n' "$version_code" "$build_code" "$test_code" > artifacts/core-linux/exit-codes.txt
+          cat artifacts/core-linux/*.log
+          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-linux-evidence
+          path: artifacts/core-linux/
   apple:
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - run: swift --version
@@ -32,6 +54,7 @@ jobs:
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Require iOS 27 SDK
