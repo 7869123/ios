@@ -1,0 +1,28 @@
+name: AIUtility
+options:
+  deploymentTarget:
+    iOS: '17.0'
+packages:
+  AIUtilityCore:
+    path: ../../Packages/AIUtilityCore
+  AIUtilityAppleServices:
+    path: ../../Packages/AIUtilityAppleServices
+targets:
+  AIUtility:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    dependencies:
+      - package: AIUtilityCore
+      - package: AIUtilityAppleServices
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.aiutility.app
+        SWIFT_VERSION: '6.0'
+        TARGETED_DEVICE_FAMILY: '1,2'
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Info.plist
+        CURRENT_PROJECT_VERSION: '1'
+        MARKETING_VERSION: '0.2.0'
+    scheme:
+      gatherCoverageData: false

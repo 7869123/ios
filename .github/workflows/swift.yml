@@ -79,6 +79,30 @@ jobs:
           retention-days: 7
           if-no-files-found: error
           include-hidden-files: false
+  app:
+    needs: [core-linux, apple]
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        id: checkout
+        with:
+          persist-credentials: false
+      - name: Generate and compile the native SwiftUI App
+        run: bash scripts/ci_app.sh
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.checkout.outcome == 'success'
+        with:
+          name: app-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/app/environment.log
+            artifacts/app/generate.log
+            artifacts/app/simulator-build.log
+            artifacts/app/device-build.log
+            artifacts/app/exit-codes.txt
+          retention-days: 7
+          if-no-files-found: error
+          include-hidden-files: false
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux

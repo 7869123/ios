@@ -9,6 +9,7 @@ xcuserdata/
 *.xcresult/
 PoCs/**/Generated/
 PoCs/**/*.xcodeproj/
+Apps/**/*.xcodeproj/
 artifacts/
 /review/
 __pycache__/
