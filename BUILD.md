@@ -1,5 +1,7 @@
 # 构建与测试
 
+当前优先使用 GitHub Actions，按用户要求不再尝试安装 Windows Swift 工具链。创建个人私有仓库、推送现有提交、查看失败日志和继续修复的完整步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。尚未配置远程或运行 CI。
+
 ## 第二轮真实编译验证入口
 
 2026-11-07 第二轮仍没有可用 Swift 编译器，没有安装大型全局依赖。下面的验证脚本**只调用真实 Swift**，不使用语法解析替代；默认关闭付费 API / Keychain 集成测试：

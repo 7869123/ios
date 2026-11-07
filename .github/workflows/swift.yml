@@ -4,12 +4,19 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      build_apple:
+        description: 'Also run Apple package and simulator checks (Core runs by default)'
+        type: boolean
+        default: false
       build_poc:
         description: 'Require an iOS 27 SDK and compile the diagnostic host (not device acceptance)'
         type: boolean
         default: false
 permissions:
   contents: read
+env:
+  AIUTILITY_LIVE_TESTS: '0'
+  AIUTILITY_KEYCHAIN_TESTS: '0'
 jobs:
   core-linux:
     runs-on: ubuntu-latest
@@ -17,11 +24,11 @@ jobs:
     container: swift:6.0.3
     steps:
       - uses: actions/checkout@v4
+        id: checkout
+        with:
+          persist-credentials: false
       - name: Real compiler and offline tests with preserved exit codes
         shell: bash
-        env:
-          AIUTILITY_LIVE_TESTS: '0'
-          AIUTILITY_KEYCHAIN_TESTS: '0'
         run: |
           mkdir -p artifacts/core-linux
           set +e
@@ -35,15 +42,26 @@ jobs:
           cat artifacts/core-linux/*.log
           test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.checkout.outcome == 'success'
         with:
-          name: core-linux-evidence
-          path: artifacts/core-linux/
+          name: core-linux-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/core-linux/swift-version.log
+            artifacts/core-linux/core-build.log
+            artifacts/core-linux/core-tests.log
+            artifacts/core-linux/exit-codes.txt
+          retention-days: 7
+          if-no-files-found: error
+          include-hidden-files: false
   apple:
+    if: github.event_name == 'workflow_dispatch' && (inputs.build_apple || inputs.build_poc)
+    needs: core-linux
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: swift --version
       - run: xcodebuild -version
       - run: swift test --package-path Packages/AIUtilityCore
@@ -53,10 +71,13 @@ jobs:
         run: xcodebuild -scheme AIUtilityAppleServices -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/apple-build CODE_SIGNING_ALLOWED=NO build
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
+    needs: core-linux
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Require iOS 27 SDK
         run: |
           version=$(xcrun --sdk iphoneos --show-sdk-version)

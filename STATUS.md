@@ -1,5 +1,11 @@
 # AIUtility 开发状态
 
+## GitHub Actions 接入准备（2026-11-07）
+
+按最新要求停止尝试 Windows Swift 工具链。现有 workflow 已收紧为默认只验证 Core，失败时尝试上传四个明确日志文件与真实退出码，保留 7 天，不上传 API Key、.build 或构建缓存。Apple / PoC 仅手动开启，且依赖 Core 成功。
+
+目前未收到个人 GitHub 私有仓库地址，尚无 origin；Git Credential Manager 可用，但没有确认已登录的 GitHub 账户。尚未推送或运行 Actions，Core 实际编译/测试通过数仍为 0。接入与认证步骤见 [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)。这不是新的编译验证成功记录。
+
 ## 第二轮工程验证（2026-11-07）
 
 **仍未通过真实 Swift 编译与测试。** 基线 `f2b766e` 和现有源码完整保留；没有重建项目，没有安装大型全局依赖。本轮的源码修复属于静态审计成果，不能称为编译错误已修复或测试通过。
