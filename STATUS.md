@@ -1,10 +1,15 @@
 # AIUtility 开发状态
 
-## 最新工程集成（2026-11-08，验证进行中）
+## 最新工程集成完成验证（2026-11-08）
 
 按本轮明确授权，在 Codex 分支集成 Claude 输入 fdb42c6，保留双方历史；PR #1/#2 与 main 均不合并。
 UI/壁纸保持 Claude 原件，Core/PoC 保持已审查源码；无冲突。必要预推送误报修复及实际后续结果见
-[INTEGRATION_STATUS.md](INTEGRATION_STATUS.md)。本节不将上一轮 CI 成功归于新集成源码。
+[INTEGRATION_STATUS.md](INTEGRATION_STATUS.md)。实际新源码 83ae71c 在
+[42439552132](https://github.com/7869123/ios/actions/runs/42439552132) 四个 Job 全部 success，记录的命令均退出 0。
+Core 每平台 36 通过/1 跳过；生命周期每平台 14 通过；Vision 2 通过、Keychain 1 跳过；本地安全检测 13 项通过。
+四张 iPad mini / iPhone 原始横竖屏截图已重建并查看；大图仅保留 artifact，尺寸/摘要见验证报告。
+PoC Swift 6 Archive、未签名 IPA 和 13 项预安装检查通过，仍没有任何 iPad 真机采集/Speech/PiP 成功结论。
+本轮预推送完整 PASS，未改 Core 公共 API、Claude UI、壁纸或布局，等待 PR #2 人工审核。
 
 ## 独立工程审查完成验证（2026-11-08）
 

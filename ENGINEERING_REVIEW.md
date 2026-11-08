@@ -1,5 +1,9 @@
 # 工程可靠性审查（2026-11-08 交付；CI 于 2026-11-07 执行）
 
+后续集成已按新的明确授权完成：Claude fdb42c6 与本分支修复共同在 83ae71c 通过
+[42439552132](https://github.com/7869123/ios/actions/runs/42439552132)，并重建四张横竖屏截图。
+最新结果见 [INTEGRATION_STATUS.md](INTEGRATION_STATUS.md)；下文保留上一轮独立审查，不能混淆两个源码快照。
+
 范围：独立分支 `codex/poc-engineering-audit`；基于 PR #1 的
 `d04a43e14507b8e822e3ec979e4f5b3d906e410b`，main 为 `f17d20d`。
 只审查底层工程，未修改 Claude 的 UI、壁纸、透明度文件或资源，未改 Core 公共 API。

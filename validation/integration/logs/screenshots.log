@@ -1,0 +1,23 @@
+runtime: com.apple.CoreSimulator.SimRuntime.iOS-26-5
+== ipad-mini (com.apple.CoreSimulator.SimDeviceType.iPad-mini-A17-Pro)
+com.aiutility.app: 11009
+ipad-mini-portrait: in-app capture, mode=device window=744x1133 orientation=portrait
+ipad-mini-portrait: pixelWidth:=1488 pixelHeight:=2266
+com.aiutility.app: 12061
+ipad-mini-landscape: in-app capture, mode=offscreen-landscape-layout window=1133x744 (scene stayed portrait; no status bar or safe-area insets)
+ipad-mini-landscape: pixelWidth:=2266 pixelHeight:=1488
+== iphone (com.apple.CoreSimulator.SimDeviceType.iPhone-17)
+com.aiutility.app: 15304
+iphone-portrait: in-app capture, mode=device window=402x874 orientation=portrait
+iphone-portrait: pixelWidth:=1206 pixelHeight:=2622
+com.aiutility.app: 15805
+iphone-landscape: in-app capture, mode=device window=874x402 orientation=landscape
+iphone-landscape: pixelWidth:=2622 pixelHeight:=1206
+total 77856
+drwxr-xr-x  7 runner  staff       224 Nov  8 02:55 .
+drwxr-xr-x  8 runner  staff       256 Nov  8 02:45 ..
+-rw-r--r--  1 runner  staff  10128498 Nov  8 02:51 ipad-mini-landscape.png
+-rw-r--r--  1 runner  staff  10527260 Nov  8 02:51 ipad-mini-portrait.png
+-rw-r--r--  1 runner  staff   9083414 Nov  8 02:55 iphone-landscape.png
+-rw-r--r--  1 runner  staff  10110062 Nov  8 02:55 iphone-portrait.png
+-rw-r--r--  1 runner  staff       897 Nov  8 02:55 screenshots.log

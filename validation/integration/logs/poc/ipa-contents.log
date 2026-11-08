@@ -1,0 +1,15 @@
+== app: AIUtilityCaptureProbe.app
+== Info.plist UIBackgroundModes
+["audio","screen-capture"]== code signature (expected unsigned)
+artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive/Products/Applications/AIUtilityCaptureProbe.app: code object is not signed at all
+== lipo
+Non-fat file: artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive/Products/Applications/AIUtilityCaptureProbe.app/AIUtilityCaptureProbe is architecture: arm64
+== all .appex in archive
+== .app/PlugIns
+no PlugIns directory (no app extensions)
+   939448  11-08-2026 02:44   Payload/AIUtilityCaptureProbe.app/AIUtilityCaptureProbe
+     1127  11-08-2026 02:44   Payload/AIUtilityCaptureProbe.app/Info.plist
+        8  11-08-2026 02:44   Payload/AIUtilityCaptureProbe.app/PkgInfo
+---------                     -------
+   940583                     5 files
+613bf7282707119a3815d270ec4b9dc4e2434384a57aa3e443ecea89e7a811fc  artifacts/ipa/PoC-unsigned.ipa
