@@ -186,9 +186,12 @@ public struct DownloadConfiguration: Sendable {
     let cache: URL
     let policy: DownloadPolicy
     let resolvers: [any MediaResolver]
+    let sites: Set<MediaSource>
     /// Roots must be dedicated descendants of this process's Documents/Caches directories.
+    /// `sites` opts in to the built-in site resolvers (bilibili, x, pixiv); none are enabled by default
+    /// because they have only been checked against offline samples, not the live sites.
     public init(storageRoot: URL? = nil, temporaryRoot: URL? = nil, policy: DownloadPolicy = .init(),
-                resolvers: [any MediaResolver] = []) throws(MediaError) {
+                resolvers: [any MediaResolver] = [], sites: Set<MediaSource> = []) throws(MediaError) {
         do {
             try policy.validate()
             let manager = FileManager.default
@@ -201,10 +204,11 @@ public struct DownloadConfiguration: Sendable {
                   cache.standardizedFileURL.path.hasPrefix(caches.standardizedFileURL.path + "/") else { throw MediaError.invalidInput }
             try SandboxFiles.noLinks(root); try SandboxFiles.noLinks(cache)
             self.root = root; self.cache = cache; self.policy = policy; self.resolvers = resolvers
+            self.sites = sites.subtracting([.direct])
         } catch { throw MediaError.safe(error) }
     }
     init(testRoot: URL, policy: DownloadPolicy = .init()) throws {
         try policy.validate(); root = testRoot.appendingPathComponent("documents")
-        cache = testRoot.appendingPathComponent("cache"); self.policy = policy; resolvers = []
+        cache = testRoot.appendingPathComponent("cache"); self.policy = policy; resolvers = []; sites = []
     }
 }

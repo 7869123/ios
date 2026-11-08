@@ -12,7 +12,10 @@ struct MediaEnvironment: Sendable {
         let clock = SystemMediaClock()
         let client = NetworkClient(policy: configuration.policy, transport: URLSessionMediaTransport(),
                                    validator: PublicDNSValidator(), clock: clock)
-        let resolvers: [any MediaResolver] = [DirectMediaResolver(client: client)] + configuration.resolvers.filter { $0.source != .direct }
+        let custom = configuration.resolvers.filter { $0.source != .direct }
+        let builtIn = siteResolvers(configuration.sites, client: client)
+            .filter { site in !custom.contains(where: { $0.source == site.source }) }
+        let resolvers: [any MediaResolver] = [DirectMediaResolver(client: client)] + custom + builtIn
         return MediaEnvironment(repository: try DiskManifestStore(root: configuration.root),
                                 files: try SandboxFiles(root: configuration.root, cache: configuration.cache),
                                 client: client, router: LinkRouter(resolvers: resolvers, client: client), policy: configuration.policy,
@@ -395,7 +398,7 @@ public actor DownloadManager {
                 try setState(id, attempt, .running(DownloadProgress(attemptID: attempt, phase: .transfer, bytesWritten: written, totalBytes: nil)))
                 let part = staging.appendingPathComponent(UUID().uuidString + ".part")
                 let base = written
-                let response = try await env.client.download(component.requestURL(), to: part,
+                let response = try await env.client.download(component.requestURL(), context: component.requestContext(), to: part,
                     limit: min(env.policy.maxFileBytes, env.policy.maxTaskBytes - written)) { [weak self] bytes, total in
                         Task { await self?.progress(id, attempt: attempt, bytes: base + bytes, total: components == 1 ? total : nil) }
                     }
@@ -462,4 +465,11 @@ public actor DownloadManager {
     private static func optionKey(_ options: SiteOptions) -> String {
         ":" + (options.bilibili.allParts ? "all" : "one") + ":" + (options.pixiv.keepUgoiraArchive ? "archive" : "gif")
     }
+}
+
+/// Built-in site resolvers sharing the task's network client (budget, rate limit, DNS checks).
+func siteResolvers(_ sites: Set<MediaSource>, client: NetworkClient) -> [any MediaResolver] {
+    var resolvers: [any MediaResolver] = []
+    if sites.contains(.pixiv) { resolvers.append(PixivResolver(client: client)) }
+    return resolvers
 }

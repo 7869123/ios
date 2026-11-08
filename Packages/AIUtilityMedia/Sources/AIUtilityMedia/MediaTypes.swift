@@ -135,12 +135,17 @@ public enum MediaAssembly: Sendable, Equatable {
 public struct MediaComponent: Sendable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
     public let id: String
     private let url: URL
+    private let context: RequestContext
     public init(id: String, url: URL) throws(MediaError) {
+        try self.init(id: id, url: url, context: .none)
+    }
+    init(id: String, url: URL, context: RequestContext) throws(MediaError) {
         try URLSafety.validate(url)
         guard !id.isEmpty, id.count <= 128 else { throw .invalidInput }
-        self.id = id; self.url = url
+        self.id = id; self.url = url; self.context = context
     }
     func requestURL() -> URL { url }
+    func requestContext() -> RequestContext { context }
     public var description: String { "MediaComponent([redacted])" }
     public var debugDescription: String { description }
     public var customMirror: Mirror { Mirror(self, children: ["request": "[redacted]"]) }

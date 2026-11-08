@@ -47,6 +47,14 @@ actor FixtureTransport: MediaTransport {
     private var downloads: [URL] = []
     private var callbacks: [@Sendable (Int64, Int64?) -> Void] = []
     private var payload: Data = png
+    private var referers: [String?] = []
+    /// Full URL → (status, body, content type) for site API fixtures.
+    private var bodies: [String: (Int, Data, String)] = [:]
+    func setBody(_ url: String, status: Int = 200, data: Data, contentType: String = "application/json") {
+        bodies[url] = (status, data, contentType)
+    }
+    func sentReferers() -> [String?] { referers }
+    func downloadedURLs() -> [String] { downloads.map(\.absoluteString) }
     init(_ steps: [Step] = []) { self.steps = steps }
     func setHeader(path: String, status: Int, headers: [String: String]) { responseHeaders[path] = (status, headers) }
     func setPayload(_ data: Data) { payload = data }
@@ -54,12 +62,17 @@ actor FixtureTransport: MediaTransport {
         let values = responseHeaders[url.path] ?? (200, ["content-type": "image/png", "content-length": String(payload.count)])
         return WireResponse(status: values.0, headers: values.1, finalURL: url)
     }
-    func head(_ url: URL, limits: RequestLimits) async throws -> WireResponse {
-        heads.append(url); try Task.checkCancellation(); return response(url)
+    func head(_ url: URL, context: RequestContext, limits: RequestLimits) async throws -> WireResponse {
+        heads.append(url); referers.append(context.referer); try Task.checkCancellation(); return response(url)
     }
-    func download(_ url: URL, to destination: URL, limits: RequestLimits,
+    func download(_ url: URL, context: RequestContext, to destination: URL, limits: RequestLimits,
                   progress: @escaping @Sendable (Int64, Int64?) -> Void) async throws -> WireResponse {
-        downloads.append(url); callbacks.append(progress)
+        downloads.append(url); referers.append(context.referer); callbacks.append(progress)
+        if let body = bodies[url.absoluteString] {
+            guard body.1.count <= limits.bytes else { throw MediaError.resourceLimitExceeded }
+            try body.1.write(to: destination)
+            return WireResponse(status: body.0, headers: ["content-type": body.2], finalURL: url)
+        }
         active += 1; peak = max(peak, active); defer { active -= 1 }
         let step = steps.isEmpty ? Step.success : steps.removeFirst()
         switch step {
@@ -155,13 +168,13 @@ struct Harness: Sendable {
     let clock: TestClock
     let env: MediaEnvironment
     init(steps: [FixtureTransport.Step] = [], policy: DownloadPolicy = .init(minimumRequestInterval: 0, minimumFreeBytes: 0),
-         resolvers: [any MediaResolver] = []) throws {
+         resolvers: [any MediaResolver] = [], sites: Set<MediaSource> = []) throws {
         root = FileManager.default.temporaryDirectory.appendingPathComponent("media-tests-" + UUID().uuidString).resolvingSymlinksInPath()
         let configuration = try DownloadConfiguration(testRoot: root, policy: policy)
         store = FixtureManifestStore(); transport = FixtureTransport(steps); clock = TestClock()
         files = FaultFiles(base: try SandboxFiles(root: configuration.root, cache: configuration.cache))
         let client = NetworkClient(policy: policy, transport: transport, validator: FixtureDestination(), clock: clock)
-        let all: [any MediaResolver] = [DirectMediaResolver(client: client)] + resolvers
+        let all: [any MediaResolver] = [DirectMediaResolver(client: client)] + resolvers + siteResolvers(sites, client: client)
         env = MediaEnvironment(repository: store, files: files, client: client,
             router: LinkRouter(resolvers: all, client: client), policy: policy, clock: clock, sources: Set(all.map(\.source)))
     }

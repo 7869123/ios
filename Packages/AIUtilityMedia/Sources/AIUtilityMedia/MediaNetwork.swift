@@ -22,9 +22,15 @@ struct WireResponse: Sendable {
     func header(_ name: String) -> String? { headers[name.lowercased()] }
 }
 struct RequestLimits: Sendable { let inactivity: TimeInterval; let total: TimeInterval; let bytes: Int64 }
+/// Extra request fields a site needs. Only a Referer is supported: image and video CDNs of the
+/// supported sites check it. No cookies, tokens or authorisation headers are ever sent.
+struct RequestContext: Sendable, Equatable {
+    var referer: String?
+    static let none = RequestContext(referer: nil)
+}
 protocol MediaTransport: Sendable {
-    func head(_ url: URL, limits: RequestLimits) async throws -> WireResponse
-    func download(_ url: URL, to destination: URL, limits: RequestLimits,
+    func head(_ url: URL, context: RequestContext, limits: RequestLimits) async throws -> WireResponse
+    func download(_ url: URL, context: RequestContext, to destination: URL, limits: RequestLimits,
                   progress: @escaping @Sendable (Int64, Int64?) -> Void) async throws -> WireResponse
 }
 
@@ -32,6 +38,7 @@ protocol MediaTransport: Sendable {
 private final class SessionTransfer: NSObject, URLSessionDownloadDelegate, URLSessionDataDelegate, @unchecked Sendable {
     private let lock = NSLock()
     private let destination: URL?
+    private let context: RequestContext
     private let limits: RequestLimits
     private let progress: @Sendable (Int64, Int64?) -> Void
     private var continuation: CheckedContinuation<WireResponse, any Error>?
@@ -41,8 +48,8 @@ private final class SessionTransfer: NSObject, URLSessionDownloadDelegate, URLSe
     private var moved = false
     private var received: Int64 = 0
 
-    init(destination: URL?, limits: RequestLimits, progress: @escaping @Sendable (Int64, Int64?) -> Void) {
-        self.destination = destination; self.limits = limits; self.progress = progress
+    init(destination: URL?, context: RequestContext, limits: RequestLimits, progress: @escaping @Sendable (Int64, Int64?) -> Void) {
+        self.destination = destination; self.context = context; self.limits = limits; self.progress = progress
     }
     func cancel() {
         let task = lock.withLock { cancelled = true; return self.task }
@@ -61,6 +68,7 @@ private final class SessionTransfer: NSObject, URLSessionDownloadDelegate, URLSe
         request.timeoutInterval = limits.inactivity
         request.setValue("AIUtility/1.0", forHTTPHeaderField: "User-Agent")
         request.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
+        if let referer = context.referer { request.setValue(referer, forHTTPHeaderField: "Referer") }
         let task: URLSessionTask = destination == nil ? session.dataTask(with: request) : session.downloadTask(with: request)
         let stop = lock.withLock {
             if cancelled { return true }
@@ -133,16 +141,16 @@ private final class SessionTransfer: NSObject, URLSessionDownloadDelegate, URLSe
 }
 
 struct URLSessionMediaTransport: MediaTransport {
-    func head(_ url: URL, limits: RequestLimits) async throws -> WireResponse {
-        try await run(url, destination: nil, limits: limits, progress: { _, _ in })
+    func head(_ url: URL, context: RequestContext, limits: RequestLimits) async throws -> WireResponse {
+        try await run(url, context: context, destination: nil, limits: limits, progress: { _, _ in })
     }
-    func download(_ url: URL, to destination: URL, limits: RequestLimits,
+    func download(_ url: URL, context: RequestContext, to destination: URL, limits: RequestLimits,
                   progress: @escaping @Sendable (Int64, Int64?) -> Void) async throws -> WireResponse {
-        try await run(url, destination: destination, limits: limits, progress: progress)
+        try await run(url, context: context, destination: destination, limits: limits, progress: progress)
     }
-    private func run(_ url: URL, destination: URL?, limits: RequestLimits,
+    private func run(_ url: URL, context: RequestContext, destination: URL?, limits: RequestLimits,
                      progress: @escaping @Sendable (Int64, Int64?) -> Void) async throws -> WireResponse {
-        let transfer = SessionTransfer(destination: destination, limits: limits, progress: progress)
+        let transfer = SessionTransfer(destination: destination, context: context, limits: limits, progress: progress)
         return try await withTaskCancellationHandler {
             try Task.checkCancellation()
             return try await withCheckedThrowingContinuation { transfer.start(url, continuation: $0) }
@@ -163,14 +171,24 @@ actor NetworkClient {
         self.policy = policy; self.transport = transport; self.validator = validator; self.clock = clock
     }
     func begin() { count = 0; deadline = clock.now() + policy.taskTimeout }
-    func headers(_ url: URL) async throws -> WireResponse {
-        try await follow(url, destination: nil, limit: Int64(policy.maxMetadataBytes), progress: { _, _ in })
+    func headers(_ url: URL, context: RequestContext = .none) async throws -> WireResponse {
+        try await follow(url, context: context, destination: nil, limit: Int64(policy.maxMetadataBytes), progress: { _, _ in })
     }
-    func download(_ url: URL, to destination: URL, limit: Int64,
+    func download(_ url: URL, context: RequestContext = .none, to destination: URL, limit: Int64,
                   progress: @escaping @Sendable (Int64, Int64?) -> Void) async throws -> WireResponse {
-        try await follow(url, destination: destination, limit: limit, progress: progress)
+        try await follow(url, context: context, destination: destination, limit: limit, progress: progress)
     }
-    private func follow(_ url: URL, destination: URL?, limit: Int64,
+    /// Small JSON metadata request (site APIs), capped at `maxMetadataBytes`, kept in memory only.
+    func fetchJSON(_ url: URL, context: RequestContext = .none) async throws -> Data {
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("aiutility-meta-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: file) }
+        let response = try await follow(url, context: context, destination: file, limit: Int64(policy.maxMetadataBytes),
+                                        progress: { _, _ in })
+        let type = response.header("content-type")?.lowercased() ?? ""
+        guard type.contains("json") else { throw MediaError.parsingChanged }
+        return try Data(contentsOf: file)
+    }
+    private func follow(_ url: URL, context: RequestContext, destination: URL?, limit: Int64,
                         progress: @escaping @Sendable (Int64, Int64?) -> Void) async throws -> WireResponse {
         var current = url; var visited: Set<String> = []
         let source = URLSafety.source(url) ?? .direct
@@ -195,8 +213,8 @@ actor NetworkClient {
             let response: WireResponse
             if let destination {
                 if FileManager.default.fileExists(atPath: destination.path) { try FileManager.default.removeItem(at: destination) }
-                response = try await transport.download(current, to: destination, limits: limits, progress: progress)
-            } else { response = try await transport.head(current, limits: limits) }
+                response = try await transport.download(current, context: context, to: destination, limits: limits, progress: progress)
+            } else { response = try await transport.head(current, context: context, limits: limits) }
             try Task.checkCancellation()
             guard clock.now() <= deadline else { throw MediaError.timeout }
             if [301,302,303,307,308].contains(response.status) {
