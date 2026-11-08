@@ -212,11 +212,13 @@ jobs:
           retention-days: 7
           if-no-files-found: error
       - name: Capture home review screenshots (iPad mini primary, iPhone compatibility)
+        # Only when previews are published (or after a merge to main); an IPA-only run skips ~15-20 min.
+        if: github.event_name == 'push' || inputs.publish_previews
         continue-on-error: true
         timeout-minutes: 25
         run: bash scripts/app_screenshots.sh
       - uses: actions/upload-artifact@v4
-        if: always() && steps.checkout.outcome == 'success'
+        if: always() && steps.checkout.outcome == 'success' && (github.event_name == 'push' || inputs.publish_previews)
         with:
           name: app-screenshots-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/app/screenshots/
