@@ -51,16 +51,7 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
     let partial = outputDirectory.appendingPathComponent(".\(name).gif.partial")
     let finalURL = outputDirectory.appendingPathComponent("\(name).gif")
     do {
-        let encoder = try GIFFileEncoder(url: partial, frameCount: plan.count, loopCount: options.loopCount)
-        for frame in plan {
-            guard !Task.isCancelled else { throw MediaError.cancelled }
-            let time = CMTime(seconds: options.start + frame.offset, preferredTimescale: 600)
-            let image: CGImage
-            do { image = try await generator.image(at: time).image }
-            catch { throw Task.isCancelled ? MediaError.cancelled : MediaError.unsupportedFormat }
-            try encoder.append(try fitted(image, to: pixelSize), delayCentiseconds: frame.delayCentiseconds)
-        }
-        try encoder.finish()
+        try await encodeFrames(generator: generator, plan: plan, options: options, size: pixelSize, to: partial)
         guard !Task.isCancelled else { throw MediaError.cancelled }
 
         // Report what the file really holds, not what was requested.
@@ -79,6 +70,23 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
         try? FileManager.default.removeItem(at: partial)
         throw (error as? MediaError) ?? .storageUnavailable
     }
+}
+
+/// Encodes every planned frame into `url`. The encoder lives only inside this function, so it is
+/// released before the caller cleans up: an unfinished ImageIO destination can still write its file
+/// when it is deallocated, which would otherwise leave a partial GIF behind after cancellation.
+private func encodeFrames(generator: AVAssetImageGenerator, plan: [GIFTimeline.Frame], options: GIFOptions,
+                          size: (width: Int, height: Int), to url: URL) async throws(MediaError) {
+    let encoder = try GIFFileEncoder(url: url, frameCount: plan.count, loopCount: options.loopCount)
+    for frame in plan {
+        guard !Task.isCancelled else { throw .cancelled }
+        let time = CMTime(seconds: options.start + frame.offset, preferredTimescale: 600)
+        let image: CGImage
+        do { image = try await generator.image(at: time).image }
+        catch { throw Task.isCancelled ? .cancelled : .unsupportedFormat }
+        try encoder.append(try fitted(image, to: size), delayCentiseconds: frame.delayCentiseconds)
+    }
+    try encoder.finish()
 }
 
 /// Redraws a frame at exactly the output size when the generator's rounding differs.
