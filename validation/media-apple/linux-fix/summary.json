@@ -1,0 +1,160 @@
+{
+  "source_sha": "334cfdeb7ddab5da79a61a6b09703ffbf736f5af",
+  "ci_checkout_sha": "84c635664e1c2ad72c04ace818d64b56a2942e18",
+  "checkout_is_github_temporary_merge_not_pr_merge": true,
+  "run": {
+    "id": 42463047405,
+    "head_sha": "334cfdeb7ddab5da79a61a6b09703ffbf736f5af",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/7869123/ios/actions/runs/42463047405",
+    "run_attempt": 1
+  },
+  "jobs": [
+    {
+      "id": 128676284688,
+      "name": "core-linux",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128676530356,
+      "name": "poc-sdk",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 128676530420,
+      "name": "apple",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 128676531092,
+      "name": "app",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "commands": {
+    "swift_version": "swift --version",
+    "core_build": "swift build --package-path Packages/AIUtilityCore",
+    "core_tests": "swift test --package-path Packages/AIUtilityCore",
+    "poc_lifecycle_tests": "swift test --package-path PoCs/iOS27Capture",
+    "media_build": "swift build --package-path Packages/AIUtilityMedia",
+    "media_tests": "swift test --package-path Packages/AIUtilityMedia"
+  },
+  "exit_codes": {
+    "swift_version": 0,
+    "core_build": 0,
+    "core_tests": 0,
+    "poc_lifecycle_tests": 0,
+    "media_build": 0,
+    "media_tests": 0
+  },
+  "tests": {
+    "core-tests.log": {
+      "passed": 36,
+      "skipped": 1,
+      "failed": 0
+    },
+    "media-tests.log": {
+      "passed": 45,
+      "skipped": 0,
+      "failed": 0
+    },
+    "poc-lifecycle-tests.log": {
+      "passed": 14,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "prepush": {
+    "exit_code": 0,
+    "python_regressions_passed": 13
+  },
+  "protected_paths_unchanged_since_28c449d": {
+    "Packages/AIUtilityCore": true,
+    "Packages/AIUtilityAppleServices": true,
+    "Apps/AIUtility": true,
+    "PoCs/iOS27Capture": true,
+    "scripts": true
+  },
+  "ci_compiled_tree_comparison": {
+    "Packages/AIUtilityMedia": {
+      "head_tree": "e2f483a140915db0428863981335c8af1804426a",
+      "checkout_tree": "e2f483a140915db0428863981335c8af1804426a"
+    },
+    "Packages/AIUtilityCore": {
+      "head_tree": "18b443c90ab6317c4bf7fac01b5de6387327780a",
+      "checkout_tree": "18b443c90ab6317c4bf7fac01b5de6387327780a"
+    },
+    "PoCs/iOS27Capture": {
+      "head_tree": "c4a9cb6f82c65101af10dd3b56d8a50422d04cee",
+      "checkout_tree": "c4a9cb6f82c65101af10dd3b56d8a50422d04cee"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 13610517009,
+      "name": "core-linux-evidence-42463047405-1",
+      "size_in_bytes": 6945,
+      "digest": "sha256:7ee225df6ec54a3995f1be4593a54d2763747940cef1c6dd84bdf38a497db845",
+      "expires_at": "2026-11-15T08:29:02Z"
+    }
+  ],
+  "archive_sha256": "7ee225df6ec54a3995f1be4593a54d2763747940cef1c6dd84bdf38a497db845",
+  "archive_digest_verified": true,
+  "logs": {
+    "logs/core-build.log": {
+      "original_sha256": "864b5ffbbb89e554b2bc45b6698dd5d3b85afe5072899ba76881506debc403aa",
+      "stored_sha256": "864b5ffbbb89e554b2bc45b6698dd5d3b85afe5072899ba76881506debc403aa",
+      "original_bytes": 517
+    },
+    "logs/core-tests.log": {
+      "original_sha256": "20f3c4b06d5910f327dceda994ba9048492ffd7432ab48d41c773bcb2e9c3b8c",
+      "stored_sha256": "1b83b49430c95cd6b44e6cbbafef037a67cc72c48efc9ac29e4422e4f1d5ea4c",
+      "original_bytes": 8588
+    },
+    "logs/media-build.log": {
+      "original_sha256": "8a7fb00ca84da66c076050de508bf8ed8523cf242ebc24915846e42fa5c4412b",
+      "stored_sha256": "8a7fb00ca84da66c076050de508bf8ed8523cf242ebc24915846e42fa5c4412b",
+      "original_bytes": 450
+    },
+    "logs/media-tests.log": {
+      "original_sha256": "d15281b12739c00ed67226f8a3452c8b84c01ecc9bc8be96e4198618f8311dad",
+      "stored_sha256": "9cda511148012e4472204818b38a226c9d43c2b25bcc8a2fc92a25c4f8b08540",
+      "original_bytes": 9414
+    },
+    "logs/poc-lifecycle-tests.log": {
+      "original_sha256": "9299f90971f3991f60b5978f236bf05d76db539a2038c9855c22844232bd22fd",
+      "stored_sha256": "944a5bd44e6e9e0fa290c8a64daac202ce052bcbbe20d74646e797a5e2274372",
+      "original_bytes": 4960
+    },
+    "logs/swift-version.log": {
+      "original_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "stored_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "original_bytes": 75
+    },
+    "logs/exit-codes.txt": {
+      "original_sha256": "2b9175e5960eed2a18f9f308f0ddb37b18cecff6634cc672228b916c8698877e",
+      "stored_sha256": "2b9175e5960eed2a18f9f308f0ddb37b18cecff6634cc672228b916c8698877e",
+      "original_bytes": 92
+    },
+    "logs/prepush-fix-final.log": {
+      "original_sha256": "e2420eb5d4edd8d55ed547596c3c4fd684551602a0d9303292d5c17a120dda6b",
+      "stored_sha256": "c16d061d0fea2262e729c8ab46c5cf6c87213af82ca0ec769e25341b968071ae",
+      "original_bytes": 3275
+    }
+  },
+  "not_verified": [
+    "real HTTP/TLS/CDN downloads",
+    "fixed Media macOS build/tests",
+    "fixed Media iOS SDK build",
+    "App integration",
+    "Apple runtime",
+    "real iPad audio/Speech/PiP"
+  ],
+  "warning": "Existing PoC lifecycle test has one unused-Bool warning; no PoC code changed.",
+  "normalization": "CI workspace/home and UUIDs redacted; trailing whitespace and LF normalized; original and stored hashes retained."
+}

@@ -9,11 +9,14 @@ Media macOS build=0，测试=1（9 通过、33 失败、0 跳过）；两个无�
 Linux Media 42 通过；原 macOS Core 36 通过/1 跳过，Vision 2 通过/Keychain 1 跳过。
 实际为 Xcode 26.6 / Swift 6.3.3 / iOS SDK 26.5，不是 iOS 27。App 因 apple 失败跳过，未生成截图。
 失败集中在存储初始化把 Darwin 系统目录别名误判为符号链接；已仅在 Media 修复精确系统别名和路径检查，
-保留全部原测试并新增 3 项（总数 45），新源码仍需 Linux/macOS 复验，不能把旧 SDK 成功当作修复已通过。
+保留全部原测试并新增 3 项（总数 45）。修复 99b0d86，验证 HEAD 334cfde 在
+[42463047405](https://github.com/7869123/ios/actions/runs/42463047405) Linux Media 45 全通过、0 跳过/失败，
+Core 36 通过/1 跳过、生命周期 14 通过，六个退出码均为 0。Mac/SDK 修复后尚未复验，不能沿用旧 SDK 结果。
 [失败全文、命令退出码及 17 份证据](validation/media-apple/attempt-1/README.md)。
+[修复后证据与下一步门槛](validation/media-apple/README.md)。
 一次 build_apple 授权已使用；推送后的 Linux CI 仍在已有授权范围内，macOS 重验需先询问用户。不开始 P2。
 
-## 媒体 P1 Linux 编译/测试通过（Apple 与真实网络仍未验证）
+## 历史：媒体 P1 首次 Linux 编译/测试通过
 
 用户已明确授权推送并触发 Linux CI，仅允许在 swift.yml 的 core-linux job 中增加媒体包 build/test，
 沿用既有日志、退出码、artifact 与失败门槛；触发条件和其他 job 保持不变，macOS 尚未授权。

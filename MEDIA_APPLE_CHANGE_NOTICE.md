@@ -23,5 +23,6 @@
 首次运行 42461786365 已完成：macOS Media 编译和两种无签名 SDK 编译成功，但 42 项测试 33 失败/9 通过。
 失败为目录别名的存储初始化问题，后续只修改 Media 路径检查并新增 3 项回归，总数 45；不删除或弱化原测试。
 详细证据见 [失败报告](validation/media-apple/attempt-1/README.md)。修复未经过 macOS 复验；单次授权已使用，重验先问用户。
+修复后的 Linux 42463047405 已通过 45 项 Media 测试、全部命令退出 0；[当前交接](validation/media-apple/README.md)。
 Apple SDK 编译成功不代表真实 HTTP/TLS/CDN 下载、App 接线或 iPad 跨 App 音频/Speech/PiP 已验证。
 P2 仍需用户另行授权。

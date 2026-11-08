@@ -1,9 +1,11 @@
-# AIUtilityMedia — Darwin storage fix pending verification
+# AIUtilityMedia — Darwin storage fix Linux-validated; Apple recheck pending
 
 Current follow-up: source 1ac37c8 compiled on macOS and both unsigned iOS 26.5 SDK targets, but its Media tests
 failed (9 passed / 33 failed) during sandbox initialization. The [failure evidence](../../validation/media-apple/attempt-1/README.md)
 is preserved. Only Media path handling was corrected; all original tests remain, with 3 new regressions (45 total).
-This fix has not yet been recompiled/tested. The single approved Apple run is consumed; another needs approval.
+This fix compiled and passed all 45 tests on Linux in [42463047405](https://github.com/7869123/ios/actions/runs/42463047405)
+(HEAD 334cfde, production fix 99b0d86). The [handoff](../../validation/media-apple/README.md) separates the two source versions.
+The single approved Apple run is consumed; repaired macOS tests/iOS SDK compilation need another approval.
 
 Independent Swift 6 package for iOS 17+, macOS 14+ and Linux pure logic. No external package dependencies.
 Source 55be755 compiled on Swift 6.0.3/Linux and passed 42 offline tests in
@@ -66,7 +68,7 @@ Following those contracts alone is not runtime evidence; real HTTP/TLS/CDN trans
 
 ## Offline tests and CI handoff
 
-The original 42 Swift Testing cases passed on Linux (0 skipped, 0 failed); the current suite has 45 declarations pending execution. Fake transport,
+The original 42 plus 3 new path regressions all passed on Linux (45 passed, 0 skipped/failed); repaired macOS execution is pending. Fake transport,
 clock, destination validation and fault injection live **only in the test target**. Production defaults use disk,
 public DNS preflight and URLSession. Tests allocate unique temporary directories and do not contact real sites.
 
@@ -91,7 +93,7 @@ swift test --package-path Packages/AIUtilityMedia
 ```
 
 Keep Core and PoC regression commands unchanged. The user authorized only the Linux Media addition to core-linux;
-workflow triggers and other jobs remain unchanged. macOS/iOS SDK verification still requires approval. Validation scope:
+workflow triggers and other jobs remain unchanged. Revalidation of the Darwin fix on macOS/iOS SDK requires fresh approval. Validation scope:
 
 1. Linux `swift:6.0.3`: Media build/test commands above, added to core-linux with media-build.log/media-tests.log,
    separate media_build/media_tests exit codes and inclusion in the existing always-uploaded evidence artifact.

@@ -1,4 +1,4 @@
-# 媒体模块接口约定（P0 已审核，P1 Linux 验证通过）
+# 媒体模块接口约定（P0 已审核，P1 修复后 Linux 45 项通过）
 
 记录日期：2026-11-08。依据：用户指定的
 `origin/claude/ecstatic-planck-rzpvn6:TASK_MEDIA_MODULES.md`，读取版本 `a01e814`。
@@ -6,8 +6,11 @@
 （读取版本 `b44ae48`）第 3 节 R1–R5 修订。审核意见原则认可原草案，但**不等于用户已授权进入 P1**。
 再按同一审核文件 `e3526f5` 的第 3b 节 R6 拆分通用选择与站点选项；仍只修订文档，等待用户授权。
 以上为 P0 修订过程记录。用户现已审核通过 `28c449d`，明确授权进入 P1，并要求触发 CI 前另行确认。
-本轮独立包已在授权的 Linux CI 完成真实 Swift 6.0.3 编译与 42 项离线测试（全通过），
-证据见 [验证报告](validation/media-p1/README.md)。**Apple SDK、真实网络传输与 App 接线尚未验证**。
+最初版本已在授权的 Linux CI 完成真实 Swift 6.0.3 编译与 42 项离线测试（全通过），
+历史证据见 [验证报告](validation/media-p1/README.md)。**当前修复后的 Apple SDK、真实网络传输与 App 接线尚未验证**。
+后续 Apple 源码 1ac37c8 的编译/两种 SDK 成功，但 Mac 测试 33 失败；已仅修复 Media 存储路径并新增 3 项回归。
+当前修复 99b0d86 / 验证 HEAD 334cfde 的 Linux 45 项全通过，Mac/SDK 修复后未复验；
+以 [Apple 验证交接](validation/media-apple/README.md) 区分版本，不把早期 SDK 编译当作修复已验证。
 P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtilityMedia/README.md)；P2–P4 契约仍是后续范围。
 
 ## 1. 范围与模块边界
@@ -15,7 +18,7 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 | 阶段 | 后续交付 | 当前状态 |
 |---|---|---|
 | P0 | 本接口文档 | 用户已审核通过 28c449d |
-| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | Linux 编译和 42 项离线测试通过；Apple SDK/真实网络未验证，不含任何断点续传 |
+| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | 修复后 Linux 45 项通过；修复后的 Mac/SDK、真实网络未验证，不含任何断点续传 |
 | P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
 | P2 | 多图拼接、视频转 GIF、图片文件指纹 | 未实现 |
 | P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 未实现，公开下载可行性未确认 |
@@ -447,7 +450,7 @@ P4 先做 SauceNAO，实际格式/限额/评分字段以届时官方接口核对
 SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存，缺失为 notConfigured；不复用 AI Key，不进历史或日志。
 搜图 Bot 酱保留后续适配位置，可行性/授权方式未确定；P4 具体公开请求类型需在实施前提交补充审核。
 
-## 11. 测试与 Claude 接线要求（P1 Linux 已执行通过）
+## 11. 测试与 Claude 接线要求（P1 修复后 Linux 45 项通过）
 
 - P1 Linux：各来源语法、参数/短链重路由、未知链接、FIFO、任意时刻活动槽≤1、任务内串行网络、
   排队/活动取消、清理失败阻塞、旧 generation、重试上限/退避/限流、重复入队、每 attempt 进度单调、
@@ -467,7 +470,8 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
   特别验证 allParts=true 且 supportsAllBilibiliParts=false 时返回 unsupportedFormat（含指定变体的组合），
   对 X/直链传入该选项不报错；Ugoira 组装参数来自 pixiv.keepUgoiraArchive，非 Ugoira 不受它影响。
 - 普通 CI 传输层禁止向真实站点和付费 API 联网；真实集成测试单独授权、默认关闭，沿用 AIUTILITY_LIVE_TESTS=1。
-  P0 未新增测试；本轮 P1 的 42 项测试已在 42453057517 全部通过；真实联网/Apple 验证没有执行。
+  P0 未新增测试；最初 P1 的 42 项测试在 42453057517 全通过；Darwin 修复后 45 项在 42463047405 全通过。
+  首次 Apple 编译及旧源码 SDK 通过，但 Mac 测试失败；修复后的 Mac/SDK 和真实联网验证没有执行。
 - 本轮用户已特别授权 core-linux 增加 Media build/test 并已通过；其他 job 和触发条件未改。
   后续 Apple 工具 macOS 测试和 iOS SDK 编译步骤仍需另行授权，并与 Claude 协调。
   App 只调用 manager，独立订阅快照并回 MainActor；按 EnqueueReceipt/CancelResult 提示，不把取消请求等同已释放。
@@ -495,6 +499,7 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
 - [x] 用户审核 MEDIA_INTERFACES.md（28c449d）通过。
 - [x] 用户明确授权进入 P1；触发 CI 前另行确认。
 - [x] P1 Linux 真实 Swift 6.0.3 编译与 42 项离线测试通过（42453057517）。
+- [x] Darwin 存储修复后 Linux 45 项通过（42463047405）；保留原测试，新增 3 项路径安全回归。
 - [ ] Apple SDK、真实网络传输和 App 接线验证通过。
 
-**本轮仅运行已授权的 Linux CI；不注册生产 Mock、不进入 P1b/P2–P4。macOS 验证仍须先问用户。**
+**已执行一次获授权的 Apple 验证，失败后修复的 Linux 45 项通过；不注册生产 Mock、不进入 P1b/P2–P4。macOS 重验须先问用户。**
