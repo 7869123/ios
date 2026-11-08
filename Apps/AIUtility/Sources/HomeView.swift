@@ -1,4 +1,5 @@
 import SwiftUI
+import AIUtilityCore
 
 /// Home workbench: entry point to every AIUtility feature. Native iOS navigation; original visual design.
 /// Tiles only navigate; statuses are honest (planned features are not presented as working).
