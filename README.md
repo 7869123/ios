@@ -42,3 +42,8 @@ let translated = try await services.translation.translate(
 ```
 
 创建一个长期存活的 `AIUtilityServices`，不要每次翻译重新创建，否则会重新开始会话预算。Key 不应进入源码、命令行参数、日志或普通配置文件。
+
+## 协议（License）
+
+- 代码：[PolyForm Noncommercial License 1.0.0](LICENSE)，Copyright 2026 Serina。允许个人学习、研究等非商业用途的使用、修改和分享；**禁止任何商业用途**。这属于"源码公开"协议，不是 OSI 定义的开源协议。
+- 图片素材（默认壁纸、App 图标）：CC BY-NC-SA 4.0，另见 [ASSETS_LICENSE.md](ASSETS_LICENSE.md)。默认壁纸为二次创作，角色形象参考 zipzippipe 创作的 Kimi 娘，角色权利归原作者。
