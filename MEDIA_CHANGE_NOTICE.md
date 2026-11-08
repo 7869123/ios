@@ -27,5 +27,12 @@ swift test --package-path Packages/AIUtilityMedia
 两者退出码必须为 0，失败仍保留同一 artifact 中的全部日志；不上传缓存或凭据。
 原有 Core 和生命周期测试继续执行。未改变 Linux 容器版本、超时、权限或任何触发条件。
 
-推送时尚未获得新包的真实 CI 结论；后续实际结果以 STATUS.md 和验证记录为准。
+首次源码推送时尚无新包 CI 结论；现已取得真实结果，见下节及 STATUS.md。
 Linux 通过也不代表 Apple SDK 编译、App 接线或 iPad 真机功能已验证。
+
+## 首次真实 Linux CI 已通过
+
+源码 55be755，[42453057517](https://github.com/7869123/ios/actions/runs/42453057517) success：
+Media 42 通过/0 跳过/0 失败，Core 36 通过/1 live API 跳过，生命周期 14 通过；六个命令退出码全为 0。
+Apple/App/PoC SDK job 按原条件跳过；未运行 macOS。没有编译/测试失败，也没有删减媒体测试。
+[证据和校验摘要](validation/media-p1/README.md)；本次追加仅更新文档/证据，Swift 源码不变。

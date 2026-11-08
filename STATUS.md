@@ -1,13 +1,18 @@
 # AIUtility 开发状态
 
-## 媒体 P1 Linux CI 已授权（待首次运行）
+## 媒体 P1 Linux 编译/测试通过（Apple 与真实网络仍未验证）
 
 用户已明确授权推送并触发 Linux CI，仅允许在 swift.yml 的 core-linux job 中增加媒体包 build/test，
 沿用既有日志、退出码、artifact 与失败门槛；触发条件和其他 job 保持不变，macOS 尚未授权。
-本批次工具变化见 [MEDIA_CHANGE_NOTICE.md](MEDIA_CHANGE_NOTICE.md)，推送后另附 PR 变更通知。
-实际编译与测试结论将在取得 Actions 日志后更新，不以历史记录代替新包结果。
+本批次工具变化见 [MEDIA_CHANGE_NOTICE.md](MEDIA_CHANGE_NOTICE.md)，已在 PR #2 发布变更通知。
+真实源码 55be755 在 [42453057517](https://github.com/7869123/ios/actions/runs/42453057517) completed/success：
+Media 42 通过/0 跳过/0 失败；Core 36 通过/1 live API 跳过；生命周期 14 通过，六个命令退出码均为 0。
+Apple、App、PoC SDK job 均 skipped，未运行 macOS。实际 checkout 是临时合并检查提交 549c5b2，
+Media/Core/PoC 树与源码 HEAD 相同，不代表合并 PR；[证据、8 份日志与原始摘要](validation/media-p1/README.md)。
+仅 Linux 类型检查/严格并发编译和离线测试有证据；真实网络下载、macOS/iOS SDK/App 接线与真机能力仍未验证。
+新包没有编译警告；原有 PoC 生命周期测试一处未使用 Bool 警告保留，未改 PoC。首次 CI 通过，无需改 Swift 源码。
 
-## 媒体 P1 源码交付（未编译/未执行媒体测试，等待 CI 授权）
+## 历史：媒体 P1 本地源码交付（当时未编译/执行）
 
 用户审核通过 MEDIA_INTERFACES.md 的 28c449d，并明确授权 P1；CI 需另行确认。
 已创建 [AIUtilityMedia](Packages/AIUtilityMedia/README.md)：独立 Swift 6 包、直接 HTTPS 媒体的真实 URLSession 下载、
@@ -15,13 +20,13 @@
 选项规范化/去重、原子队列与历史清单、提交/删除恢复日志、文件归属校验、部分删除结果及完整快照订阅。
 生产仅注册直链；B站/X/Pixiv、Apple 工具、Ugoira/GIF/DASH、搜图均未宣称可用。断点续传仍属于 P1b。
 
-新增 42 项 Swift Testing 测试源码，**执行数量为 0：本机没有可用 Swift 编译器，本轮不安装工具链**。
+该本地阶段新增 42 项 Swift Testing 测试源码，执行数量为 0：本机没有可用 Swift 编译器，未安装工具链。
 本地完整预推送检查最终 PASS（退出 0），其中 13 项 Python 检查脚本回归通过、49 个仓库 Swift 文件仅做语法解析。
 首次检查退出 1 的原因是虚构 Pixiv 用户页 URL 命中个人路径规则，已改用排行榜 URL 保留路由边界测试，未放宽扫描器。
-Swift 类型检查、并发诊断、单元测试、Apple SDK 编译与运行时功能均未验证；静态检查不能代替这些结果。
+上述本地静态检查不能代替 Swift 编译；随后 Linux 真实结果见上节，Apple SDK 与运行时功能仍未验证。
 DNS 预检不能固定 URLSession 最终连接 IP，仍有重绑定/TOCTOU 限制；系统 DNS/同步文件操作的取消只能等待返回。
 P1 不支持无 HEAD/无受支持 MIME 的服务器、不做后台传输或自动续传；敏感直链重启后需重新提供再手动重试。
-详细边界与 Claude 需补的 Linux/macOS/iOS SDK CI 命令见包说明；现有 CI 未包括新包。
+详细边界与 macOS/iOS SDK 候选验证命令见包说明；Linux Media 命令已按授权加入 core-linux。
 源码阶段未改 Core/AppleServices 公共 API、UI、PoC、scripts 或 workflow；后续仅 core-linux 的改动已获用户授权，见上节。
 
 ## 历史：媒体模块 P0 接口审核（已通过）

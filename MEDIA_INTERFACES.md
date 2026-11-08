@@ -1,4 +1,4 @@
-# 媒体模块接口约定（P0 已审核，P1 待编译验证）
+# 媒体模块接口约定（P0 已审核，P1 Linux 验证通过）
 
 记录日期：2026-11-08。依据：用户指定的
 `origin/claude/ecstatic-planck-rzpvn6:TASK_MEDIA_MODULES.md`，读取版本 `a01e814`。
@@ -6,7 +6,8 @@
 （读取版本 `b44ae48`）第 3 节 R1–R5 修订。审核意见原则认可原草案，但**不等于用户已授权进入 P1**。
 再按同一审核文件 `e3526f5` 的第 3b 节 R6 拆分通用选择与站点选项；仍只修订文档，等待用户授权。
 以上为 P0 修订过程记录。用户现已审核通过 `28c449d`，明确授权进入 P1，并要求触发 CI 前另行确认。
-本轮已编写独立包及 42 项离线测试源码；**尚未经过 Swift 编译或测试执行，不能据此宣称功能可用**。
+本轮独立包已在授权的 Linux CI 完成真实 Swift 6.0.3 编译与 42 项离线测试（全通过），
+证据见 [验证报告](validation/media-p1/README.md)。**Apple SDK、真实网络传输与 App 接线尚未验证**。
 P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtilityMedia/README.md)；P2–P4 契约仍是后续范围。
 
 ## 1. 范围与模块边界
@@ -14,7 +15,7 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 | 阶段 | 后续交付 | 当前状态 |
 |---|---|---|
 | P0 | 本接口文档 | 用户已审核通过 28c449d |
-| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | 源码及测试已编写；未编译/执行，不含任何断点续传 |
+| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | Linux 编译和 42 项离线测试通过；Apple SDK/真实网络未验证，不含任何断点续传 |
 | P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
 | P2 | 多图拼接、视频转 GIF、图片文件指纹 | 未实现 |
 | P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 未实现，公开下载可行性未确认 |
@@ -23,7 +24,7 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 搜图 Bot 酱仍属于既定产品范围；本轮 P4 只冻结 SauceNAO 的扩展入口，不虚构 Bot 酱的可调用接口。
 统一下载任务与历史、截图翻译、实时字幕及既定前端方向均不删除。本阶段不改 UI、PoC 或 workflow。
 
-已创建 `Packages/AIUtilityMedia`：iOS 17+、macOS 14+、Swift 6 语言模式；严格并发诊断仍待真实编译确认。
+已创建 `Packages/AIUtilityMedia`：声明 iOS 17+、macOS 14+、Swift 6 语言模式；Linux 严格并发编译已通过，Apple 兼容性仍待验证。
 
 - `AIUtilityMedia` target：Foundation 值类型、URL 路由、解析契约、队列、网络策略、持久化；Linux 可编译测试。
 - P2 拟建 `AIUtilityMediaApple` target：AVFoundation / ImageIO / CoreGraphics，承载本地处理及后续媒体组装。
@@ -35,7 +36,7 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 
 ## 2. 公共接口总则
 
-以下 Swift 片段为契约摘要，P1 实际源码见新包，P2–P4 不代表已有实现；均未完成编译验证。
+以下 Swift 片段为契约摘要，P1 实际源码已通过 Linux 编译，P2–P4 不代表已有实现；Apple SDK 未验证。
 表中列出未展开的值类型字段；需要校验输入的公开构造器须验证参数，
 失败统一为 `MediaError.invalidInput`，不能依靠调用方保证长度、有限数值或沙盒路径安全。
 
@@ -446,7 +447,7 @@ P4 先做 SauceNAO，实际格式/限额/评分字段以届时官方接口核对
 SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存，缺失为 notConfigured；不复用 AI Key，不进历史或日志。
 搜图 Bot 酱保留后续适配位置，可行性/授权方式未确定；P4 具体公开请求类型需在实施前提交补充审核。
 
-## 11. 测试与 Claude 接线要求（测试源码已编写，尚未执行）
+## 11. 测试与 Claude 接线要求（P1 Linux 已执行通过）
 
 - P1 Linux：各来源语法、参数/短链重路由、未知链接、FIFO、任意时刻活动槽≤1、任务内串行网络、
   排队/活动取消、清理失败阻塞、旧 generation、重试上限/退避/限流、重复入队、每 attempt 进度单调、
@@ -466,8 +467,9 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
   特别验证 allParts=true 且 supportsAllBilibiliParts=false 时返回 unsupportedFormat（含指定变体的组合），
   对 X/直链传入该选项不报错；Ugoira 组装参数来自 pixiv.keepUgoiraArchive，非 Ugoira 不受它影响。
 - 普通 CI 传输层禁止向真实站点和付费 API 联网；真实集成测试单独授权、默认关闭，沿用 AIUTILITY_LIVE_TESTS=1。
-  P0 未新增测试；本轮 P1 已编写 42 项测试，但没有运行 Swift 编译或 Actions，现有历史通过记录不算媒体模块证据。
-- Claude 后续需新增 Media 纯逻辑 Linux 测试、Apple 工具 macOS 测试和 iOS SDK 编译步骤；本轮不改 workflow。
+  P0 未新增测试；本轮 P1 的 42 项测试已在 42453057517 全部通过；真实联网/Apple 验证没有执行。
+- 本轮用户已特别授权 core-linux 增加 Media build/test 并已通过；其他 job 和触发条件未改。
+  后续 Apple 工具 macOS 测试和 iOS SDK 编译步骤仍需另行授权，并与 Claude 协调。
   App 只调用 manager，独立订阅快照并回 MainActor；按 EnqueueReceipt/CancelResult 提示，不把取消请求等同已释放。
   多文件完成/重复/中断/提交中需有对应展示；能力通过并获审核前仍标“规划中”。
   初始化提供加载/分类错误/重试入口；区分 clearHistory 和 deleteFiles，对部分删除列出未删除项；
@@ -492,6 +494,7 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
 - [x] 按 e3526f5 的审核文件第 3b 节完成 R6 文档修订（不是运行验证）。
 - [x] 用户审核 MEDIA_INTERFACES.md（28c449d）通过。
 - [x] 用户明确授权进入 P1；触发 CI 前另行确认。
-- [ ] P1 真实 Swift 编译、测试与 iOS SDK 验证通过。
+- [x] P1 Linux 真实 Swift 6.0.3 编译与 42 项离线测试通过（42453057517）。
+- [ ] Apple SDK、真实网络传输和 App 接线验证通过。
 
-**P1 源码先交付，等待用户批准推送/CI；不注册生产 Mock、不进入 P1b/P2–P4、不触发 Actions。**
+**本轮仅运行已授权的 Linux CI；不注册生产 Mock、不进入 P1b/P2–P4。macOS 验证仍须先问用户。**
