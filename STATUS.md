@@ -1,6 +1,21 @@
 # AIUtility 开发状态
 
-## 媒体模块 P0 接口草案（2026-11-08，等待审核）
+## 媒体 P1 源码交付（未编译/未执行媒体测试，等待 CI 授权）
+
+用户审核通过 MEDIA_INTERFACES.md 的 28c449d，并明确授权 P1；CI 需另行确认。
+已创建 [AIUtilityMedia](Packages/AIUtilityMedia/README.md)：独立 Swift 6 包、直接 HTTPS 媒体的真实 URLSession 下载、
+自动路由/短链重路由、FIFO 单活动槽、立即可见且等待资源确认的取消、有限从头重试、请求预算/超时/限流、
+选项规范化/去重、原子队列与历史清单、提交/删除恢复日志、文件归属校验、部分删除结果及完整快照订阅。
+生产仅注册直链；B站/X/Pixiv、Apple 工具、Ugoira/GIF/DASH、搜图均未宣称可用。断点续传仍属于 P1b。
+
+新增 42 项 Swift Testing 测试源码，**执行数量为 0：本机没有可用 Swift 编译器，本轮不安装工具链**。
+Swift 类型检查、并发诊断、单元测试、Apple SDK 编译与运行时功能均未验证；静态检查不能代替这些结果。
+DNS 预检不能固定 URLSession 最终连接 IP，仍有重绑定/TOCTOU 限制；系统 DNS/同步文件操作的取消只能等待返回。
+P1 不支持无 HEAD/无受支持 MIME 的服务器、不做后台传输或自动续传；敏感直链重启后需重新提供再手动重试。
+详细边界与 Claude 需补的 Linux/macOS/iOS SDK CI 命令见包说明；现有 CI 未包括新包。
+不改 Core/AppleServices 公共 API、UI、PoC、scripts 或 workflow。不推送源码批次、不触发 Actions，先汇报等待批准。
+
+## 历史：媒体模块 P0 接口审核（已通过）
 
 已按用户指定读取 Claude 分支 a01e814 的 TASK_MEDIA_MODULES.md，仅编写
 [MEDIA_INTERFACES.md](MEDIA_INTERFACES.md)；再按 b44ae48 的 MEDIA_INTERFACES_REVIEW.md
@@ -9,8 +24,8 @@
 再按 e3526f5 审核文件第 3b 节落实 R6：MediaSelection 仅保留通用选择，站点行为拆为可 Codable 的 SiteOptions，
 两个 enqueue 重载及 prepare 显式传递选项；忽略不相关选项，仅生效选项参与去重/组装；队列冻结选项副本。
 保留自动路由、FIFO 单活动槽、去重、历史、多文件、本地工具及全部既定媒体与搜图需求。
-本轮未创建 AIUtilityMedia 包、未写实现或媒体测试、未改 Core/AppleServices 公共 API、UI、PoC 或 workflow，
-没有运行媒体编译/Actions。草案及建议值尚待用户审核，停止在 P0，不进入 P1。
+该文档阶段未创建 AIUtilityMedia 包、未写实现或媒体测试、未改 Core/AppleServices 公共 API、UI、PoC 或 workflow，
+没有运行媒体编译/Actions。后续用户已审核 28c449d 并授权 P1；当前状态以上方 P1 记录为准。
 
 ## 最新工程集成完成验证（2026-11-08）
 

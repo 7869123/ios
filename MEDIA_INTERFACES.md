@@ -1,19 +1,20 @@
-# 媒体模块接口草案（P0，待用户审核）
+# 媒体模块接口约定（P0 已审核，P1 待编译验证）
 
 记录日期：2026-11-08。依据：用户指定的
 `origin/claude/ecstatic-planck-rzpvn6:TASK_MEDIA_MODULES.md`，读取版本 `a01e814`。
 本轮按 `origin/claude/ecstatic-planck-rzpvn6:MEDIA_INTERFACES_REVIEW.md`
 （读取版本 `b44ae48`）第 3 节 R1–R5 修订。审核意见原则认可原草案，但**不等于用户已授权进入 P1**。
 再按同一审核文件 `e3526f5` 的第 3b 节 R6 拆分通用选择与站点选项；仍只修订文档，等待用户授权。
-本文件只定义拟议契约；**未创建 Swift Package、实现、站点解析器或媒体测试，代码签名未编译验证**。
-用户审核通过后才进入 P1；下列默认值及接口调整均不能视为已批准或已可用。
+以上为 P0 修订过程记录。用户现已审核通过 `28c449d`，明确授权进入 P1，并要求触发 CI 前另行确认。
+本轮已编写独立包及 42 项离线测试源码；**尚未经过 Swift 编译或测试执行，不能据此宣称功能可用**。
+P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtilityMedia/README.md)；P2–P4 契约仍是后续范围。
 
 ## 1. 范围与模块边界
 
 | 阶段 | 后续交付 | 当前状态 |
 |---|---|---|
-| P0 | 本接口文档 | 草案，等待审核 |
-| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | 未实现，不含任何断点续传 |
+| P0 | 本接口文档 | 用户已审核通过 28c449d |
+| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | 源码及测试已编写；未编译/执行，不含任何断点续传 |
 | P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
 | P2 | 多图拼接、视频转 GIF、图片文件指纹 | 未实现 |
 | P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 未实现，公开下载可行性未确认 |
@@ -22,10 +23,10 @@
 搜图 Bot 酱仍属于既定产品范围；本轮 P4 只冻结 SauceNAO 的扩展入口，不虚构 Bot 酱的可调用接口。
 统一下载任务与历史、截图翻译、实时字幕及既定前端方向均不删除。本阶段不改 UI、PoC 或 workflow。
 
-拟建 `Packages/AIUtilityMedia`：iOS 17+、macOS 14+、Swift 6 严格并发。
+已创建 `Packages/AIUtilityMedia`：iOS 17+、macOS 14+、Swift 6 语言模式；严格并发诊断仍待真实编译确认。
 
 - `AIUtilityMedia` target：Foundation 值类型、URL 路由、解析契约、队列、网络策略、持久化；Linux 可编译测试。
-- `AIUtilityMediaApple` target：AVFoundation / ImageIO / CoreGraphics，承载本地处理及后续媒体组装。
+- P2 拟建 `AIUtilityMediaApple` target：AVFoundation / ImageIO / CoreGraphics，承载本地处理及后续媒体组装。
   Apple 实现用条件编译隔离；不在 Linux 返回空文件或假成功。
 - 不改 `AIUtilityCore` / `AIUtilityAppleServices` 的公共 API，不把媒体能力加进 `AIUtilityServices`。
   Claude 可在 AppModel 中另持有媒体模块实例。媒体模块不复用 Core 的拒绝重定向 HTTPTransport。
@@ -34,7 +35,8 @@
 
 ## 2. 公共接口总则
 
-以下 Swift 片段是**签名草案，不是可运行实现**。表中列出未展开的值类型字段；需要校验输入的公开构造器须验证参数，
+以下 Swift 片段为契约摘要，P1 实际源码见新包，P2–P4 不代表已有实现；均未完成编译验证。
+表中列出未展开的值类型字段；需要校验输入的公开构造器须验证参数，
 失败统一为 `MediaError.invalidInput`，不能依靠调用方保证长度、有限数值或沙盒路径安全。
 
 - 值类型均为 Sendable；ID、状态和记录快照不可变，需要存储/比较的类型另遵循 Codable / Equatable 或 Hashable。
@@ -114,14 +116,14 @@ public struct PixivOptions: Sendable, Hashable, Codable {
 | BilibiliOptions | allParts 默认 false：链接指定分 P，否则第一 P；true 表示请求当前作品全部分 P，仅对 B站生效 |
 | PixivOptions | keepUgoiraArchive 默认 false：Ugoira 只交付 GIF；true 额外保留原始归档和时序清单，仅对 Pixiv Ugoira 生效 |
 | MediaTransferPlan | 临时 Sendable 计划：item/variant 身份、规范化后的生效选项、按序 components、assembly、可信大小/校验信息；不 Codable，不进入 UI 快照或历史 |
-| MediaComponent | 计划内唯一组件 ID、角色（文件/视频轨/音频轨/动画归档/时序元数据）、临时请求；顺序下载，不能自行再派生并行任务 |
+| MediaComponent | P1 为唯一组件 ID + 脱敏临时 URL；后续 P3 再加入文件/视频轨/音频轨/动画归档/时序元数据角色和所需请求字段。顺序下载，不自行派生并行任务 |
 | MediaAssembly | 拟议枚举：passthrough / muxAudioVideo / ugoiraToGIF(keepOriginalArchive: Bool)；标明最终输出列表，不将组装留给 UI 猜测 |
 | UgoiraFrame | 帧文件名和正的 delayMilliseconds；必须保留顺序/时长并验证归档内文件存在，禁止路径穿越及无限解压 |
 
 MediaTransferPlan / MediaComponent 的真实 URL、请求头、签名参数只在当前操作内存存在；description、debugDescription、
 Mirror 需要脱敏。不能把整个计划序列化为历史，也不承诺 Swift String/Data 内存能完全清零。
 
-**建议自动选择规则，待审核：** 只处理当前作品直接关联的媒体，不展开作者主页、推荐流或播放列表。
+**已审核的默认选择规则：** 只处理当前作品直接关联的媒体，不展开作者主页、推荐流或播放列表。
 B站仅显式指定页、未指定时首页；同一 X 帖子或 Pixiv 作品的直接媒体可形成一个有界多文件任务。
 优先原图/最高公开可获取且当前平台能正确交付的变体；不选择会员或需额外权限的清晰度。
 达到资源数量上限时返回 resourceLimitExceeded，不静默截断。P1 先支持真实直链，三站点能力在 P3 审核验证后注册。
@@ -220,7 +222,7 @@ public enum DownloadState: Sendable, Equatable {
 | DownloadProgress | attemptID、phase、bytesWritten、totalBytes?、fraction?；整数非负，已知比例在 0...1，不使用 NaN/Infinity |
 | DownloadSnapshot | id、source?、安全展示标题、state、attemptID、状态序号 revision、创建/更新时间、已确定时的生效选项摘要；不含临时请求或凭据，不相关选项不改变状态 |
 | DownloadQueueSnapshot | revision、按实际顺序排列的 tasks、activeID?、blockingError?；每次是完整快照，不是单一进度事件 |
-| DownloadedFile | 文件 ID、安全 fileName、沙盒相对位置、实际字节、媒体种类；Codable/Hashable。文件 URL 按需解析，不持久化绝对主目录 |
+| DownloadedFile | 文件 ID、安全 fileName、沙盒相对位置、实际字节、媒体种类、可选 fileIdentity（实际下载的 inode 校验值）；Codable/Hashable。文件 URL 按需解析，不持久化绝对主目录 |
 | DownloadRecord | id、安全来源身份/展示信息、最终状态、attempt 摘要、生效选项摘要、输出引用及时间；Codable，不能含任何链接、Cookie、授权头或 resumeData |
 | EnqueueReceipt | id + disposition：created / alreadyQueued / alreadyCompleted / retryRequired。UI 据此提示，不能只返回 ID 隐藏重复情况 |
 | CancelResult | accepted / alreadyTerminal / tooLate / notFound；accepted 只代表取消请求已生效，不声称系统资源已释放 |
@@ -444,7 +446,7 @@ P4 先做 SauceNAO，实际格式/限额/评分字段以届时官方接口核对
 SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存，缺失为 notConfigured；不复用 AI Key，不进历史或日志。
 搜图 Bot 酱保留后续适配位置，可行性/授权方式未确定；P4 具体公开请求类型需在实施前提交补充审核。
 
-## 11. 测试与 Claude 接线要求（后续，不在 P0 执行）
+## 11. 测试与 Claude 接线要求（测试源码已编写，尚未执行）
 
 - P1 Linux：各来源语法、参数/短链重路由、未知链接、FIFO、任意时刻活动槽≤1、任务内串行网络、
   排队/活动取消、清理失败阻塞、旧 generation、重试上限/退避/限流、重复入队、每 attempt 进度单调、
@@ -464,7 +466,7 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
   特别验证 allParts=true 且 supportsAllBilibiliParts=false 时返回 unsupportedFormat（含指定变体的组合），
   对 X/直链传入该选项不报错；Ugoira 组装参数来自 pixiv.keepUgoiraArchive，非 Ugoira 不受它影响。
 - 普通 CI 传输层禁止向真实站点和付费 API 联网；真实集成测试单独授权、默认关闭，沿用 AIUTILITY_LIVE_TESTS=1。
-  P0 没有新增测试、没有运行 Swift 编译或 Actions；现有历史通过记录不算媒体模块证据。
+  P0 未新增测试；本轮 P1 已编写 42 项测试，但没有运行 Swift 编译或 Actions，现有历史通过记录不算媒体模块证据。
 - Claude 后续需新增 Media 纯逻辑 Linux 测试、Apple 工具 macOS 测试和 iOS SDK 编译步骤；本轮不改 workflow。
   App 只调用 manager，独立订阅快照并回 MainActor；按 EnqueueReceipt/CancelResult 提示，不把取消请求等同已释放。
   多文件完成/重复/中断/提交中需有对应展示；能力通过并获审核前仍标“规划中”。
@@ -472,9 +474,9 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
   未支持的续传/全部分 P 选项保持不可用，Ugoira 原件保留选项默认关闭。以上仅为后续接线约定，本轮不改 UI。
   App 将通用 selection（或已选 item/variant）与可保存的 SiteOptions 一同传入对应 enqueue 重载；不得用共享可变设置影响在途任务。
 
-## 12. 本轮审核点与进入 P1 的门槛
+## 12. 已审核要点与 P1 验收门槛
 
-请审核以下具体选择，而不是默认把建议当产品定案：
+以下为已审核的接口选择；源码是否满足这些契约仍需真实编译、测试与运行验证：
 
 1. 取消逻辑立即生效，但实际下一任务等释放确认；清理失败全队列阻塞，提交阶段取消可能 tooLate。
 2. 自动下载范围及默认最高公开兼容变体；同一作品的有界多文件；Ugoira 默认 GIF、原归档+时序可选保留；DASH 显式组装；B站预留全部分 P，未实现须明确拒绝。
@@ -488,7 +490,8 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
 - [x] 已形成 P0 接口草案，未写实现、未改现有公共 API。
 - [x] 按 b44ae48 的审核文件第 3 节完成 R1–R5 文档修订（不是运行验证）。
 - [x] 按 e3526f5 的审核文件第 3b 节完成 R6 文档修订（不是运行验证）。
-- [ ] 用户审核 MEDIA_INTERFACES.md 通过。
-- [ ] 用户明确授权进入 P1。
+- [x] 用户审核 MEDIA_INTERFACES.md（28c449d）通过。
+- [x] 用户明确授权进入 P1；触发 CI 前另行确认。
+- [ ] P1 真实 Swift 编译、测试与 iOS SDK 验证通过。
 
-**当前停止在 P0 文档阶段；不创建包，不注册 Mock，不实现下载/处理/搜图，不触发 CI，等待用户审核。**
+**P1 源码先交付，等待用户批准推送/CI；不注册生产 Mock、不进入 P1b/P2–P4、不触发 Actions。**
