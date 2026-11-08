@@ -363,5 +363,5 @@
     "App integration",
     "iPad runtime"
   ],
-  "normalization": "CI PATH/home/workspace/UUIDs redacted; LF/trailing whitespace normalized; raw/stored hashes preserved."
+  "normalization": "CI PATH, home, workspace and UUIDs redacted; LF and trailing whitespace normalized; raw and stored hashes preserved."
 }
