@@ -17,10 +17,18 @@
 | 阶段 | 内容 | 依赖网络 | 验证方式 |
 |---|---|---|---|
 | P0 | 接口文档 `MEDIA_INTERFACES.md`（见第 3 节），不写实现 | 否 | 用户审核 |
-| P1 | 统一下载任务管理：队列、并发上限、进度、取消、重试、断点续传（服务器支持时）、历史记录 | 否（用假传输层测试） | 单元测试 |
+| P1 | 链接识别与统一下载队列（见下方「运行时行为」）：自动识别、先进先出、一次只运行一个任务、进度、取消、重试、断点续传（服务器支持时）、历史记录 | 否（用假传输层测试） | 单元测试 |
 | P2 | 本地工具：多图拼接、视频转 GIF、图片文件指纹 | 否 | macOS 测试（AVFoundation / ImageIO） |
-| P3 | 站点解析：B站 → X → Pixiv（含 Ugoira），一个站点一次提交 | 是（测试用离线样例） | 离线样例测试；真实联网测试默认关闭 |
+| P3 | 站点解析：B站、X、Pixiv（含 Ugoira）三个都要做，不分优先级；每个站点单独一次提交 | 是（测试用离线样例） | 离线样例测试；真实联网测试默认关闭 |
 | P4 | 反向搜图：SauceNAO | 是（需 API Key） | 离线样例测试；真实调用默认关闭 |
+
+### 运行时行为（用户指定）
+
+- **按链接自动识别**：用户粘贴或分享任意链接，由 `LinkRouter` 按网址（域名和路径）判断属于 B站、X、Pixiv 还是普通直链，交给对应的 `MediaResolver`。用户不需要手动选择站点。无法识别时返回 `unsupportedSource`。
+- **先到先处理**：所有任务（解析和下载）进入同一个先进先出队列，按加入顺序处理，不按站点排序。
+- **一次一个**：同一时间只运行一个任务（`maxConcurrent = 1`），前一个完成、失败或取消后才开始下一个，避免高并发触发限流或封号。此外每个站点仍有自己的请求间隔和超时上限。
+- 排队中的任务可以取消或调整顺序（调整顺序可选）；正在运行的任务取消后，立即开始下一个。
+- 同一个链接重复加入时不重复下载，提示已在队列或已完成。
 
 ## 2. 包结构
 
@@ -53,16 +61,25 @@ public struct MediaItem: Sendable, Identifiable {
     public let variants: [MediaVariant]
 }
 
+/// 按网址把链接分派给对应站点的解析器；无法识别时抛 unsupportedSource。
+public struct LinkRouter: Sendable {
+    public init(resolvers: [any MediaResolver])
+    public func source(for url: URL) -> MediaSource?
+    public func resolve(_ url: URL) async throws(MediaError) -> [MediaItem]
+}
+
 public protocol MediaResolver: Sendable {
     func canResolve(_ url: URL) -> Bool
     func resolve(_ url: URL) async throws(MediaError) -> [MediaItem]
 }
 
 public enum DownloadState: Sendable, Equatable {
-    case queued, running(fraction: Double?), completed(fileName: String), failed(MediaError), cancelled
+    case queued(position: Int), resolving, running(fraction: Double?), completed(fileName: String), failed(MediaError), cancelled
 }
 
+/// 先进先出、一次只运行一个任务（maxConcurrent = 1）。
 public actor DownloadManager {
+    public func enqueue(link: URL) -> DownloadID                    // 自动识别 → 解析 → 下载，整体排队
     public func enqueue(_ item: MediaItem, variant: MediaVariant) -> DownloadID
     public func cancel(_ id: DownloadID)
     public func retry(_ id: DownloadID)
@@ -94,7 +111,7 @@ public func rewriteFingerprint(_ image: Data, method: FingerprintMethod) throws 
 
 - **CI 中不联网**。站点解析用保存好的离线样例（HTML / JSON 片段）放在测试资源里。样例必须去除个人信息：不含账号、Cookie、Token、个人主页内容，用公开、无争议的示例内容。
 - 真实联网测试单独标记，默认关闭，沿用现有的 `AIUTILITY_LIVE_TESTS=1` 开关，并在汇报中说明。
-- P1 至少覆盖：并发上限、取消（排队中和下载中）、重试次数与退避、失败后重试、进度单调递增、重复入队、历史记录持久化与清空、任务完成前 App 被终止后的恢复策略（说明即可）。
+- P1 至少覆盖：链接识别（各站点的典型网址、短链、带参数网址、无法识别的网址）、先进先出顺序、任意时刻最多一个任务在运行、取消（排队中和下载中）、重试次数与退避、失败后重试、进度单调递增、重复入队、历史记录持久化与清空、任务完成前 App 被终止后的恢复策略（说明即可）。
 - P2：拼接尺寸和顺序、GIF 帧数与时长、指纹改写后原文件字节不变、元数据确实被移除。
 - 不删除或弱化现有测试。Core 现有 36 项测试保持通过。
 
