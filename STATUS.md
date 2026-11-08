@@ -1,5 +1,11 @@
 # AIUtility 开发状态
 
+## 最新工程集成（2026-11-08，验证进行中）
+
+按本轮明确授权，在 Codex 分支集成 Claude 输入 fdb42c6，保留双方历史；PR #1/#2 与 main 均不合并。
+UI/壁纸保持 Claude 原件，Core/PoC 保持已审查源码；无冲突。必要预推送误报修复及实际后续结果见
+[INTEGRATION_STATUS.md](INTEGRATION_STATUS.md)。本节不将上一轮 CI 成功归于新集成源码。
+
 ## 独立工程审查完成验证（2026-11-08）
 
 - 仓库已 public；main 保持 f17d20d，UI 分支 claude/ecstatic-planck-rzpvn6 保持独立，工程修复在 codex/poc-engineering-audit。

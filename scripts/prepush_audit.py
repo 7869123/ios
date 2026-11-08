@@ -29,6 +29,22 @@ ALLOWED_AUTHORS = {"aiutility@localhost", "noreply@anthropic.com",
                    "41898283+github-actions[bot]@users.noreply.github.com"}
 
 
+def is_public_ci_tool_path(path, data, match):
+    """A numeric tool version in a CI PATH is not an email address. No other rule is exempted."""
+    if not (path.startswith("validation/") and path.endswith(".log")):
+        return False
+    value = match.group()
+    if not re.fullmatch(rb"[0-9]+(?:\.[0-9]+)+", value.rsplit(b"@", 1)[-1]):
+        return False
+    start = data.rfind(b"\n", 0, match.start()) + 1
+    prefix = data[start:match.start()]
+    end = data.find(b"\n", match.end())
+    line = data[start:end if end >= 0 else len(data)]
+    return (line.lstrip().startswith((b"export PATH=", b"export PATH\\="))
+            and b"/Users/runner/" in line and b"/" in value.rsplit(b"@", 1)[0]
+            and data[match.end():match.end() + 4] == b"/bin")
+
+
 def main():
     rows = git("rev-list", "--objects", "--all").decode().splitlines()
     findings, large, local_paths = [], [], set()
@@ -52,6 +68,8 @@ def main():
                 value = match.group()
                 if rule == "personal_email" and value.rsplit(b"@", 1)[1].lower() in (
                         b"example.com", b"example.org", b"anthropic.com", b"users.noreply.github.com", b"localhost"):
+                    continue
+                if rule == "personal_email" and is_public_ci_tool_path(path, data, match):
                     continue
                 findings.append({"path": path, "rule": rule, "object": oid,
                                  "line": data[:match.start()].count(b"\n") + 1,
