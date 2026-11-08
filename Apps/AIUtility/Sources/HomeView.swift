@@ -5,12 +5,6 @@ import SwiftUI
 @MainActor struct HomeView: View {
     @EnvironmentObject private var app: AppModel
     let open: (Workspace) -> Void
-    @State private var showLiveCaptionInfo = false
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Environment(AppearanceStore.self) private var appearance: AppearanceStore?
-    private var heroStyle: GlassStyle {
-        reduceTransparency ? .reducedTransparency : GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
-    }
 
     private struct Tile: Identifiable {
         let id: String
@@ -23,7 +17,7 @@ import SwiftUI
 
     private let daily: [Tile] = [
         .init(id: "screenshot", title: "截图翻译", detail: "Discord 等截图本地 OCR 后翻译", icon: "viewfinder", status: .available, target: .screenshot),
-        .init(id: "subtitle", title: "字幕文本翻译", detail: "粘贴字幕文本，按字幕模型翻译", icon: "captions.bubble", status: .available, target: .subtitles),
+        .init(id: "subtitle", title: "字幕翻译", detail: "粘贴文本翻译；实时字幕规划中", icon: "captions.bubble", status: .available, target: .subtitles),
         .init(id: "settings", title: "AI 供应商与模型", detail: "Key、模型绑定与调用预算", icon: "slider.horizontal.3", status: .available, target: .settings),
     ]
     private let media: [Tile] = [
@@ -32,13 +26,12 @@ import SwiftUI
         .init(id: "search", title: "反向搜图", detail: "SauceNAO / 搜图 Bot 酱", icon: "magnifyingglass", status: .planned, target: .media),
         .init(id: "tasks", title: "下载任务", detail: "进度、取消、重试与历史", icon: "tray.full", status: .planned, target: .media),
     ]
-    private let columns = [GridItem(.adaptive(minimum: 230), spacing: UtilityTheme.spacing)]
+    private let columns = [GridItem(.adaptive(minimum: 230), spacing: 12)]
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
+            VStack(alignment: .leading, spacing: 22) {
                 header
-                liveCaptionPanel
                 section("常用", tiles: daily)
                 section("媒体工具", tiles: media)
             }
@@ -47,7 +40,6 @@ import SwiftUI
             .frame(maxWidth: .infinity)
         }
         .background { WorkspaceBackdrop() }
-        .sheet(isPresented: $showLiveCaptionInfo) { LiveCaptionInfoSheet() }
     }
 
     private var header: some View {
@@ -100,57 +92,15 @@ import SwiftUI
         .accessibilityLabel("\(label)翻译供应商：\(value)，打开设置")
     }
 
-    private var liveCaptionPanel: some View {
-        Button { showLiveCaptionInfo = true } label: {
-            HStack(alignment: .center, spacing: 20) {
-                Image(systemName: "pip")
-                    .font(.system(size: 30, weight: .semibold))
-                    .frame(width: 64, height: 64)
-                    .background(.white.opacity(0.18), in: RoundedRectangle(cornerRadius: 16))
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("跨 App 实时字幕 · PiP").font(.title2.bold())
-                    Text("采集其他 App 的音频，本地识别后在画中画中显示字幕。当前为独立诊断 PoC，尚未接入本 App，也未经真机验证。")
-                        .font(.subheadline)
-                        .multilineTextAlignment(.leading)
-                }
-                Spacer(minLength: 8)
-                Text("了解进度")
-                    .font(.subheadline.weight(.semibold))
-                    .padding(.horizontal, 14).padding(.vertical, 8)
-                    .background(.white, in: Capsule())
-                    .foregroundStyle(UtilityTheme.brandStrong)
-            }
-            .foregroundStyle(.white)
-            // Legibility over a translucent banner: soft dark shadow under white text.
-            .shadow(color: UtilityTheme.ink.opacity(0.45 * heroStyle.legibilityBoost), radius: 3, y: 1)
-            .padding(24)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                ZStack(alignment: .topTrailing) {
-                    RoundedRectangle(cornerRadius: 22).fill(UtilityTheme.deepGradient).opacity(heroStyle.heroOpacity)
-                    // Local shading behind the text column, stronger as the banner gets more transparent.
-                    LinearGradient(colors: [UtilityTheme.ink.opacity(0.30 * heroStyle.legibilityBoost), .clear],
-                                   startPoint: .leading, endPoint: .trailing)
-                    SlantBar(slant: 0.6).fill(.white.opacity(0.10)).frame(width: 220, height: 120).offset(x: 40, y: -10)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 22))
-            }
-            .shadow(color: UtilityTheme.brand.opacity(0.18), radius: 16, y: 6)
-        }
-        .buttonStyle(PressableCardStyle())
-        .accessibilityElement(children: .combine)
-        .accessibilityHint("查看实时字幕 PoC 的当前状态")
-    }
-
     private func section(_ title: String, tiles: [Tile]) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
                 SlantBar().fill(UtilityTheme.brand).frame(width: 16, height: 14)
                 Text(title).font(.title3.bold()).foregroundStyle(UtilityTheme.ink)
             }
             .legibleOnWallpaper()
             .accessibilityAddTraits(.isHeader)
-            LazyVGrid(columns: columns, spacing: UtilityTheme.spacing) {
+            LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(tiles) { tile in
                     Button { open(tile.target) } label: { FeatureTile(title: tile.title, detail: tile.detail, icon: tile.icon, status: tile.status) }
                         .buttonStyle(PressableCardStyle())
@@ -160,42 +110,41 @@ import SwiftUI
     }
 }
 
+/// Compact tile: icon, title and one-line detail in a row, so more wallpaper stays visible.
 @MainActor struct FeatureTile: View {
     let title: String
     let detail: String
     let icon: String
     let status: FeatureStatus
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                Image(systemName: icon)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(status == .planned ? UtilityTheme.planned : .white)
-                    .frame(width: 44, height: 44)
-                    .background {
-                        if status == .planned {
-                            RoundedRectangle(cornerRadius: UtilityTheme.radiusIcon).fill(UtilityTheme.planned.opacity(0.12))
-                        } else {
-                            RoundedRectangle(cornerRadius: UtilityTheme.radiusIcon).fill(UtilityTheme.deepGradient)
-                        }
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(status == .planned ? UtilityTheme.planned : .white)
+                .frame(width: 36, height: 36)
+                .background {
+                    if status == .planned {
+                        RoundedRectangle(cornerRadius: 10).fill(UtilityTheme.planned.opacity(0.14))
+                    } else {
+                        RoundedRectangle(cornerRadius: 10).fill(UtilityTheme.deepGradient)
                     }
-                Spacer()
-                StatusChip(status: status)
+                }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.headline).foregroundStyle(UtilityTheme.ink).lineLimit(1)
+                Text(detail).font(.caption).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(1)
             }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.headline).foregroundStyle(UtilityTheme.ink)
-                Text(detail).font(.footnote).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(2, reservesSpace: true)
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            StatusChip(status: status)
         }
-        .padding(18)
+        .padding(.horizontal, 14).padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassSurface(RoundedRectangle(cornerRadius: UtilityTheme.radiusCard))
+        .glassSurface(RoundedRectangle(cornerRadius: 14))
         .overlay(alignment: .topLeading) {
             SlantBar().fill(status == .planned ? AnyShapeStyle(UtilityTheme.planned.opacity(0.4)) : AnyShapeStyle(UtilityTheme.brandGradient))
-                .frame(width: 40, height: 4).padding(.leading, 18)
+                .frame(width: 28, height: 3).padding(.leading, 14)
         }
-        .shadow(color: UtilityTheme.brand.opacity(0.05), radius: 10, y: 3)
-        .contentShape(RoundedRectangle(cornerRadius: UtilityTheme.radiusCard))
+        .shadow(color: UtilityTheme.brand.opacity(0.04), radius: 6, y: 2)
+        .contentShape(RoundedRectangle(cornerRadius: 14))
         .accessibilityElement(children: .combine)
     }
 }

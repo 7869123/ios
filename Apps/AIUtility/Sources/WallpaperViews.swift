@@ -120,12 +120,14 @@ struct WallpaperDraft: Identifiable {
             }
             VStack(alignment: .leading, spacing: unit) {
                 RoundedRectangle(cornerRadius: unit * 0.3).fill(UtilityTheme.ink.opacity(0.75)).frame(width: unit * 6, height: unit * 1.1)
-                RoundedRectangle(cornerRadius: unit * 0.8).fill(UtilityTheme.deepGradient).opacity(glass.heroOpacity).frame(height: unit * 4)
-                HStack(spacing: unit * 0.6) {
-                    ForEach(0..<(landscape ? 3 : 2), id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: unit * 0.6).fill(panel)
-                            .overlay(RoundedRectangle(cornerRadius: unit * 0.6).strokeBorder(.white.opacity(0.7), lineWidth: 0.5))
-                            .frame(height: unit * 3.6)
+                // Two rows of compact tiles, matching the home page.
+                ForEach(0..<2, id: \.self) { _ in
+                    HStack(spacing: unit * 0.5) {
+                        ForEach(0..<(landscape ? 3 : 2), id: \.self) { _ in
+                            RoundedRectangle(cornerRadius: unit * 0.5).fill(panel)
+                                .overlay(RoundedRectangle(cornerRadius: unit * 0.5).strokeBorder(.white.opacity(0.7), lineWidth: 0.5))
+                                .frame(height: unit * 2)
+                        }
                     }
                 }
             }

@@ -36,19 +36,42 @@ import AIUtilityCore
     }
 }
 
+/// One subtitle entry with two sources: pasted text (available) and live cross-app captions (PoC).
 @MainActor struct SubtitleView: View {
+    private enum Mode: String, CaseIterable, Identifiable {
+        case paste, live
+        var id: String { rawValue }
+        var title: String { self == .paste ? "粘贴文本" : "实时字幕" }
+    }
     @EnvironmentObject private var app: AppModel
     @State private var translating = false
+    @State private var mode = Mode.paste
+    @State private var showLiveInfo = false
     var body: some View {
         WorkspacePage {
-            PageHeader(title: "字幕工作台", subtitle: "使用独立字幕模型，共享供应商 Key")
-            UtilityCard {
-                Label("当前支持字幕文本翻译", systemImage: "text.bubble")
-                Text("粘贴已转写的字幕文字。跨 App 音频、连续语音识别和 PiP 字幕仍在技术验证阶段，尚未接入此入口。")
-                    .font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
+            PageHeader(title: "字幕工作台", subtitle: "粘贴文本翻译可用 · 实时字幕规划中 · 共用字幕模型")
+            Picker("字幕来源", selection: $mode) {
+                ForEach(Mode.allCases) { Text($0.title).tag($0) }
             }
-            TranslationPanel(feature: .videoSubtitle, input: $app.subtitleDraft, translating: $translating)
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 360)
+            switch mode {
+            case .paste:
+                TranslationPanel(feature: .videoSubtitle, input: $app.subtitleDraft, translating: $translating)
+            case .live:
+                UtilityCard {
+                    HStack {
+                        Label("跨 App 实时字幕 · PiP", systemImage: "pip").font(.headline)
+                        Spacer()
+                        StatusChip(status: .poc)
+                    }
+                    Text("采集其他 App 正在播放的声音，本地识别后在画中画小窗中显示字幕，并用字幕模型翻译。目前是独立的诊断 PoC，尚未接入本 App，也未经真机验证，暂不可用。")
+                        .font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
+                    Button("了解进度") { showLiveInfo = true }.buttonStyle(.bordered)
+                }
+            }
         }
+        .sheet(isPresented: $showLiveInfo) { LiveCaptionInfoSheet() }
     }
 }
 

@@ -167,7 +167,7 @@ struct PressableCardStyle: ButtonStyle {
 enum FeatureStatus {
     case available, poc, planned
     var title: String {
-        switch self { case .available: "可用"; case .poc: "PoC · 未经真机验证"; case .planned: "规划中" }
+        switch self { case .available: "可用"; case .poc: "PoC 阶段"; case .planned: "规划中" }
     }
     var color: Color {
         switch self { case .available: UtilityTheme.brandStrong; case .poc: UtilityTheme.poc; case .planned: UtilityTheme.planned }
@@ -177,11 +177,14 @@ enum FeatureStatus {
 struct StatusChip: View {
     let status: FeatureStatus
     var body: some View {
+        // Opaque-ish white base + coloured hairline so the chip reads over any wallpaper.
         Text(status.title)
-            .font(.caption2.weight(.semibold))
+            .font(.caption2.weight(.bold))
             .foregroundStyle(status.color)
             .padding(.horizontal, 8).padding(.vertical, 3)
-            .background(status.color.opacity(0.10), in: Capsule())
+            .background(Color.white.opacity(0.85), in: Capsule())
+            .overlay(Capsule().strokeBorder(status.color.opacity(0.45), lineWidth: 1))
+            .fixedSize()
     }
 }
 
