@@ -494,7 +494,7 @@
     },
     "final/apple/environment.log": {
       "original_sha256": "d339d187be917e224c106e46bf269ba8492085ab06f98e3f64127e53e0aae607",
-      "stored_sha256": "d339d187be917e224c106e46bf269ba8492085ab06f98e3f64127e53e0aae607",
+      "stored_sha256": "1f4361bf7d9172337df547eed5b906a4ce0d8bab3452599cb8379e2b05baafe2",
       "original_bytes": 971
     },
     "final/apple/exit-codes.txt": {
@@ -504,12 +504,12 @@
     },
     "final/apple/ios-device-build.log": {
       "original_sha256": "78c7760ce267b83edd6c2633603b206e723cd687b6b75b9ad258dacceec9b40c",
-      "stored_sha256": "38848051ec64a4892767e6944ddb4a3c9caac8bb7efd4d2918408f0d0a24b455",
+      "stored_sha256": "c0142880372982725f07c5b74d685ff444f68210f14d60883b51796aec2118a8",
       "original_bytes": 81350
     },
     "final/apple/ios-simulator-build.log": {
       "original_sha256": "4662f330ce0b0b965e6bcb1abd0772d34efb0fd25e613561d07862c52a8d76d3",
-      "stored_sha256": "60a480bc3beae6dd045fc7a3deab2e9733c0e0b2032292f53b1841cb890a8e02",
+      "stored_sha256": "e2605e9a68023b1ed09b95e97d70b67778e15a6cb7ad07af3b222cbe4f5e91f2",
       "original_bytes": 155414
     },
     "final/apple/mac-core-tests.log": {
@@ -524,7 +524,7 @@
     },
     "final/poc/archive.log": {
       "original_sha256": "e7f3fa0ec7e02edf14da17a9acbc1891f61f20c1613315475c218b27a768b50b",
-      "stored_sha256": "401b46a92ca25463e970115331a2c66be78d6da0225472086c609f093ee2f2b5",
+      "stored_sha256": "39034e1f4627c5269293012790dd0320c61ea6eea156182223b9000943a813b8",
       "original_bytes": 216297
     },
     "final/poc/device-symbols.log": {
@@ -564,12 +564,12 @@
     },
     "final/poc/simulator-build.log": {
       "original_sha256": "d6851d7691dba18e98ee56dd29757bb3b715f3b4801a257324faa4c4ed2b3600",
-      "stored_sha256": "afdb5ea38a92b7ea49133871ca6aa2d8c37685eb15a760f244d0b79be06f8a31",
+      "stored_sha256": "8822101bc837b0aa3faacfa7c906cea70f1e3848fc5a4f91fc8f08e9a2e0bd6b",
       "original_bytes": 275305
     },
     "final/app/device-build.log": {
       "original_sha256": "93f9c0324f9ab044f6ab7d41cde6f6fcd1607ee1c7cca39510d2b894e0605fe3",
-      "stored_sha256": "ac09797bc292547797c59a5692c0dc816a61adb57410451f41d8f7fa3e68d2b1",
+      "stored_sha256": "7c0f291607d856cd01bc67d90070f150a0507c2da07ec9a082573896d6f23060",
       "original_bytes": 139974
     },
     "final/app/environment.log": {
@@ -589,7 +589,7 @@
     },
     "final/app/simulator-build.log": {
       "original_sha256": "5d70325c64c89d603fe1d99dd8dfeced65a7e6f082a3ea870d2952e4abe7689e",
-      "stored_sha256": "c353b6a0c81a255426e04ac08d71d8d8782331f009bdaf2ff4172863e8ff9e41",
+      "stored_sha256": "67ff7e9f7ea704445f3bbaef4205284d62185a2088646168dcfe6b06513d4036",
       "original_bytes": 268934
     },
     "attempts/42375947069/environment.log": {
@@ -634,12 +634,12 @@
     },
     "attempts/42376094393/simulator-build.log": {
       "original_sha256": "a71fc5a12ccfe42653211381bf12cb79217d88e54951b8ef2e1b60490856ef1c",
-      "stored_sha256": "0dba04ba8ae17c37ffb2f9e624814ed14e49a647df8769679cf18a28caefe3fb",
+      "stored_sha256": "c98bf443afef799bbb506024df7d74a0525815a09ac4c495680f2209214a501c",
       "original_bytes": 275305
     },
     "attempts/42376481364/archive.log": {
       "original_sha256": "b8fb6fc5489e1ced84414691dd55ebec0236873c320807e18cdc29fe4f282864",
-      "stored_sha256": "a5d26db2fbb9e82303e67ca2fc3740360c9611a1038b5a2ca53e02f87131bca9",
+      "stored_sha256": "f4cf6ebc24588b605bbc8a44a23f613450a2e85b09b041c32d54d26a24ad9865",
       "original_bytes": 218121
     },
     "attempts/42376481364/device-symbols.log": {
@@ -679,12 +679,12 @@
     },
     "attempts/42376481364/simulator-build.log": {
       "original_sha256": "dff63325329234deb567561ee948265e5e718a2772c074f2bf760487e1e865bc",
-      "stored_sha256": "b81a5d48f15eedd19db5bd38698ed51bdc92552b6a11e13ab4a0d7bd2e1aa22d",
+      "stored_sha256": "da6eda1ef2bc431b853f1fc826444d3374ec13590aec278ac72c67b693726a87",
       "original_bytes": 275314
     },
     "attempts/42376873996/archive.log": {
       "original_sha256": "32aabcf34269c22ad631c0bf4c0fd49eebc02b17a0b57be2a66cdbd41fd177e5",
-      "stored_sha256": "ab44eb830785a49d1c95749925ba1fefc14744ecbf949f2ec27d71cecd72cc93",
+      "stored_sha256": "465d5c71f47abf8f9b344ba31f7abb9352de8ea5eb82805d2f33e12c4037d8f7",
       "original_bytes": 216291
     },
     "attempts/42376873996/device-symbols.log": {
@@ -724,11 +724,11 @@
     },
     "attempts/42376873996/simulator-build.log": {
       "original_sha256": "182ba9451e3c20d5f1f45ceeb7e1ac80cc18ba810b263d318de5fdaad6835090",
-      "stored_sha256": "26c1772d38c3dd1490bb73daa17075b431cd064d17eab551cd246a74a2faf463",
+      "stored_sha256": "ae58cc9d54fcc782d5549961bcabdef3699bb312e1623450fb321ecf72016da2",
       "original_bytes": 275305
     }
   },
-  "normalization": "Versioned logs normalize line endings and strip trailing whitespace; original and stored hashes both recorded.",
+  "normalization": "Versioned logs normalize line endings, strip trailing whitespace and extra EOF blank lines; original and stored hashes both recorded.",
   "device_validation": "NOT RUN; unsigned archive and IPA are not installation or cross-App acceptance.",
   "live_api_tests": "NOT RUN; no paid API traffic.",
   "keychain_runtime": "NOT RUN; test skipped.",
