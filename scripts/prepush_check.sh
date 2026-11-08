@@ -58,7 +58,8 @@ step "5/6 Personal-info scan of the current tree (must be empty)"
 run "$PY" scripts/check_personal_info.py
 
 step "5b Commit timezone of commits to push (must be +0000, public repository)"
-tz=$(git log --format='%h %ad %cd' --date=format:%z "$base..HEAD" | awk '$2!="+0000" || $3!="+0000"')
+# Commits already on any origin branch are public already; only newly published ones must be UTC.
+tz=$(git log --format='%h %ad %cd' --date=format:%z "$base..HEAD" --not --remotes=origin | awk '$2!="+0000" || $3!="+0000"')
 if [ -n "$tz" ]; then echo "non-UTC commits (commit with TZ=UTC):"; echo "$tz"; failed=1; else echo "all commits to push use +0000"; fi
 
 step "6/6 Secret and author audit of all reachable history (values never printed)"
