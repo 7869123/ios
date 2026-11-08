@@ -1,2 +1,6 @@
-run=42451843722
-sha=e56e076744b12242bd84bb62b00090c0434808f7
+run=42453223507
+sha=cbbef2a8466cfee8728b1b25fc0abc44a81c49c0
+ipad-mini-landscape=in-app
+ipad-mini-portrait=in-app
+iphone-landscape=in-app
+iphone-portrait=in-app
