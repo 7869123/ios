@@ -92,12 +92,27 @@ struct SandboxFiles: MediaFiles {
         guard let a, let b, a == b else { throw MediaError.storageUnavailable }
     }
     static func noLinks(_ url: URL) throws {
-        var cursor = url.standardizedFileURL
+        // Inspect the lexical path: standardization must not hide a link before we examine it.
+        var cursor = url
         while cursor.path != "/", !cursor.path.isEmpty {
-            if (try? FileManager.default.destinationOfSymbolicLink(atPath: cursor.path)) != nil { throw MediaError.storageUnavailable }
+            if let destination = try? FileManager.default.destinationOfSymbolicLink(atPath: cursor.path),
+               !isSystemAlias(path: cursor.path, destination: destination) { throw MediaError.storageUnavailable }
             let parent = cursor.deletingLastPathComponent()
             if parent == cursor { break }; cursor = parent
         }
+    }
+    static func isSystemAlias(path: String, destination: String) -> Bool {
+        #if canImport(Darwin)
+        // Foundation may remove /private during path standardization, exposing these OS-owned aliases.
+        // Trust only the exact system path AND exact destination, never a matching name inside our sandbox.
+        switch path {
+        case "/var": return destination == "private/var" || destination == "/private/var"
+        case "/tmp": return destination == "private/tmp" || destination == "/private/tmp"
+        default: return false
+        }
+        #else
+        return false
+        #endif
     }
     func staging(_ id: DownloadID, attempt: UUID) throws -> URL {
         let path = cache.appendingPathComponent(id.rawValue.uuidString + "-" + attempt.uuidString, isDirectory: true)
@@ -142,7 +157,8 @@ struct SandboxFiles: MediaFiles {
               file.fileName.split(separator: ".").count == 2,
               UUID(uuidString: String(file.fileName.split(separator: ".")[0])) == file.id,
               MediaVariant.extensions.contains(String(file.fileName.split(separator: ".")[1])) else { throw MediaError.storageUnavailable }
-        let url = root.appendingPathComponent(file.relativePath).standardizedFileURL
+        // UUID-only components above already exclude traversal; preserve links for noLinks to reject.
+        let url = root.appendingPathComponent(file.relativePath)
         guard url.path.hasPrefix(root.path + "/") else { throw MediaError.storageUnavailable }
         try Self.noLinks(url)
         return url

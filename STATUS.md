@@ -1,12 +1,17 @@
 # AIUtility 开发状态
 
-## 媒体 Apple 验证已授权（待执行）
+## 媒体 Apple 首轮失败，修复待复验
 
 用户新增授权仅限 swift.yml 的 apple job：Media macOS build/test、两种无签名 iOS SDK 编译，
 保留触发条件和其他 job；Codex 分支允许一次 build_apple，publish_previews=false、build_poc=false。
-详细范围见 [MEDIA_APPLE_CHANGE_NOTICE.md](MEDIA_APPLE_CHANGE_NOTICE.md)。不新增产品工具或公共接口，不开始 P2。
-现有 build_apple 会连带 App 构建/截图，不更改其行为；编译错误只允许按真实日志修复 AIUtilityMedia。
-执行前不宣称 Apple 已验证，结果与证据随后记录。
+授权的单次运行 [42461786365](https://github.com/7869123/ios/actions/runs/42461786365)，源码 1ac37c8：
+Media macOS build=0，测试=1（9 通过、33 失败、0 跳过）；两个无签名 iOS SDK build=0。
+Linux Media 42 通过；原 macOS Core 36 通过/1 跳过，Vision 2 通过/Keychain 1 跳过。
+实际为 Xcode 26.6 / Swift 6.3.3 / iOS SDK 26.5，不是 iOS 27。App 因 apple 失败跳过，未生成截图。
+失败集中在存储初始化把 Darwin 系统目录别名误判为符号链接；已仅在 Media 修复精确系统别名和路径检查，
+保留全部原测试并新增 3 项（总数 45），新源码仍需 Linux/macOS 复验，不能把旧 SDK 成功当作修复已通过。
+[失败全文、命令退出码及 17 份证据](validation/media-apple/attempt-1/README.md)。
+一次 build_apple 授权已使用；推送后的 Linux CI 仍在已有授权范围内，macOS 重验需先询问用户。不开始 P2。
 
 ## 媒体 P1 Linux 编译/测试通过（Apple 与真实网络仍未验证）
 

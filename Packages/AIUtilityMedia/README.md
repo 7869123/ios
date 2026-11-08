@@ -1,10 +1,15 @@
-# AIUtilityMedia — P1 Linux validated; Apple and real networking pending
+# AIUtilityMedia — Darwin storage fix pending verification
+
+Current follow-up: source 1ac37c8 compiled on macOS and both unsigned iOS 26.5 SDK targets, but its Media tests
+failed (9 passed / 33 failed) during sandbox initialization. The [failure evidence](../../validation/media-apple/attempt-1/README.md)
+is preserved. Only Media path handling was corrected; all original tests remain, with 3 new regressions (45 total).
+This fix has not yet been recompiled/tested. The single approved Apple run is consumed; another needs approval.
 
 Independent Swift 6 package for iOS 17+, macOS 14+ and Linux pure logic. No external package dependencies.
 Source 55be755 compiled on Swift 6.0.3/Linux and passed 42 offline tests in
 [run 42453057517](https://github.com/7869123/ios/actions/runs/42453057517).
 The [evidence report](../../validation/media-p1/README.md) preserves exit codes, counts and hashes.
-macOS/iOS SDK compilation, real URLSession network transfers and App integration remain unverified.
+The Linux result below applies to that earlier source, not the current fix. Real URLSession transfers and App integration remain unverified.
 
 ## App entry
 
@@ -61,7 +66,7 @@ Following those contracts alone is not runtime evidence; real HTTP/TLS/CDN trans
 
 ## Offline tests and CI handoff
 
-42 Swift Testing cases in `Tests/AIUtilityMediaTests` actually passed on Linux (0 skipped, 0 failed). Fake transport,
+The original 42 Swift Testing cases passed on Linux (0 skipped, 0 failed); the current suite has 45 declarations pending execution. Fake transport,
 clock, destination validation and fault injection live **only in the test target**. Production defaults use disk,
 public DNS preflight and URLSession. Tests allocate unique temporary directories and do not contact real sites.
 
@@ -104,5 +109,5 @@ workflow triggers and other jobs remain unchanged. macOS/iOS SDK verification st
 4. Preserve version/build/test logs and exit-code files with `if: always()`; do not upload tokens, caches or whole homes.
    Record actual discovered/pass/fail/skip counts. Do not suppress failures, remove tests or replace this with grammar parsing.
 
-Linux source push/CI is authorized and passed; the current PR triggers core-linux including this package. macOS/iOS SDK
-commands above are still proposals and have not been authorized or executed. No Apple job is enabled by this batch.
+Linux source push/CI remains authorized. One build_apple dispatch was approved and executed (previews and PoC off),
+preserving the existing workflow behavior; the current Darwin fix requires a separate Apple revalidation approval.

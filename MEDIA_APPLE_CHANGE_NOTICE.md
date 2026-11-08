@@ -20,6 +20,8 @@
 - 现有 build_apple 输入会连带运行原 App 构建/截图 job，保持原行为；关闭 publish_previews，禁止 CI 提交预览。
   build_poc=false，不触发独立 iOS 27 SDK PoC job。
 
-首次编译结果尚待执行；只根据真实错误修复 AIUtilityMedia，不修改其他模块或弱化测试。
+首次运行 42461786365 已完成：macOS Media 编译和两种无签名 SDK 编译成功，但 42 项测试 33 失败/9 通过。
+失败为目录别名的存储初始化问题，后续只修改 Media 路径检查并新增 3 项回归，总数 45；不删除或弱化原测试。
+详细证据见 [失败报告](validation/media-apple/attempt-1/README.md)。修复未经过 macOS 复验；单次授权已使用，重验先问用户。
 Apple SDK 编译成功不代表真实 HTTP/TLS/CDN 下载、App 接线或 iPad 跨 App 音频/Speech/PiP 已验证。
 P2 仍需用户另行授权。

@@ -1,0 +1,11 @@
+Building for debugging...
+[0/2] Write sources
+[1/2] Write swift-version-7974D3F7F03D5E95.txt
+[3/7] Compiling AIUtilityMedia DownloadManager.swift
+[4/7] Compiling AIUtilityMedia LinkRouter.swift
+[5/7] Compiling AIUtilityMedia MediaNetwork.swift
+[6/7] Compiling AIUtilityMedia MediaStorage.swift
+[7/7] Emitting module AIUtilityMedia
+[8/9] Compiling AIUtilityMedia MediaTypes.swift
+[9/9] Compiling AIUtilityMedia URLSafety.swift
+Build complete! (6.14s)

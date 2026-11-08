@@ -1,0 +1,36 @@
+Building for debugging...
+[0/8] [CI_HOME]/work/ios/ios/Packages/AIUtilityAppleServices/.build/arm64-apple-macosx/debug/AIUtilityAppleServicesPackageTests.derived/runner.swift
+[1/8] Write sources
+[5/8] Write swift-version-7974D3F7F03D5E95.txt
+[7/14] Compiling AIUtilityCore OCRService.swift
+[8/14] Compiling AIUtilityCore OfficialAPIAdapter.swift
+[9/14] Compiling AIUtilityCore ConfigurationCoordinator.swift
+[10/14] Compiling AIUtilityCore Domain.swift
+[11/14] Compiling AIUtilityCore HTTPTransport.swift
+[12/14] Emitting module AIUtilityCore
+[13/16] Compiling AIUtilityCore ProviderGateway.swift
+[14/16] Compiling AIUtilityCore TranslationEngine.swift
+[15/19] Compiling AIUtilityAppleServices KeychainCredentialStore.swift
+[16/19] Compiling AIUtilityAppleServices AIUtilityServices.swift
+[17/19] Emitting module AIUtilityAppleServices
+[18/20] Compiling AIUtilityAppleServices VisionOCRService.swift
+[19/22] Emitting module AIUtilityAppleServicesTests
+[20/22] Compiling AIUtilityAppleServicesTests AppleServiceTests.swift
+[21/24] Compiling AIUtilityAppleServicesPackageTests runner.swift
+[22/24] Emitting module AIUtilityAppleServicesPackageTests
+[22/24] Write Objects.LinkFileList
+[23/24] Linking AIUtilityAppleServicesPackageTests
+Build complete! (18.27s)
+Test Suite 'All tests' started at 2026-11-08 08:12:37.219.
+Test Suite 'All tests' passed at 2026-11-08 08:12:37.225.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.007) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+➜ Test keychainReplacesSingleProviderRecordAtomically() skipped.
+◇ Test visionRecognizesGeneratedLocalImage() started.
+◇ Test visionRejectsInvalidImageLocally() started.
+✔ Test visionRejectsInvalidImageLocally() passed after 0.018 seconds.
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+✔ Test visionRecognizesGeneratedLocalImage() passed after 1.208 seconds.
+✔ Test run with 3 tests in 0 suites passed after 1.208 seconds.

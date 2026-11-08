@@ -1,0 +1,367 @@
+{
+  "source_sha": "1ac37c85a2cf0e9be4a6aaf050d2e75704d00605",
+  "dispatch_count": 1,
+  "inputs": {
+    "build_apple": true,
+    "build_poc": false,
+    "publish_previews": false
+  },
+  "run": {
+    "id": 42461786365,
+    "event": "workflow_dispatch",
+    "head_sha": "1ac37c85a2cf0e9be4a6aaf050d2e75704d00605",
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/7869123/ios/actions/runs/42461786365",
+    "run_attempt": 1
+  },
+  "jobs": [
+    {
+      "id": 128672438677,
+      "name": "core-linux",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-08T08:10:35Z",
+          "completed_at": "2026-11-08T08:10:35Z"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-08T08:10:35Z",
+          "completed_at": "2026-11-08T08:11:05Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-08T08:11:05Z",
+          "completed_at": "2026-11-08T08:11:06Z"
+        },
+        {
+          "name": "Real compiler and offline tests with preserved exit codes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-08T08:11:06Z",
+          "completed_at": "2026-11-08T08:11:42Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-08T08:11:42Z",
+          "completed_at": "2026-11-08T08:11:44Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-08T08:11:44Z",
+          "completed_at": "2026-11-08T08:11:44Z"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-08T08:11:44Z",
+          "completed_at": "2026-11-08T08:11:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-08T08:11:45Z",
+          "completed_at": "2026-11-08T08:11:45Z"
+        }
+      ]
+    },
+    {
+      "id": 128672716685,
+      "name": "apple",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-08T08:11:50Z",
+          "completed_at": "2026-11-08T08:11:51Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-08T08:11:51Z",
+          "completed_at": "2026-11-08T08:11:53Z"
+        },
+        {
+          "name": "Validate real macOS packages and both iOS SDK targets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-08T08:11:53Z",
+          "completed_at": "2026-11-08T08:13:18Z"
+        },
+        {
+          "name": "Validate Media on macOS and both unsigned iOS SDK targets",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4,
+          "started_at": "2026-11-08T08:13:18Z",
+          "completed_at": "2026-11-08T08:14:08Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-08T08:14:08Z",
+          "completed_at": "2026-11-08T08:14:09Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-08T08:14:09Z",
+          "completed_at": "2026-11-08T08:14:10Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-08T08:14:10Z",
+          "completed_at": "2026-11-08T08:14:10Z"
+        }
+      ]
+    },
+    {
+      "id": 128672717960,
+      "name": "poc-sdk",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    },
+    {
+      "id": 128673260526,
+      "name": "app",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    }
+  ],
+  "test_counts": {
+    "core-linux/core-tests.log": {
+      "passed": 36,
+      "skipped": 1,
+      "failed": 0
+    },
+    "core-linux/media-tests.log": {
+      "passed": 42,
+      "skipped": 0,
+      "failed": 0
+    },
+    "core-linux/poc-lifecycle-tests.log": {
+      "passed": 14,
+      "skipped": 0,
+      "failed": 0
+    },
+    "apple/mac-core-tests.log": {
+      "passed": 36,
+      "skipped": 1,
+      "failed": 0
+    },
+    "apple/mac-media-tests.log": {
+      "passed": 9,
+      "skipped": 0,
+      "failed": 33
+    },
+    "apple/mac-services-tests.log": {
+      "passed": 2,
+      "skipped": 1,
+      "failed": 0
+    }
+  },
+  "exit_codes": {
+    "core-linux": {
+      "swift_version": 0,
+      "core_build": 0,
+      "core_tests": 0,
+      "poc_lifecycle_tests": 0,
+      "media_build": 0,
+      "media_tests": 0
+    },
+    "apple": {
+      "environment": 0,
+      "mac-core-tests": 0,
+      "mac-services-tests": 0,
+      "ios-simulator-build": 0,
+      "ios-device-build": 0,
+      "mac-media-build": 0,
+      "mac-media-tests": 1,
+      "ios-media-simulator-build": 0,
+      "ios-media-device-build": 0
+    }
+  },
+  "sdk_verification": {
+    "ios-media-device-build.log": {
+      "build_succeeded": true,
+      "signing_allowed": false,
+      "swift_language_mode": 6,
+      "targets": [
+        "arm64-apple-ios17.0"
+      ]
+    },
+    "ios-media-simulator-build.log": {
+      "build_succeeded": true,
+      "signing_allowed": false,
+      "swift_language_mode": 6,
+      "targets": [
+        "arm64-apple-ios17.0-simulator",
+        "x86_64-apple-ios17.0-simulator"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": 13610400391,
+      "name": "core-linux-evidence-42461786365-1",
+      "size_in_bytes": 6825,
+      "digest": "sha256:eead2adf803a842ed66bb7c3575d552c2d3f2dd698e24db02f632b49f92d6e93",
+      "expires_at": "2026-11-15T08:11:43Z"
+    },
+    {
+      "id": 13610062370,
+      "name": "apple-evidence-42461786365-1",
+      "size_in_bytes": 32195,
+      "digest": "sha256:a9b101fc06909c8373371d19121724ae2c589f25749aa7bd2b9e6074a3c2beb5",
+      "expires_at": "2026-11-15T08:14:08Z"
+    }
+  ],
+  "archive_digests": [
+    {
+      "name": "core-linux-evidence-42461786365-1",
+      "sha256": "eead2adf803a842ed66bb7c3575d552c2d3f2dd698e24db02f632b49f92d6e93",
+      "verified": true
+    },
+    {
+      "name": "apple-evidence-42461786365-1",
+      "sha256": "a9b101fc06909c8373371d19121724ae2c589f25749aa7bd2b9e6074a3c2beb5",
+      "verified": true
+    }
+  ],
+  "logs": {
+    "logs/core-linux/core-build.log": {
+      "original_sha256": "a2234d064d47cfcea079109712e37b90d82e6348ba01d1cbf318b0ec17889b83",
+      "stored_sha256": "a2234d064d47cfcea079109712e37b90d82e6348ba01d1cbf318b0ec17889b83",
+      "original_bytes": 522
+    },
+    "logs/core-linux/core-tests.log": {
+      "original_sha256": "7c2d6c3304c5b56cd3a7ed06aa384017ddfee53d8bcfd97203d77c099294438d",
+      "stored_sha256": "a2e8026d506f69f4522117a753c71dc6cda58a36c635a42dc35a07e0b0af91b4",
+      "original_bytes": 8588
+    },
+    "logs/core-linux/exit-codes.txt": {
+      "original_sha256": "2b9175e5960eed2a18f9f308f0ddb37b18cecff6634cc672228b916c8698877e",
+      "stored_sha256": "2b9175e5960eed2a18f9f308f0ddb37b18cecff6634cc672228b916c8698877e",
+      "original_bytes": 92
+    },
+    "logs/core-linux/media-build.log": {
+      "original_sha256": "f04e9a0374998a99a37b4714c76a49257d93171f8cbcb9f5be570cde7217e4d0",
+      "stored_sha256": "f04e9a0374998a99a37b4714c76a49257d93171f8cbcb9f5be570cde7217e4d0",
+      "original_bytes": 450
+    },
+    "logs/core-linux/media-tests.log": {
+      "original_sha256": "ab0819f05383210fb86810c1e0beb958f0a17245de1c1d638ce85745ec2d52e0",
+      "stored_sha256": "66e32d15fb3b1751b3dce1722c0a0f3faf2701081d3ee5934585b67703522c5e",
+      "original_bytes": 8781
+    },
+    "logs/core-linux/poc-lifecycle-tests.log": {
+      "original_sha256": "c90044c80ea9545ee172389f3a8ecedfb8adaa81e5674a5cfead16f5cd00c964",
+      "stored_sha256": "bee6e4a09a578f21a67036875016ebf3ed65e38ddc3d322898ffe82172ffb49a",
+      "original_bytes": 4960
+    },
+    "logs/core-linux/swift-version.log": {
+      "original_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "stored_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "original_bytes": 75
+    },
+    "logs/apple/environment.log": {
+      "original_sha256": "d339d187be917e224c106e46bf269ba8492085ab06f98e3f64127e53e0aae607",
+      "stored_sha256": "1f4361bf7d9172337df547eed5b906a4ce0d8bab3452599cb8379e2b05baafe2",
+      "original_bytes": 971
+    },
+    "logs/apple/exit-codes.txt": {
+      "original_sha256": "964924202bc34c27103b6edee6e84c119121a091307e14ecbf78a555863ed1ff",
+      "stored_sha256": "964924202bc34c27103b6edee6e84c119121a091307e14ecbf78a555863ed1ff",
+      "original_bytes": 182
+    },
+    "logs/apple/ios-device-build.log": {
+      "original_sha256": "1c008b5c126b6bb9f23b0d21914de4d71384ab746f70873368f22f0f3bbc483d",
+      "stored_sha256": "96398a94761cf9e75c88283ce7c11490b664a1ef8a0b11cb76436f558099c758",
+      "original_bytes": 81353
+    },
+    "logs/apple/ios-media-device-build.log": {
+      "original_sha256": "6cc20ab84fdbe23d200536774e6875d1ad63d5c9520bc99b5f244370f9da74ae",
+      "stored_sha256": "83c6c4b3378d242640c04425fd7c54e4dd75b368d5e3f285fdb9f76f2d03277a",
+      "original_bytes": 41538
+    },
+    "logs/apple/ios-media-simulator-build.log": {
+      "original_sha256": "3f4269460e7c8eac42e6e135860f4280e837d61eed656eb4dd5db912d0e4040a",
+      "stored_sha256": "987eba4a7aedafacb1e3f6c79cd3fc5908629e790b9a2a6c84ee6719c4611da5",
+      "original_bytes": 77359
+    },
+    "logs/apple/ios-simulator-build.log": {
+      "original_sha256": "7548fe1fa83070408aa5324f2af094121b42a5f8bcb0dedc5b01a8aa3da3ba47",
+      "stored_sha256": "e5d283692c7ad4334b5a4675f1fbd2be238b675e2d02d59d549d6ac49e4756e2",
+      "original_bytes": 155420
+    },
+    "logs/apple/mac-core-tests.log": {
+      "original_sha256": "d9879335ee4acf4cfe56ffe52ce570eba1af3547cf7fd743a46055bf15e6ac17",
+      "stored_sha256": "c8526a355b6de7656f1b17fad65dd1ab2c5bf41a86d0a7a8437f9df785a650dc",
+      "original_bytes": 8614
+    },
+    "logs/apple/mac-media-build.log": {
+      "original_sha256": "0b9c8d5dbe87db038440f093f06eb9d9099c73a9e42d24d7ebdb43a0c42fdefb",
+      "stored_sha256": "0b9c8d5dbe87db038440f093f06eb9d9099c73a9e42d24d7ebdb43a0c42fdefb",
+      "original_bytes": 450
+    },
+    "logs/apple/mac-media-tests.log": {
+      "original_sha256": "d7486e17e86de4cf1e5d53befe164301a8afa7c2435985a53157c084db9e77df",
+      "stored_sha256": "e0ed776ab2e61ad7c17a788f0ea0525e1a28ab2a93458e4e32f0905b734452e3",
+      "original_bytes": 13099
+    },
+    "logs/apple/mac-services-tests.log": {
+      "original_sha256": "dc2f8ecfe4182d37dc7fef8089b8f4469b4016e28a717405f677588576169f40",
+      "stored_sha256": "8e116e854fa397ec1614c0fe9d89d4a017e888216dfb164f01ba08c121bb1d8a",
+      "original_bytes": 2001
+    }
+  },
+  "failure": "33 macOS Media tests throw storageUnavailable during shared sandbox setup; builds and both unsigned SDK targets succeeded.",
+  "fix_status": "Darwin system-alias handling and lexical symlink inspection patched after this run; 3 regression tests added; fix is NOT covered by this run.",
+  "unverified": [
+    "fixed Media macOS tests",
+    "fixed Media iOS SDK compilation",
+    "real HTTP/TLS/CDN transfers",
+    "App integration",
+    "iPad runtime"
+  ],
+  "normalization": "CI PATH/home/workspace/UUIDs redacted; LF/trailing whitespace normalized; raw/stored hashes preserved."
+}
