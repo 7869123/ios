@@ -14,7 +14,7 @@
 | 代理 | 工作分支 |
 |---|---|
 | Claude Code | `claude/ecstatic-planck-rzpvn6`（PR #1） |
-| Codex | `codex/poc-engineering-audit` |
+| Codex | `codex/poc-engineering-audit`（已暂停：仓库所有者让 Claude Code 接手 Codex 的工作，Codex 分支的提交已合入 Claude 分支；Codex 恢复工作前需用户重新分配） |
 
 - 只在自己的分支上工作。**不读取、不合并、不修改、不推送**另一方的分支，也不把对方的提交拉进自己的分支。禁止执行 `git merge origin/<对方分支>`、`git pull origin <对方分支>`、`git cherry-pick <对方提交>` 等操作。例外：读取本文件这类用户明确指定的单个文件。
 - **不合并到 main，不 force push，不改写已推送的历史**。以上操作必须先得到用户明确授权。
@@ -44,7 +44,7 @@
 
 | 范围 | 负责方 |
 |---|---|
-| `Packages/AIUtilityCore`、`Packages/AIUtilityAppleServices`（后端） | Codex |
+| `Packages/AIUtilityCore`、`Packages/AIUtilityAppleServices`、`Packages/AIUtilityMedia`（后端） | Claude Code（接手自 Codex） |
 | `Apps/AIUtility`（SwiftUI 界面）、`.github/workflows`、`scripts`、UI 相关文档 | Claude Code |
 | `PoCs/iOS27Capture`（iOS 27 采集 PoC） | 未经用户授权，双方都不修改 |
 
