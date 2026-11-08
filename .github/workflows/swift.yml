@@ -3,7 +3,8 @@ name: Swift validation
 # - pull_request: Linux Core only (every PR update).
 # - push: only main, full chain (post-merge verification).
 # - workflow_dispatch: build_apple = full macOS validation (required before merging a PR),
-#   build_poc = iOS 27 PoC on xcode-27, publish_previews = commit app previews.
+#   build_poc = iOS 27 PoC on xcode-27, publish_previews = commit app previews,
+#   live_checks = read-only checks against the real public sites (never on push or PR).
 # A newer run on the same ref cancels the older one.
 on:
   push:
@@ -23,6 +24,10 @@ on:
         default: false
       publish_previews:
         description: 'Commit downscaled app screenshots to validation/ui-preview on this branch (needs build_apple)'
+        type: boolean
+        default: false
+      live_checks:
+        description: 'Live public-site checks (Pixiv, Bilibili, X, soutubot): metadata and HEAD only, no downloads, no keys'
         type: boolean
         default: false
 concurrency:
@@ -378,3 +383,26 @@ jobs:
         run: |
           echo "simulator build exit code: ${{ steps.simbuild.outputs.build }}"
           exit 1
+  live-checks:
+    # Manual only: talks to third-party sites, so it never runs on push or pull_request.
+    if: github.event_name == 'workflow_dispatch' && inputs.live_checks
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Live public-site checks (metadata and HEAD only)
+        shell: bash
+        env:
+          AIUTILITY_LIVE_TESTS: '1'
+        run: |
+          set +e
+          export AIUTILITY_LIVE_REPORT="$RUNNER_TEMP/live-checks.txt"
+          : > "$AIUTILITY_LIVE_REPORT"
+          swift test --package-path Packages/AIUtilityMedia --filter LiveSiteChecks > live-checks.log 2>&1
+          code=$?
+          echo "== LIVE-CHECK summary (exit $code)"
+          if [ -s "$AIUTILITY_LIVE_REPORT" ]; then cat "$AIUTILITY_LIVE_REPORT"; else echo "no LIVE-CHECK lines (build or test runner failure)"; fi
+          tail -n 40 live-checks.log
+          exit $code
