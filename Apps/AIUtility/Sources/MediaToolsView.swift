@@ -21,7 +21,7 @@ struct MediaTool: Identifiable {
         .init(id: "fingerprint", title: "图片文件指纹", icon: "touchid", detail: "去除元数据、重新编码或轻微像素扰动", status: .available, page: .fingerprint),
     ]
     static let search: [MediaTool] = [
-        .init(id: "search", title: "SauceNAO 搜图", icon: "magnifyingglass", detail: "需要自己的 SauceNAO Key；搜图 Bot 酱规划中",
+        .init(id: "search", title: "反向搜图", icon: "magnifyingglass", detail: "搜图 Bot 酱（无需 Key）或 SauceNAO（需自备 Key）",
               status: .untested, page: .search),
     ]
 }

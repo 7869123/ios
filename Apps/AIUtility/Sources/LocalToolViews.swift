@@ -239,6 +239,12 @@ private struct ToolStatusRow: View {
 // MARK: - Reverse search
 
 @MainActor struct SearchToolView: View {
+    private enum Source: String, CaseIterable, Identifiable {
+        case soutubot = "搜图 Bot 酱", sauceNAO = "SauceNAO"
+        var id: String { rawValue }
+    }
+    @State private var source = Source.soutubot
+    @State private var strict = false
     @State private var keyDraft = ""
     @State private var hasKey = SauceNAOKeychain.isConfigured
     @State private var pick: PhotosPickerItem?
@@ -248,31 +254,25 @@ private struct ToolStatusRow: View {
 
     var body: some View {
         WorkspacePage {
-            PageHeader(title: "SauceNAO 搜图", subtitle: "只上传你选的这一张图片")
+            PageHeader(title: "反向搜图", subtitle: "只上传你选的这一张图片")
             UtilityCard {
-                HStack { Text("SauceNAO Key").font(.headline); Spacer(); StatusChip(status: .untested) }
-                if hasKey {
-                    HStack {
-                        Label("已保存在本机钥匙串", systemImage: "key.fill").font(.subheadline)
-                        Spacer()
-                        Button("移除", role: .destructive) { SauceNAOKeychain.remove(); hasKey = false }
-                    }
-                } else {
-                    SecureField("在 saucenao.com 账号页获取的 API Key", text: $keyDraft).utilityField()
-                    Button("保存 Key") {
-                        let key = keyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if SauceNAOKeychain.save(key) { hasKey = true; keyDraft = "" } else { error = "Key 保存失败。" }
-                    }
-                    .disabled(keyDraft.trimmingCharacters(in: .whitespaces).isEmpty)
+                HStack { Text("搜索来源").font(.headline); Spacer(); StatusChip(status: .untested) }
+                Picker("来源", selection: $source) { ForEach(Source.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.segmented)
+                switch source {
+                case .soutubot:
+                    Toggle("严格模式（减少相似但不同的结果）", isOn: $strict).font(.subheadline)
+                    Text("不需要 Key。按网页本身的请求方式接入，这个接口没有公开文档，网站改版后可能失效。结果可能包含成人向内容。")
+                        .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                case .sauceNAO:
+                    sauceNAOKey
                 }
-                Text("这个 Key 与 AI 供应商的 Key 分开保存，不会用于翻译。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             }
             UtilityCard {
                 PhotosPicker(selection: $pick, matching: .images) { Label("选择图片并搜索", systemImage: "magnifyingglass") }
-                    .disabled(!hasKey || running)
+                    .disabled(running || (source == .sauceNAO && !hasKey))
                 ToolStatusRow(running: running, error: error)
                 if let matches {
-                    if matches.isEmpty { Text("没有相似度足够高的结果。").font(.subheadline) }
+                    if matches.isEmpty { Text("没有找到足够相似的结果。").font(.subheadline) }
                     ForEach(Array(matches.enumerated()), id: \.offset) { _, match in result(match) }
                 }
             }
@@ -281,6 +281,25 @@ private struct ToolStatusRow: View {
             guard let item else { return }
             Task { await search(item) }
         }
+        .onChange(of: source) { _, _ in matches = nil; error = nil }
+    }
+
+    @ViewBuilder private var sauceNAOKey: some View {
+        if hasKey {
+            HStack {
+                Label("SauceNAO Key 已保存在本机钥匙串", systemImage: "key.fill").font(.subheadline)
+                Spacer()
+                Button("移除", role: .destructive) { SauceNAOKeychain.remove(); hasKey = false }
+            }
+        } else {
+            SecureField("在 saucenao.com 账号页获取的 API Key", text: $keyDraft).utilityField()
+            Button("保存 Key") {
+                let key = keyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+                if SauceNAOKeychain.save(key) { hasKey = true; keyDraft = "" } else { error = "Key 保存失败。" }
+            }
+            .disabled(keyDraft.trimmingCharacters(in: .whitespaces).isEmpty)
+        }
+        Text("这个 Key 与 AI 供应商的 Key 分开保存，不会用于翻译。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
     }
 
     private func result(_ match: ReverseSearchMatch) -> some View {
@@ -288,7 +307,14 @@ private struct ToolStatusRow: View {
             HStack {
                 Text(match.title ?? match.indexName).font(.subheadline.weight(.semibold)).lineLimit(2)
                 Spacer()
-                if let similarity = match.similarity { Text("\(similarity, specifier: "%.1f")%").font(.caption.monospacedDigit()) }
+                if let similarity = match.similarity {
+                    // SauceNAO reports a percentage; Bot 酱 reports its own score.
+                    if match.service == .sauceNAO {
+                        Text("\(similarity, specifier: "%.1f")%").font(.caption.monospacedDigit())
+                    } else {
+                        Text("分数 \(similarity, specifier: "%.1f")").font(.caption.monospacedDigit())
+                    }
+                }
             }
             if let author = match.author { Text(author).font(.caption).foregroundStyle(UtilityTheme.inkSecondary) }
             Text(match.indexName).font(.caption2).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(1)
@@ -303,7 +329,11 @@ private struct ToolStatusRow: View {
         running = true; error = nil; matches = nil
         defer { running = false; pick = nil }
         guard let data = try? await item.loadTransferable(type: Data.self) else { error = "图片无法读取。"; return }
-        do { matches = try await SauceNAOProvider(credentials: SauceNAOKeychain()).search(image: data) }
+        let provider: any ReverseImageSearchProvider = switch source {
+        case .soutubot: SoutubotProvider(strict: strict)
+        case .sauceNAO: SauceNAOProvider(credentials: SauceNAOKeychain())
+        }
+        do { matches = try await provider.search(image: data) }
         catch { self.error = error.userMessage }
     }
 }

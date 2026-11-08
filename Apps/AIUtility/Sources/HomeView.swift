@@ -24,7 +24,7 @@ import AIUtilityCore
     private let media: [Tile] = [
         .init(id: "download", title: "X · Pixiv · B站下载", detail: "粘贴链接排队下载；尚未连真实站点验证", icon: "arrow.down.circle", status: .untested, target: .media),
         .init(id: "image", title: "图片处理", detail: "视频转 GIF、多图拼接、文件指纹", icon: "photo.stack", status: .available, target: .media),
-        .init(id: "search", title: "反向搜图", detail: "SauceNAO（需自备 Key）；搜图 Bot 酱规划中", icon: "magnifyingglass", status: .untested, target: .media),
+        .init(id: "search", title: "反向搜图", detail: "搜图 Bot 酱（无需 Key）· SauceNAO", icon: "magnifyingglass", status: .untested, target: .media),
     ]
     /// 330 pt keeps compact tiles wide enough for full titles: 2 per row in iPad landscape
     /// (~735 pt content), 1 per row in portrait and on iPhone portrait.

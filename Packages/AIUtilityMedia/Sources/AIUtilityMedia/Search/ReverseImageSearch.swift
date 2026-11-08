@@ -12,7 +12,7 @@ public protocol ReverseImageSearchProvider: Sendable {
     func search(image: Data) async throws(MediaError) -> [ReverseSearchMatch]
 }
 
-public enum ReverseSearchService: String, Sendable, Codable { case sauceNAO }
+public enum ReverseSearchService: String, Sendable, Codable { case sauceNAO, soutubot }
 
 /// One candidate source. `similarity` is the service's own score (SauceNAO: percent) and is not a
 /// probability comparable across services.

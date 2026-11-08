@@ -491,7 +491,10 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
 - 上传前检查：非空、≤ 15 MB、文件头为 JPEG/PNG/GIF/WebP。临时会话不带 Cookie/缓存/凭据，不跟随重定向，响应上限 1 MB。
 - 相似度低于阈值（默认 50）的结果丢弃，按相似度降序；链接只保留 http/https，最多 5 个。`similarity` 是 SauceNAO 的百分比，不当作通用概率。
 - 错误：403 → `accessRestricted(.permission)`（Key 被拒），429 或剩余额度为 0 → `rateLimited`，服务端错误 → `network`，未知格式 → `parsingChanged`。
-- 搜图 Bot 酱仍未接入（无公开接口资料）。
+- 搜图 Bot 酱：`SoutubotProvider(strict:perLibrary:maxResults:)`，`ReverseSearchService.soutubot`。接口按用户提供的网页请求抓包实现：
+  `POST https://soutubot.moe/api/search`，multipart 字段 `file`、`factor`（1.2，严格模式 1.4）、`metadata_mode=display`、`top_k`；
+  无 Cookie、Key 或签名。该接口没有公开文档，任何意外响应为 `parsingChanged`；`similarity` 为站点自身分数（非百分比）。
+  结果取每条命中的第一个来源：标题、作者/画师、来源名、最多 5 个 http(s) 链接、https 缩略图。429 → `rateLimited`，413 → `resourceLimitExceeded`。
 
 ## 11. 测试与 Claude 接线要求（P1 修复后 Linux 45 项通过）
 
