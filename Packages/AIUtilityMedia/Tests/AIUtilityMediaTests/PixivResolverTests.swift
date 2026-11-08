@@ -101,6 +101,6 @@ struct PixivResolverTests {
     @Test func onlyArtworkPathsAreAccepted() {
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/artworks/123")!) == "123")
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/artworks/12a")!) == nil)
-        #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/users/123")!) == nil)
+        #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/tags/123")!) == nil)
     }
 }

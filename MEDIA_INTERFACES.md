@@ -22,7 +22,7 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 | P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
 | P2 | 多图拼接、视频转 GIF、图片文件指纹 | 已实现于 `AIUtilityMediaApple`（Claude Code 接手后），待 macOS 测试与 iOS SDK 编译验证；未接入 App 界面 |
 | P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 三个解析器已实现，只用离线样例测试；未对真实站点验证，默认不注册（`DownloadConfiguration(sites:)` 显式开启）；Ugoira 组装未接线 |
-| P4 | SauceNAO 反向搜图 | 未实现，真实调用默认关闭 |
+| P4 | SauceNAO 反向搜图 | `SauceNAOProvider` 已实现，只用离线样例测试；真实调用只在 App 中由用户发起，尚未联网验证 |
 
 搜图 Bot 酱仍属于既定产品范围；本轮 P4 只冻结 SauceNAO 的扩展入口，不虚构 Bot 酱的可调用接口。
 统一下载任务与历史、截图翻译、实时字幕及既定前端方向均不删除。本阶段不改 UI、PoC 或 workflow。
@@ -478,6 +478,16 @@ P4 先做 SauceNAO，实际格式/限额/评分字段以届时官方接口核对
 用户明确发起搜图时才允许上传指定单张图片；不扫描目录、不自动上传截图翻译素材、不上传视频或原始文件夹。
 SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存，缺失为 notConfigured；不复用 AI Key，不进历史或日志。
 搜图 Bot 酱保留后续适配位置，可行性/授权方式未确定；P4 具体公开请求类型需在实施前提交补充审核。
+
+### 10a. P4 实现（Claude Code）
+
+- `ReverseImageSearchProvider.search(image:) -> [ReverseSearchMatch]`；`SauceNAOProvider(credentials:minimumSimilarity:maxResults:)`。
+- Key 来自 `SearchCredentialSource.sauceNAOKey()`（App 用独立的 Keychain 项实现），缺失或格式不合法 → `notConfigured`，此时不发请求。
+  Key 按 SauceNAO 要求放在查询参数里，请求只在内存中构建，不记录、不进历史。
+- 上传前检查：非空、≤ 15 MB、文件头为 JPEG/PNG/GIF/WebP。临时会话不带 Cookie/缓存/凭据，不跟随重定向，响应上限 1 MB。
+- 相似度低于阈值（默认 50）的结果丢弃，按相似度降序；链接只保留 http/https，最多 5 个。`similarity` 是 SauceNAO 的百分比，不当作通用概率。
+- 错误：403 → `accessRestricted(.permission)`（Key 被拒），429 或剩余额度为 0 → `rateLimited`，服务端错误 → `network`，未知格式 → `parsingChanged`。
+- 搜图 Bot 酱仍未接入（无公开接口资料）。
 
 ## 11. 测试与 Claude 接线要求（P1 修复后 Linux 45 项通过）
 
