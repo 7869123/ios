@@ -57,6 +57,10 @@ step "5/6 Personal-info scan of the current tree (must be empty)"
 hits=$(git grep -n -I -i -E '[A-Za-z]:[\\/]Users[\\/]|/Users/[A-Za-z0-9._-]+|/home/[a-z][a-z0-9_-]*/|Asia/[A-Z][a-z]+|America/[A-Z][a-z]+|(^|[^0-9])1[3-9][0-9]{9}([^0-9]|$)' -- . ':!*.jpg' ':!*.png' ':!validation/**/*.log' | grep -v -E '/Users/runner|/home/runner' || true)
 if [ -n "$hits" ]; then echo "$hits" | cut -c1-160; failed=1; else echo "no local paths / timezone / phone patterns"; fi
 
+step "5b Commit timezone of commits to push (must be +0000, public repository)"
+tz=$(git log --format='%h %ad %cd' --date=format:%z "$base..HEAD" | awk '$2!="+0000" || $3!="+0000"')
+if [ -n "$tz" ]; then echo "non-UTC commits (commit with TZ=UTC):"; echo "$tz"; failed=1; else echo "all commits to push use +0000"; fi
+
 step "6/6 Secret and author audit of all reachable history (values never printed)"
 # Findings in already-pushed history are reported; findings in HEAD's tree or in commits being
 # pushed ($base..HEAD) block the push.
