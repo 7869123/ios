@@ -109,7 +109,7 @@ private struct SidebarBackdrop: View {
         ZStack {
             WorkspaceBackdrop()
             Rectangle().fill(.ultraThinMaterial).opacity(style.materialOpacity).ignoresSafeArea()
-            Color.white.opacity(min(1, style.whiteTint + 0.2)).ignoresSafeArea()
+            UtilityTheme.glassTint.opacity(min(1, style.whiteTint + 0.2)).ignoresSafeArea()
         }
         .accessibilityHidden(true)
     }

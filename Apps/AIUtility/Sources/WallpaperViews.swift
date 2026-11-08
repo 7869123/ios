@@ -88,7 +88,7 @@ struct WallpaperDraft: Identifiable {
     private func preview(size: CGSize) -> some View {
         ZStack(alignment: .topLeading) {
             WallpaperCanvas(image: image, layout: layout, container: size)
-            Color.white.opacity(scrim)
+            UtilityTheme.halo.opacity(scrim)
             mockContent(size: size)
         }
         .frame(width: size.width, height: size.height)
@@ -112,7 +112,7 @@ struct WallpaperDraft: Identifiable {
     private func mockContent(size: CGSize) -> some View {
         let unit = size.width / 30
         let glass = GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
-        let panel = Color.white.opacity(max(0.08, glass.whiteTint + 0.25 * glass.materialOpacity))
+        let panel = UtilityTheme.glassTint.opacity(max(0.08, glass.whiteTint + 0.25 * glass.materialOpacity))
         return HStack(alignment: .top, spacing: unit) {
             if landscape {
                 RoundedRectangle(cornerRadius: unit * 0.6).fill(panel)
@@ -165,6 +165,7 @@ struct WallpaperDraft: Identifiable {
 /// Settings card: choose from Photos or Files, re-position, or restore the default background.
 @MainActor struct WallpaperSettingsCard: View {
     @Environment(WallpaperStore.self) private var store
+    @Environment(\.colorScheme) private var colorScheme
     @State private var photoItem: PhotosPickerItem?
     @State private var importingFile = false
     @State private var draft: WallpaperDraft?
@@ -178,10 +179,15 @@ struct WallpaperDraft: Identifiable {
                 Spacer()
                 Text(modeTitle).font(.caption.weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             }
-            Text("选择一张图片作为页面背景。图片只保存在本机 App 目录，会缩小到长边 3000 像素并去除位置等元数据，不会上传。")
+            Picker("编辑", selection: Binding(get: { store.editing }, set: { store.editing = $0; message = nil })) {
+                ForEach(WallpaperScheme.allCases) { Text("\($0.title)模式壁纸").tag($0) }
+            }
+            .pickerStyle(.segmented)
+            Text("浅色和深色模式各用一张壁纸，分别设置。默认深色壁纸为夜晚版插画。选择一张图片作为页面背景，图片只保存在本机 App 目录，会缩小到长边 3000 像素并去除位置等元数据，不会上传。")
                 .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             if let image = store.image {
                 WindowThumbnail(image: image, layout: store.layout, scrim: store.scrim)
+                    .environment(\.colorScheme, editingScheme)
             }
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 12) { buttons }
@@ -199,8 +205,14 @@ struct WallpaperDraft: Identifiable {
         }
         .fullScreenCover(item: $draft) { draft in
             WallpaperEditorView(draft: draft) { layout, scrim in commit(draft, layout: layout, scrim: scrim) }
+                .environment(\.colorScheme, editingScheme)
         }
+        // Start on the wallpaper that is showing now.
+        .onAppear { store.editing = WallpaperScheme(colorScheme) }
     }
+
+    /// Previews render in the appearance being edited (dark scrim and glass for the dark wallpaper).
+    private var editingScheme: ColorScheme { store.editing == .dark ? .dark : .light }
 
     private var modeTitle: String {
         switch store.mode { case .custom: "自定义壁纸"; case .bundled: "默认壁纸"; case .plain: "纯色背景" }
@@ -210,7 +222,7 @@ struct WallpaperDraft: Identifiable {
         PhotosPicker(selection: $photoItem, matching: .images) {
             Label(store.image == nil ? "从照片选择" : "从照片更换", systemImage: "photo.on.rectangle")
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(PrimaryActionStyle())
         .disabled(loading)
         Button { importingFile = true } label: { Label("从文件选择", systemImage: "folder") }
             .buttonStyle(.bordered).disabled(loading)
@@ -287,7 +299,7 @@ private struct WindowThumbnail: View {
         let size = CGSize(width: height * window.width / max(window.height, 1), height: height)
         ZStack {
             WallpaperCanvas(image: image, layout: layout, container: size)
-            Color.white.opacity(scrim)
+            UtilityTheme.halo.opacity(scrim)
         }
         .frame(width: size.width, height: size.height)
         .clipShape(RoundedRectangle(cornerRadius: 10))

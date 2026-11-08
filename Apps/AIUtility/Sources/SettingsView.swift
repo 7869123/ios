@@ -33,7 +33,7 @@ import AIUtilityCore
                 modelField("截图翻译模型", value: $screenshotModel)
                 modelField("字幕翻译模型", value: $subtitleModel)
                 Button("验证并保存 Key 与两个模型") { saveKey() }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PrimaryActionStyle())
                     .disabled(busy || candidateKey.isEmpty || screenshotModel.isEmpty || subtitleModel.isEmpty)
                 if hasSavedKey {
                     HStack {

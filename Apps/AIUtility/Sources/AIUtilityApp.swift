@@ -11,7 +11,7 @@ import AIUtilityAppleServices
     @State private var appearance = AppearanceStore()
     var body: some Scene {
         WindowGroup {
-            RootView().environmentObject(model).environmentObject(media).environment(wallpaper).environment(appearance).environment(\.locale, Locale(identifier: "zh_Hans_CN")).tint(UtilityTheme.cyan).preferredColorScheme(.light)
+            RootView().environmentObject(model).environmentObject(media).environment(wallpaper).environment(appearance).environment(\.locale, Locale(identifier: "zh_Hans_CN")).tint(UtilityTheme.cyan).preferredColorScheme(appearance.preferredColorScheme)
             #if DEBUG
                 .task {
                     Self.applyReviewOrientation()
@@ -64,7 +64,7 @@ extension AIUtilityApp {
             offscreen.windowLevel = UIWindow.Level(rawValue: UIWindow.Level.normal.rawValue - 1)
             let host = UIHostingController(rootView: RootView()
                 .environmentObject(model).environmentObject(media).environment(wallpaper).environment(appearance)
-                .tint(UtilityTheme.cyan).preferredColorScheme(.light))
+                .tint(UtilityTheme.cyan).preferredColorScheme(appearance.preferredColorScheme))
             host.traitOverrides.horizontalSizeClass = window.traitCollection.horizontalSizeClass
             offscreen.rootViewController = host
             offscreen.isHidden = false

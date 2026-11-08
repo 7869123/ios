@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Capture review screenshots of the home page and of each Media Tools page on an iPad mini simulator
 # (primary) and an iPhone simulator (compatibility check). Uses the Debug simulator build produced
-# by ci_app.sh. Media pages are opened with the DEBUG-only `-AIUtilityPage <page>` launch argument.
+# by ci_app.sh. Media pages are opened with the DEBUG-only `-AIUtilityPage <page>` launch argument and
+# dark shots use `-AIUtilityAppearance dark`.
 set -u
 root="$(cd "$(dirname "$0")/.." && pwd)"
 out="$root/artifacts/app/screenshots"
@@ -33,9 +34,10 @@ for pat in pats:
 # and copy Documents/<name>.png out of the sandbox. Falls back to the raw simctl framebuffer.
 capture() {
   local udid="$1" orient="$2"; shift 2
-  local name="$label-$orient${page:+-$page}"
+  local name="$label-$orient${page:+-$page}${scheme:+-$scheme}"
   local extra=()
   [ -n "$page" ] && extra=(-AIUtilityPage "$page")
+  [ -n "$scheme" ] && extra+=(-AIUtilityAppearance "$scheme")
   xcrun simctl terminate "$udid" "$bundle" >/dev/null 2>&1 || true
   xcrun simctl launch "$udid" "$bundle" "$@" ${extra[@]+"${extra[@]}"} -AIUtilityCapture "$name"
   # The first launch after a slow simulator boot can take a while; poll for the in-app capture
@@ -65,7 +67,7 @@ shoot() {
   xcrun simctl boot "$udid" && xcrun simctl bootstatus "$udid" -b >/dev/null || return 1
   xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 || true
   xcrun simctl install "$udid" "$app" || return 1
-  page=""
+  page=""; scheme=""
   capture "$udid" portrait
   capture "$udid" landscape -AIUtilityPreviewLandscape
   # Media Tools pages: iPad in both orientations, iPhone in portrait.
@@ -73,12 +75,19 @@ shoot() {
     capture "$udid" portrait
     if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
   done
-  page=""
+  # Dark appearance (night wallpaper): home and two tool pages.
+  scheme="dark"
+  for page in "" downloads gif; do
+    capture "$udid" portrait
+    if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
+  done
+  page=""; scheme=""
   xcrun simctl shutdown "$udid" || true
   xcrun simctl delete "$udid" || true
 }
 failed=0
 page=""
+scheme=""
 # iPad mini 6 and iPad mini (A17 Pro) share the 744x1133 pt screen.
 shoot ipad-mini "$(pick_type 'iPad mini \(A17 Pro\)' 'iPad mini \(6th generation\)' '^iPad mini')" || failed=1
 shoot iphone "$(pick_type '^iPhone 17$' '^iPhone 16$' '^iPhone 15$' '^iPhone [0-9]+$')" || failed=1

@@ -5,16 +5,42 @@ import Observation
 /// `panelTransparency` 0...1 — higher means more of the wallpaper shows through. Persisted.
 /// The wallpaper scrim is the separate `WallpaperStore.scrim`.
 @Observable @MainActor final class AppearanceStore {
+    /// 跟随系统 / 始终浅色 / 始终深色.
+    enum ColorMode: String, CaseIterable, Identifiable, Sendable {
+        case system, light, dark
+        var id: String { rawValue }
+        var title: String { switch self { case .system: "跟随系统"; case .light: "浅色"; case .dark: "深色" } }
+    }
+
     nonisolated static let defaultPanelTransparency = 0.9
     private(set) var panelTransparency: Double
+    private(set) var colorMode: ColorMode
 
     private let defaults = UserDefaults.standard
     private static let key = "appearance.panelTransparency"
+    private static let modeKey = "appearance.colorMode"
 
     init() {
         panelTransparency = defaults.object(forKey: Self.key) != nil
             ? min(1, max(0, defaults.double(forKey: Self.key)))
             : Self.defaultPanelTransparency
+        colorMode = defaults.string(forKey: Self.modeKey).flatMap(ColorMode.init(rawValue:)) ?? .system
+        #if DEBUG
+        // CI review screenshots only: `-AIUtilityAppearance light|dark` (not saved).
+        let args = ProcessInfo.processInfo.arguments
+        if let index = args.firstIndex(of: "-AIUtilityAppearance"), index + 1 < args.count,
+           let forced = ColorMode(rawValue: args[index + 1]) { colorMode = forced }
+        #endif
+    }
+
+    /// nil follows the system setting.
+    var preferredColorScheme: ColorScheme? {
+        switch colorMode { case .system: nil; case .light: .light; case .dark: .dark }
+    }
+
+    func setColorMode(_ mode: ColorMode) {
+        colorMode = mode
+        defaults.set(mode.rawValue, forKey: Self.modeKey)
     }
 
     func setPanelTransparency(_ value: Double) {
@@ -22,7 +48,10 @@ import Observation
         defaults.set(panelTransparency, forKey: Self.key)
     }
 
-    func restoreDefaults() { setPanelTransparency(Self.defaultPanelTransparency) }
+    func restoreDefaults() {
+        setPanelTransparency(Self.defaultPanelTransparency)
+        setColorMode(.system)
+    }
 }
 
 /// Pure mapping from the transparency setting to rendering parameters, so every surface uses one
@@ -49,10 +78,20 @@ struct GlassStyle: Equatable, Sendable {
     @Environment(AppearanceStore.self) private var appearance
     @Environment(WallpaperStore.self) private var wallpaper
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         UtilityCard {
             Text("外观").font(.headline)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("显示模式").font(.subheadline.bold())
+                Picker("显示模式", selection: Binding(get: { appearance.colorMode }, set: { appearance.setColorMode($0) })) {
+                    ForEach(AppearanceStore.ColorMode.allCases) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                Text("跟随系统时，iPad / iPhone 切到深色外观后，App 会换成深色界面和夜晚壁纸。")
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+            }
             percentSlider(
                 title: "界面透明度",
                 caption: "卡片、按钮和面板的透明程度。数值越高，壁纸透过面板越明显。",
@@ -60,7 +99,8 @@ struct GlassStyle: Equatable, Sendable {
             )
             percentSlider(
                 title: "壁纸遮罩强度",
-                caption: wallpaper.mode == .plain ? "当前为纯色背景，遮罩不生效。" : "壁纸上方的白色遮罩。数值越高，壁纸越淡、文字越清晰。",
+                caption: wallpaper.mode == .plain ? "当前为纯色背景，遮罩不生效。"
+                    : "当前显示的\(wallpaper.editing.title)模式壁纸上方的遮罩（浅色为白色、深色为黑色）。数值越高，壁纸越淡、文字越清晰。",
                 value: Binding(get: { wallpaper.scrim }, set: { wallpaper.update(layout: wallpaper.layout, scrim: $0) })
             )
             .disabled(wallpaper.mode == .plain)
@@ -73,9 +113,11 @@ struct GlassStyle: Equatable, Sendable {
                 wallpaper.update(layout: wallpaper.layout, scrim: WallpaperStore.defaultScrim)
             } label: { Label("恢复默认外观", systemImage: "arrow.counterclockwise") }
                 .buttonStyle(.bordered)
-            Text("默认：界面透明度 \(Int(AppearanceStore.defaultPanelTransparency * 100))%，壁纸遮罩 \(Int(WallpaperStore.defaultScrim * 100))%。调整立即生效并自动保存。")
+            Text("默认：跟随系统，界面透明度 \(Int(AppearanceStore.defaultPanelTransparency * 100))%，壁纸遮罩 \(Int(WallpaperStore.defaultScrim * 100))%。调整立即生效并自动保存。")
                 .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
         }
+        // The scrim slider edits the wallpaper that is showing now.
+        .onAppear { wallpaper.editing = WallpaperScheme(colorScheme) }
     }
 
     private func percentSlider(title: String, caption: String, value: Binding<Double>) -> some View {

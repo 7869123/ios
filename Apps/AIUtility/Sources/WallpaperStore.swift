@@ -64,94 +64,133 @@ enum WallpaperMode: String, Sendable {
     case plain
 }
 
-/// Wallpaper state: custom image (local JPEG in Application Support), bundled default, or none.
-/// Layout and scrim live in UserDefaults.
+/// Which appearance a wallpaper belongs to. Light and dark each keep their own image, layout and scrim.
+enum WallpaperScheme: String, CaseIterable, Identifiable, Sendable {
+    case light, dark
+    var id: String { rawValue }
+    var title: String { self == .light ? "浅色" : "深色" }
+    init(_ colorScheme: ColorScheme) { self = colorScheme == .dark ? .dark : .light }
+}
+
+/// One appearance's wallpaper: custom image, bundled default or plain backdrop, plus layout and scrim.
+struct WallpaperSlot {
+    var mode: WallpaperMode
+    var image: UIImage?
+    var layout: WallpaperLayout
+    var scrim: Double
+}
+
+/// Wallpaper state for light and dark appearance: custom image (local JPEG in Application Support),
+/// bundled default (DefaultWallpaper / DefaultWallpaperNight), or none. Layout and scrim live in
+/// UserDefaults. The light slot keeps the original keys and file name, so existing settings carry over.
+/// Settings edit one slot at a time (`editing`); the backdrop shows the slot of the current appearance.
 @Observable @MainActor final class WallpaperStore {
-    private(set) var mode: WallpaperMode = .bundled
-    private(set) var image: UIImage?
-    private(set) var layout = WallpaperLayout()
-    /// White overlay opacity over the wallpaper, keeps text readable.
-    private(set) var scrim: Double = WallpaperStore.defaultScrim
+    private(set) var slots: [WallpaperScheme: WallpaperSlot] = [:]
+    /// The slot the settings page and editor change.
+    var editing: WallpaperScheme = .light
+
+    // The editing slot, so the editor and settings code read one wallpaper as before.
+    var mode: WallpaperMode { slot(editing).mode }
+    var image: UIImage? { slot(editing).image }
+    var layout: WallpaperLayout { slot(editing).layout }
+    /// Overlay over the wallpaper (white in light, black in dark appearance) that keeps text readable.
+    var scrim: Double { slot(editing).scrim }
+    var hasBundledDefault: Bool { Self.bundledURL(editing) != nil }
+
     nonisolated static let scrimRange: ClosedRange<Double> = 0...1
     /// Default wallpaper mask (外观 → 壁纸遮罩强度).
     nonisolated static let defaultScrim = 0.18
-    /// Keeps the bundled illustration's face in frame in both orientations.
-    static let bundledLayout = WallpaperLayout(focusX: 0.5, focusY: 0.33, zoom: 1)
+    /// Keeps the bundled illustrations' faces in frame in both orientations.
+    static func bundledLayout(_ scheme: WallpaperScheme) -> WallpaperLayout {
+        scheme == .light ? WallpaperLayout(focusX: 0.5, focusY: 0.33, zoom: 1) : WallpaperLayout(focusX: 0.5, focusY: 0.3, zoom: 1)
+    }
 
     private let defaults = UserDefaults.standard
 
-    var hasBundledDefault: Bool { Self.bundledURL != nil }
-    private static let bundledURL = Bundle.main.url(forResource: "DefaultWallpaper", withExtension: "jpg")
-
     init() {
-        let stored = defaults.string(forKey: Keys.mode).flatMap(WallpaperMode.init(rawValue:))
-        let customImage = (try? Data(contentsOf: Self.fileURL)).flatMap(UIImage.init(data:))
-        switch stored {
-        case .custom? where customImage != nil, nil where customImage != nil:
-            mode = .custom; image = customImage
-        case .plain?: mode = .plain
-        default:
-            // First launch, or custom file missing: fall back to the bundled default if present.
-            if let bundled = Self.bundledImage() {
-                mode = .bundled; image = bundled
-                if stored != .bundled { layout = Self.bundledLayout; scrim = Self.defaultScrim; return }
-            } else {
-                mode = .plain
-            }
-        }
-        if defaults.object(forKey: Keys.focusX) != nil {
-            layout = WallpaperLayout(focusX: defaults.double(forKey: Keys.focusX),
-                                     focusY: defaults.double(forKey: Keys.focusY),
-                                     zoom: max(1, defaults.double(forKey: Keys.zoom)))
-        }
-        if defaults.object(forKey: Keys.scrim) != nil { scrim = defaults.double(forKey: Keys.scrim) }
+        for scheme in WallpaperScheme.allCases { slots[scheme] = Self.load(scheme, defaults: defaults) }
     }
 
-    /// Saves a newly chosen image (already prepared with `prepare`) with its layout.
+    func slot(_ scheme: WallpaperScheme) -> WallpaperSlot {
+        slots[scheme] ?? WallpaperSlot(mode: .plain, image: nil, layout: WallpaperLayout(), scrim: Self.defaultScrim)
+    }
+
+    private static func load(_ scheme: WallpaperScheme, defaults: UserDefaults) -> WallpaperSlot {
+        let keys = Keys(scheme)
+        let stored = defaults.string(forKey: keys.mode).flatMap(WallpaperMode.init(rawValue:))
+        let customImage = (try? Data(contentsOf: fileURL(scheme))).flatMap(UIImage.init(data:))
+        var slot = WallpaperSlot(mode: .plain, image: nil, layout: WallpaperLayout(), scrim: defaultScrim)
+        switch stored {
+        case .custom? where customImage != nil, nil where customImage != nil:
+            slot.mode = .custom; slot.image = customImage
+        case .plain?: slot.mode = .plain
+        default:
+            // First launch, or custom file missing: fall back to the bundled default if present.
+            if let bundled = bundledImage(scheme) {
+                slot.mode = .bundled; slot.image = bundled
+                if stored != .bundled { slot.layout = bundledLayout(scheme); return slot }
+            }
+        }
+        if defaults.object(forKey: keys.focusX) != nil {
+            slot.layout = WallpaperLayout(focusX: defaults.double(forKey: keys.focusX),
+                                          focusY: defaults.double(forKey: keys.focusY),
+                                          zoom: max(1, defaults.double(forKey: keys.zoom)))
+        }
+        if defaults.object(forKey: keys.scrim) != nil { slot.scrim = defaults.double(forKey: keys.scrim) }
+        return slot
+    }
+
+    /// Saves a newly chosen image (already prepared with `prepare`) with its layout, for the editing slot.
     func save(imageData: Data, layout: WallpaperLayout, scrim: Double) throws {
         guard let decoded = UIImage(data: imageData) else { throw WallpaperError.unreadable }
         try FileManager.default.createDirectory(at: Self.directory, withIntermediateDirectories: true)
-        try imageData.write(to: Self.fileURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
-        image = decoded
+        try imageData.write(to: Self.fileURL(editing), options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+        slots[editing]?.image = decoded
         setMode(.custom)
         update(layout: layout, scrim: scrim)
     }
 
     func update(layout: WallpaperLayout, scrim: Double) {
-        self.layout = layout
-        self.scrim = min(Self.scrimRange.upperBound, max(Self.scrimRange.lowerBound, scrim))
-        defaults.set(layout.focusX, forKey: Keys.focusX)
-        defaults.set(layout.focusY, forKey: Keys.focusY)
-        defaults.set(layout.zoom, forKey: Keys.zoom)
-        defaults.set(self.scrim, forKey: Keys.scrim)
+        let keys = Keys(editing)
+        let clamped = min(Self.scrimRange.upperBound, max(Self.scrimRange.lowerBound, scrim))
+        slots[editing]?.layout = layout
+        slots[editing]?.scrim = clamped
+        defaults.set(layout.focusX, forKey: keys.focusX)
+        defaults.set(layout.focusY, forKey: keys.focusY)
+        defaults.set(layout.zoom, forKey: keys.zoom)
+        defaults.set(clamped, forKey: keys.scrim)
     }
 
-    /// Deletes any custom image and shows the bundled default (or the plain backdrop if none is bundled).
+    /// Deletes the editing slot's custom image and shows its bundled default (or the plain backdrop).
     func restoreDefault() {
-        try? FileManager.default.removeItem(at: Self.fileURL)
-        if let bundled = Self.bundledImage() {
-            image = bundled
+        try? FileManager.default.removeItem(at: Self.fileURL(editing))
+        if let bundled = Self.bundledImage(editing) {
+            slots[editing]?.image = bundled
             setMode(.bundled)
-            update(layout: Self.bundledLayout, scrim: Self.defaultScrim)
+            update(layout: Self.bundledLayout(editing), scrim: Self.defaultScrim)
         } else {
             usePlainBackdrop()
         }
     }
 
-    /// Plain designed backdrop; deletes any custom image.
+    /// Plain designed backdrop for the editing slot; deletes its custom image.
     func usePlainBackdrop() {
-        try? FileManager.default.removeItem(at: Self.fileURL)
-        image = nil
+        try? FileManager.default.removeItem(at: Self.fileURL(editing))
+        slots[editing]?.image = nil
         setMode(.plain)
     }
 
     private func setMode(_ mode: WallpaperMode) {
-        self.mode = mode
-        defaults.set(mode.rawValue, forKey: Keys.mode)
+        slots[editing]?.mode = mode
+        defaults.set(mode.rawValue, forKey: Keys(editing).mode)
     }
 
-    private static func bundledImage() -> UIImage? {
-        bundledURL
+    private static func bundledURL(_ scheme: WallpaperScheme) -> URL? {
+        Bundle.main.url(forResource: scheme == .light ? "DefaultWallpaper" : "DefaultWallpaperNight", withExtension: "jpg")
+    }
+
+    private static func bundledImage(_ scheme: WallpaperScheme) -> UIImage? {
+        bundledURL(scheme)
             .flatMap { try? Data(contentsOf: $0) }
             .flatMap(UIImage.init(data:))
     }
@@ -175,14 +214,20 @@ enum WallpaperMode: String, Sendable {
         return output as Data
     }
 
-    private enum Keys {
-        static let focusX = "wallpaper.focusX", focusY = "wallpaper.focusY", zoom = "wallpaper.zoom", scrim = "wallpaper.scrim"
-        static let mode = "wallpaper.mode"
+    /// Light keeps the original key names; dark uses a "wallpaper.dark." prefix.
+    private struct Keys {
+        let focusX, focusY, zoom, scrim, mode: String
+        init(_ scheme: WallpaperScheme) {
+            let p = scheme == .light ? "wallpaper." : "wallpaper.dark."
+            focusX = p + "focusX"; focusY = p + "focusY"; zoom = p + "zoom"; scrim = p + "scrim"; mode = p + "mode"
+        }
     }
     private static var directory: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Wallpaper", isDirectory: true)
     }
-    private static var fileURL: URL { directory.appendingPathComponent("wallpaper.jpg") }
+    private static func fileURL(_ scheme: WallpaperScheme) -> URL {
+        directory.appendingPathComponent(scheme == .light ? "wallpaper.jpg" : "wallpaper-dark.jpg")
+    }
 }
 
 private struct WindowSizeKey: EnvironmentKey { static let defaultValue: CGSize = .zero }
@@ -232,7 +277,7 @@ struct WindowAlignedWallpaper: View {
             ZStack(alignment: .topLeading) {
                 WallpaperCanvas(image: image, layout: layout, container: window)
                     .offset(x: -frame.minX, y: -frame.minY)
-                Color.white.opacity(scrim)
+                UtilityTheme.halo.opacity(scrim)
             }
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
             .clipped()

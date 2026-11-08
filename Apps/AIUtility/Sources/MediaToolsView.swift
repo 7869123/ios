@@ -112,7 +112,7 @@ struct MediaTool: Identifiable {
                             busy = false
                         }
                     } label: { Label("加入队列", systemImage: "plus.circle.fill") }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PrimaryActionStyle())
                     .disabled(busy || link.trimmingCharacters(in: .whitespaces).isEmpty)
                     if busy { ProgressView() }
                 }

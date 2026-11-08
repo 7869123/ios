@@ -3,20 +3,36 @@ import SwiftUI
 /// Design tokens. Values are documented in UIUX_SPEC.md; change them there and here together.
 /// Native iOS structure, original bright blue / white / aqua look.
 enum UtilityTheme {
+    /// Light value / dark value, resolved by the trait collection (follows the app's colour scheme).
+    static func adaptive(_ light: (Double, Double, Double), _ dark: (Double, Double, Double)) -> Color {
+        Color(UIColor { traits in
+            let c = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: c.0, green: c.1, blue: c.2, alpha: 1)
+        })
+    }
     /// Fills, decorative bars, gradients (not for small text on white).
     static let brand = Color(red: 0.10, green: 0.56, blue: 0.89)        // #1A8FE3
-    /// Text, icons and tint on white surfaces (WCAG AA on white).
-    static let brandStrong = Color(red: 0.04, green: 0.44, blue: 0.76)  // #0B6FC2
+    /// Text, icons and tint: #0B6FC2 on light surfaces, #5BB6F7 on dark ones (both WCAG AA).
+    static let brandStrong = adaptive((0.04, 0.44, 0.76), (0.36, 0.71, 0.97))
     static let aqua = Color(red: 0.24, green: 0.80, blue: 0.90)         // #3CCBE6
-    static let ink = Color(red: 0.08, green: 0.16, blue: 0.24)          // #14283C
+    /// Primary text: #14283C / #E8EEF5.
+    static let ink = adaptive((0.08, 0.16, 0.24), (0.91, 0.93, 0.96))
     /// Secondary text: darker than system .secondary so it stays readable over wallpapers.
     static let inkSecondary = ink.opacity(0.85)
-    static let canvas = Color(red: 0.95, green: 0.97, blue: 0.99)       // #F2F8FD
-    static let surface = Color.white
+    /// Plain backdrop: #F2F8FD / #0E1824.
+    static let canvas = adaptive((0.95, 0.97, 0.99), (0.05, 0.09, 0.14))
+    /// Opaque surface: white / #16222F.
+    static let surface = adaptive((1, 1, 1), (0.09, 0.13, 0.18))
+    /// Glass tint behind cards, fields and chips: white / #0F1A26.
+    static let glassTint = adaptive((1, 1, 1), (0.06, 0.10, 0.15))
+    /// Halo that keeps text readable over a wallpaper and the wallpaper scrim: white / black.
+    static let halo = adaptive((1, 1, 1), (0, 0, 0))
     static let stroke = brand.opacity(0.16)
-    static let planned = Color(red: 0.36, green: 0.42, blue: 0.48)      // #5B6B7B (5.5:1 on white)
-    static let poc = Color(red: 0.66, green: 0.37, blue: 0.0)           // #A85F00 (4.9:1 on white)
-    static let danger = Color(red: 0.70, green: 0.15, blue: 0.12)       // #B3261E (6.4:1 on white)
+    static let planned = adaptive((0.36, 0.42, 0.48), (0.62, 0.68, 0.74))   // #5B6B7B / #9EADBC
+    static let poc = adaptive((0.66, 0.37, 0.0), (0.95, 0.66, 0.31))        // #A85F00 / #F2A850
+    static let danger = adaptive((0.70, 0.15, 0.12), (1.0, 0.48, 0.44))     // #B3261E / #FF7A70
+    /// Disabled primary buttons: a solid mid grey in both schemes, so they stay visible on glass.
+    static let disabledFill = Color(red: 0.42, green: 0.48, blue: 0.55)
     /// Kept for existing call sites: the tint colour.
     static let cyan = brandStrong
 
@@ -52,10 +68,12 @@ struct SlantBar: Shape {
 /// A user wallpaper, when set, replaces the default backdrop (see WallpaperStore).
 struct WorkspaceBackdrop: View {
     @Environment(WallpaperStore.self) private var wallpaper: WallpaperStore?
+    @Environment(\.colorScheme) private var colorScheme
     var body: some View {
+        let slot = wallpaper?.slot(WallpaperScheme(colorScheme))
         Group {
-            if let wallpaper, let image = wallpaper.image {
-                WindowAlignedWallpaper(image: image, layout: wallpaper.layout, scrim: wallpaper.scrim)
+            if let slot, let image = slot.image {
+                WindowAlignedWallpaper(image: image, layout: slot.layout, scrim: slot.scrim)
             } else {
                 DefaultBackdrop()
             }
@@ -68,7 +86,7 @@ struct WorkspaceBackdrop: View {
 private struct DefaultBackdrop: View {
     var body: some View {
         ZStack {
-            LinearGradient(colors: [UtilityTheme.canvas, .white], startPoint: .top, endPoint: .bottom)
+            LinearGradient(colors: [UtilityTheme.canvas, UtilityTheme.surface], startPoint: .top, endPoint: .bottom)
             Canvas { context, size in
                 let spacing: CGFloat = 14
                 let origin = CGPoint(x: size.width * 0.55, y: 0)
@@ -96,28 +114,57 @@ private struct DefaultBackdrop: View {
 struct GlassSurface<S: InsettableShape>: ViewModifier {
     let shape: S
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.glassTransparencyCap) private var cap
     @Environment(AppearanceStore.self) private var appearance: AppearanceStore?
     func body(content: Content) -> some View {
-        let style = reduceTransparency
-            ? GlassStyle.reducedTransparency
-            : GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
+        let setting = appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency
+        let style = reduceTransparency ? GlassStyle.reducedTransparency : GlassStyle(transparency: min(setting, cap))
+        let dark = colorScheme == .dark
         content
-            // Two-pass white halo keeps dark text readable over busy wallpaper at high transparency.
-            .shadow(color: .white.opacity(0.95 * style.legibilityBoost), radius: 1)
-            .shadow(color: .white.opacity(0.75 * style.legibilityBoost), radius: 3)
+            // Two-pass halo (white, or black in dark mode) keeps text readable over busy wallpaper.
+            .shadow(color: UtilityTheme.halo.opacity(0.95 * style.legibilityBoost), radius: 1)
+            .shadow(color: UtilityTheme.halo.opacity(0.75 * style.legibilityBoost), radius: 3)
             .background {
                 ZStack {
                     shape.fill(.ultraThinMaterial).opacity(style.materialOpacity)
-                    shape.fill(Color.white.opacity(style.whiteTint))
+                    shape.fill(UtilityTheme.glassTint.opacity(style.whiteTint))
                 }
             }
-            .overlay(shape.strokeBorder(Color.white.opacity(0.6 + 0.3 * style.legibilityBoost), lineWidth: 1))
-            .overlay(shape.stroke(UtilityTheme.ink.opacity(0.06 + 0.10 * style.legibilityBoost), lineWidth: 0.5))
+            .overlay(shape.strokeBorder(Color.white.opacity(dark ? 0.10 + 0.08 * style.legibilityBoost : 0.6 + 0.3 * style.legibilityBoost), lineWidth: 1))
+            .overlay(shape.stroke((dark ? Color.black : UtilityTheme.ink).opacity(0.06 + 0.10 * style.legibilityBoost), lineWidth: 0.5))
     }
 }
 
 extension View {
     func glassSurface<S: InsettableShape>(_ shape: S) -> some View { modifier(GlassSurface(shape: shape)) }
+}
+
+/// Upper bound for panel transparency in a subtree. Form-heavy pages (tools, settings) cap it so
+/// small text stays readable over the wallpaper; the home page keeps the full setting.
+private struct GlassTransparencyCapKey: EnvironmentKey { static let defaultValue = 1.0 }
+extension EnvironmentValues {
+    var glassTransparencyCap: Double {
+        get { self[GlassTransparencyCapKey.self] }
+        set { self[GlassTransparencyCapKey.self] = newValue }
+    }
+}
+
+/// Main action button that stays clearly visible on glass when disabled (solid grey, white text).
+struct PrimaryActionStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16).padding(.vertical, 10)
+            .background {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isEnabled ? AnyShapeStyle(UtilityTheme.deepGradient) : AnyShapeStyle(UtilityTheme.disabledFill))
+            }
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .accessibilityAddTraits(.isButton)
+    }
 }
 
 /// Text inputs on glass panels: a light semi-opaque base and hairline border so the tappable area
@@ -127,7 +174,7 @@ struct UtilityFieldStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, 10).padding(.vertical, 8)
-            .background(Color.white.opacity(reduceTransparency ? 1 : 0.72), in: RoundedRectangle(cornerRadius: 10))
+            .background(UtilityTheme.glassTint.opacity(reduceTransparency ? 1 : 0.72), in: RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(UtilityTheme.ink.opacity(0.14), lineWidth: 1))
     }
 }
@@ -141,12 +188,13 @@ extension View {
 /// the plain backdrop.
 struct LegibleOnWallpaper: ViewModifier {
     @Environment(WallpaperStore.self) private var wallpaper: WallpaperStore?
+    @Environment(\.colorScheme) private var colorScheme
     func body(content: Content) -> some View {
-        let on = wallpaper?.image != nil
+        let on = wallpaper?.slot(WallpaperScheme(colorScheme)).image != nil
         content
-            .shadow(color: .white.opacity(on ? 0.95 : 0), radius: 1)
-            .shadow(color: .white.opacity(on ? 0.85 : 0), radius: 4)
-            .shadow(color: .white.opacity(on ? 0.55 : 0), radius: 10)
+            .shadow(color: UtilityTheme.halo.opacity(on ? 0.95 : 0), radius: 1)
+            .shadow(color: UtilityTheme.halo.opacity(on ? 0.85 : 0), radius: 4)
+            .shadow(color: UtilityTheme.halo.opacity(on ? 0.55 : 0), radius: 10)
     }
 }
 
@@ -188,7 +236,7 @@ struct StatusChip: View {
             .font(.caption2.weight(.bold))
             .foregroundStyle(status.color)
             .padding(.horizontal, 8).padding(.vertical, 3)
-            .background(Color.white.opacity(0.85), in: Capsule())
+            .background(UtilityTheme.glassTint.opacity(0.85), in: Capsule())
             .overlay(Capsule().strokeBorder(status.color.opacity(0.45), lineWidth: 1))
             .fixedSize()
     }
@@ -233,5 +281,6 @@ struct StatusChip: View {
         }
         .background { WorkspaceBackdrop() }
         .scrollDismissesKeyboard(.interactively)
+        .environment(\.glassTransparencyCap, 0.75)
     }
 }

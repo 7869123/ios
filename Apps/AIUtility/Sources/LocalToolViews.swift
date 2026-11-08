@@ -59,7 +59,7 @@ private struct ToolStatusRow: View {
                 HStack { Text("间距 \(Int(spacing)) 像素"); Slider(value: $spacing, in: 0...64, step: 2) }
                 Toggle("白色背景（关闭为透明）", isOn: $whiteBackground)
                 Button { Task { await run() } } label: { Label("开始拼接", systemImage: "rectangle.split.1x2") }
-                    .buttonStyle(.borderedProminent).disabled(picks.count < 1 || running)
+                    .buttonStyle(PrimaryActionStyle()).disabled(picks.count < 1 || running)
                 ToolStatusRow(running: running, error: error)
             }
             if let result, let image = UIImage(data: result.data) {
@@ -114,12 +114,18 @@ private struct ToolStatusRow: View {
                 }
                 Stepper("开始 \(start, specifier: "%.1f") 秒", value: $start, in: 0...600, step: 0.5)
                 Stepper("时长 \(duration, specifier: "%.1f") 秒", value: $duration, in: 0.5...60, step: 0.5)
-                Picker("帧率", selection: $fps) { ForEach([5, 10, 15, 20, 25], id: \.self) { Text("\($0) fps").tag($0) } }
-                Picker("最大宽度", selection: $width) { ForEach([240, 320, 480, 640], id: \.self) { Text("\($0) 像素").tag($0) } }
+                LabeledContent("帧率") {
+                    Picker("帧率", selection: $fps) { ForEach([5, 10, 15, 20, 25], id: \.self) { Text("\($0) fps").tag($0) } }
+                        .labelsHidden()
+                }
+                LabeledContent("最大宽度") {
+                    Picker("最大宽度", selection: $width) { ForEach([240, 320, 480, 640], id: \.self) { Text("\($0) 像素").tag($0) } }
+                        .labelsHidden()
+                }
                 Text("小于最大宽度的视频不会被放大；GIF 不含声音。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 HStack {
                     Button { task = Task { await run() } } label: { Label("开始转换", systemImage: "film.stack") }
-                        .buttonStyle(.borderedProminent).disabled(video == nil || running)
+                        .buttonStyle(PrimaryActionStyle()).disabled(video == nil || running)
                     if running { Button("取消", role: .cancel) { task?.cancel() } }
                 }
                 ToolStatusRow(running: running, error: error)
@@ -186,7 +192,7 @@ private struct ToolStatusRow: View {
                 Text(explanation).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 if method == .noise { Toggle("我知道这会轻微改变像素", isOn: $allowPixels) }
                 Button { Task { await run() } } label: { Label("生成新文件", systemImage: "touchid") }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PrimaryActionStyle())
                     .disabled(input == nil || running || (method == .noise && !allowPixels))
                 ToolStatusRow(running: running, error: error)
                 Text("不保证任何网站的去重判断一定会改变。").font(.caption2).foregroundStyle(UtilityTheme.inkSecondary)

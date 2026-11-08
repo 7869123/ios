@@ -15,7 +15,7 @@ import AIUtilityCore
             UtilityCard {
                 PhotosPicker(selection: $photo, matching: .images) {
                     Label("选择截图", systemImage: "photo.badge.plus").frame(maxWidth: .infinity)
-                }.buttonStyle(.borderedProminent).disabled(recognizing || translating)
+                }.buttonStyle(PrimaryActionStyle()).disabled(recognizing || translating)
                 if recognizing { ProgressView("正在本地识别…") }
                 Text(ocrStatus).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             }
@@ -101,7 +101,7 @@ import AIUtilityCore
                 .scrollContentBackground(.hidden).utilityField()
                 .accessibilityLabel("待翻译文字").disabled(translating || inputLocked)
             HStack {
-                Button("翻译") { translate() }.buttonStyle(.borderedProminent)
+                Button("翻译") { translate() }.buttonStyle(PrimaryActionStyle())
                     .disabled(translating || inputLocked || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 if translating {
                     ProgressView()
