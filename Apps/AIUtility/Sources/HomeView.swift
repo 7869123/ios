@@ -26,7 +26,9 @@ import SwiftUI
         .init(id: "search", title: "反向搜图", detail: "SauceNAO / 搜图 Bot 酱", icon: "magnifyingglass", status: .planned, target: .media),
         .init(id: "tasks", title: "下载任务", detail: "进度、取消、重试与历史", icon: "tray.full", status: .planned, target: .media),
     ]
-    private let columns = [GridItem(.adaptive(minimum: 230), spacing: 12)]
+    /// 330 pt keeps compact tiles wide enough for full titles: 2 per row in iPad landscape
+    /// (~735 pt content), 1 per row in portrait and on iPhone portrait.
+    private let columns = [GridItem(.adaptive(minimum: 330), spacing: 12)]
 
     var body: some View {
         ScrollView {
