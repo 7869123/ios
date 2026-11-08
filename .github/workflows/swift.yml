@@ -56,9 +56,13 @@ jobs:
           test_code=$?
           swift test --package-path PoCs/iOS27Capture > artifacts/core-linux/poc-lifecycle-tests.log 2>&1
           lifecycle_code=$?
-          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\npoc_lifecycle_tests=%s\n' "$version_code" "$build_code" "$test_code" "$lifecycle_code" > artifacts/core-linux/exit-codes.txt
+          swift build --package-path Packages/AIUtilityMedia > artifacts/core-linux/media-build.log 2>&1
+          media_build_code=$?
+          swift test --package-path Packages/AIUtilityMedia > artifacts/core-linux/media-tests.log 2>&1
+          media_test_code=$?
+          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\npoc_lifecycle_tests=%s\nmedia_build=%s\nmedia_tests=%s\n' "$version_code" "$build_code" "$test_code" "$lifecycle_code" "$media_build_code" "$media_test_code" > artifacts/core-linux/exit-codes.txt
           cat artifacts/core-linux/*.log
-          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0 && test "$lifecycle_code" -eq 0
+          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0 && test "$lifecycle_code" -eq 0 && test "$media_build_code" -eq 0 && test "$media_test_code" -eq 0
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -68,6 +72,8 @@ jobs:
             artifacts/core-linux/core-build.log
             artifacts/core-linux/core-tests.log
             artifacts/core-linux/poc-lifecycle-tests.log
+            artifacts/core-linux/media-build.log
+            artifacts/core-linux/media-tests.log
             artifacts/core-linux/exit-codes.txt
           retention-days: 7
           if-no-files-found: error

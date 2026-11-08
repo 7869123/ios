@@ -1,5 +1,12 @@
 # AIUtility 开发状态
 
+## 媒体 P1 Linux CI 已授权（待首次运行）
+
+用户已明确授权推送并触发 Linux CI，仅允许在 swift.yml 的 core-linux job 中增加媒体包 build/test，
+沿用既有日志、退出码、artifact 与失败门槛；触发条件和其他 job 保持不变，macOS 尚未授权。
+本批次工具变化见 [MEDIA_CHANGE_NOTICE.md](MEDIA_CHANGE_NOTICE.md)，推送后另附 PR 变更通知。
+实际编译与测试结论将在取得 Actions 日志后更新，不以历史记录代替新包结果。
+
 ## 媒体 P1 源码交付（未编译/未执行媒体测试，等待 CI 授权）
 
 用户审核通过 MEDIA_INTERFACES.md 的 28c449d，并明确授权 P1；CI 需另行确认。
@@ -15,7 +22,7 @@ Swift 类型检查、并发诊断、单元测试、Apple SDK 编译与运行时�
 DNS 预检不能固定 URLSession 最终连接 IP，仍有重绑定/TOCTOU 限制；系统 DNS/同步文件操作的取消只能等待返回。
 P1 不支持无 HEAD/无受支持 MIME 的服务器、不做后台传输或自动续传；敏感直链重启后需重新提供再手动重试。
 详细边界与 Claude 需补的 Linux/macOS/iOS SDK CI 命令见包说明；现有 CI 未包括新包。
-不改 Core/AppleServices 公共 API、UI、PoC、scripts 或 workflow。不推送源码批次、不触发 Actions，先汇报等待批准。
+源码阶段未改 Core/AppleServices 公共 API、UI、PoC、scripts 或 workflow；后续仅 core-linux 的改动已获用户授权，见上节。
 
 ## 历史：媒体模块 P0 接口审核（已通过）
 

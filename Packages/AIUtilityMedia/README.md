@@ -82,9 +82,11 @@ swift build --package-path Packages/AIUtilityMedia
 swift test --package-path Packages/AIUtilityMedia
 ```
 
-Keep Core and PoC regression jobs unchanged. Claude owns workflow changes. Proposed evidence-preserving additions:
+Keep Core and PoC regression commands unchanged. The user authorized only the Linux Media addition to core-linux;
+workflow triggers and other jobs remain unchanged. macOS/iOS SDK verification still requires approval. Validation scope:
 
-1. Linux `swift:6.0.3`: Media build/test commands above, alongside existing Core commands.
+1. Linux `swift:6.0.3`: Media build/test commands above, added to core-linux with media-build.log/media-tests.log,
+   separate media_build/media_tests exit codes and inclusion in the existing always-uploaded evidence artifact.
 2. macOS: same Media build/test commands; record compiler version and each exit code.
 3. iOS SDK, from the package directory:
 
@@ -99,5 +101,5 @@ Keep Core and PoC regression jobs unchanged. Claude owns workflow changes. Propo
 4. Preserve version/build/test logs and exit-code files with `if: always()`; do not upload tokens, caches or whole homes.
    Record actual discovered/pass/fail/skip counts. Do not suppress failures, remove tests or replace this with grammar parsing.
 
-No existing workflow includes this package yet. User permission is required **before** any Actions run; a source push
-to the current PR branch automatically triggers existing Linux CI, so this batch must remain local until authorized.
+Linux source push/CI is now authorized; the current PR triggers core-linux including this package. macOS/iOS SDK
+commands above are still proposals and have not been authorized or executed. No Apple job is enabled by this batch.
