@@ -95,6 +95,12 @@
 - 采集中更换共享范围目前被忽略，需先停止再重新选择。
 - 旧编译警告：PiP delegate 跨 main actor 隔离；独立修复显式拆分 nonisolated 回调与 MainActor 更新。`AVSampleBufferDisplayLayer` 的 enqueue/flush 等方法自 iOS 18 弃用，迁移仍待后续处理。
 
+## 5b. 主 App 安装包（2026-11-08 起）
+
+手动运行 workflow 并勾选 `build_apple` 后，app job 会导出主 App 的未签名安装包：
+Actions 运行页面底部 Artifacts → `AIUtility-unsigned-ipa-<运行编号>`（保留 7 天），解压得到 `AIUtility-unsigned.ipa`。
+日志里的 `ipa-contents.log` 记录 Bundle ID、版本、启动画面和 SHA-256。下面第 6 节的签名安装步骤同样适用于这个文件。
+
 ## 6. 未来通过 Windows + 免费 Apple ID 签名安装的步骤
 
 > 以下工具操作多数来自第三方资料【第三方】，需要实际执行时再核对。**关键阻碍**：Sideloadly、AltServer 等 Windows 工具在首次配对时**都要求 USB 连接**并在 iPad 上点"信任"，之后才能改用 Wi-Fi【第三方】。没有找到完全不接线完成首次配对的方法。在有人能把 iPad 用 USB 接到这台 Windows 电脑（或你实际使用的那台电脑）之前，下面的步骤 3–4 无法进行。

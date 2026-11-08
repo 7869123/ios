@@ -3,7 +3,7 @@
 按顺序逐项测试。每项结果记 ✅ 通过 / ❌ 不通过 / ⏭ 跳过。
 ❌ 时请记下：**哪一步、屏幕上显示的提示文字、截图**（截图里不要带 Key 或账号信息），发给 Claude 即可。
 
-设备：iPad mini 6（主要），有 iPhone 可顺带测。安装方法见 [INSTALL_PREFLIGHT.md](INSTALL_PREFLIGHT.md)。
+设备：iPad mini 6（主要），有 iPhone 可顺带测。安装包：最新一次 `build_apple` 运行的 Artifacts 里的 `AIUtility-unsigned-ipa-<运行编号>`；签名安装方法见 [INSTALL_PREFLIGHT.md](INSTALL_PREFLIGHT.md) 第 5b、6 节。
 
 ---
 

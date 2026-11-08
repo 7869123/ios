@@ -161,7 +161,56 @@ jobs:
         with:
           persist-credentials: false
       - name: Generate and compile the native SwiftUI App
+        id: compile
         run: bash scripts/ci_app.sh
+      - name: Archive unsigned Release build of the App for iphoneos
+        id: app_archive
+        if: steps.compile.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          xcodebuild archive -project Apps/AIUtility/AIUtility.xcodeproj -scheme AIUtility \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath artifacts/app-archive/AIUtility.xcarchive \
+            -derivedDataPath artifacts/app-archive-build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            > artifacts/app/archive.log 2>&1
+          code=$?
+          printf 'app_device_archive=%s\n' "$code" >> artifacts/app/exit-codes.txt
+          grep -E 'error:|ARCHIVE (SUCCEEDED|FAILED)' artifacts/app/archive.log | head -100
+          tail -n 20 artifacts/app/archive.log
+          exit "$code"
+      - name: Package Payload into AIUtility-unsigned.ipa (sign and install with Sideloadly)
+        if: steps.app_archive.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=artifacts/app-archive/AIUtility.xcarchive
+          shopt -s nullglob
+          apps=("$archive"/Products/Applications/*.app)
+          test "${#apps[@]}" -eq 1 || { echo "expected exactly one .app, found ${#apps[@]}"; exit 1; }
+          app="${apps[0]}"
+          {
+            echo "== app: $(basename "$app")"
+            echo "== bundle id / version"
+            plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist"
+            plutil -extract CFBundleShortVersionString raw -o - "$app/Info.plist"
+            echo "== launch screen"; plutil -extract UILaunchStoryboardName raw -o - "$app/Info.plist" || echo none
+            echo "== code signature (expected unsigned)"; codesign -dv "$app" 2>&1 || true
+            echo "== lipo"; lipo -info "$app/$(plutil -extract CFBundleExecutable raw -o - "$app/Info.plist")"
+          } 2>&1 | tee artifacts/app/ipa-contents.log
+          rm -rf artifacts/app-ipa && mkdir -p artifacts/app-ipa/Payload
+          ditto "$app" "artifacts/app-ipa/Payload/$(basename "$app")"
+          (cd artifacts/app-ipa && zip -qry AIUtility-unsigned.ipa Payload)
+          ls -la artifacts/app-ipa/AIUtility-unsigned.ipa | tee -a artifacts/app/ipa-contents.log
+          shasum -a 256 artifacts/app-ipa/AIUtility-unsigned.ipa | tee -a artifacts/app/ipa-contents.log
+      - uses: actions/upload-artifact@v4
+        if: steps.app_archive.outcome == 'success'
+        with:
+          name: AIUtility-unsigned-ipa-${{ github.run_id }}
+          path: artifacts/app-ipa/AIUtility-unsigned.ipa
+          retention-days: 7
+          if-no-files-found: error
       - name: Capture home review screenshots (iPad mini primary, iPhone compatibility)
         continue-on-error: true
         timeout-minutes: 25
@@ -182,6 +231,8 @@ jobs:
             artifacts/app/generate.log
             artifacts/app/simulator-build.log
             artifacts/app/device-build.log
+            artifacts/app/archive.log
+            artifacts/app/ipa-contents.log
             artifacts/app/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
