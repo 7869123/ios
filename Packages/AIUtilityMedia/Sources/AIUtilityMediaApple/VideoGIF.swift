@@ -58,8 +58,9 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
           summary.width == pixelSize.width, summary.height == pixelSize.height
     else { throw .unsupportedFormat }
     guard Int64(data.count) <= options.limits.maxOutputBytes else { throw .resourceLimitExceeded }
+    // A fresh UUID name never collides with an existing file; .atomic cannot be combined with .withoutOverwriting.
     let finalURL = outputDirectory.appendingPathComponent(UUID().uuidString.lowercased() + ".gif")
-    do { try data.write(to: finalURL, options: [.atomic, .withoutOverwriting]) }
+    do { try data.write(to: finalURL, options: .atomic) }
     catch { throw (error as NSError).code == NSFileWriteOutOfSpaceError ? .storageFull : .storageUnavailable }
     return GIFResult(url: finalURL, bytes: Int64(data.count), width: summary.width, height: summary.height,
                      frameCount: summary.frameCount, totalDuration: Double(summary.totalCentiseconds) / 100)
