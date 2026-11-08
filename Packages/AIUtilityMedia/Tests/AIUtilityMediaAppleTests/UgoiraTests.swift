@@ -48,9 +48,13 @@ struct UgoiraTimingTests {
         var trueEnd = 0, gifEnd = 0
         for (ms, cs) in zip(delays, result) {
             trueEnd += ms; gifEnd += cs * 10
-            #expect(abs(gifEnd - trueEnd) <= 5)
+            let frameDrift: Int = abs(gifEnd - trueEnd)
+            #expect(frameDrift <= 5)
         }
-        #expect(abs(result.reduce(0, +) * 10 - delays.reduce(0, +)) <= 5)
+        let gifTotal: Int = result.reduce(0, +) * 10
+        let trueTotal: Int = delays.reduce(0, +)
+        let drift: Int = abs(gifTotal - trueTotal)
+        #expect(drift <= 5)
     }
 
     @Test func tooFastFramesGetTheGIFMinimum() {
@@ -99,7 +103,7 @@ private func framePNG(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) throws -> [UInt8
     return [UInt8](output as Data)
 }
 
-private func deflate(_ input: [UInt8]) -> [UInt8]? {
+private func rawDeflate(_ input: [UInt8]) -> [UInt8]? {
     var output = [UInt8](repeating: 0, count: input.count + 1024)
     let written = input.withUnsafeBufferPointer { source in
         output.withUnsafeMutableBufferPointer { destination in
@@ -125,7 +129,8 @@ struct UgoiraAssemblerTests {
         defer { try? FileManager.default.removeItem(at: directory) }
         let red = try framePNG(1, 0, 0), green = try framePNG(0, 1, 0), blue = try framePNG(0, 0, 1)
         let entries: [(name: String, bytes: [UInt8])] = [("000000.png", red), ("000001.png", green), ("000002.png", blue)]
-        let packer: (([UInt8]) -> [UInt8]?)? = compressed ? deflate : nil
+        var packer: (([UInt8]) -> [UInt8]?)? = nil
+        if compressed { packer = rawDeflate }
         let zip = makeZip(entries, compress: packer)
         let frames: [(String, Int)] = [("000000.png", 33), ("000001.png", 67), ("000002.png", 100)]
         let request = try job(zip, frames: frames, in: directory)
