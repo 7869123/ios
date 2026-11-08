@@ -18,9 +18,9 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 | 阶段 | 后续交付 | 当前状态 |
 |---|---|---|
 | P0 | 本接口文档 | 用户已审核通过 28c449d |
-| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | 修复后 Linux 45 项通过；修复后的 Mac/SDK、真实网络未验证，不含任何断点续传 |
+| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | Linux 45 项通过；修复后 macOS 测试与两种 iOS SDK 构建通过（run 42466209488）；真实网络未验证，不含断点续传 |
 | P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
-| P2 | 多图拼接、视频转 GIF、图片文件指纹 | 未实现 |
+| P2 | 多图拼接、视频转 GIF、图片文件指纹 | 已实现于 `AIUtilityMediaApple`（Claude Code 接手后），待 macOS 测试与 iOS SDK 编译验证；未接入 App 界面 |
 | P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 未实现，公开下载可行性未确认 |
 | P4 | SauceNAO 反向搜图 | 未实现，真实调用默认关闭 |
 
@@ -438,6 +438,21 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
   输入已规范化而 bytesChanged=false 不是失败，UI 必须能区分；原输入字节始终不变。
 - 平台或编码器不支持返回 unsupportedPlatform/unsupportedFormat；任何同步系统编码调用的取消只能在安全检查点确认，
   不能伪称已强制中断。P2 前仍需决定本地工具如何接入统一任务展示，不能擅自增加第二条并发下载队列。
+
+### 9a. P2 实现与契约差异（Claude Code）
+
+- 新 target / product `AIUtilityMediaApple`，依赖 `AIUtilityMedia`；ImageIO / AVFoundation 代码用 `canImport` 隔离，
+  其他平台抛 `unsupportedPlatform`。参数校验与布局、GIF 时间轴为平台无关代码，Linux 也有测试。
+- `makeGIF` 改为 `makeGIF(fromVideo:outputDirectory:options:) -> GIFResult`：`DownloadedFile` 的初始化器属于下载存储内部，
+  本地工具不伪造下载记录。`GIFResult` 的帧数、总时长、宽高均从写出的文件读回，与计划不符即失败。
+- GIF 延迟以整厘秒表示：帧取在 `start + n / fps`，每帧延迟取相邻时间戳四舍五入之差，总时长精确到 0.01 s；
+  fps 上限 50（GIF 低于 2 cs 的延迟会被播放器拉长）。末帧不足 2 cs 时并入前一帧。
+- 共用顺序编码器 `GIFFileEncoder`（内部）：逐帧追加、每帧独立厘秒延迟，低于 2 cs 返回 `unsupportedFormat`，供 P3 Ugoira 复用；
+  毫秒级 Ugoira 延迟如何换算为厘秒在 P3 审核时决定，不在编码器内静默改值。
+- `stripMetadata` 使用 `CGImageDestinationCopyImageSource` 做容器级无损复制，仅保留显示所需方向；写出后再检查，
+  仍有可识别元数据即返回 `unsupportedFormat`。`reencode` / `subtlePixelNoise` 解码时已应用方向，输出不带源元数据。
+- 默认限额：输入 200 MB、32 张、单图/画布 8000 万像素、输出 200 MB、GIF 600 帧 / 60 s。
+- 统一任务展示：本地工具是一次性 async 调用，由 UI 直接持有 Task 并可取消，不进入下载队列，也不新增第二条并发队列。
 
 ## 10. P4 搜图扩展与凭据边界
 

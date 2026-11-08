@@ -116,6 +116,12 @@ jobs:
           record_media ios-media-device-build xcodebuild -scheme AIUtilityMedia -sdk iphoneos \
             -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-device-build" \
             CODE_SIGNING_ALLOWED=NO build
+          record_media ios-media-apple-simulator-build xcodebuild -scheme AIUtilityMediaApple -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-simulator-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          record_media ios-media-apple-device-build xcodebuild -scheme AIUtilityMediaApple -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-device-build" \
+            CODE_SIGNING_ALLOWED=NO build
           exit "$media_failed"
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
@@ -130,6 +136,8 @@ jobs:
             artifacts/apple/mac-media-build.log
             artifacts/apple/mac-media-tests.log
             artifacts/apple/ios-media-simulator-build.log
+            artifacts/apple/ios-media-apple-simulator-build.log
+            artifacts/apple/ios-media-apple-device-build.log
             artifacts/apple/ios-media-device-build.log
             artifacts/apple/exit-codes.txt
           retention-days: 7

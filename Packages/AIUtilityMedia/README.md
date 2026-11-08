@@ -1,4 +1,8 @@
-# AIUtilityMedia — Darwin storage fix Linux-validated; Apple recheck pending
+# AIUtilityMedia — P1 validated on Linux and macOS; P2 local tools pending Apple validation
+
+Products: `AIUtilityMedia` (download queue, Linux-compatible) and `AIUtilityMediaApple`
+(P2: `stitchImages`, `makeGIF(fromVideo:outputDirectory:options:)`, `rewriteFingerprint`; ImageIO / AVFoundation,
+`unsupportedPlatform` elsewhere). See MEDIA_INTERFACES.md §9a for the P2 contract as implemented.
 
 Current follow-up: source 1ac37c8 compiled on macOS and both unsigned iOS 26.5 SDK targets, but its Media tests
 failed (9 passed / 33 failed) during sandbox initialization. The [failure evidence](../../validation/media-apple/attempt-1/README.md)
