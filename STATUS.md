@@ -1,5 +1,13 @@
 # AIUtility 开发状态
 
+## 媒体 Apple 验证已授权（待执行）
+
+用户新增授权仅限 swift.yml 的 apple job：Media macOS build/test、两种无签名 iOS SDK 编译，
+保留触发条件和其他 job；Codex 分支允许一次 build_apple，publish_previews=false、build_poc=false。
+详细范围见 [MEDIA_APPLE_CHANGE_NOTICE.md](MEDIA_APPLE_CHANGE_NOTICE.md)。不新增产品工具或公共接口，不开始 P2。
+现有 build_apple 会连带 App 构建/截图，不更改其行为；编译错误只允许按真实日志修复 AIUtilityMedia。
+执行前不宣称 Apple 已验证，结果与证据随后记录。
+
 ## 媒体 P1 Linux 编译/测试通过（Apple 与真实网络仍未验证）
 
 用户已明确授权推送并触发 Linux CI，仅允许在 swift.yml 的 core-linux job 中增加媒体包 build/test，

@@ -90,6 +90,33 @@ jobs:
           persist-credentials: false
       - name: Validate real macOS packages and both iOS SDK targets
         run: bash scripts/ci_apple.sh
+      - name: Validate Media on macOS and both unsigned iOS SDK targets
+        if: always() && steps.checkout.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          media_logs="$GITHUB_WORKSPACE/artifacts/apple"
+          mkdir -p "$media_logs"
+          media_failed=0
+          record_media() {
+            local name="$1"
+            shift
+            "$@" > "$media_logs/$name.log" 2>&1
+            local code=$?
+            printf '%s=%s\n' "$name" "$code" >> "$media_logs/exit-codes.txt"
+            cat "$media_logs/$name.log"
+            if [ "$code" -ne 0 ]; then media_failed=1; fi
+          }
+          record_media mac-media-build swift build --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityMedia"
+          record_media mac-media-tests swift test --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityMedia"
+          cd "$GITHUB_WORKSPACE/Packages/AIUtilityMedia" || exit 1
+          record_media ios-media-simulator-build xcodebuild -scheme AIUtilityMedia -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-simulator-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          record_media ios-media-device-build xcodebuild -scheme AIUtilityMedia -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-device-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          exit "$media_failed"
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -100,6 +127,10 @@ jobs:
             artifacts/apple/mac-services-tests.log
             artifacts/apple/ios-simulator-build.log
             artifacts/apple/ios-device-build.log
+            artifacts/apple/mac-media-build.log
+            artifacts/apple/mac-media-tests.log
+            artifacts/apple/ios-media-simulator-build.log
+            artifacts/apple/ios-media-device-build.log
             artifacts/apple/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
