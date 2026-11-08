@@ -15,7 +15,8 @@ struct XResolverTests {
         #expect(XResolver.radix36(36) == "10")
         #expect(XResolver.radix36(1.0 / 3.0) == "0.c")
         // Reference values produced by Node.js (V8); a JS port of radix36 matched V8 on 200,000 random IDs.
-        #expect(XResolver.radix36(1_800_000_000_000_000_001 / 1e15 * Double.pi) == "4d2.v7cbm2xj")
+        let value = Double(id)! / 1e15 * Double.pi   // same rounding as JavaScript Number(id)
+        #expect(XResolver.radix36(value) == "4d2.v7cbm2xj")
         #expect(XResolver.token(for: id) == "4d2v7cbm2xj")
     }
 

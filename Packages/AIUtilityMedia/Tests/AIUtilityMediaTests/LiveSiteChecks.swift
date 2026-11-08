@@ -50,6 +50,8 @@ private func check(_ name: String, _ body: () async throws -> String) async {
         default:
             record("LIVE-CHECK \(name): unavailable - \(error)")
         }
+    } catch let refusal as LiveRefusal {
+        record("LIVE-CHECK \(name): unavailable - \(refusal.text)")
     } catch {
         record("LIVE-CHECK \(name): FORMAT - \(type(of: error))")
         Issue.record("\(name): \(type(of: error))")
@@ -62,6 +64,25 @@ private func head(_ component: MediaComponent, client: NetworkClient) async thro
     let type = response.header("content-type") ?? "?"
     let length = response.header("content-length") ?? "?"
     return "HEAD \(response.status) \(type) \(length) bytes"
+}
+
+/// A site refused this runner in a way worth naming in the report.
+private enum LiveRefusal: Error {
+    case cloudflareChallenge(Int), status(Int, String)
+    var text: String {
+        switch self {
+        case .cloudflareChallenge(let code): "HTTP \(code) Cloudflare challenge (datacenter address blocked)"
+        case .status(let code, let detail): "\(code) \(detail)"
+        }
+    }
+}
+
+private struct BilibiliCode: Decodable, Sendable { let code: Int; let message: String? }
+private struct BilibiliPopular: Decodable, Sendable {
+    struct Page: Decodable, Sendable { struct Video: Decodable, Sendable { let bvid: String }; let list: [Video] }
+    let code: Int
+    let message: String?
+    let data: Page?
 }
 
 private struct PixivRanking: Decodable, Sendable {
@@ -108,14 +129,28 @@ struct LiveSiteChecks {
     }
 
     @Test func bilibiliPublicVideo() async {
-        await check("bilibili") {
+        // Raw API codes first, so a refusal can be told apart from a parser problem.
+        await check("bilibili-view-code") {
             let client = await liveClient()
+            let data = try await client.fetchJSON(URL(string: "https://api.bilibili.com/x/web-interface/view?bvid=BV1GJ411x7h7")!,
+                                                  context: RequestContext(referer: BilibiliResolver.referer))
+            let reply = try SiteJSON.decode(BilibiliCode.self, from: data)
+            return "fixed video: code \(reply.code) \(String((reply.message ?? "").prefix(40)))"
+        }
+        await check("bilibili-popular") {
+            let client = await liveClient()
+            let data = try await client.fetchJSON(URL(string: "https://api.bilibili.com/x/web-interface/popular?ps=5&pn=1")!,
+                                                  context: RequestContext(referer: BilibiliResolver.referer))
+            let popular = try SiteJSON.decode(BilibiliPopular.self, from: data)
+            guard popular.code == 0, let bvid = popular.data?.list.first?.bvid else {
+                throw LiveRefusal.status(popular.code, "popular list API code: " + String((popular.message ?? "").prefix(40)))
+            }
             let resolver = BilibiliResolver(client: client)
-            let items = try await resolver.resolve(URL(string: "https://www.bilibili.com/video/BV1GJ411x7h7")!)
+            let items = try await resolver.resolve(URL(string: "https://www.bilibili.com/video/\(bvid)")!)
             let plan = try await resolver.prepare(item: items[0], variantID: "mp4", options: .init())
             let host = plan.components[0].requestURL().host ?? "?"
             let probe = try await head(plan.components[0], client: client)
-            return "part \(items[0].id.value), \(plan.variant.estimatedBytes ?? 0) bytes on \(host); " + probe
+            return "today's video: part \(items[0].id.value), \(plan.variant.estimatedBytes ?? 0) bytes on \(host); " + probe
         }
     }
 
@@ -135,8 +170,21 @@ struct LiveSiteChecks {
 
     #if canImport(ImageIO) && canImport(Darwin)
     @Test func soutubotSearch() async {
+        // Send the web page's request once and report what answered: the site's JSON, or a
+        // Cloudflare challenge for this datacenter address. Only the verdict is reported, not the page.
         await check("soutubot") {
-            let matches = try await SoutubotProvider(perLibrary: 2, maxResults: 5).search(image: try gradientPNG())
+            let provider = SoutubotProvider(perLibrary: 2, maxResults: 5)
+            let (request, body) = provider.makeRequest(image: try gradientPNG(), ext: "png", mime: "image/png")
+            let reply = try await URLSessionSearchTransport().post(request, body: body, maxResponseBytes: SoutubotProvider.maxResponseBytes)
+            let text = String(decoding: reply.body.prefix(4096), as: UTF8.self).lowercased()
+            let challenge = reply.headers["cf-mitigated"] == "challenge" || text.contains("just a moment")
+                || text.contains("cf-chl") || text.contains("challenge-platform")
+            let type = reply.headers["content-type"] ?? "?"
+            guard reply.status == 200 else {
+                if challenge { throw LiveRefusal.cloudflareChallenge(reply.status) }
+                throw LiveRefusal.status(reply.status, "HTTP, " + type)
+            }
+            let matches = try provider.parse(status: reply.status, data: reply.body)
             return "\(matches.count) match(es) parsed; top score \(matches.first?.similarity.map { String(format: "%.1f", $0) } ?? "-")"
         }
     }

@@ -31,9 +31,20 @@ public struct SoutubotProvider: ReverseImageSearchProvider {
         guard image.count <= SauceNAOProvider.maxUploadBytes else { throw .resourceLimitExceeded }
         guard let format = SauceNAOProvider.imageFormat(image) else { throw .unsupportedFormat }
         guard !Task.isCancelled else { throw .cancelled }
+        let (request, body) = makeRequest(image: image, ext: format.ext, mime: format.mime)
+        let reply: SearchReply
+        do { reply = try await transport.post(request, body: body, maxResponseBytes: Self.maxResponseBytes) }
+        catch let error as MediaError { throw error }
+        catch { throw MediaError.safe(error) }
+        guard !Task.isCancelled else { throw .cancelled }
+        return try parse(status: reply.status, data: reply.body)
+    }
+
+    /// The exact request the web page sends (also used by the live diagnostics).
+    func makeRequest(image: Data, ext: String, mime: String) -> (URLRequest, Data) {
         let form = MultipartForm(fields: [("factor", strict ? "1.4" : "1.2"), ("metadata_mode", "display"),
                                           ("top_k", String(perLibrary))],
-                                 file: (name: "file", fileName: "image.\(format.ext)", mime: format.mime, data: image))
+                                 file: (name: "file", fileName: "image.\(ext)", mime: mime, data: image))
         var request = URLRequest(url: Self.endpoint)
         request.httpMethod = "POST"
         request.timeoutInterval = 60
@@ -41,12 +52,7 @@ public struct SoutubotProvider: ReverseImageSearchProvider {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("zh-CN,zh;q=0.9,en;q=0.8", forHTTPHeaderField: "Accept-Language")
         request.setValue("AIUtility/1.0", forHTTPHeaderField: "User-Agent")
-        let reply: SearchReply
-        do { reply = try await transport.post(request, body: form.body, maxResponseBytes: Self.maxResponseBytes) }
-        catch let error as MediaError { throw error }
-        catch { throw MediaError.safe(error) }
-        guard !Task.isCancelled else { throw .cancelled }
-        return try parse(status: reply.status, data: reply.body)
+        return (request, form.body)
     }
 
     func parse(status: Int, data: Data) throws(MediaError) -> [ReverseSearchMatch] {

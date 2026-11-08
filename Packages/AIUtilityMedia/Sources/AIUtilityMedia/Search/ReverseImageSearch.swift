@@ -179,7 +179,12 @@ struct FlexibleText: Decodable {
     }
 }
 
-struct SearchReply: Sendable { let status: Int; let body: Data }
+struct SearchReply: Sendable {
+    let status: Int
+    let body: Data
+    /// Response header names lowercased; used only for diagnostics, never shown to the user.
+    var headers: [String: String] = [:]
+}
 
 protocol SearchUploadTransport: Sendable {
     func post(_ request: URLRequest, body: Data, maxResponseBytes: Int) async throws -> SearchReply
@@ -203,7 +208,11 @@ struct URLSessionSearchTransport: SearchUploadTransport {
         let (data, response) = try await session.upload(for: request, from: body)
         guard let http = response as? HTTPURLResponse else { throw MediaError.network }
         guard data.count <= maxResponseBytes else { throw MediaError.resourceLimitExceeded }
-        return SearchReply(status: http.statusCode, body: data)
+        var headers: [String: String] = [:]
+        for (key, value) in http.allHeaderFields {
+            if let key = key as? String { headers[key.lowercased()] = String(describing: value) }
+        }
+        return SearchReply(status: http.statusCode, body: data, headers: headers)
     }
 }
 #else
