@@ -11,7 +11,7 @@ struct RoutingTests {
         #expect(router.source(for: URL(string: "https://t.co/fixture")!) == .x)
         #expect(router.source(for: URL(string: "https://www.pixiv.net/artworks/123")!) == .pixiv)
         #expect(router.source(for: URL(string: "https://x.com.example.org/example/status/123")!) == .direct)
-        #expect(router.source(for: URL(string: "https://www.pixiv.net/users/123")!) == .direct)
+        #expect(router.source(for: URL(string: "https://www.pixiv.net/ranking.php")!) == .direct)
         #expect(router.source(for: URL(string: "file:///example.png")!) == nil)
     }
     @Test func unsafeDestinationsRejectedWithoutNetwork() throws {

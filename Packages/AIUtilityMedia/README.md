@@ -62,6 +62,18 @@ Following those contracts is not evidence that this package compiled or passed r
 clock, destination validation and fault injection live **only in the test target**. Production defaults use disk,
 public DNS preflight and URLSession. Tests allocate unique temporary directories and do not contact real sites.
 
+Local checks actually executed for this batch:
+
+| Command/check | Actual result | What it does not prove |
+|---|---|---|
+| `scripts/prepush_check.sh origin/codex/poc-engineering-audit` (first pass) | Exit 1: fake Pixiv profile URL matched the user-path rule; replaced with a non-artwork ranking URL, retaining the route-boundary assertion | No real personal path was required; scanner rules were not weakened |
+| Same command after the fixture correction | Exit 0, PRE-PUSH CHECK: PASS; 49 repository Swift files parsed; YAML/shell/resources/privacy/history checks passed | Grammar parsing is not Swift compilation |
+| Python preflight scanner regression suite, run by that script | 13 passed, 0 failed | These are not the 42 media tests |
+| Swift build/test and iOS SDK commands below | NOT RUN; media tests executed: 0 | P1 acceptance is pending real compiler/test evidence |
+
+Local logs are retained under the ignored `artifacts/integration/media-p1-prepush.log` and
+`artifacts/integration/media-p1-prepush-final.log`; no Actions run or artifact exists for this batch.
+
 After user approval, use a Swift 6 compiler:
 
 ```sh
