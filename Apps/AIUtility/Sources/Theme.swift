@@ -166,12 +166,17 @@ struct PressableCardStyle: ButtonStyle {
 }
 
 enum FeatureStatus {
-    case available, poc, planned
+    /// `untested`: implemented and tested offline, not yet checked against the live service.
+    case available, untested, poc, planned
     var title: String {
-        switch self { case .available: "可用"; case .poc: "PoC 阶段"; case .planned: "规划中" }
+        switch self { case .available: "可用"; case .untested: "未实测"; case .poc: "PoC 阶段"; case .planned: "规划中" }
     }
     var color: Color {
-        switch self { case .available: UtilityTheme.brandStrong; case .poc: UtilityTheme.poc; case .planned: UtilityTheme.planned }
+        switch self {
+        case .available: UtilityTheme.brandStrong
+        case .untested, .poc: UtilityTheme.poc
+        case .planned: UtilityTheme.planned
+        }
     }
 }
 

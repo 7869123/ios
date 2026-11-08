@@ -7,6 +7,8 @@ packages:
     path: ../../Packages/AIUtilityCore
   AIUtilityAppleServices:
     path: ../../Packages/AIUtilityAppleServices
+  AIUtilityMedia:
+    path: ../../Packages/AIUtilityMedia
 targets:
   AIUtility:
     type: application
@@ -15,6 +17,10 @@ targets:
     dependencies:
       - package: AIUtilityCore
       - package: AIUtilityAppleServices
+      - package: AIUtilityMedia
+        product: AIUtilityMedia
+      - package: AIUtilityMedia
+        product: AIUtilityMediaApple
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.aiutility.app

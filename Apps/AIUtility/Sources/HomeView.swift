@@ -22,10 +22,9 @@ import AIUtilityCore
         .init(id: "settings", title: "AI 供应商与模型", detail: "Key、模型绑定与调用预算", icon: "slider.horizontal.3", status: .available, target: .settings),
     ]
     private let media: [Tile] = [
-        .init(id: "download", title: "X · Pixiv · B站下载", detail: "解析链接并加入统一下载任务", icon: "arrow.down.circle", status: .planned, target: .media),
-        .init(id: "image", title: "图片处理", detail: "视频转 GIF、多图拼接、文件指纹", icon: "photo.stack", status: .planned, target: .media),
-        .init(id: "search", title: "反向搜图", detail: "SauceNAO / 搜图 Bot 酱", icon: "magnifyingglass", status: .planned, target: .media),
-        .init(id: "tasks", title: "下载任务", detail: "进度、取消、重试与历史", icon: "tray.full", status: .planned, target: .media),
+        .init(id: "download", title: "X · Pixiv · B站下载", detail: "粘贴链接排队下载；尚未连真实站点验证", icon: "arrow.down.circle", status: .untested, target: .media),
+        .init(id: "image", title: "图片处理", detail: "视频转 GIF、多图拼接、文件指纹", icon: "photo.stack", status: .available, target: .media),
+        .init(id: "search", title: "反向搜图", detail: "SauceNAO（需自备 Key）；搜图 Bot 酱规划中", icon: "magnifyingglass", status: .untested, target: .media),
     ]
     /// 330 pt keeps compact tiles wide enough for full titles: 2 per row in iPad landscape
     /// (~735 pt content), 1 per row in portrait and on iPhone portrait.

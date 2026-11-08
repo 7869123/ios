@@ -5,15 +5,17 @@ import AIUtilityAppleServices
 
 @main @MainActor struct AIUtilityApp: App {
     @StateObject private var model = AppModel()
+    /// One download manager for the whole app (it owns the on-disk queue).
+    @StateObject private var media = MediaModel()
     @State private var wallpaper = WallpaperStore()
     @State private var appearance = AppearanceStore()
     var body: some Scene {
         WindowGroup {
-            RootView().environmentObject(model).environment(wallpaper).environment(appearance).environment(\.locale, Locale(identifier: "zh_Hans_CN")).tint(UtilityTheme.cyan).preferredColorScheme(.light)
+            RootView().environmentObject(model).environmentObject(media).environment(wallpaper).environment(appearance).environment(\.locale, Locale(identifier: "zh_Hans_CN")).tint(UtilityTheme.cyan).preferredColorScheme(.light)
             #if DEBUG
                 .task {
                     Self.applyReviewOrientation()
-                    await Self.captureReviewScreenshot(model: model, wallpaper: wallpaper, appearance: appearance)
+                    await Self.captureReviewScreenshot(model: model, media: media, wallpaper: wallpaper, appearance: appearance)
                 }
             #endif
         }
@@ -34,7 +36,7 @@ extension AIUtilityApp {
     /// orientation request for multitasking apps, so with `-AIUtilityPreviewLandscape` (and the scene
     /// still portrait) the same RootView is rendered in an off-screen window of the swapped size; the
     /// .txt records which mode produced the image. Nothing is rotated after capture.
-    static func captureReviewScreenshot(model: AppModel, wallpaper: WallpaperStore, appearance: AppearanceStore) async {
+    static func captureReviewScreenshot(model: AppModel, media: MediaModel, wallpaper: WallpaperStore, appearance: AppearanceStore) async {
         let args = ProcessInfo.processInfo.arguments
         guard let index = args.firstIndex(of: "-AIUtilityCapture"), index + 1 < args.count else { return }
         let name = args[index + 1]
@@ -61,7 +63,7 @@ extension AIUtilityApp {
             offscreen.frame = CGRect(origin: .zero, size: size)
             offscreen.windowLevel = UIWindow.Level(rawValue: UIWindow.Level.normal.rawValue - 1)
             let host = UIHostingController(rootView: RootView()
-                .environmentObject(model).environment(wallpaper).environment(appearance)
+                .environmentObject(model).environmentObject(media).environment(wallpaper).environment(appearance)
                 .tint(UtilityTheme.cyan).preferredColorScheme(.light))
             host.traitOverrides.horizontalSizeClass = window.traitCollection.horizontalSizeClass
             offscreen.rootViewController = host
