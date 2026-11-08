@@ -39,8 +39,18 @@ extension AIUtilityApp {
         guard let index = args.firstIndex(of: "-AIUtilityCapture"), index + 1 < args.count else { return }
         let name = args[index + 1]
         try? await Task.sleep(for: .seconds(6))
-        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first,
-              let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return }
+        // Wait (up to ~20 s more) for a laid-out window on slow first launches.
+        var found: (UIWindowScene, UIWindow)?
+        for _ in 0..<20 {
+            if let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first,
+               let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first,
+               window.bounds.width > 0 {
+                found = (scene, window); break
+            }
+            try? await Task.sleep(for: .seconds(1))
+        }
+        guard let found else { return }
+        let (scene, window) = found
         let wantsLandscape = args.contains("-AIUtilityPreviewLandscape")
         let image: UIImage
         let info: String

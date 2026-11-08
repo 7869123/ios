@@ -34,8 +34,16 @@ capture() {
   local udid="$1" orient="$2"; shift 2
   local name="$label-$orient"
   xcrun simctl terminate "$udid" "$bundle" >/dev/null 2>&1 || true
-  xcrun simctl launch "$udid" "$bundle" "$@" -AIUtilityCapture "$name" && sleep 12
-  local data; data=$(xcrun simctl get_app_container "$udid" "$bundle" data 2>/dev/null || true)
+  xcrun simctl launch "$udid" "$bundle" "$@" -AIUtilityCapture "$name"
+  # The first launch after a slow simulator boot can take a while; poll for the in-app capture
+  # instead of a fixed sleep (up to 60 s).
+  local data="" waited=0
+  while [ "$waited" -lt 60 ]; do
+    data=$(xcrun simctl get_app_container "$udid" "$bundle" data 2>/dev/null || true)
+    [ -n "$data" ] && [ -f "$data/Documents/$name.txt" ] && break
+    sleep 3; waited=$((waited + 3))
+  done
+  echo "$name: waited ${waited}s for in-app capture"
   if [ -n "$data" ] && [ -f "$data/Documents/$name.png" ]; then
     cp "$data/Documents/$name.png" "$out/$name.png"
     echo "$name: in-app capture, $(cat "$data/Documents/$name.txt" 2>/dev/null)"
