@@ -66,20 +66,31 @@ import AIUtilityCore
         .legibleOnWallpaper()
     }
 
+    /// One row when it fits; on narrow screens (iPhone portrait) the two provider chips share a row
+    /// and the wallpaper button moves below, so chip text never wraps mid-word.
     private var providerSummary: some View {
-        HStack(spacing: 10) {
-            summaryChip(label: "截图", provider: app.screenshotProvider)
-            summaryChip(label: "字幕", provider: app.subtitleProvider)
-            Button { open(.settings) } label: {
-                Label("壁纸", systemImage: "photo")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(UtilityTheme.brandStrong)
-                    .padding(.horizontal, 12).padding(.vertical, 8)
-                    .glassSurface(Capsule())
-            }
-            .buttonStyle(PressableCardStyle())
-            .accessibilityLabel("更换壁纸，打开设置")
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) { providerChips; wallpaperButton }
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 10) { providerChips }; wallpaperButton }
+            VStack(alignment: .leading, spacing: 8) { providerChips; wallpaperButton }
         }
+    }
+
+    @ViewBuilder private var providerChips: some View {
+        summaryChip(label: "截图", provider: app.screenshotProvider)
+        summaryChip(label: "字幕", provider: app.subtitleProvider)
+    }
+
+    private var wallpaperButton: some View {
+        Button { open(.settings) } label: {
+            Label("壁纸", systemImage: "photo")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(UtilityTheme.brandStrong)
+                .padding(.horizontal, 12).padding(.vertical, 8)
+                .glassSurface(Capsule())
+        }
+        .buttonStyle(PressableCardStyle())
+        .accessibilityLabel("更换壁纸，打开设置")
     }
 
     /// Provider chip with the real Key status from the cold-start check.
@@ -97,6 +108,8 @@ import AIUtilityCore
                 Text(status.title).fontWeight(.semibold).foregroundStyle(status.color)
             }
             .font(.footnote)
+            .lineLimit(1)
+            .fixedSize()
             .padding(.horizontal, 12).padding(.vertical, 8)
             .glassSurface(Capsule())
         }

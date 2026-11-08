@@ -19,8 +19,10 @@ enum Workspace: String, CaseIterable, Identifiable {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selected: Workspace? = .home
     @State private var windowSize: CGSize = .zero
-    @State private var columnVisibility = NavigationSplitViewVisibility.all
-    @State private var lastPortrait: Bool?
+    // Start from the scene's current shape so iPad portrait opens without the sidebar even before
+    // the first geometry callback (a later visibility change on appear was not always honoured).
+    @State private var columnVisibility: NavigationSplitViewVisibility = RootView.launchIsPortrait == true ? .detailOnly : .all
+    @State private var lastPortrait: Bool? = RootView.launchIsPortrait
     var body: some View {
         content
             .background {
@@ -62,6 +64,12 @@ enum Workspace: String, CaseIterable, Identifiable {
                 }
             }
         }
+    }
+    private static var launchIsPortrait: Bool? {
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return nil }
+        let bounds = scene.coordinateSpace.bounds
+        guard bounds.width > 0, bounds.height > 0 else { return nil }
+        return bounds.height > bounds.width
     }
     /// iPad portrait (taller than wide) starts with the sidebar hidden so content and wallpaper get
     /// the full width; the toolbar button still shows it. Landscape shows it again. Only applied when
