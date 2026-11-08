@@ -142,13 +142,15 @@ struct StitchImageTests {
                       try encoded(solidImage(width: 4, height: 4, color: blue), type: "public.png")]
         let row = try await stitchImages(inputs, options: StitchOptions(layout: .horizontal))
         #expect(row.width == 12 && row.height == 4)
-        #expect(similar(try pixel(row.data, x: 1, y: 1), red) && similar(try pixel(row.data, x: 5, y: 1), green)
-                && similar(try pixel(row.data, x: 9, y: 1), blue))
+        #expect(similar(try pixel(row.data, x: 1, y: 1), red))
+        #expect(similar(try pixel(row.data, x: 5, y: 1), green))
+        #expect(similar(try pixel(row.data, x: 9, y: 1), blue))
         let grid = try await stitchImages(inputs, options: StitchOptions(layout: .grid(columns: 2), spacing: 1,
                                                                          background: RGBAColor(red: 0, green: 0, blue: 0)))
         #expect(grid.width == 9 && grid.height == 9)
-        #expect(similar(try pixel(grid.data, x: 1, y: 1), red) && similar(try pixel(grid.data, x: 6, y: 1), green)
-                && similar(try pixel(grid.data, x: 1, y: 6), blue))
+        #expect(similar(try pixel(grid.data, x: 1, y: 1), red))
+        #expect(similar(try pixel(grid.data, x: 6, y: 1), green))
+        #expect(similar(try pixel(grid.data, x: 1, y: 6), blue))
         #expect(similar(try pixel(grid.data, x: 6, y: 6), RGB(r: 0, g: 0, b: 0)))   // empty cell shows the background
     }
 
