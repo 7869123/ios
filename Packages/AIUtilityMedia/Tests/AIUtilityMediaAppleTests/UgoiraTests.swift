@@ -64,7 +64,8 @@ struct ZipArchiveTests {
     }
 
     @Test func storedEntriesAreReadAndVerified() throws {
-        let archive = try ZipArchive(makeZip([("000000.jpg", [1, 2, 3]), ("000001.jpg", [4, 5])]))
+        let files: [(name: String, bytes: [UInt8])] = [("000000.jpg", [1, 2, 3]), ("000001.jpg", [4, 5])]
+        let archive = try ZipArchive(makeZip(files))
         #expect(Set(archive.entries.keys) == ["000000.jpg", "000001.jpg"])
         #expect(try archive.extract("000001.jpg", maxBytes: 10) == Data([4, 5]))
         #expect(throws: MediaError.parsingChanged) { try archive.extract("missing.jpg", maxBytes: 10) }
@@ -72,7 +73,8 @@ struct ZipArchiveTests {
     }
 
     @Test func damagedOrForeignDataIsRejected() throws {
-        var bytes = [UInt8](makeZip([("a.jpg", [9, 9, 9, 9])]))
+        let file: [(name: String, bytes: [UInt8])] = [("a.jpg", [9, 9, 9, 9])]
+        var bytes = [UInt8](makeZip(file))
         bytes[35] ^= 0xff // first payload byte: 30-byte local header + 5-byte name
         let archive = try ZipArchive(Data(bytes))
         #expect(throws: MediaError.integrityMismatch) { try archive.extract("a.jpg", maxBytes: 10) }
@@ -121,10 +123,13 @@ struct UgoiraAssemblerTests {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ugoira-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let zip = makeZip([("000000.png", try framePNG(1, 0, 0)), ("000001.png", try framePNG(0, 1, 0)),
-                           ("000002.png", try framePNG(0, 0, 1))], compress: compressed ? deflate : nil)
-        let result = try await UgoiraAssembler().assemble(try job(zip, frames: [("000000.png", 33), ("000001.png", 67), ("000002.png", 100)],
-                                                                   in: directory))
+        let red = try framePNG(1, 0, 0), green = try framePNG(0, 1, 0), blue = try framePNG(0, 0, 1)
+        let entries: [(name: String, bytes: [UInt8])] = [("000000.png", red), ("000001.png", green), ("000002.png", blue)]
+        let packer: (([UInt8]) -> [UInt8]?)? = compressed ? deflate : nil
+        let zip = makeZip(entries, compress: packer)
+        let frames: [(String, Int)] = [("000000.png", 33), ("000001.png", 67), ("000002.png", 100)]
+        let request = try job(zip, frames: frames, in: directory)
+        let result = try await UgoiraAssembler().assemble(request)
         #expect(result.fileExtension == "gif")
         #expect(result.file.deletingLastPathComponent().standardizedFileURL == directory.standardizedFileURL)
         let summary = try #require(GIFInspector.inspect(result.file))
@@ -139,11 +144,14 @@ struct UgoiraAssemblerTests {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ugoira-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let zip = makeZip([("000000.png", try framePNG(1, 0, 0))])
+        let only: [(name: String, bytes: [UInt8])] = [("000000.png", try framePNG(1, 0, 0))]
+        let zip = makeZip(only)
+        let missing: [(String, Int)] = [("000000.png", 50), ("000009.png", 50)]
+        let request = try job(zip, frames: missing, in: directory)
         do {
-            _ = try await UgoiraAssembler().assemble(try job(zip, frames: [("000000.png", 50), ("000009.png", 50)], in: directory))
+            _ = try await UgoiraAssembler().assemble(request)
             Issue.record("expected failure")
-        } catch let error as MediaError { #expect(error == .parsingChanged) }
+        } catch { #expect(error == .parsingChanged) }
         let files = try FileManager.default.contentsOfDirectory(atPath: directory.path).filter { $0.hasSuffix(".gif") }
         #expect(files.isEmpty, "\(files)")
         let passthrough = AssemblyJob(assembly: .passthrough, inputs: [], ugoiraFrames: [], outputDirectory: directory, maxOutputBytes: 1)
