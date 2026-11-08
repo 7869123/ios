@@ -1,7 +1,8 @@
 import SwiftUI
 import AIUtilityCore
 
-@MainActor struct SettingsView: View {
+/// AI providers, Keys and model bindings (Settings → AI 供应商与模型).
+@MainActor struct ProviderSettingsView: View {
     @EnvironmentObject private var app: AppModel
     @State private var provider = ProviderID.openAI
     @State private var candidateKey = ""
@@ -15,9 +16,8 @@ import AIUtilityCore
     @State private var operation: Task<Void, Never>?
     var body: some View {
         WorkspacePage {
-            PageHeader(title: "连接与偏好", subtitle: "Keychain 存储 · 模型验证后提交")
-            AppearanceSettingsCard()
-            WallpaperSettingsCard()
+            PageHeader(title: "AI 供应商与模型", subtitle: "Keychain 存储 · 模型验证后提交")
+            KeyStatusCard()
             UtilityCard {
                 Picker("配置供应商", selection: $provider) {
                     ForEach(ProviderID.allCases, id: \.self) { Text($0.title).tag($0) }
@@ -131,6 +131,96 @@ import AIUtilityCore
             try await app.services.configurations.switchModel(provider: selected, feature: feature, model: model)
             Task { await app.recheckKey(selected) }
             return "已验证并切换模型，继续使用已有共享 Key。"
+        }
+    }
+}
+
+/// Settings hub: two sub-pages so Keys and appearance no longer share one long scroll.
+@MainActor struct SettingsView: View {
+    @EnvironmentObject private var app: AppModel
+    @Environment(AppearanceStore.self) private var appearance
+    @Environment(WallpaperStore.self) private var wallpaper
+    var body: some View {
+        WorkspacePage {
+            PageHeader(title: "设置", subtitle: "AI 供应商与模型 · 外观与壁纸")
+            NavigationLink {
+                ProviderSettingsView().navigationTitle("AI 供应商与模型").navigationBarTitleDisplayMode(.inline)
+            } label: {
+                SettingsEntry(icon: "key.horizontal", title: "AI 供应商与模型",
+                              detail: ProviderID.allCases.map { "\($0.title) \(app.status(of: $0).title)" }.joined(separator: " · "))
+            }
+            .buttonStyle(PressableCardStyle())
+            NavigationLink {
+                AppearanceSettingsView().navigationTitle("外观与壁纸").navigationBarTitleDisplayMode(.inline)
+            } label: {
+                SettingsEntry(icon: "paintpalette", title: "外观与壁纸",
+                              detail: "界面透明度 \(Int((appearance.panelTransparency * 100).rounded()))% · \(wallpaperTitle)")
+            }
+            .buttonStyle(PressableCardStyle())
+        }
+    }
+    private var wallpaperTitle: String {
+        switch wallpaper.mode { case .custom: "自定义壁纸"; case .bundled: "默认壁纸"; case .plain: "纯色背景" }
+    }
+}
+
+@MainActor private struct SettingsEntry: View {
+    let icon: String
+    let title: String
+    let detail: String
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon).font(.body.weight(.semibold)).foregroundStyle(.white)
+                .frame(width: 36, height: 36)
+                .background(UtilityTheme.deepGradient, in: RoundedRectangle(cornerRadius: 10))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.headline).foregroundStyle(UtilityTheme.ink)
+                Text(detail).font(.caption).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(2)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(UtilityTheme.inkSecondary)
+        }
+        .padding(.horizontal, 14).padding(.vertical, 12)
+        .glassSurface(RoundedRectangle(cornerRadius: 14))
+        .contentShape(RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// Cold-start Key status of all providers, shown at the top of the provider page.
+@MainActor private struct KeyStatusCard: View {
+    @EnvironmentObject private var app: AppModel
+    var body: some View {
+        UtilityCard {
+            HStack {
+                Text("Key 状态").font(.headline)
+                Spacer()
+                Button("重新检测") { Task { await app.checkAllKeys() } }.buttonStyle(.bordered).controlSize(.small)
+            }
+            ForEach(ProviderID.allCases, id: \.self) { provider in
+                let status = app.status(of: provider)
+                HStack(spacing: 8) {
+                    Text(provider.title).font(.subheadline.weight(.semibold)).foregroundStyle(UtilityTheme.ink)
+                    Spacer()
+                    if status == .checking || status == .unknown { ProgressView().controlSize(.mini) }
+                    else { Circle().fill(status.color).frame(width: 7, height: 7) }
+                    Text(status.title).font(.subheadline.weight(.semibold)).foregroundStyle(status.color)
+                }
+                .accessibilityElement(children: .combine)
+            }
+            Text("每次冷启动用已保存的 Key 读取模型目录来检测（不生成内容，每家占用一次会话调用额度）。“可用”不保证生成一定成功，例如余额不足时仍可能失败。")
+                .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+        }
+    }
+}
+
+/// Appearance and wallpaper (Settings → 外观与壁纸).
+@MainActor struct AppearanceSettingsView: View {
+    var body: some View {
+        WorkspacePage {
+            PageHeader(title: "外观与壁纸", subtitle: "界面透明度 · 壁纸遮罩 · 自定义壁纸")
+            AppearanceSettingsCard()
+            WallpaperSettingsCard()
         }
     }
 }

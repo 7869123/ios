@@ -160,6 +160,7 @@ import SwiftUI
     let detail: String
     let icon: String
     let status: FeatureStatus
+    @Environment(\.dynamicTypeSize) private var typeSize
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
@@ -174,8 +175,9 @@ import SwiftUI
                     }
                 }
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.headline).foregroundStyle(UtilityTheme.ink).lineLimit(1)
-                Text(detail).font(.caption).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(1)
+                // One line normally; wrap at large / accessibility text sizes instead of truncating.
+                Text(title).font(.headline).foregroundStyle(UtilityTheme.ink).lineLimit(typeSize > .xLarge ? 2 : 1)
+                Text(detail).font(.caption).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(typeSize > .xLarge ? 3 : 1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             StatusChip(status: status)

@@ -19,13 +19,15 @@ enum Workspace: String, CaseIterable, Identifiable {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selected: Workspace? = .home
     @State private var windowSize: CGSize = .zero
+    @State private var columnVisibility = NavigationSplitViewVisibility.all
+    @State private var lastPortrait: Bool?
     var body: some View {
         content
             .background {
                 GeometryReader { proxy in
                     Color.clear
-                        .onAppear { windowSize = proxy.size }
-                        .onChange(of: proxy.size) { _, size in windowSize = size }
+                        .onAppear { windowSize = proxy.size; updateColumns(for: proxy.size) }
+                        .onChange(of: proxy.size) { _, size in windowSize = size; updateColumns(for: size) }
                 }
                 .ignoresSafeArea()
             }
@@ -33,10 +35,12 @@ enum Workspace: String, CaseIterable, Identifiable {
     }
     @ViewBuilder private var content: some View {
         if sizeClass == .regular {
-            NavigationSplitView {
+            NavigationSplitView(columnVisibility: $columnVisibility) {
                 List(Workspace.allCases, selection: $selected) { item in
-                    Label(item.title, systemImage: item.icon).tag(item)
+                    Label(item.title, systemImage: item.icon).tag(item).legibleOnWallpaper()
                 }
+                .scrollContentBackground(.hidden)
+                .background { SidebarBackdrop() }
                 .navigationTitle("AIUtility")
                 .safeAreaInset(edge: .bottom) {
                     HStack(spacing: 8) {
@@ -59,6 +63,15 @@ enum Workspace: String, CaseIterable, Identifiable {
             }
         }
     }
+    /// iPad portrait (taller than wide) starts with the sidebar hidden so content and wallpaper get
+    /// the full width; the toolbar button still shows it. Landscape shows it again. Only applied when
+    /// the orientation actually changes, so a manual toggle is kept until the next rotation.
+    private func updateColumns(for size: CGSize) {
+        guard size.width > 0, size.height > 0 else { return }
+        let portrait = size.height > size.width
+        let wanted: NavigationSplitViewVisibility = portrait ? .detailOnly : .all
+        if portrait != lastPortrait { columnVisibility = wanted; lastPortrait = portrait }
+    }
     @ViewBuilder private func page(_ item: Workspace) -> some View {
         switch item {
         case .home: HomeView(open: { selected = $0 })
@@ -67,5 +80,22 @@ enum Workspace: String, CaseIterable, Identifiable {
         case .media: MediaToolsView()
         case .settings: SettingsView()
         }
+    }
+}
+
+/// Sidebar background: the same window-aligned wallpaper, under a light glass layer that follows
+/// 界面透明度 (a little more opaque than cards, since the list rows are plain system text).
+private struct SidebarBackdrop: View {
+    @Environment(AppearanceStore.self) private var appearance: AppearanceStore?
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    var body: some View {
+        let style = reduceTransparency ? GlassStyle.reducedTransparency
+            : GlassStyle(transparency: appearance?.panelTransparency ?? AppearanceStore.defaultPanelTransparency)
+        ZStack {
+            WorkspaceBackdrop()
+            Rectangle().fill(.ultraThinMaterial).opacity(style.materialOpacity).ignoresSafeArea()
+            Color.white.opacity(min(1, style.whiteTint + 0.2)).ignoresSafeArea()
+        }
+        .accessibilityHidden(true)
     }
 }
