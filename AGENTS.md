@@ -63,7 +63,7 @@
 
 - 不得提交：本地路径（Windows 用户目录、macOS 或 Linux 用户主目录下的路径）、本机用户名或电脑名、时区或地点信息、个人邮箱、手机号、API Key、Token、证书、描述文件、设备 UDID、开发团队 ID。
 - 提交时间使用 UTC，避免在公开仓库暴露所在时区：每次提交都在命令前加 `TZ=UTC`（例如 `TZ=UTC git commit -m "..."`），或在当前终端先执行 `export TZ=UTC`。用 `git log -1 --format=%ad --date=format:%z` 检查，结果应为 `+0000`。
-- 提交作者使用占位身份：`git config user.name "AIUtility Development"`，`git config user.email "aiutility@localhost"`（`scripts/prepush_audit.py` 只允许占位身份、Claude 和 CI bot 的 noreply 地址）。
+- 提交作者身份：Claude Code 使用 `git config user.name "Claude"`，`git config user.email "noreply@anthropic.com"`（GitHub 显示为 Verified）；其他代理使用占位身份 `AIUtility Development <aiutility@localhost>`。`scripts/prepush_audit.py` 只允许占位身份、Claude 和 CI bot 的 noreply 地址。
 - 测试只能用明显的假数据（如 `person@example.com`、`sk-test-...`）。
 - 仓库现在是公开的，提交前务必通过 `scripts/prepush_check.sh` 的敏感信息扫描。
 
