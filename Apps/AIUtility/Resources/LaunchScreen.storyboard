@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Lch-VC-001">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Launch: blurred, darkened backdrop fills the screen; the full artwork sits on top, never cropped.-->
+        <scene sceneID="Lch-Sc-001">
+            <objects>
+                <viewController id="Lch-VC-001" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Lch-Vw-001">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="LaunchBackdrop" translatesAutoresizingMaskIntoConstraints="NO" id="Lch-Bg-001">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="LaunchArt" translatesAutoresizingMaskIntoConstraints="NO" id="Lch-Ar-001">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.157" green="0.165" blue="0.306" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="Lch-Bg-001" firstAttribute="top" secondItem="Lch-Vw-001" secondAttribute="top" id="Lch-Ct-001"/>
+                            <constraint firstItem="Lch-Bg-001" firstAttribute="bottom" secondItem="Lch-Vw-001" secondAttribute="bottom" id="Lch-Ct-002"/>
+                            <constraint firstItem="Lch-Bg-001" firstAttribute="leading" secondItem="Lch-Vw-001" secondAttribute="leading" id="Lch-Ct-003"/>
+                            <constraint firstItem="Lch-Bg-001" firstAttribute="trailing" secondItem="Lch-Vw-001" secondAttribute="trailing" id="Lch-Ct-004"/>
+                            <constraint firstItem="Lch-Ar-001" firstAttribute="top" secondItem="Lch-Vw-001" secondAttribute="top" id="Lch-Ct-005"/>
+                            <constraint firstItem="Lch-Ar-001" firstAttribute="bottom" secondItem="Lch-Vw-001" secondAttribute="bottom" id="Lch-Ct-006"/>
+                            <constraint firstItem="Lch-Ar-001" firstAttribute="leading" secondItem="Lch-Vw-001" secondAttribute="leading" id="Lch-Ct-007"/>
+                            <constraint firstItem="Lch-Ar-001" firstAttribute="trailing" secondItem="Lch-Vw-001" secondAttribute="trailing" id="Lch-Ct-008"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Lch-FR-001" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="LaunchArt" width="1086" height="1448"/>
+        <image name="LaunchBackdrop" width="271" height="362"/>
+    </resources>
+</document>
