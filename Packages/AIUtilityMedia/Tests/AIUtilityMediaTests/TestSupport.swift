@@ -152,11 +152,13 @@ struct FixtureResolver: MediaResolver {
     }
     func prepare(item: MediaItem, variantID: String, options: SiteOptions) async throws(MediaError) -> MediaTransferPlan {
         guard let variant = item.variants.first(where: { $0.id == variantID }) else { throw .invalidSelection }
+        let frames = try ugoira ? [UgoiraFrame(file: "000000.jpg", delayMilliseconds: 100)] : []
         var components: [MediaComponent] = []
         for index in 0..<count { components.append(try MediaComponent(id: String(index), url: URL(string: "https://media.example.org/\(index).png")!)) }
         return try MediaTransferPlan(itemID: item.id, variant: variant,
             effectiveOptions: options.effective(source: source, ugoira: ugoira), components: components,
-            assembly: ugoira ? .ugoiraToGIF(keepOriginalArchive: options.pixiv.keepUgoiraArchive) : .passthrough)
+            assembly: ugoira ? .ugoiraToGIF(keepOriginalArchive: options.pixiv.keepUgoiraArchive) : .passthrough,
+            ugoiraFrames: frames)
     }
 }
 
