@@ -1,0 +1,122 @@
+Building for debugging...
+[0/7] [CI_HOME]/work/ios/ios/Packages/AIUtilityCore/.build/arm64-apple-macosx/debug/AIUtilityCorePackageTests.derived/runner.swift
+[1/7] Write sources
+[4/7] Write swift-version-7974D3F7F03D5E95.txt
+[6/13] Compiling AIUtilityCore OCRService.swift
+[7/13] Compiling AIUtilityCore OfficialAPIAdapter.swift
+[8/13] Compiling AIUtilityCore ConfigurationCoordinator.swift
+[9/13] Compiling AIUtilityCore Domain.swift
+[10/13] Compiling AIUtilityCore HTTPTransport.swift
+[11/13] Emitting module AIUtilityCore
+[12/15] Compiling AIUtilityCore ProviderGateway.swift
+[13/15] Compiling AIUtilityCore TranslationEngine.swift
+[14/20] Compiling AIUtilityCoreTests LiveAPITests.swift
+[15/20] Compiling AIUtilityCoreTests PrivacyTests.swift
+[16/22] Emitting module AIUtilityCoreTests
+[17/22] Compiling AIUtilityCoreTests AdapterTests.swift
+[18/22] Compiling AIUtilityCoreTests ConfigurationTests.swift
+[19/22] Compiling AIUtilityCoreTests RegressionTests.swift
+[20/22] Compiling AIUtilityCoreTests TestSupport.swift
+[21/24] Compiling AIUtilityCorePackageTests runner.swift
+[22/24] Emitting module AIUtilityCorePackageTests
+[22/24] Write Objects.LinkFileList
+[23/24] Linking AIUtilityCorePackageTests
+Build complete! (11.99s)
+Test Suite 'All tests' started at 2026-11-08 08:12:15.730.
+Test Suite 'All tests' passed at 2026-11-08 08:12:15.734.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.004) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test emptyBindingsCannotSaveKeyAndIdenticalModelsValidateOnce() started.
+◇ Test retryIsFiniteAndEveryAttemptReservesBudget() started.
+◇ Test wrongKeyNeverRetries(_:) started.
+◇ Test simultaneousSwitchCannotOverwritePendingKeyReplacement() started.
+◇ Test callerCancellationReachesTransport() started.
+◇ Test replacementValidatesEveryExistingModelBeforeCommit() started.
+◇ Test differentProviderEditsAreIndependent() started.
+◇ Test modelCatalogueDoesNotSaveAnUnvalidatedKey() started.
+◇ Test failedModelSwitchLeavesOldConfiguration() started.
+◇ Test timedOutValidationAndStorageFailureNeverReplaceOldRecord() started.
+◇ Test sharedKeySupportsIndependentModelsAndSwitchWithoutReentry() started.
+◇ Test timeoutCancelsTransportAndNeverRetries() started.
+◇ Test invalidKeyRollsBackAllBindings(_:) started.
+◇ Test debugDescriptionsNeverContainCredentialsOrSource() started.
+◇ Test openAIContentFilterAndUnknownIncompleteReasonsAreDistinct() started.
+◇ Test wrongModelIsClassified(_:) started.
+◇ Test cancellationDuringRetryDoesNotSendAnotherRequest() started.
+◇ Test retryAfterIsNotShortened() started.
+◇ Test machineErrorTypeSurvivesUnknownOrNonStringCode() started.
+◇ Test lateSuccessAfterCancellationCannotReplaceOldKey() started.
+➜ Test liveOfficialAPI(_:) skipped.
+◇ Test keyReplacementHasOneDeadlineAcrossBothModels() started.
+◇ Test modifiedPrivacyMarkersFailClosed() started.
+◇ Test modelDiscovery(_:) started.
+◇ Test cancelledValidationNeverSavesAndReleasesEditLock() started.
+◇ Test malformedAndTruncatedResultsAreRejected() started.
+◇ Test cancelledBeforeEntryConsumesNoBudgetOrNetwork() started.
+◇ Test openAIOnlyReadsCompletedMessageText() started.
+◇ Test secretsAreRemovedBeforeNetworkAndRestoredLocally() started.
+◇ Test invalidTranslationInputDoesNotReachNetwork() started.
+◇ Test budgetPreventsSecondNetworkCall() started.
+◇ Test errorClassificationDiscardsVendorMessage() started.
+◇ Test anthropicPaginationUsesBudgetAndEscapedCursor() started.
+◇ Test paginationExhaustionStopsBeforeAnotherHTTPCall() started.
+◇ Test truncationAndRefusalNeverCountAsValidation(_:) started.
+◇ Test officialWireFormat(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to wrongKeyNeverRetries(_:) started.
+◇ Test concurrentReservationsCannotExceedBudget() started.
+◇ Test case passing 1 argument provider → .anthropic to wrongKeyNeverRetries(_:) started.
+◇ Test case passing 1 argument provider → .openAI to wrongKeyNeverRetries(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to invalidKeyRollsBackAllBindings(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to invalidKeyRollsBackAllBindings(_:) started.
+◇ Test case passing 1 argument provider → .openAI to invalidKeyRollsBackAllBindings(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to wrongModelIsClassified(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to wrongModelIsClassified(_:) started.
+◇ Test case passing 1 argument provider → .openAI to wrongModelIsClassified(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to modelDiscovery(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to modelDiscovery(_:) started.
+◇ Test case passing 1 argument provider → .openAI to modelDiscovery(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to truncationAndRefusalNeverCountAsValidation(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to truncationAndRefusalNeverCountAsValidation(_:) started.
+◇ Test case passing 1 argument provider → .openAI to truncationAndRefusalNeverCountAsValidation(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to officialWireFormat(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to officialWireFormat(_:) started.
+◇ Test case passing 1 argument provider → .openAI to officialWireFormat(_:) started.
+✔ Test debugDescriptionsNeverContainCredentialsOrSource() passed after 0.005 seconds.
+✔ Test machineErrorTypeSurvivesUnknownOrNonStringCode() passed after 0.005 seconds.
+✔ Test invalidTranslationInputDoesNotReachNetwork() passed after 0.004 seconds.
+✔ Test errorClassificationDiscardsVendorMessage() passed after 0.004 seconds.
+✔ Test modifiedPrivacyMarkersFailClosed() passed after 0.005 seconds.
+✔ Test cancelledBeforeEntryConsumesNoBudgetOrNetwork() passed after 0.006 seconds.
+✔ Test callerCancellationReachesTransport() passed after 0.007 seconds.
+✔ Test wrongKeyNeverRetries(_:) with 3 test cases passed after 0.007 seconds.
+✔ Test wrongModelIsClassified(_:) with 3 test cases passed after 0.007 seconds.
+✔ Test modelCatalogueDoesNotSaveAnUnvalidatedKey() passed after 0.007 seconds.
+✔ Test failedModelSwitchLeavesOldConfiguration() passed after 0.007 seconds.
+✔ Test retryAfterIsNotShortened() passed after 0.007 seconds.
+✔ Test modelDiscovery(_:) with 3 test cases passed after 0.007 seconds.
+✔ Test cancellationDuringRetryDoesNotSendAnotherRequest() passed after 0.007 seconds.
+✔ Test lateSuccessAfterCancellationCannotReplaceOldKey() passed after 0.007 seconds.
+✔ Test paginationExhaustionStopsBeforeAnotherHTTPCall() passed after 0.007 seconds.
+✔ Test officialWireFormat(_:) with 3 test cases passed after 0.006 seconds.
+✔ Test secretsAreRemovedBeforeNetworkAndRestoredLocally() passed after 0.007 seconds.
+✔ Test emptyBindingsCannotSaveKeyAndIdenticalModelsValidateOnce() passed after 0.008 seconds.
+✔ Test simultaneousSwitchCannotOverwritePendingKeyReplacement() passed after 0.007 seconds.
+✔ Test invalidKeyRollsBackAllBindings(_:) with 3 test cases passed after 0.007 seconds.
+✔ Test budgetPreventsSecondNetworkCall() passed after 0.007 seconds.
+✔ Test anthropicPaginationUsesBudgetAndEscapedCursor() passed after 0.007 seconds.
+✔ Test openAIContentFilterAndUnknownIncompleteReasonsAreDistinct() passed after 0.008 seconds.
+✔ Test openAIOnlyReadsCompletedMessageText() passed after 0.007 seconds.
+✔ Test concurrentReservationsCannotExceedBudget() passed after 0.007 seconds.
+✔ Test replacementValidatesEveryExistingModelBeforeCommit() passed after 0.008 seconds.
+✔ Test cancelledValidationNeverSavesAndReleasesEditLock() passed after 0.008 seconds.
+✔ Test differentProviderEditsAreIndependent() passed after 0.008 seconds.
+✔ Test malformedAndTruncatedResultsAreRejected() passed after 0.008 seconds.
+✔ Test retryIsFiniteAndEveryAttemptReservesBudget() passed after 0.008 seconds.
+✔ Test truncationAndRefusalNeverCountAsValidation(_:) with 3 test cases passed after 0.008 seconds.
+✔ Test sharedKeySupportsIndependentModelsAndSwitchWithoutReentry() passed after 0.008 seconds.
+✔ Test timeoutCancelsTransportAndNeverRetries() passed after 0.190 seconds.
+✔ Test keyReplacementHasOneDeadlineAcrossBothModels() passed after 0.190 seconds.
+✔ Test timedOutValidationAndStorageFailureNeverReplaceOldRecord() passed after 0.191 seconds.
+✔ Test run with 37 tests in 0 suites passed after 0.191 seconds.

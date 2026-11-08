@@ -1,5 +1,5 @@
 name: Swift validation
-# Cost policy (private repo, macOS minutes bill at 10x):
+# Validation policy (repository public; standard hosted runners):
 # - pull_request: Linux Core only (every PR update).
 # - push: only main, full chain (post-merge verification).
 # - workflow_dispatch: build_apple = full macOS validation (required before merging a PR),
@@ -54,9 +54,15 @@ jobs:
           build_code=$?
           swift test --package-path Packages/AIUtilityCore > artifacts/core-linux/core-tests.log 2>&1
           test_code=$?
-          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\n' "$version_code" "$build_code" "$test_code" > artifacts/core-linux/exit-codes.txt
+          swift test --package-path PoCs/iOS27Capture > artifacts/core-linux/poc-lifecycle-tests.log 2>&1
+          lifecycle_code=$?
+          swift build --package-path Packages/AIUtilityMedia > artifacts/core-linux/media-build.log 2>&1
+          media_build_code=$?
+          swift test --package-path Packages/AIUtilityMedia > artifacts/core-linux/media-tests.log 2>&1
+          media_test_code=$?
+          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\npoc_lifecycle_tests=%s\nmedia_build=%s\nmedia_tests=%s\n' "$version_code" "$build_code" "$test_code" "$lifecycle_code" "$media_build_code" "$media_test_code" > artifacts/core-linux/exit-codes.txt
           cat artifacts/core-linux/*.log
-          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0
+          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0 && test "$lifecycle_code" -eq 0 && test "$media_build_code" -eq 0 && test "$media_test_code" -eq 0
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -65,6 +71,9 @@ jobs:
             artifacts/core-linux/swift-version.log
             artifacts/core-linux/core-build.log
             artifacts/core-linux/core-tests.log
+            artifacts/core-linux/poc-lifecycle-tests.log
+            artifacts/core-linux/media-build.log
+            artifacts/core-linux/media-tests.log
             artifacts/core-linux/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
@@ -81,6 +90,33 @@ jobs:
           persist-credentials: false
       - name: Validate real macOS packages and both iOS SDK targets
         run: bash scripts/ci_apple.sh
+      - name: Validate Media on macOS and both unsigned iOS SDK targets
+        if: always() && steps.checkout.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          media_logs="$GITHUB_WORKSPACE/artifacts/apple"
+          mkdir -p "$media_logs"
+          media_failed=0
+          record_media() {
+            local name="$1"
+            shift
+            "$@" > "$media_logs/$name.log" 2>&1
+            local code=$?
+            printf '%s=%s\n' "$name" "$code" >> "$media_logs/exit-codes.txt"
+            cat "$media_logs/$name.log"
+            if [ "$code" -ne 0 ]; then media_failed=1; fi
+          }
+          record_media mac-media-build swift build --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityMedia"
+          record_media mac-media-tests swift test --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityMedia"
+          cd "$GITHUB_WORKSPACE/Packages/AIUtilityMedia" || exit 1
+          record_media ios-media-simulator-build xcodebuild -scheme AIUtilityMedia -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-simulator-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          record_media ios-media-device-build xcodebuild -scheme AIUtilityMedia -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-device-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          exit "$media_failed"
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -91,6 +127,10 @@ jobs:
             artifacts/apple/mac-services-tests.log
             artifacts/apple/ios-simulator-build.log
             artifacts/apple/ios-device-build.log
+            artifacts/apple/mac-media-build.log
+            artifacts/apple/mac-media-tests.log
+            artifacts/apple/ios-media-simulator-build.log
+            artifacts/apple/ios-media-device-build.log
             artifacts/apple/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
@@ -194,6 +234,14 @@ jobs:
           version=$(xcrun --sdk iphoneos --show-sdk-version)
           echo "iphoneos SDK: $version"
           test "${version%%.*}" -ge 27
+      - name: Run portable PoC lifecycle regressions (not device framework tests)
+        run: |
+          set +e
+          swift test --package-path PoCs/iOS27Capture > artifacts/poc/lifecycle-tests.log 2>&1
+          code=$?
+          printf 'poc_lifecycle_tests=%s\n' "$code" > artifacts/poc/exit-codes.txt
+          cat artifacts/poc/lifecycle-tests.log
+          exit "$code"
       - run: brew install xcodegen
       - name: Generate and compile the diagnostic host with preserved exit codes
         id: simbuild
@@ -205,7 +253,7 @@ jobs:
           generate_code=$?
           xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build > ../../artifacts/poc/simulator-build.log 2>&1
           build_code=$?
-          printf 'xcodegen_generate=%s\npoc_simulator_build=%s\n' "$generate_code" "$build_code" > ../../artifacts/poc/exit-codes.txt
+          printf 'xcodegen_generate=%s\npoc_simulator_build=%s\n' "$generate_code" "$build_code" >> ../../artifacts/poc/exit-codes.txt
           cat ../../artifacts/poc/generate.log
           grep -E 'error:|warning:|BUILD (SUCCEEDED|FAILED)|\*\* ' ../../artifacts/poc/simulator-build.log | head -200
           tail -n 40 ../../artifacts/poc/simulator-build.log
@@ -226,6 +274,7 @@ jobs:
             -archivePath ../../artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive \
             -derivedDataPath ../../artifacts/poc-archive-build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO \
             > ../../artifacts/poc/archive.log 2>&1
           archive_code=$?
           printf 'poc_device_archive=%s\n' "$archive_code" >> ../../artifacts/poc/exit-codes.txt
@@ -269,6 +318,7 @@ jobs:
           {
             echo "== Info.plist (built)"; plutil -p "$plist"
             echo "== linked frameworks"; otool -L "$exe"
+            nm "$exe" | xcrun swift-demangle > artifacts/poc/device-symbols.log
             echo "== Xcode-generated entitlements (.xcent) for the archive"
             xcent=$(find artifacts/poc-archive-build -name '*.xcent' -print 2>/dev/null || true)
             if [ -n "$xcent" ]; then for f in $xcent; do echo "-- $f"; plutil -p "$f" || cat "$f"; done; else echo "none generated"; fi
@@ -283,6 +333,8 @@ jobs:
             check "binary links ScreenCaptureKit (capture code not compiled out)" 'otool -L "$exe" | grep -q ScreenCaptureKit.framework'
             check "binary links Speech" 'otool -L "$exe" | grep -q Speech.framework'
             check "binary links AVKit" 'otool -L "$exe" | grep -q AVKit.framework'
+            check "binary contains real ScreenAudioProbe" 'grep -q AIUtilityCapturePoC.ScreenAudioProbe artifacts/poc/device-symbols.log'
+            check "binary contains real PoCSession" 'grep -q AIUtilityCapturePoC.PoCSession artifacts/poc/device-symbols.log'
             check "no NSMicrophoneUsageDescription (PoC does not use mic)" '! plutil -extract NSMicrophoneUsageDescription raw -o - "$plist" >/dev/null 2>&1'
             check "IPA is unsigned" '! codesign -v "$app" >/dev/null 2>&1'
           } > artifacts/poc/preinstall-audit.log 2>&1
@@ -306,6 +358,8 @@ jobs:
             artifacts/poc/archive.log
             artifacts/poc/ipa-contents.log
             artifacts/poc/preinstall-audit.log
+            artifacts/poc/device-symbols.log
+            artifacts/poc/lifecycle-tests.log
             artifacts/poc/exit-codes.txt
           retention-days: 7
           if-no-files-found: warn

@@ -3,9 +3,13 @@ import PackageDescription
 
 let package = Package(
     name: "AIUtilityCapturePoC",
-    platforms: [.iOS("27.0")],
+    // macOS runs only the portable ownership regressions; iOS capture code remains gated to iOS.
+    platforms: [.iOS("27.0"), .macOS(.v13)],
     products: [.library(name: "AIUtilityCapturePoC", targets: ["AIUtilityCapturePoC"])],
     dependencies: [.package(path: "../../Packages/AIUtilityCore")],
-    targets: [.target(name: "AIUtilityCapturePoC", dependencies: [.product(name: "AIUtilityCore", package: "AIUtilityCore")])],
-    swiftLanguageModes: [.v5]
+    targets: [
+        .target(name: "AIUtilityCapturePoC", dependencies: [.product(name: "AIUtilityCore", package: "AIUtilityCore")]),
+        .testTarget(name: "AIUtilityCapturePoCTests", dependencies: ["AIUtilityCapturePoC"])
+    ],
+    swiftLanguageModes: [.v6]
 )

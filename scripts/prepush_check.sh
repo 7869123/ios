@@ -22,6 +22,7 @@ fi
 step "2/6 Workflow YAML and shell syntax"
 run "$PY" -c 'import sys, yaml; [yaml.safe_load(open(p)) for p in sys.argv[1:]]; print("yaml ok")' .github/workflows/*.yml
 for f in scripts/*.sh; do bash -n "$f" || { echo "shell syntax error: $f"; failed=1; }; done && echo "shell ok"
+run "$PY" -m unittest discover -s scripts/tests -v
 
 step "3/6 Resource integrity (project.yml sources, Info.plist, bundled images)"
 run "$PY" - <<'PY'
@@ -54,8 +55,7 @@ run git diff --check "$base" HEAD
 run git diff --check
 
 step "5/6 Personal-info scan of the current tree (must be empty)"
-hits=$(git grep -n -I -i -E '[A-Za-z]:[\\/]Users[\\/]|/Users/[A-Za-z0-9._-]+|/home/[a-z][a-z0-9_-]*/|Asia/[A-Z][a-z]+|America/[A-Z][a-z]+|(^|[^0-9])1[3-9][0-9]{9}([^0-9]|$)' -- . ':!*.jpg' ':!*.png' ':!validation/**/*.log' | grep -v -E '/Users/runner|/home/runner' || true)
-if [ -n "$hits" ]; then echo "$hits" | cut -c1-160; failed=1; else echo "no local paths / timezone / phone patterns"; fi
+run "$PY" scripts/check_personal_info.py
 
 step "5b Commit timezone of commits to push (must be +0000, public repository)"
 tz=$(git log --format='%h %ad %cd' --date=format:%z "$base..HEAD" | awk '$2!="+0000" || $3!="+0000"')

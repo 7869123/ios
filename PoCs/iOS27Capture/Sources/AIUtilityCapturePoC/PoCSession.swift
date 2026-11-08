@@ -1,6 +1,7 @@
 #if os(iOS) && canImport(ScreenCaptureKit)
 import Foundation
 import Combine
+import AVFoundation
 import AIUtilityCore
 
 @available(iOS 27.0, *)
@@ -11,15 +12,15 @@ import AIUtilityCore
     @Published public private(set) var translationState = "未启用 API 翻译"
     private var translationTask: Task<Void, Never>?
     private var revision = 0
-    private var running = false
+    private let lifecycle = ProbeLifecycle()
+    private var audioObservers: [NSObjectProtocol] = []
     /// Supply a real TranslationEngine built with the shared Keychain coordinator to test translation.
     /// Nil means local ASR-only diagnostics, clearly marked in the host.
     public init(engine: TranslationEngine? = nil, provider: ProviderID = .openAI, targetLanguage: String = "简体中文") {
         capture = ScreenAudioProbe(speech: speech)
-        capture.onTermination = { [weak self] in await self?.stop() }
         if engine != nil { translationState = "等待 final 语音段" }
         speech.onFinalText = { [weak self] text in
-            guard let self, let engine else { return }
+            guard let self, let engine, self.lifecycle.accepts(self.lifecycle.revision) else { return }
             self.revision += 1
             let revision = self.revision
             self.translationTask?.cancel()
@@ -39,19 +40,61 @@ import AIUtilityCore
         }
     }
     public func start() async throws {
-        guard !running else { return }
-        running = true
+        guard let session = lifecycle.begin() else { throw ProbeError.operationInProgress }
         do {
+            try Task.checkCancellation()
             try await speech.start()
-            guard running else { speech.stop(); return }
-            try pip.prepare(); capture.presentPicker()
+            try Task.checkCancellation()
+            guard lifecycle.accepts(session) else { throw CancellationError() }
+            try pip.prepare()
+            observeAudioEvents(session: session)
+            capture.onTermination = { [weak self] in await self?.stop(expected: session, captureAlreadyAttempted: true) }
+            capture.presentPicker()
+            lifecycle.didStart(session)
         }
-        catch { running = false; speech.stop(); pip.stop(); throw error }
+        catch {
+            if lifecycle.accepts(session) { await stop(expected: session) }
+            throw error
+        }
     }
     public func stop() async {
-        running = false
-        revision += 1; translationTask?.cancel(); translationTask = nil
-        await capture.stop(); speech.stop(); pip.stop()
+        await stop(expected: nil)
+    }
+    private func stop(expected: UInt64?, captureAlreadyAttempted: Bool = false) async {
+        await lifecycle.stop(expected: expected) { [self] in
+            audioObservers.forEach { NotificationCenter.default.removeObserver($0) }
+            audioObservers.removeAll()
+            revision += 1; translationTask?.cancel(); translationTask = nil
+            // Detach producers before resource release suspends. Restart stays blocked.
+            speech.stop(); pip.stop()
+            // Termination has already attempted capture release; only a user stop retries a failure.
+            if !captureAlreadyAttempted { await capture.stop() }
+            return capture.isStopped && pip.isStopped
+        }
+    }
+    private func observeAudioEvents(session: UInt64) {
+        for name in [AVAudioSession.interruptionNotification, AVAudioSession.routeChangeNotification,
+                     AVAudioSession.mediaServicesWereLostNotification, AVAudioSession.mediaServicesWereResetNotification] {
+            let token = NotificationCenter.default.addObserver(forName: name,
+                object: nil, queue: .main) { [weak self] notification in
+                let interruptionEnded = name == AVAudioSession.interruptionNotification &&
+                    (notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt) == AVAudioSession.InterruptionType.ended.rawValue
+                let ownCategoryChange = name == AVAudioSession.routeChangeNotification &&
+                    (notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt) == AVAudioSession.RouteChangeReason.categoryChange.rawValue
+                guard !interruptionEnded, !ownCategoryChange else { return }
+                Task { @MainActor [weak self] in
+                    guard let self, self.lifecycle.accepts(session) else { return }
+                    await self.stop(expected: session)
+                    // No automatic restart or authorization after interruptions/route changes.
+                    if self.lifecycle.revision == session {
+                        self.translationState = self.lifecycle.phase == .idle
+                            ? "音频中断、路由变化或媒体服务重置；已停止，请手动重新授权"
+                            : "系统资源释放返回错误；禁止重新开始，请再次停止或结束 App"
+                    }
+                }
+            }
+            audioObservers.append(token)
+        }
     }
 }
 #endif

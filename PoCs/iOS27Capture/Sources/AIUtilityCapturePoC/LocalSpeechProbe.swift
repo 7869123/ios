@@ -33,6 +33,7 @@ final class SpeechAudioSink: @unchecked Sendable {
         let authorization = await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { continuation.resume(returning: $0) }
         }
+        try Task.checkCancellation()
         guard self.revision == revision else { throw CancellationError() }
         guard authorization == .authorized,
               let recognizer = SFSpeechRecognizer(locale: locale), recognizer.isAvailable,
@@ -70,5 +71,5 @@ final class SpeechAudioSink: @unchecked Sendable {
     }
 }
 
-public enum ProbeError: Error { case speechUnavailable, captureUnavailable, pictureInPictureUnavailable, frameCreationFailed }
+public enum ProbeError: Error { case speechUnavailable, captureUnavailable, pictureInPictureUnavailable, frameCreationFailed, operationInProgress }
 #endif

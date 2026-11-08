@@ -1,0 +1,4 @@
+poc_lifecycle_tests=0
+xcodegen_generate=0
+poc_simulator_build=0
+poc_device_archive=0

@@ -1,0 +1,79 @@
+Building for debugging...
+[Constructing description]
+[Planning deferred tasks]
+[17 / 66] AIUtilityCore
+[34 / 66]
+[35 / 67] AIUtilityCore
+[39 / 105]
+[44 / 105]
+[45 / 105]
+[47 / 105]
+[52 / 105]
+[53 / 105]
+[54 / 105]
+[57 / 105]
+[58 / 105]
+[60 / 105]
+[61 / 105]
+[63 / 105]
+[66 / 105]
+[67 / 105]
+[68 / 105]
+[69 / 105]
+[73 / 105] AIUtilityCore
+[74 / 105] AIUtilityCore
+[82 / 106] AIUtilityCapturePoC
+[85 / 110] AIUtilityCore
+[96 / 110] AIUtilityCapturePoC
+[100 / 111] AIUtilityCapturePoCTests-product
+[101 / 115]
+[104 / 115] AIUtilityCapturePoCTests-product
+[108 / 115] AIUtilityCapturePoCTests-product
+[109 / 115] AIUtilityCapturePoCTests-product
+[CI_HOME]/work/ios/ios/PoCs/iOS27Capture/Tests/AIUtilityCapturePoCTests/ProbeLifecycleTests.swift:23:16: [1;33mwarning: [1;39mexpression of type 'Bool' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m21 |[0;0m     #expect(gate.begin() == nil)
+ [0;36m22 |[0;0m     pause.resume()
+ [0;36m23 |[0;0m     await [4;39mstop.value[0;0m
+    [0;36m|[0;0m                `- [1;33mwarning: [1;39mexpression of type 'Bool' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m24 |[0;0m     #expect(gate.phase == .idle)
+ [0;36m25 |[0;0m     #expect(gate.begin() != nil)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[111 / 115] AIUtilityCapturePoCTests-product
+[113 / 115] AIUtilityCapturePoCTests-product
+Build complete! (22.17 sec)
+Test Suite 'All tests' started at 2026-11-08 02:42:44.953.
+Test Suite 'All tests' passed at 2026-11-08 02:42:44.957.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.004) seconds
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test interruptedSessionRequiresExplicitRestart() started.
+◇ Test pendingStartCannotBecomeRunningAfterCancel() started.
+◇ Test stopIsIdempotentDuringAndAfterRelease() started.
+◇ Test staleFailureDoesNotReleaseNewSessionResources() started.
+◇ Test cancellingStopCallerStillFinishesResourceRelease() started.
+◇ Test oldFailureCannotStopReplacement() started.
+◇ Test repeatedStopAfterCompletionDoesNotReleaseTwice() started.
+◇ Test failedReleaseBlocksRestartUntilExplicitStopRetry() started.
+◇ Test lateMetricsAndPickerCallbacksAreRejected() started.
+◇ Test staleStopCompletionCannotClearReplacement() started.
+◇ Test restartWaitsForActualAsyncRelease() started.
+◇ Test concurrentStopsAwaitOneActualRelease() started.
+◇ Test concurrentStopFailureIsSharedWithoutImplicitRetry() started.
+◇ Test duplicateStartIsRejected() started.
+✔ Test interruptedSessionRequiresExplicitRestart() passed after 0.001 seconds.
+✔ Test lateMetricsAndPickerCallbacksAreRejected() passed after 0.001 seconds.
+✔ Test stopIsIdempotentDuringAndAfterRelease() passed after 0.001 seconds.
+✔ Test oldFailureCannotStopReplacement() passed after 0.001 seconds.
+✔ Test staleStopCompletionCannotClearReplacement() passed after 0.001 seconds.
+✔ Test pendingStartCannotBecomeRunningAfterCancel() passed after 0.001 seconds.
+✔ Test duplicateStartIsRejected() passed after 0.001 seconds.
+✔ Test staleFailureDoesNotReleaseNewSessionResources() passed after 0.001 seconds.
+✔ Test restartWaitsForActualAsyncRelease() passed after 0.001 seconds.
+✔ Test repeatedStopAfterCompletionDoesNotReleaseTwice() passed after 0.001 seconds.
+✔ Test failedReleaseBlocksRestartUntilExplicitStopRetry() passed after 0.001 seconds.
+✔ Test cancellingStopCallerStillFinishesResourceRelease() passed after 0.001 seconds.
+✔ Test concurrentStopFailureIsSharedWithoutImplicitRetry() passed after 0.001 seconds.
+✔ Test concurrentStopsAwaitOneActualRelease() passed after 0.001 seconds.
+✔ Test run with 14 tests in 0 suites passed after 0.002 seconds.

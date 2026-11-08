@@ -4,6 +4,16 @@ import Combine
 import AVKit
 import AVFoundation
 
+// AVKit can ask synchronous playback questions off the main actor.
+private final class PlaybackState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = false
+    var paused: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return value }
+        set { lock.lock(); defer { lock.unlock() }; value = newValue }
+    }
+}
+
 /// Renders changing caption pixels into real video sample buffers for AVKit PiP.
 /// This probes platform behavior; it does not claim approval for a subtitle-only shipping app.
 @available(iOS 27.0, *)
@@ -15,12 +25,23 @@ import AVFoundation
     private var controller: AVPictureInPictureController?
     private var timer: Timer?
     private var timebase: CMTimebase?
+    private nonisolated let playback = PlaybackState()
+    private var ownsAudioSession = false
+    var isStopped: Bool { controller == nil && timer == nil && !ownsAudioSession }
     public override init() { super.init(); displayLayer.videoGravity = .resizeAspect }
     public func prepare() throws {
+        stop()
+        guard isStopped else { throw ProbeError.pictureInPictureUnavailable }
+        do { try prepareResources() }
+        catch { stop(); throw error }
+    }
+    private func prepareResources() throws {
         guard AVPictureInPictureController.isPictureInPictureSupported() else { throw ProbeError.pictureInPictureUnavailable }
         let audio = AVAudioSession.sharedInstance()
         try audio.setCategory(.playback, mode: .moviePlayback, options: [.mixWithOthers])
         try audio.setActive(true)
+        ownsAudioSession = true
+        playback.paused = false
         var timebase: CMTimebase?
         guard CMTimebaseCreateWithSourceClock(allocator: kCFAllocatorDefault,
             sourceClock: CMClockGetHostTimeClock(), timebaseOut: &timebase) == noErr,
@@ -44,12 +65,27 @@ import AVFoundation
         controller?.startPictureInPicture(); state = "已请求 PiP；等待系统回调"
     }
     public func stop() {
-        controller?.stopPictureInPicture(); timer?.invalidate(); timer = nil
+        timer?.invalidate(); timer = nil
+        controller?.delegate = nil
+        controller?.stopPictureInPicture()
+        controller?.contentSource = nil
+        controller = nil
         displayLayer.flushAndRemoveImage()
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        displayLayer.controlTimebase = nil; timebase = nil
+        playback.paused = true
+        if ownsAudioSession {
+            do {
+                try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+                ownsAudioSession = false
+            } catch {
+                state = "音频会话释放返回错误；请再次停止，勿认定系统已释放"
+                return
+            }
+        }
         state = "已停止；无真机结论"
     }
     private func renderFrame() throws {
+        guard !playback.paused else { return }
         if displayLayer.status == .failed { displayLayer.flush() }
         guard displayLayer.isReadyForMoreMediaData else { return }
         let width = 960, height = 240
@@ -81,19 +117,35 @@ import AVFoundation
             let sample else { throw ProbeError.frameCreationFailed }
         displayLayer.enqueue(sample)
     }
-    public func pictureInPictureController(_ controller: AVPictureInPictureController, setPlaying playing: Bool) {}
-    public func pictureInPictureControllerTimeRangeForPlayback(_ controller: AVPictureInPictureController) -> CMTimeRange {
+    nonisolated public func pictureInPictureController(_ controller: AVPictureInPictureController, setPlaying playing: Bool) {
+        let identity = ObjectIdentifier(controller)
+        Task { @MainActor [weak self] in
+            guard let self, self.controller.map(ObjectIdentifier.init) == identity else { return }
+            self.playback.paused = !playing
+            self.controller?.invalidatePlaybackState()
+        }
+    }
+    nonisolated public func pictureInPictureControllerTimeRangeForPlayback(_ controller: AVPictureInPictureController) -> CMTimeRange {
         CMTimeRange(start: .zero, duration: .positiveInfinity)
     }
-    public func pictureInPictureControllerIsPlaybackPaused(_ controller: AVPictureInPictureController) -> Bool { false }
-    public func pictureInPictureController(_ controller: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {}
-    public func pictureInPictureController(_ controller: AVPictureInPictureController, skipByInterval skipInterval: CMTime,
+    nonisolated public func pictureInPictureControllerIsPlaybackPaused(_ controller: AVPictureInPictureController) -> Bool { playback.paused }
+    // Fixed-resolution live captions: no seekable history or render-size-dependent source.
+    nonisolated public func pictureInPictureController(_ controller: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {}
+    nonisolated public func pictureInPictureController(_ controller: AVPictureInPictureController, skipByInterval skipInterval: CMTime,
         completion completionHandler: @escaping () -> Void) { completionHandler() }
-    public func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
-        state = "收到 PiP 启动回调；需人工确认跨 App 持续刷新"
+    nonisolated public func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
+        let identity = ObjectIdentifier(controller)
+        Task { @MainActor [weak self] in
+            guard let self, self.controller.map(ObjectIdentifier.init) == identity else { return }
+            self.state = "收到 PiP 启动回调；需人工确认跨 App 持续刷新"
+        }
     }
-    public func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        state = "PiP 启动失败"
+    nonisolated public func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        let identity = ObjectIdentifier(controller)
+        Task { @MainActor [weak self] in
+            guard let self, self.controller.map(ObjectIdentifier.init) == identity else { return }
+            self.state = "PiP 启动失败"
+        }
     }
 }
 #endif

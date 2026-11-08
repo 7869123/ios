@@ -1,0 +1,49 @@
+== sw_vers
+ProductName:		macOS
+ProductVersion:		27.0.1
+BuildVersion:		26A434
+== uname -m
+arm64
+== xcode-select -p
+/Applications/Xcode_27.1.app/Contents/Developer
+== xcodebuild -version
+Xcode 27.1
+Build version 27A9275
+== xcodebuild -showsdks
+DriverKit SDKs:
+	DriverKit 27.0                	-sdk driverkit27.0
+
+iOS SDKs:
+	iOS 27.1                      	-sdk iphoneos27.1
+
+iOS Simulator SDKs:
+	Simulator - iOS 27.1          	-sdk iphonesimulator27.1
+
+macOS SDKs:
+	macOS 27.0                    	-sdk macosx27.0
+	macOS 27.0                    	-sdk macosx27.0
+
+tvOS SDKs:
+	tvOS 27.0                     	-sdk appletvos27.0
+
+tvOS Simulator SDKs:
+	Simulator - tvOS 27.0         	-sdk appletvsimulator27.0
+
+visionOS SDKs:
+	visionOS 27.0                 	-sdk xros27.0
+
+visionOS Simulator SDKs:
+	Simulator - visionOS 27.0     	-sdk xrsimulator27.0
+
+watchOS SDKs:
+	watchOS 27.0                  	-sdk watchos27.0
+
+watchOS Simulator SDKs:
+	Simulator - watchOS 27.0      	-sdk watchsimulator27.0
+
+== xcrun --sdk iphoneos --show-sdk-version
+27.1
+== ScreenCaptureKit in iphoneos SDK
+/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk/System/Library/Frameworks/ScreenCaptureKit.framework
+== ScreenCaptureKit in iphonesimulator SDK
+absent
