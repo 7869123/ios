@@ -196,7 +196,12 @@ jobs:
           # Start from an empty folder so a failed capture never leaves an older preview looking current.
           rm -rf validation/ui-preview && mkdir -p validation/ui-preview
           printf 'run=%s\nsha=%s\n' "${{ github.run_id }}" "${{ github.sha }}" > validation/ui-preview/SOURCE.txt
-          for n in ipad-mini-landscape ipad-mini-portrait iphone-landscape iphone-portrait; do
+          # Home in four views, then each Media Tools page (iPad both orientations, iPhone portrait).
+          names="ipad-mini-landscape ipad-mini-portrait iphone-landscape iphone-portrait"
+          for p in downloads stitch gif fingerprint search; do
+            names="$names ipad-mini-portrait-$p ipad-mini-landscape-$p iphone-portrait-$p"
+          done
+          for n in $names; do
             f="artifacts/app/screenshots/$n.png"
             if [ -f "$f" ]; then
               sips -s format jpeg -s formatOptions 70 -Z 1200 "$f" --out "validation/ui-preview/$n.jpg" >/dev/null

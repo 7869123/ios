@@ -17,7 +17,7 @@ enum Workspace: String, CaseIterable, Identifiable {
 
 @MainActor struct RootView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
-    @State private var selected: Workspace? = .home
+    @State private var selected: Workspace? = RootView.launchWorkspace
     @State private var windowSize: CGSize = .zero
     // Start from the scene's current shape so iPad portrait opens without the sidebar even before
     // the first geometry callback (a later visibility change on appear was not always honoured).
@@ -64,6 +64,13 @@ enum Workspace: String, CaseIterable, Identifiable {
                 }
             }
         }
+    }
+    /// Review screenshots only (DEBUG): `-AIUtilityPage <media tool page>` starts on Media Tools.
+    private static var launchWorkspace: Workspace {
+        #if DEBUG
+        if ReviewLaunch.mediaPage != nil { return .media }
+        #endif
+        return .home
     }
     private static var launchIsPortrait: Bool? {
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return nil }

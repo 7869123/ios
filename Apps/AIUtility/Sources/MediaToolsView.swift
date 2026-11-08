@@ -4,7 +4,7 @@ import AIUtilityMedia
 /// Media hub. Statuses are honest: local tools run on device; site downloads and reverse search are
 /// implemented but only tested against offline samples, so they are marked 未实测.
 struct MediaTool: Identifiable {
-    enum Page { case downloads, stitch, gif, fingerprint, search }
+    enum Page: String, Hashable, CaseIterable { case downloads, stitch, gif, fingerprint, search }
     let id: String
     let title: String
     let icon: String
@@ -28,6 +28,9 @@ struct MediaTool: Identifiable {
 
 @MainActor struct MediaToolsView: View {
     @EnvironmentObject private var media: MediaModel
+    /// Set only by the DEBUG review-screenshot launch argument, to open one tool page directly.
+    @State private var autoOpen: MediaTool.Page?
+    @State private var autoOpened = false
 
     var body: some View {
         WorkspacePage {
@@ -40,6 +43,16 @@ struct MediaTool: Identifiable {
                 .legibleOnWallpaper()
         }
         .task { await media.start() }
+        .navigationDestination(item: $autoOpen) { page in
+            if let tool = (MediaTool.downloads + MediaTool.local + MediaTool.search).first(where: { $0.page == page }) {
+                destination(tool)
+            }
+        }
+        .onAppear {
+            #if DEBUG
+            if !autoOpened, let page = ReviewLaunch.mediaPage { autoOpened = true; autoOpen = page }
+            #endif
+        }
     }
 
     private func section(_ title: String, _ tools: [MediaTool]) -> some View {
@@ -193,3 +206,14 @@ struct MediaTool: Identifiable {
         }
     }
 }
+
+#if DEBUG
+/// CI review screenshots only: `-AIUtilityPage <downloads|stitch|gif|fingerprint|search>`.
+enum ReviewLaunch {
+    static var mediaPage: MediaTool.Page? {
+        let args = ProcessInfo.processInfo.arguments
+        guard let index = args.firstIndex(of: "-AIUtilityPage"), index + 1 < args.count else { return nil }
+        return MediaTool.Page(rawValue: args[index + 1])
+    }
+}
+#endif
