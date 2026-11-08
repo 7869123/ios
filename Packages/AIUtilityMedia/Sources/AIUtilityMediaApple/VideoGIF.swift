@@ -9,7 +9,7 @@ import ImageIO
 /// Converts a clip of a local video (already copied into the app sandbox by the UI) into a new GIF in
 /// `outputDirectory`. Frames are taken at exactly `start + n / fps` with the track's orientation
 /// applied, scaled down to `maxWidth` (never up), without audio. The input file is only read.
-/// On error or cancellation the partial file is removed and no result is returned.
+/// On error or cancellation nothing is written and no result is returned.
 public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOptions) async throws(MediaError) -> GIFResult {
     try ProcessingValidation.check(options)
     guard url.isFileURL, outputDirectory.isFileURL else { throw .invalidURL }
@@ -47,37 +47,28 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
     generator.requestedTimeToleranceAfter = .zero
     generator.maximumSize = CGSize(width: pixelSize.width, height: pixelSize.height)
 
-    let name = UUID().uuidString.lowercased()
-    let partial = outputDirectory.appendingPathComponent(".\(name).gif.partial")
-    let finalURL = outputDirectory.appendingPathComponent("\(name).gif")
-    do {
-        try await encodeFrames(generator: generator, plan: plan, options: options, size: pixelSize, to: partial)
-        guard !Task.isCancelled else { throw MediaError.cancelled }
-
-        // Report what the file really holds, not what was requested.
-        guard let summary = GIFInspector.inspect(partial),
-              summary.frameCount == plan.count,
-              summary.delaysCentiseconds == plan.map(\.delayCentiseconds),
-              summary.width == pixelSize.width, summary.height == pixelSize.height
-        else { throw MediaError.unsupportedFormat }
-        let bytes = Int64((try? partial.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
-        guard bytes > 0 else { throw MediaError.outputMissing }
-        guard bytes <= options.limits.maxOutputBytes else { throw MediaError.resourceLimitExceeded }
-        do { try FileManager.default.moveItem(at: partial, to: finalURL) } catch { throw MediaError.storageUnavailable }
-        return GIFResult(url: finalURL, bytes: bytes, width: summary.width, height: summary.height,
-                         frameCount: summary.frameCount, totalDuration: Double(summary.totalCentiseconds) / 100)
-    } catch {
-        try? FileManager.default.removeItem(at: partial)
-        throw (error as? MediaError) ?? .storageUnavailable
-    }
+    // Encoded in memory and written once, atomically, after every check: a cancelled or failed
+    // conversion leaves no file at all in the output directory.
+    let data = try await encodeFrames(generator: generator, plan: plan, options: options, size: pixelSize)
+    guard !Task.isCancelled else { throw .cancelled }
+    // Report what the output really holds, not what was requested.
+    guard let summary = GIFInspector.inspect(data),
+          summary.frameCount == plan.count,
+          summary.delaysCentiseconds == plan.map(\.delayCentiseconds),
+          summary.width == pixelSize.width, summary.height == pixelSize.height
+    else { throw .unsupportedFormat }
+    guard Int64(data.count) <= options.limits.maxOutputBytes else { throw .resourceLimitExceeded }
+    let finalURL = outputDirectory.appendingPathComponent(UUID().uuidString.lowercased() + ".gif")
+    do { try data.write(to: finalURL, options: [.atomic, .withoutOverwriting]) }
+    catch { throw (error as NSError).code == NSFileWriteOutOfSpaceError ? .storageFull : .storageUnavailable }
+    return GIFResult(url: finalURL, bytes: Int64(data.count), width: summary.width, height: summary.height,
+                     frameCount: summary.frameCount, totalDuration: Double(summary.totalCentiseconds) / 100)
 }
 
-/// Encodes every planned frame into `url`. The encoder lives only inside this function, so it is
-/// released before the caller cleans up: an unfinished ImageIO destination can still write its file
-/// when it is deallocated, which would otherwise leave a partial GIF behind after cancellation.
+/// Encodes every planned frame in order and returns the finished GIF bytes.
 private func encodeFrames(generator: AVAssetImageGenerator, plan: [GIFTimeline.Frame], options: GIFOptions,
-                          size: (width: Int, height: Int), to url: URL) async throws(MediaError) {
-    let encoder = try GIFFileEncoder(url: url, frameCount: plan.count, loopCount: options.loopCount)
+                          size: (width: Int, height: Int)) async throws(MediaError) -> Data {
+    let encoder = try GIFEncoder(frameCount: plan.count, loopCount: options.loopCount)
     for frame in plan {
         guard !Task.isCancelled else { throw .cancelled }
         let time = CMTime(seconds: options.start + frame.offset, preferredTimescale: 600)
@@ -86,7 +77,7 @@ private func encodeFrames(generator: AVAssetImageGenerator, plan: [GIFTimeline.F
         catch { throw Task.isCancelled ? .cancelled : .unsupportedFormat }
         try encoder.append(try fitted(image, to: size), delayCentiseconds: frame.delayCentiseconds)
     }
-    try encoder.finish()
+    return try encoder.finish()
 }
 
 /// Redraws a frame at exactly the output size when the generator's rounding differs.

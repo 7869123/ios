@@ -4,23 +4,28 @@ import CoreGraphics
 import ImageIO
 import AIUtilityMedia
 
-/// Sequential GIF writer shared by `makeGIF(fromVideo:)` and the later Ugoira assembly: frames are
+/// Sequential GIF encoder shared by `makeGIF(fromVideo:)` and the later Ugoira assembly: frames are
 /// appended one at a time, each with its own delay in whole centiseconds. Delays a GIF cannot show
 /// faithfully (under 2 cs, which viewers stretch) are rejected with `.unsupportedFormat` rather than
 /// silently changed. The frame count is fixed up front, as ImageIO requires.
-final class GIFFileEncoder {
-    let url: URL
+///
+/// Encodes into memory: nothing touches the disk until the caller writes the finished bytes, so a
+/// cancelled or failed encode cannot leave a partial or temporary file behind (an unfinished ImageIO
+/// file destination was observed leaving one in CI).
+final class GIFEncoder {
+    private let output = NSMutableData()
     private let destination: CGImageDestination
     private let expectedFrames: Int
     private(set) var delays: [Int] = []
 
-    init(url: URL, frameCount: Int, loopCount: Int) throws(MediaError) {
+    init(frameCount: Int, loopCount: Int) throws(MediaError) {
         guard frameCount > 0, loopCount >= 0 else { throw .invalidInput }
-        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, "com.compuserve.gif" as CFString, frameCount, nil)
-        else { throw .storageUnavailable }
+        guard let destination = CGImageDestinationCreateWithData(output as CFMutableData, "com.compuserve.gif" as CFString,
+                                                                 frameCount, nil)
+        else { throw .unsupportedFormat }
         let fileProperties = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: loopCount]] as CFDictionary
         CGImageDestinationSetProperties(destination, fileProperties)
-        self.url = url; self.destination = destination; self.expectedFrames = frameCount
+        self.destination = destination; self.expectedFrames = frameCount
     }
 
     func append(_ image: CGImage, delayCentiseconds: Int) throws(MediaError) {
@@ -33,13 +38,15 @@ final class GIFFileEncoder {
         delays.append(delayCentiseconds)
     }
 
-    func finish() throws(MediaError) {
+    /// Finalises and returns the GIF bytes.
+    func finish() throws(MediaError) -> Data {
         guard delays.count == expectedFrames else { throw .invalidState }
-        guard CGImageDestinationFinalize(destination) else { throw .storageUnavailable }
+        guard CGImageDestinationFinalize(destination), output.length > 0 else { throw .unsupportedFormat }
+        return output as Data
     }
 }
 
-/// Reads a written GIF back so results report what the file really contains.
+/// Reads GIF bytes back so results report what the output really contains.
 enum GIFInspector {
     struct Summary: Equatable {
         let frameCount: Int
@@ -50,7 +57,12 @@ enum GIFInspector {
     }
 
     static func inspect(_ url: URL) -> Summary? {
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return inspect(data)
+    }
+
+    static func inspect(_ data: Data) -> Summary? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
               CGImageSourceGetType(source) as String? == "com.compuserve.gif" else { return nil }
         let count = CGImageSourceGetCount(source)
         guard count > 0 else { return nil }

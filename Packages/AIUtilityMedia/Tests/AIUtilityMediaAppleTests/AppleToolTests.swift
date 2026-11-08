@@ -257,27 +257,26 @@ struct FingerprintTests {
 
 struct GIFTests {
     @Test func encoderKeepsEachFrameDelayAndOrder() throws {
-        let directory = try temporaryDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
-        let url = directory.appendingPathComponent("frames.gif")
-        let encoder = try GIFFileEncoder(url: url, frameCount: 3, loopCount: 0)
+        let encoder = try GIFEncoder(frameCount: 3, loopCount: 0)
         try encoder.append(try solidImage(width: 6, height: 4, color: red), delayCentiseconds: 3)
         try encoder.append(try solidImage(width: 6, height: 4, color: green), delayCentiseconds: 7)
         try encoder.append(try solidImage(width: 6, height: 4, color: blue), delayCentiseconds: 12)
-        try encoder.finish()
-        let summary = try #require(GIFInspector.inspect(url))
+        let data = try encoder.finish()
+        let summary = try #require(GIFInspector.inspect(data))
         #expect(summary == GIFInspector.Summary(frameCount: 3, delaysCentiseconds: [3, 7, 12], width: 6, height: 4))
-        let source = try #require(CGImageSourceCreateWithURL(url as CFURL, nil))
+        let source = try #require(CGImageSourceCreateWithData(data as CFData, nil))
         let order = try (0..<3).map { try pixel(try #require(CGImageSourceCreateImageAtIndex(source, $0, nil)), x: 2, y: 2) }
-        #expect(similar(order[0], red, tolerance: 30) && similar(order[1], green, tolerance: 30) && similar(order[2], blue, tolerance: 30))
+        #expect(similar(order[0], red, tolerance: 30))
+        #expect(similar(order[1], green, tolerance: 30))
+        #expect(similar(order[2], blue, tolerance: 30))
     }
 
     @Test func encoderRejectsDelaysAGIFCannotShow() throws {
-        let directory = try temporaryDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
-        let encoder = try GIFFileEncoder(url: directory.appendingPathComponent("bad.gif"), frameCount: 1, loopCount: 0)
+        let encoder = try GIFEncoder(frameCount: 1, loopCount: 0)
         #expect(throws: MediaError.unsupportedFormat) {
             try encoder.append(try solidImage(width: 2, height: 2, color: red), delayCentiseconds: 1)
         }
-        #expect(throws: MediaError.invalidState) { try encoder.finish() }
+        #expect(throws: MediaError.invalidState) { _ = try encoder.finish() }
     }
 
     @Test func videoClipBecomesGIFWithPlannedFramesAndDuration() async throws {
@@ -297,8 +296,8 @@ struct GIFTests {
         let first = try pixel(try #require(CGImageSourceCreateImageAtIndex(source, 0, nil)), x: 16, y: 12)
         let last = try pixel(try #require(CGImageSourceCreateImageAtIndex(source, 9, nil)), x: 16, y: 12)
         #expect(Int(last.r) > Int(first.r))
-        let leftovers = try FileManager.default.contentsOfDirectory(atPath: directory.path).filter { $0.hasSuffix(".partial") }
-        #expect(leftovers.isEmpty)
+        let files = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        #expect(Set(files) == ["input.mov", result.url.lastPathComponent], "\(files)")
     }
 
     @Test func smallVideoIsNotUpscaledAndClipMustFit() async throws {
@@ -328,7 +327,8 @@ struct GIFTests {
             return try await makeGIF(fromVideo: video, outputDirectory: output, options: GIFOptions(duration: 1.5))
         }
         await expectMediaError(.cancelled) { try await task.value }
-        #expect(try FileManager.default.contentsOfDirectory(atPath: output.path).isEmpty)
+        let leftovers = try FileManager.default.contentsOfDirectory(atPath: output.path)
+        #expect(leftovers.isEmpty, "\(leftovers)")
     }
 }
 #endif
