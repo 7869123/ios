@@ -63,6 +63,61 @@ public func deleteFiles(for id: DownloadID) async throws(MediaError) -> DeleteRe
 
 默认只下载第一 P（或链接中指定的分 P）。请在 `MediaSelection` 或解析结果中预留"全部分 P"的表达方式，便于以后界面提供选项；P3 可以只实现默认行为。
 
+## 3b. 第二轮审核（`f5f0102`）
+
+R1–R5 已全部在 `MEDIA_INTERFACES.md` 中落实，修订仅涉及文档，未写代码、未建包、未触发 CI。用户在第二轮决定新增 R6，**R6 修改后**再进入 P1（仍需用户明确授权）。
+
+### R6　站点专属选项从 `MediaSelection` 中拆出（用户决定）
+
+`f5f0102` 把 `bilibiliAllParts`、`ugoiraGIF(keepOriginalArchive:)` 作为 `MediaSelection` 的 case，导致：
+
+- 一次入队只能表达一个选项，无法同时"指定清晰度 + 下载全部分 P"；
+- 每增加一个站点专属选项都要扩充通用枚举；
+- 设置页难以直接保存"默认下载选项"；
+- 对不相关站点误用时只能在运行时报 `invalidSelection`。
+
+请改为"通用选择 + 站点选项"两部分：
+
+```swift
+/// 通用：选择清晰度 / 格式
+public enum MediaSelection: Sendable, Hashable, Codable {
+    case automatic
+    case variant(itemID: MediaItemID, variantID: String)
+}
+
+/// 站点专属选项；全部有默认值，与 MediaSelection 正交，可同时使用
+public struct SiteOptions: Sendable, Hashable, Codable {
+    public var bilibili: BilibiliOptions
+    public var pixiv: PixivOptions
+    public init(bilibili: BilibiliOptions = .init(), pixiv: PixivOptions = .init())
+}
+public struct BilibiliOptions: Sendable, Hashable, Codable {
+    public var allParts: Bool                 // 默认 false：链接指定分 P，否则第一 P
+    public init(allParts: Bool = false)
+}
+public struct PixivOptions: Sendable, Hashable, Codable {
+    public var keepUgoiraArchive: Bool        // 默认 false：Ugoira 只交付 GIF
+    public init(keepUgoiraArchive: Bool = false)
+}
+
+// DownloadManager
+public func enqueue(link: URL,
+                    selection: MediaSelection = .automatic,
+                    options: SiteOptions = .init()) async throws(MediaError) -> EnqueueReceipt
+public func enqueue(_ item: MediaItem, variant: MediaVariant,
+                    options: SiteOptions = .init()) async throws(MediaError) -> EnqueueReceipt
+```
+
+要求：
+
+1. **语义不变**：默认值与 `f5f0102` 的默认行为一致（B站单 P、Ugoira 默认 GIF 且不保留原件）；`capabilities.supportsAllBilibiliParts == false` 时，`bilibili.allParts == true` 仍返回 `unsupportedFormat`，不能悄悄只下载第一 P。
+2. **不相关站点的选项忽略，不报错**：例如对 X 链接传入 `pixiv.keepUgoiraArchive = true` 不影响结果。只有选项对当前来源有效却无法满足时才报错。
+3. **去重身份**：去重键只包含对该来源**实际生效**的选项（规范化后），不相关选项不参与，避免同一内容因无关选项不同而重复下载；对该来源生效的选项不同时视为不同任务。
+4. **组装计划**：`MediaAssembly.ugoiraToGIF(keepOriginalArchive:)` 由 `options.pixiv.keepUgoiraArchive` 决定；其他组装逻辑不变。
+5. **持久化**：`SiteOptions` 可 Codable，用于排队任务恢复和界面"默认下载选项"的保存；历史记录可保存生效的选项摘要，但不含任何链接或凭据。
+6. **扩展方式**：以后新增站点选项时，只在对应站点的 Options 结构中加字段（带默认值），不修改 `MediaSelection`。
+7. 同步更新文档中引用旧 case 的地方（第 3 节说明、`DownloadState`/去重相关段落、第 11 节测试要求、第 12 节审核点）。测试要求补充：选择与站点选项组合、无关选项被忽略、去重键只含生效选项、`allParts` 未支持时明确拒绝。
+
 ## 4. 界面接线备注（Claude 侧，供 Codex 参考）
 
 - App 会在 `AppModel` 中另外持有 `DownloadManager`，只通过 `enqueue(link:)` 入队，不在入队前自行调用 `resolve`。
@@ -72,6 +127,7 @@ public func deleteFiles(for id: DownloadID) async throws(MediaError) -> DeleteRe
 
 ## 5. 下一步
 
-1. Codex 按第 3 节修改 `MEDIA_INTERFACES.md`，汇报改动点（按 `AGENTS.md` 格式，UTC 提交）。
-2. 用户审核修改后的接口文档，并明确授权进入 P1。
-3. P1 完成后，触发 CI 前先征得用户同意。
+1. ~~Codex 按第 3 节修改 `MEDIA_INTERFACES.md`~~（已在 `f5f0102` 完成 R1–R5）。
+2. Codex 按第 3b 节 R6 修改 `MEDIA_INTERFACES.md`，汇报改动点（按 `AGENTS.md` 格式，UTC 提交）。
+3. 用户审核修改后的接口文档，并明确授权进入 P1。
+4. P1 完成后，触发 CI 前先征得用户同意。
