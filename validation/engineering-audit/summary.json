@@ -1,0 +1,1099 @@
+{
+  "date": "2026-11-07",
+  "source_sha": "680f3d2af9f056811b05e4db74d0492f9dd1d1d6",
+  "branch": "codex/poc-engineering-audit",
+  "integrated_claude_base": "d7859b0034fe1cbec34ce6ee748871ffd7692d4a",
+  "latest_upstream_at_recording": "6b335ab891b352297cccd1a9bec6b98e84e16cc2",
+  "run": {
+    "id": 42378051064,
+    "head_sha": "680f3d2af9f056811b05e4db74d0492f9dd1d1d6",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/7869123/ios/actions/runs/42378051064",
+    "run_attempt": 1,
+    "created_at": "2026-11-07T13:40:40Z",
+    "updated_at": "2026-11-07T13:53:04Z"
+  },
+  "jobs": [
+    {
+      "id": 128419652484,
+      "name": "core-linux",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/7869123/ios/actions/runs/42378051064/job/128419652484",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-07T13:40:50Z",
+          "completed_at": "2026-11-07T13:40:51Z"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-07T13:40:51Z",
+          "completed_at": "2026-11-07T13:41:11Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-07T13:41:11Z",
+          "completed_at": "2026-11-07T13:41:13Z"
+        },
+        {
+          "name": "Real compiler and offline tests with preserved exit codes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-07T13:41:13Z",
+          "completed_at": "2026-11-07T13:41:41Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-07T13:41:41Z",
+          "completed_at": "2026-11-07T13:41:42Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-07T13:41:42Z",
+          "completed_at": "2026-11-07T13:41:43Z"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-07T13:41:43Z",
+          "completed_at": "2026-11-07T13:41:43Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-07T13:41:43Z",
+          "completed_at": "2026-11-07T13:41:43Z"
+        }
+      ]
+    },
+    {
+      "id": 128419871613,
+      "name": "apple",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/7869123/ios/actions/runs/42378051064/job/128419871613",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-07T13:41:48Z",
+          "completed_at": "2026-11-07T13:41:49Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-07T13:41:49Z",
+          "completed_at": "2026-11-07T13:41:52Z"
+        },
+        {
+          "name": "Validate real macOS packages and both iOS SDK targets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-07T13:41:52Z",
+          "completed_at": "2026-11-07T13:43:20Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-07T13:43:20Z",
+          "completed_at": "2026-11-07T13:43:21Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-07T13:43:21Z",
+          "completed_at": "2026-11-07T13:43:22Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-07T13:43:22Z",
+          "completed_at": "2026-11-07T13:43:22Z"
+        }
+      ]
+    },
+    {
+      "id": 128419871717,
+      "name": "poc-sdk",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/7869123/ios/actions/runs/42378051064/job/128419871717",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-07T13:41:52Z",
+          "completed_at": "2026-11-07T13:41:54Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-07T13:41:54Z",
+          "completed_at": "2026-11-07T13:42:00Z"
+        },
+        {
+          "name": "Record actual runner, Xcode and SDK versions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-07T13:42:00Z",
+          "completed_at": "2026-11-07T13:42:10Z"
+        },
+        {
+          "name": "Require iOS 27 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-07T13:42:10Z",
+          "completed_at": "2026-11-07T13:42:10Z"
+        },
+        {
+          "name": "Run portable PoC lifecycle regressions (not device framework tests)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-07T13:42:10Z",
+          "completed_at": "2026-11-07T13:43:03Z"
+        },
+        {
+          "name": "Run brew install xcodegen",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-07T13:43:03Z",
+          "completed_at": "2026-11-07T13:44:29Z"
+        },
+        {
+          "name": "Generate and compile the diagnostic host with preserved exit codes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-07T13:44:29Z",
+          "completed_at": "2026-11-07T13:45:34Z"
+        },
+        {
+          "name": "Archive unsigned Release build for iphoneos",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-07T13:45:34Z",
+          "completed_at": "2026-11-07T13:46:10Z"
+        },
+        {
+          "name": "Package Payload into PoC-unsigned.ipa",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-07T13:46:10Z",
+          "completed_at": "2026-11-07T13:46:12Z"
+        },
+        {
+          "name": "Pre-install audit of the packaged app",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-07T13:46:12Z",
+          "completed_at": "2026-11-07T13:46:15Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-07T13:46:15Z",
+          "completed_at": "2026-11-07T13:47:08Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-07T13:47:08Z",
+          "completed_at": "2026-11-07T13:47:10Z"
+        },
+        {
+          "name": "Fail job if the simulator build failed",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13,
+          "started_at": "2026-11-07T13:47:10Z",
+          "completed_at": "2026-11-07T13:47:10Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-11-07T13:47:10Z",
+          "completed_at": "2026-11-07T13:47:11Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-11-07T13:47:11Z",
+          "completed_at": "2026-11-07T13:47:13Z"
+        }
+      ]
+    },
+    {
+      "id": 128420238618,
+      "name": "app",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/7869123/ios/actions/runs/42378051064/job/128420238618",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-07T13:43:29Z",
+          "completed_at": "2026-11-07T13:43:30Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-07T13:43:30Z",
+          "completed_at": "2026-11-07T13:43:33Z"
+        },
+        {
+          "name": "Generate and compile the native SwiftUI App",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-07T13:43:33Z",
+          "completed_at": "2026-11-07T13:45:28Z"
+        },
+        {
+          "name": "Capture home review screenshots (iPad mini primary, iPhone compatibility)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-07T13:45:28Z",
+          "completed_at": "2026-11-07T13:52:49Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-07T13:52:49Z",
+          "completed_at": "2026-11-07T13:52:54Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-07T13:52:54Z",
+          "completed_at": "2026-11-07T13:52:56Z"
+        },
+        {
+          "name": "Commit downscaled previews to this branch (manual review runs only)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-11-07T13:52:56Z",
+          "completed_at": "2026-11-07T13:52:56Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-11-07T13:52:56Z",
+          "completed_at": "2026-11-07T13:52:56Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-11-07T13:52:56Z",
+          "completed_at": "2026-11-07T13:53:02Z"
+        }
+      ]
+    }
+  ],
+  "exit_codes": {
+    "evidence": {
+      "swift_version": "0",
+      "core_build": "0",
+      "core_tests": "0",
+      "poc_lifecycle_tests": "0"
+    },
+    "apple-evidence": {
+      "environment": "0",
+      "mac-core-tests": "0",
+      "mac-services-tests": "0",
+      "ios-simulator-build": "0",
+      "ios-device-build": "0"
+    },
+    "poc-evidence": {
+      "poc_lifecycle_tests": "0",
+      "xcodegen_generate": "0",
+      "poc_simulator_build": "0",
+      "poc_device_archive": "0"
+    },
+    "app-evidence": {
+      "environment": "0",
+      "generate": "0",
+      "simulator-build": "0",
+      "device-build": "0"
+    }
+  },
+  "tests": {
+    "linux_core": {
+      "passed_functions": 36,
+      "skipped_functions": 1,
+      "failed_functions": 0
+    },
+    "linux_lifecycle": {
+      "passed_functions": 14,
+      "skipped_functions": 0,
+      "failed_functions": 0
+    },
+    "mac_core": {
+      "passed_functions": 36,
+      "skipped_functions": 1,
+      "failed_functions": 0
+    },
+    "mac_services": {
+      "passed_functions": 2,
+      "skipped_functions": 1,
+      "failed_functions": 0
+    },
+    "mac_lifecycle": {
+      "passed_functions": 14,
+      "skipped_functions": 0,
+      "failed_functions": 0
+    }
+  },
+  "poc_preinstall_checks": {
+    "passed": 13,
+    "failed": 0
+  },
+  "ipa_sha256": "88d7cd6035b1e9f4d937ed49450e2dba1aa38778d6c608144ebe6c265c1ff440",
+  "artifacts": [
+    {
+      "id": 13577020887,
+      "name": "app-evidence-42378051064-1",
+      "size_in_bytes": 31674,
+      "expires_at": "2026-11-14T13:52:55Z",
+      "digest": "sha256:9f298c933041ac008f73e260874c50400950d41baf527721f0babc7f8c3195ec"
+    },
+    {
+      "id": 13576961365,
+      "name": "poc-evidence-42378051064-1",
+      "size_in_bytes": 95526,
+      "expires_at": "2026-11-14T13:47:09Z",
+      "digest": "sha256:6372aa8bbfabadfecab716b7ab18cbe58277ef8ad7ec6df247d35e97789b0472"
+    },
+    {
+      "id": 13576452725,
+      "name": "apple-evidence-42378051064-1",
+      "size_in_bytes": 19524,
+      "expires_at": "2026-11-14T13:43:21Z",
+      "digest": "sha256:04aead804cbdced60f771fdf4538e8a1318604d6707f493d02437bd28ad07983"
+    },
+    {
+      "id": 13576218828,
+      "name": "PoC-unsigned-ipa-42378051064-1",
+      "size_in_bytes": 225869,
+      "expires_at": "2026-11-14T13:46:16Z",
+      "digest": "sha256:83775191a6e972e71addab2a1a6fc62c947d4f07c0aae43d215f59dbcb80c18e"
+    },
+    {
+      "id": 13576103907,
+      "name": "app-screenshots-42378051064-1",
+      "size_in_bytes": 39685086,
+      "expires_at": "2026-11-14T13:52:51Z",
+      "digest": "sha256:74845c3f1fd08a787fa276cc3e326331d077a4de2f8f4a927eeb6847693cd7ae"
+    },
+    {
+      "id": 13575878776,
+      "name": "core-linux-evidence-42378051064-1",
+      "size_in_bytes": 4226,
+      "expires_at": "2026-11-14T13:41:41Z",
+      "digest": "sha256:90da88dde95f9faef83c0608175740d958467b5e4aaf66b386899020e53139ff"
+    }
+  ],
+  "source_tree_or_blob": {
+    "Apps/AIUtility": "5ddb9194e8290b6c9fe6f81aec09cf417c04d3a9",
+    "Packages/AIUtilityCore": "18b443c90ab6317c4bf7fac01b5de6387327780a",
+    "Packages/AIUtilityAppleServices": "0961814567b143fb7842fed3505dd901d8187f7c",
+    "PoCs/iOS27Capture": "c4a9cb6f82c65101af10dd3b56d8a50422d04cee",
+    ".github/workflows/swift.yml": "bc9e0b12a3f39d06e4a653c19fa0390c8a8b060a"
+  },
+  "files": {
+    "final/core-linux/core-build.log": {
+      "original_sha256": "976a46caba2ced9cab1acb32033727049b4449a43cf3a2e552a54044d204196d",
+      "stored_sha256": "976a46caba2ced9cab1acb32033727049b4449a43cf3a2e552a54044d204196d",
+      "original_bytes": 517
+    },
+    "final/core-linux/core-tests.log": {
+      "original_sha256": "f2257048d4e56df5c943c532732d8775e72fe63892c69ab296eb0a0ad5223763",
+      "stored_sha256": "f2257048d4e56df5c943c532732d8775e72fe63892c69ab296eb0a0ad5223763",
+      "original_bytes": 8588
+    },
+    "final/core-linux/exit-codes.txt": {
+      "original_sha256": "59321ff832c6ebff3b0a5850436f9db0433f3ddb55eaddd0c751468bb146fd72",
+      "stored_sha256": "59321ff832c6ebff3b0a5850436f9db0433f3ddb55eaddd0c751468bb146fd72",
+      "original_bytes": 64
+    },
+    "final/core-linux/poc-lifecycle-tests.log": {
+      "original_sha256": "6a459404777293e0f7ccafa974ada15517866622882cbe9de5b0eb5a52941953",
+      "stored_sha256": "6a459404777293e0f7ccafa974ada15517866622882cbe9de5b0eb5a52941953",
+      "original_bytes": 4961
+    },
+    "final/core-linux/swift-version.log": {
+      "original_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "stored_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "original_bytes": 75
+    },
+    "final/apple/environment.log": {
+      "original_sha256": "d339d187be917e224c106e46bf269ba8492085ab06f98e3f64127e53e0aae607",
+      "stored_sha256": "d339d187be917e224c106e46bf269ba8492085ab06f98e3f64127e53e0aae607",
+      "original_bytes": 971
+    },
+    "final/apple/exit-codes.txt": {
+      "original_sha256": "7bd206c00efc43ca525ea23699b166b7be2bd9b4e48a66129a45f162a1570ea6",
+      "stored_sha256": "7bd206c00efc43ca525ea23699b166b7be2bd9b4e48a66129a45f162a1570ea6",
+      "original_bytes": 93
+    },
+    "final/apple/ios-device-build.log": {
+      "original_sha256": "78c7760ce267b83edd6c2633603b206e723cd687b6b75b9ad258dacceec9b40c",
+      "stored_sha256": "38848051ec64a4892767e6944ddb4a3c9caac8bb7efd4d2918408f0d0a24b455",
+      "original_bytes": 81350
+    },
+    "final/apple/ios-simulator-build.log": {
+      "original_sha256": "4662f330ce0b0b965e6bcb1abd0772d34efb0fd25e613561d07862c52a8d76d3",
+      "stored_sha256": "60a480bc3beae6dd045fc7a3deab2e9733c0e0b2032292f53b1841cb890a8e02",
+      "original_bytes": 155414
+    },
+    "final/apple/mac-core-tests.log": {
+      "original_sha256": "67913ebd915c065631e4c243ffe6774809a5a3dbcafbdec064467285f92d56db",
+      "stored_sha256": "67913ebd915c065631e4c243ffe6774809a5a3dbcafbdec064467285f92d56db",
+      "original_bytes": 8614
+    },
+    "final/apple/mac-services-tests.log": {
+      "original_sha256": "fecf976c2fec62c51df4cfb257a7db28331140281b302e3a2dc7e6ddf702c644",
+      "stored_sha256": "fecf976c2fec62c51df4cfb257a7db28331140281b302e3a2dc7e6ddf702c644",
+      "original_bytes": 2001
+    },
+    "final/poc/archive.log": {
+      "original_sha256": "e7f3fa0ec7e02edf14da17a9acbc1891f61f20c1613315475c218b27a768b50b",
+      "stored_sha256": "401b46a92ca25463e970115331a2c66be78d6da0225472086c609f093ee2f2b5",
+      "original_bytes": 216297
+    },
+    "final/poc/device-symbols.log": {
+      "original_sha256": "16a147c0f826d22417dea79814632b4952be96df78e0e46bb6cd117e9aac3473",
+      "stored_sha256": "16a147c0f826d22417dea79814632b4952be96df78e0e46bb6cd117e9aac3473",
+      "original_bytes": 679174
+    },
+    "final/poc/environment.log": {
+      "original_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "stored_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "original_bytes": 1282
+    },
+    "final/poc/exit-codes.txt": {
+      "original_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "stored_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "original_bytes": 85
+    },
+    "final/poc/generate.log": {
+      "original_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "stored_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "original_bytes": 182
+    },
+    "final/poc/ipa-contents.log": {
+      "original_sha256": "3020f59bb80fe764366f18bd533285d2d5a4c2f1ec8cafdd85f5d7945bd2e5b8",
+      "stored_sha256": "3020f59bb80fe764366f18bd533285d2d5a4c2f1ec8cafdd85f5d7945bd2e5b8",
+      "original_bytes": 923
+    },
+    "final/poc/lifecycle-tests.log": {
+      "original_sha256": "52f36673e61fced095b5495bef8dcbc175ae155fc654fcc9853c1e4446cd3f79",
+      "stored_sha256": "52f36673e61fced095b5495bef8dcbc175ae155fc654fcc9853c1e4446cd3f79",
+      "original_bytes": 3921
+    },
+    "final/poc/preinstall-audit.log": {
+      "original_sha256": "16888e2dbb074ff7ac3228c44584f8c98b433e4dd1d1069b5f4fe85787c64a6a",
+      "stored_sha256": "16888e2dbb074ff7ac3228c44584f8c98b433e4dd1d1069b5f4fe85787c64a6a",
+      "original_bytes": 5734
+    },
+    "final/poc/simulator-build.log": {
+      "original_sha256": "d6851d7691dba18e98ee56dd29757bb3b715f3b4801a257324faa4c4ed2b3600",
+      "stored_sha256": "afdb5ea38a92b7ea49133871ca6aa2d8c37685eb15a760f244d0b79be06f8a31",
+      "original_bytes": 275305
+    },
+    "final/app/device-build.log": {
+      "original_sha256": "93f9c0324f9ab044f6ab7d41cde6f6fcd1607ee1c7cca39510d2b894e0605fe3",
+      "stored_sha256": "ac09797bc292547797c59a5692c0dc816a61adb57410451f41d8f7fa3e68d2b1",
+      "original_bytes": 139974
+    },
+    "final/app/environment.log": {
+      "original_sha256": "f978f0635d57b6516337576988e87e0fa353022e858bb742d3294c0ab2da8e32",
+      "stored_sha256": "f978f0635d57b6516337576988e87e0fa353022e858bb742d3294c0ab2da8e32",
+      "original_bytes": 226
+    },
+    "final/app/exit-codes.txt": {
+      "original_sha256": "48d292b9a6f0a351373faf344c0ac22efc3a92565635cd30321b5879c1ef2608",
+      "stored_sha256": "48d292b9a6f0a351373faf344c0ac22efc3a92565635cd30321b5879c1ef2608",
+      "original_bytes": 58
+    },
+    "final/app/generate.log": {
+      "original_sha256": "d3f78d609db4bee00dbf3ff75b8cc37b929d1201d26c0f73d7b4b2b8571b11dd",
+      "stored_sha256": "d3f78d609db4bee00dbf3ff75b8cc37b929d1201d26c0f73d7b4b2b8571b11dd",
+      "original_bytes": 504
+    },
+    "final/app/simulator-build.log": {
+      "original_sha256": "5d70325c64c89d603fe1d99dd8dfeced65a7e6f082a3ea870d2952e4abe7689e",
+      "stored_sha256": "c353b6a0c81a255426e04ac08d71d8d8782331f009bdaf2ff4172863e8ff9e41",
+      "original_bytes": 268934
+    },
+    "attempts/42375947069/environment.log": {
+      "original_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "stored_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "original_bytes": 1282
+    },
+    "attempts/42375947069/exit-codes.txt": {
+      "original_sha256": "6965f160bea39570c1ef74ed2ff12d998e830dec280f07bf4f9aecdf2f2079e8",
+      "stored_sha256": "6965f160bea39570c1ef74ed2ff12d998e830dec280f07bf4f9aecdf2f2079e8",
+      "original_bytes": 22
+    },
+    "attempts/42375947069/lifecycle-tests.log": {
+      "original_sha256": "6528277a30b926b52c7a2deb9eeb301e54e006b7a636784987a0d08a86d2e0d4",
+      "stored_sha256": "6528277a30b926b52c7a2deb9eeb301e54e006b7a636784987a0d08a86d2e0d4",
+      "original_bytes": 430
+    },
+    "attempts/42376094393/archive.log": {
+      "original_sha256": "75f1bdf943adab74c372564e593b7eaa6bd1333caf41b7023b0eb790f523b04b",
+      "stored_sha256": "49c13a5ca93d893a6e3e808065d0c185f73d83c636acbd0ee7b44b80e8b34f32",
+      "original_bytes": 154343
+    },
+    "attempts/42376094393/environment.log": {
+      "original_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "stored_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "original_bytes": 1282
+    },
+    "attempts/42376094393/exit-codes.txt": {
+      "original_sha256": "37b01a4250559b77601a017ef1df927fd1cb252e41fcdc75e60894ac8bffb367",
+      "stored_sha256": "37b01a4250559b77601a017ef1df927fd1cb252e41fcdc75e60894ac8bffb367",
+      "original_bytes": 86
+    },
+    "attempts/42376094393/generate.log": {
+      "original_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "stored_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "original_bytes": 182
+    },
+    "attempts/42376094393/lifecycle-tests.log": {
+      "original_sha256": "bdb758315fe27c3e5e56722237159207dede029150fa72ece70de641d8cc9dac",
+      "stored_sha256": "bdb758315fe27c3e5e56722237159207dede029150fa72ece70de641d8cc9dac",
+      "original_bytes": 2611
+    },
+    "attempts/42376094393/simulator-build.log": {
+      "original_sha256": "a71fc5a12ccfe42653211381bf12cb79217d88e54951b8ef2e1b60490856ef1c",
+      "stored_sha256": "0dba04ba8ae17c37ffb2f9e624814ed14e49a647df8769679cf18a28caefe3fb",
+      "original_bytes": 275305
+    },
+    "attempts/42376481364/archive.log": {
+      "original_sha256": "b8fb6fc5489e1ced84414691dd55ebec0236873c320807e18cdc29fe4f282864",
+      "stored_sha256": "a5d26db2fbb9e82303e67ca2fc3740360c9611a1038b5a2ca53e02f87131bca9",
+      "original_bytes": 218121
+    },
+    "attempts/42376481364/device-symbols.log": {
+      "original_sha256": "6dd14a32959f1f620e89268d3099f17594311d4243a3faf997fa155cdb030982",
+      "stored_sha256": "6dd14a32959f1f620e89268d3099f17594311d4243a3faf997fa155cdb030982",
+      "original_bytes": 51997
+    },
+    "attempts/42376481364/environment.log": {
+      "original_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "stored_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "original_bytes": 1282
+    },
+    "attempts/42376481364/exit-codes.txt": {
+      "original_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "stored_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "original_bytes": 85
+    },
+    "attempts/42376481364/generate.log": {
+      "original_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "stored_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "original_bytes": 182
+    },
+    "attempts/42376481364/ipa-contents.log": {
+      "original_sha256": "90a6d7acab5f4708c86c2603b8022cfe3b060fd959477715f9bfda72669a022e",
+      "stored_sha256": "90a6d7acab5f4708c86c2603b8022cfe3b060fd959477715f9bfda72669a022e",
+      "original_bytes": 923
+    },
+    "attempts/42376481364/lifecycle-tests.log": {
+      "original_sha256": "e21d929ad1000e51417462f82f0ae2b3690e4abcedafbf1dba4c02da3d457853",
+      "stored_sha256": "e21d929ad1000e51417462f82f0ae2b3690e4abcedafbf1dba4c02da3d457853",
+      "original_bytes": 2882
+    },
+    "attempts/42376481364/preinstall-audit.log": {
+      "original_sha256": "c5c6cf3b5cca1031d1c4749a15d27b4cfbb691abd14d215f856385fd0f90604b",
+      "stored_sha256": "c5c6cf3b5cca1031d1c4749a15d27b4cfbb691abd14d215f856385fd0f90604b",
+      "original_bytes": 5734
+    },
+    "attempts/42376481364/simulator-build.log": {
+      "original_sha256": "dff63325329234deb567561ee948265e5e718a2772c074f2bf760487e1e865bc",
+      "stored_sha256": "b81a5d48f15eedd19db5bd38698ed51bdc92552b6a11e13ab4a0d7bd2e1aa22d",
+      "original_bytes": 275314
+    },
+    "attempts/42376873996/archive.log": {
+      "original_sha256": "32aabcf34269c22ad631c0bf4c0fd49eebc02b17a0b57be2a66cdbd41fd177e5",
+      "stored_sha256": "ab44eb830785a49d1c95749925ba1fefc14744ecbf949f2ec27d71cecd72cc93",
+      "original_bytes": 216291
+    },
+    "attempts/42376873996/device-symbols.log": {
+      "original_sha256": "2a12cf704532d57d31544d5390bc38dbfa182e7b6d4212069e65157112f521ae",
+      "stored_sha256": "2a12cf704532d57d31544d5390bc38dbfa182e7b6d4212069e65157112f521ae",
+      "original_bytes": 675796
+    },
+    "attempts/42376873996/environment.log": {
+      "original_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "stored_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "original_bytes": 1282
+    },
+    "attempts/42376873996/exit-codes.txt": {
+      "original_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "stored_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "original_bytes": 85
+    },
+    "attempts/42376873996/generate.log": {
+      "original_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "stored_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "original_bytes": 182
+    },
+    "attempts/42376873996/ipa-contents.log": {
+      "original_sha256": "54aa826a3f470a3520185f5390650e60d94d4814d92e40e430299cc251a4536d",
+      "stored_sha256": "54aa826a3f470a3520185f5390650e60d94d4814d92e40e430299cc251a4536d",
+      "original_bytes": 923
+    },
+    "attempts/42376873996/lifecycle-tests.log": {
+      "original_sha256": "d452e20f2d6475a1183ba8db78119a01543d017239347d80c998ab7a75803d96",
+      "stored_sha256": "d452e20f2d6475a1183ba8db78119a01543d017239347d80c998ab7a75803d96",
+      "original_bytes": 2879
+    },
+    "attempts/42376873996/preinstall-audit.log": {
+      "original_sha256": "16888e2dbb074ff7ac3228c44584f8c98b433e4dd1d1069b5f4fe85787c64a6a",
+      "stored_sha256": "16888e2dbb074ff7ac3228c44584f8c98b433e4dd1d1069b5f4fe85787c64a6a",
+      "original_bytes": 5734
+    },
+    "attempts/42376873996/simulator-build.log": {
+      "original_sha256": "182ba9451e3c20d5f1f45ceeb7e1ac80cc18ba810b263d318de5fdaad6835090",
+      "stored_sha256": "26c1772d38c3dd1490bb73daa17075b431cd064d17eab551cd246a74a2faf463",
+      "original_bytes": 275305
+    }
+  },
+  "normalization": "Versioned logs normalize line endings and strip trailing whitespace; original and stored hashes both recorded.",
+  "device_validation": "NOT RUN; unsigned archive and IPA are not installation or cross-App acceptance.",
+  "live_api_tests": "NOT RUN; no paid API traffic.",
+  "keychain_runtime": "NOT RUN; test skipped.",
+  "recorded_date_local": "2026-11-08",
+  "attempt_runs": [
+    {
+      "run": {
+        "id": 42375947069,
+        "event": "workflow_dispatch",
+        "head_sha": "857d150784ca4e2c3b833961a7701e1aedff43e0",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42375947069"
+      },
+      "jobs": [
+        {
+          "id": 128413424371,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128413632350,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 128413632475,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 128413950023,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42375948027,
+        "event": "pull_request",
+        "head_sha": "857d150784ca4e2c3b833961a7701e1aedff43e0",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42375948027"
+      },
+      "jobs": [
+        {
+          "id": 128413424921,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128413607406,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128413607500,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128413607579,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376094393,
+        "event": "workflow_dispatch",
+        "head_sha": "a0fd2c7f1a45be48cf93d0b3f9e94a257922a45e",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376094393"
+      },
+      "jobs": [
+        {
+          "id": 128413950359,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128414187915,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 128414188029,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128414641792,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376098510,
+        "event": "pull_request",
+        "head_sha": "a0fd2c7f1a45be48cf93d0b3f9e94a257922a45e",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376098510"
+      },
+      "jobs": [
+        {
+          "id": 128413876046,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128414084973,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128414085404,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128414085514,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376436194,
+        "event": "workflow_dispatch",
+        "head_sha": "370ec41640b4265bf463b0335be2d764b6de020c",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376436194"
+      },
+      "jobs": [
+        {
+          "id": 128414946491,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 128415017751,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 128415018133,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 128415018647,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376441373,
+        "event": "pull_request",
+        "head_sha": "370ec41640b4265bf463b0335be2d764b6de020c",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376441373"
+      },
+      "jobs": [
+        {
+          "id": 128414881801,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 128415026860,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 128415026972,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 128415027008,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376481364,
+        "event": "workflow_dispatch",
+        "head_sha": "518dc35ed728dcff1b61c975a274ba79a17413ec",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376481364"
+      },
+      "jobs": [
+        {
+          "id": 128415019315,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128415228412,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128415228498,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 128415700611,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376486850,
+        "event": "pull_request",
+        "head_sha": "518dc35ed728dcff1b61c975a274ba79a17413ec",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376486850"
+      },
+      "jobs": [
+        {
+          "id": 128415027671,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128415285279,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128415285307,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128415285379,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376873996,
+        "event": "workflow_dispatch",
+        "head_sha": "d05afad8106bdc22cfd07f84d85ffeb69fca1855",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376873996"
+      },
+      "jobs": [
+        {
+          "id": 128416554396,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128416774366,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128416774367,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128417430927,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 42376878453,
+        "event": "pull_request",
+        "head_sha": "d05afad8106bdc22cfd07f84d85ffeb69fca1855",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/7869123/ios/actions/runs/42376878453"
+      },
+      "jobs": [
+        {
+          "id": 128416172919,
+          "name": "core-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128416373409,
+          "name": "poc-sdk",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128416373564,
+          "name": "apple",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 128416373818,
+          "name": "app",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ]
+    }
+  ],
+  "historical_snapshot_note": "Earlier attempts retain their previously fetched GitHub API snapshots; the final run/jobs above were freshly fetched. Superseded 0000fce runs 42377987380 and 42377990974 were observed cancelled; no tests inferred from cancellation."
+}

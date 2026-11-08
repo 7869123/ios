@@ -1,8 +1,34 @@
-# 工程可靠性审查（2026-11-07）
+# 工程可靠性审查（2026-11-08 交付；CI 于 2026-11-07 执行）
 
 范围：独立分支 `codex/poc-engineering-audit`；基于 PR #1 的
 `d04a43e14507b8e822e3ec979e4f5b3d906e410b`，main 为 `f17d20d`。
 只审查底层工程，未修改 Claude 的 UI、壁纸、透明度文件或资源，未改 Core 公共 API。
+
+## 最终结果
+
+[完整 CI 42378051064](https://github.com/7869123/ios/actions/runs/42378051064)，
+验证源码 **680f3d2af9f056811b05e4db74d0492f9dd1d1d6**，四个 job 全部 completed/success。
+源码及 workflow 的树摘要、实际退出码、逐项测试计数、artifact ID 和原始日志摘要见
+[validation/engineering-audit](validation/engineering-audit/README.md)。交付文档提交不改变这些源码树，不另称为一次编译。
+
+| Job / ID | 实际结果 |
+|---|---|
+| core-linux / 128419652484 | Swift 6.0.3：Core 36 通过、1 live API 跳过；生命周期 14 通过；build/test 退出 0 |
+| apple / 128419871613 | Core 36 通过、1 跳过；Vision 2 通过、Keychain 1 跳过；两个 iOS SDK 构建退出 0 |
+| poc-sdk / 128419871717 | macOS 生命周期 14 通过；Swift 6 Simulator/iphoneos Archive 退出 0；IPA 打包、13/13 预安装检查通过 |
+| app / 128420238618 | XcodeGen、Simulator/iphoneos 构建退出 0；截图步骤 success；不是完整 UI 交互验收 |
+
+普通 Apple/App 使用 Xcode 26.6 / Swift 6.3.3 / SDK 26.5；PoC 使用 macOS 27.0.1 / Xcode 27.1 / SDK 27.1。
+PoC Archive 实际编译参数包含 `-swift-version 6`，无 ConformanceIsolation 或 SendingRisksDataRace 诊断。
+剩余 display-layer 弃用警告未隐藏，列为 P2。
+
+[未签名 IPA](https://github.com/7869123/ios/actions/runs/42378051064/artifacts/13576218828)，SHA-256：
+`88d7cd6035b1e9f4d937ed49450e2dba1aa38778d6c608144ebe6c265c1ff440`。保留至 2026-11-14，不能直接安装。
+
+PR #2 目标仍为 `claude/ecstatic-planck-rzpvn6`，不自动合并。
+最后获取的 Claude HEAD 为 `6b335ab`；本轮已集成的验证基线是 `d7859b0`，
+其后的 UI/预览提交保持独立。`git diff upstream...HEAD` 不含 Apps/Core/UIUX_SPEC/截图脚本改动，
+`git merge-tree --write-tree HEAD upstream` 退出 0，无冲突；未把最新 UI 组合标为已验证，合入后仍需复验 App。
 
 ## 第一阶段：只读结论与证据
 
@@ -50,7 +76,7 @@ Linux Core 36 通过/1 跳过，初版生命周期 8 通过；PoC macOS 测试�
 已补充 macOS 13（只用于可移植测试，iOS 仍要求 27），没有删除测试或降低采集目标。
 同轮 PR 自动运行 42375948027 只运行 Linux，不是全链路验证。
 后续同时补充共用异步停止屏障，确保并发 stop 都等待同一份释放，并增加三项实际释放回归。
-完整最终结果、逐 Job 状态与命令退出码将在验证后补充到本节及 STATUS.md。
+最终结果和逐 Job 退出码见本文首节；本段记录首次失败，不是当前状态。
 
 第二轮 `a0fd2c7` / [42376094393](https://github.com/7869123/ios/actions/runs/42376094393)：
 Linux Core 和 11 项生命周期测试通过；macOS 生命周期测试及模拟器构建通过。
@@ -69,7 +95,7 @@ Linux、Apple 包通过；PoC 12 项生命周期、模拟器、Swift 6 iphoneos 
 Core 各平台 36 通过/1 跳过，生命周期各 12 通过，AppleServices 2 通过/1 跳过；13/13 预安装检查通过。
 最后复查另发现停止异常被吞掉的问题，已补 releaseFailed 状态：失败保留句柄，禁止 begin，
 再次显式 stop 才重试；并发停止共享同一次失败；终止通知只关闭其余资源，不隐式重试采集。
-新增两项失败/重试回归，修复后的结果必须再次验证，不能沿用第四轮成功结论。
+新增两项失败/重试回归；最终 `680f3d2` 的 14 项回归与完整 SDK 验证见首节，没有沿用第四轮结论。
 Claude 此后继续 UI 到 4e0f8d2；本轮固定 d7859b0 集成基线，PR 三点差异不改 UI，最新 UI 组合需另验。
 
 低成本检查：`python scripts/check_repository.py`、`git diff --check`；只是源码卫生/plist 检查。
@@ -84,6 +110,9 @@ Linux Core + 生命周期测试先执行；Apple 包/App 与 iOS 27 PoC 后执�
 - 真机必须验证非 DRM 来源的非静音 RMS 与已知语句对应、后台持续性、Speech 语言/时长、PiP 肉眼可见、
   路由/中断/锁屏、反复停止重启、资源占用。核心跨 App 能力仍未验收。
 - 免费团队实际签名、唯一 Bundle ID 和可用描述文件需用户控制环境验证，不在公开 CI 保存 Apple 凭据。
+- Speech/PiP 仍是采集启动的前置条件，可能妨碍在不支持本地 Speech 的设备上独立诊断采集；本轮不改架构。
+- 生命周期测试没有执行系统中断、授权提示或真正的 stopCapture；系统调用若不返回，仍会保持停止中，不能证明资源已释放。
+- `scripts/github_actions.py` 的旧 private 限制尚未迁移；当前公开仓库使用 Actions 页面或已授权 API。
 
 官方核对：[iOS ScreenCaptureKit 示例](https://developer.apple.com/documentation/screencapturekit/capturing-screen-content-on-ios)、
 [AVKit playback delegate](https://developer.apple.com/documentation/avkit/avpictureinpicturesamplebufferplaybackdelegate)、

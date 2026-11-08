@@ -1,0 +1,650 @@
+                 U Foundation.URLRequest.httpMethod.setter : Swift.String?
+                 U Foundation.URLRequest.timeoutInterval.setter : Swift.Double
+                 U static Foundation.URLRequest._unconditionallyBridgeFromObjectiveC(__C.NSURLRequest?) -> Foundation.URLRequest
+                 U Foundation.URLRequest.init(url: Foundation.URL, cachePolicy: __C.NSURLRequestCachePolicy, timeoutInterval: Swift.Double) -> Foundation.URLRequest
+                 U Foundation.URLRequest.httpBody.setter : Foundation.Data?
+                 U Foundation.URLRequest.setValue(_: Swift.String?, forHTTPHeaderField: Swift.String) -> ()
+                 U type metadata accessor for Foundation.URLRequest
+                 U nominal type descriptor for Foundation.URLRequest
+                 U dispatch thunk of Foundation.JSONDecoder.decode<A where A: Swift.Decodable>(_: A.Type, from: Foundation.Data) throws -> A
+                 U Foundation.JSONDecoder.init() -> Foundation.JSONDecoder
+                 U type metadata accessor for Foundation.JSONDecoder
+                 U static Foundation.CharacterSet.whitespacesAndNewlines.getter : Foundation.CharacterSet
+                 U static Foundation.CharacterSet.letters.getter : Foundation.CharacterSet
+                 U Foundation.CharacterSet.contains(Swift.Unicode.Scalar) -> Swift.Bool
+                 U type metadata accessor for Foundation.CharacterSet
+                 U static Foundation.Notification._unconditionallyBridgeFromObjectiveC(__C.NSNotification?) -> Foundation.Notification
+                 U Foundation.Notification.userInfo.getter : [Swift.AnyHashable : Any]?
+                 U type metadata accessor for Foundation.Notification
+                 U Foundation.URLQueryItem.init(name: __shared Swift.String, value: __shared Swift.String?) -> Foundation.URLQueryItem
+                 U type metadata accessor for Foundation.URLQueryItem
+                 U nominal type descriptor for Foundation.URLQueryItem
+                 U Foundation.URLComponents.queryItems.modify : [Foundation.URLQueryItem]?
+                 U Foundation.URLComponents.queryItems.setter : [Foundation.URLQueryItem]?
+                 U Foundation.URLComponents.percentEncodedQuery.getter : Swift.String?
+                 U Foundation.URLComponents.init() -> Foundation.URLComponents
+                 U type metadata accessor for Foundation.URLComponents
+                 U (extension in Foundation):Foundation._BridgedStoredNSError.code.getter : A.Code
+                 U Foundation._convertNSErrorToError(__C.NSError?) -> Swift.Error
+                 U Foundation.URL.init(string: __shared Swift.String) -> Foundation.URL?
+                 U type metadata accessor for Foundation.URL
+                 U nominal type descriptor for Foundation.URL
+                 U static Foundation.Data._unconditionallyBridgeFromObjectiveC(__C.NSData?) -> Foundation.Data
+                 U nominal type descriptor for Foundation.Data
+                 U Foundation.Date.timeIntervalSinceNow.getter : Swift.Double
+                 U static Foundation.Date._unconditionallyBridgeFromObjectiveC(__C.NSDate?) -> Foundation.Date
+                 U type metadata accessor for Foundation.Date
+                 U nominal type descriptor for Foundation.Date
+                 U Foundation.UUID.uuidString.getter : Swift.String
+                 U Foundation.UUID.init() -> Foundation.UUID
+                 U type metadata accessor for Foundation.UUID
+                 U Foundation.Locale.init(identifier: Swift.String) -> Foundation.Locale
+                 U Foundation.Locale._bridgeToObjectiveC() -> __C.NSLocale
+                 U type metadata accessor for Foundation.Locale
+                 U Foundation.TimeZone.init(secondsFromGMT: Swift.Int) -> Foundation.TimeZone?
+                 U Foundation.TimeZone._bridgeToObjectiveC() -> __C.NSTimeZone
+                 U type metadata accessor for Foundation.TimeZone
+                 U nominal type descriptor for Foundation.TimeZone
+                 U static Foundation.URLError.Code.timedOut.getter : Foundation.URLError.Code
+                 U static Foundation.URLError.Code.cancelled.getter : Foundation.URLError.Code
+                 U type metadata accessor for Foundation.URLError.Code
+                 U protocol conformance descriptor for Foundation.URLError.Code : Swift.Equatable in Foundation
+                 U protocol conformance descriptor for Foundation.URLError : Foundation._BridgedStoredNSError in Foundation
+                 U type metadata accessor for Foundation.URLError
+                 U associated type descriptor for SwiftUI.UIViewRepresentable.UIViewType
+                 U associated type descriptor for SwiftUI.UIViewRepresentable.Coordinator
+                 U protocol descriptor for CoreFoundation._CFObject
+                 U static (extension in CoreFoundation):CoreFoundation._CFObject.== infix(A, A) -> Swift.Bool
+                 U (extension in CoreFoundation):CoreFoundation._CFObject.hash(into: inout Swift.Hasher) -> ()
+                 U (extension in CoreFoundation):CoreFoundation._CFObject.hashValue.getter : Swift.Int
+                 U base conformance descriptor for CoreFoundation._CFObject: Swift.Hashable
+                 U associated type descriptor for Swift._ObjectiveCBridgeable._ObjectiveCType
+                 U ScreenCaptureKit.SCContentSharingPickerConfiguration.showsCameraControl.setter : Swift.Bool
+                 U ScreenCaptureKit.SCContentSharingPickerConfiguration.showsMicrophoneControl.setter : Swift.Bool
+                 U ScreenCaptureKit.SCContentSharingPickerConfiguration.init() -> ScreenCaptureKit.SCContentSharingPickerConfiguration
+                 U type metadata accessor for ScreenCaptureKit.SCContentSharingPickerConfiguration
+                 U associated type descriptor for Combine.ObservableObject.ObjectWillChangePublisher
+                 U associated type descriptor for SwiftUI.App.Body
+                 U associated type descriptor for SwiftUI.View.Body
+                 U protocol descriptor for Combine.ObservableObject
+                 U associated conformance descriptor for Combine.ObservableObject.Combine.ObservableObject.ObjectWillChangePublisher: Combine.Publisher
+                 U method descriptor for Combine.ObservableObject.objectWillChange.getter : A.ObjectWillChangePublisher
+                 U (extension in Combine):Combine.ObservableObject< where A.ObjectWillChangePublisher == Combine.ObservableObjectPublisher>.objectWillChange.getter : Combine.ObservableObjectPublisher
+                 U protocol witness table for Combine.ObservableObjectPublisher : Combine.Publisher in Combine
+                 U nominal type descriptor for Combine.ObservableObjectPublisher
+                 U Combine.Published.init(initialValue: A) -> Combine.Published<A>
+                 U Combine.Published.projectedValue.getter : Combine.Published<A>.Publisher
+                 U Combine.Published.projectedValue.setter : Combine.Published<A>.Publisher
+                 U static Combine.Published.subscript.getter : <A where A1: AnyObject>(_enclosingInstance: A1, wrapped: Swift.ReferenceWritableKeyPath<A1, A>, storage: Swift.ReferenceWritableKeyPath<A1, Combine.Published<A>>) -> A
+                 U static Combine.Published.subscript.setter : <A where A1: AnyObject>(_enclosingInstance: A1, wrapped: Swift.ReferenceWritableKeyPath<A1, A>, storage: Swift.ReferenceWritableKeyPath<A1, Combine.Published<A>>) -> A
+                 U nominal type descriptor for Combine.Published.Publisher
+                 U type metadata accessor for Combine.Published
+                 U nominal type descriptor for Combine.Published
+                 U SwiftUI.StateObject.wrappedValue.getter : A
+                 U nominal type descriptor for SwiftUI.StateObject
+                 U type metadata for SwiftUI.Transaction
+                 U SwiftUI.WindowGroup.init(id: Swift.String?, title: SwiftUI.Text?, lazyContent: () -> A) -> SwiftUI.WindowGroup<A>
+                 U nominal type descriptor for SwiftUI.WindowGroup
+                 U protocol conformance descriptor for SwiftUI.WindowGroup<A> : SwiftUI.Scene in SwiftUI
+                 U static SwiftUI.SceneBuilder.buildBlock<A where A: SwiftUI.Scene>(A) -> A
+                 U nominal type descriptor for SwiftUI.TupleContent
+                 U SwiftUI._FrameLayout.init(width: CoreGraphics.CGFloat?, height: CoreGraphics.CGFloat?, alignment: SwiftUI.Alignment) -> SwiftUI._FrameLayout
+                 U nominal type descriptor for SwiftUI._FrameLayout
+                 U nominal type descriptor for SwiftUI._VStackLayout
+                 U nominal type descriptor for SwiftUI._VariadicView.Tree
+                 U SwiftUI.ObservedObject.init(wrappedValue: A) -> SwiftUI.ObservedObject<A>
+                 U nominal type descriptor for SwiftUI.ObservedObject
+                 U protocol witness table for SwiftUI._PaddingLayout : SwiftUI.ViewModifier in SwiftUI
+                 U nominal type descriptor for SwiftUI._PaddingLayout
+                 U nominal type descriptor for SwiftUI.ModifiedContent
+                 U protocol conformance descriptor for < where A: SwiftUI.View, B: SwiftUI.ViewModifier> SwiftUI.ModifiedContent<A, B> : SwiftUI.View in SwiftUI
+                 U SwiftUI.LocalizedStringKey.StringInterpolation.appendInterpolation<A where A: SwiftUI._FormatSpecifiable>(_: A, specifier: Swift.String) -> ()
+                 U SwiftUI.LocalizedStringKey.StringInterpolation.appendInterpolation(Swift.String) -> ()
+                 U SwiftUI.LocalizedStringKey.StringInterpolation.appendLiteral(Swift.String) -> ()
+                 U SwiftUI.LocalizedStringKey.StringInterpolation.init(literalCapacity: Swift.Int, interpolationCount: Swift.Int) -> SwiftUI.LocalizedStringKey.StringInterpolation
+                 U type metadata accessor for SwiftUI.LocalizedStringKey.StringInterpolation
+                 U SwiftUI.LocalizedStringKey.init(stringLiteral: Swift.String) -> SwiftUI.LocalizedStringKey
+                 U SwiftUI.LocalizedStringKey.init(stringInterpolation: SwiftUI.LocalizedStringKey.StringInterpolation) -> SwiftUI.LocalizedStringKey
+                 U static SwiftUI.HorizontalAlignment.center.getter : SwiftUI.HorizontalAlignment
+                 U protocol descriptor for SwiftUI.UIViewRepresentable
+                 U method descriptor for SwiftUI.UIViewRepresentable.makeUIView(context: SwiftUI.UIViewRepresentableContext<A>) -> A.UIViewType
+                 U method descriptor for SwiftUI.UIViewRepresentable.updateUIView(_: A.UIViewType, context: SwiftUI.UIViewRepresentableContext<A>) -> ()
+                 U method descriptor for static SwiftUI.UIViewRepresentable.dismantleUIView(_: A.UIViewType, coordinator: A.Coordinator) -> ()
+                 U method descriptor for SwiftUI.UIViewRepresentable.sizeThatFits(_: SwiftUI.ProposedViewSize, uiView: A.UIViewType, context: SwiftUI.UIViewRepresentableContext<A>) -> __C.CGSize?
+                 U method descriptor for static SwiftUI.UIViewRepresentable._layoutOptions(A.UIViewType) -> SwiftUI._PlatformViewRepresentableLayoutOptions
+                 U method descriptor for SwiftUI.UIViewRepresentable.makeCoordinator() -> A.Coordinator
+                 U method descriptor for SwiftUI.UIViewRepresentable._identifiedViewTree(in: A.UIViewType) -> SwiftUI._IdentifiedViewTree
+                 U method descriptor for SwiftUI.UIViewRepresentable._overrideLayoutTraits(_: inout SwiftUI._LayoutTraits, for: A.UIViewType) -> ()
+                 U method descriptor for SwiftUI.UIViewRepresentable._overrideSizeThatFits(_: inout __C.CGSize, in: SwiftUI._ProposedSize, uiView: A.UIViewType) -> ()
+                 U method descriptor for static SwiftUI.UIViewRepresentable._modifyBridgedViewInputs(inout SwiftUI._ViewInputs) -> ()
+                 U base conformance descriptor for SwiftUI.UIViewRepresentable: SwiftUI.View
+                 U static (extension in SwiftUI):SwiftUI.UIViewRepresentable.dismantleUIView(_: A.UIViewType, coordinator: A.Coordinator) -> ()
+                 U (extension in SwiftUI):SwiftUI.UIViewRepresentable.sizeThatFits(_: SwiftUI.ProposedViewSize, uiView: A.UIViewType, context: SwiftUI.UIViewRepresentableContext<A>) -> __C.CGSize?
+                 U static (extension in SwiftUI):SwiftUI.UIViewRepresentable._makeViewList(view: SwiftUI._GraphValue<A>, inputs: SwiftUI._ViewListInputs) -> SwiftUI._ViewListOutputs
+                 U static (extension in SwiftUI):SwiftUI.UIViewRepresentable._layoutOptions(A.UIViewType) -> SwiftUI._PlatformViewRepresentableLayoutOptions
+                 U (extension in SwiftUI):SwiftUI.UIViewRepresentable._identifiedViewTree(in: A.UIViewType) -> SwiftUI._IdentifiedViewTree
+                 U (extension in SwiftUI):SwiftUI.UIViewRepresentable._overrideLayoutTraits(_: inout SwiftUI._LayoutTraits, for: A.UIViewType) -> ()
+                 U (extension in SwiftUI):SwiftUI.UIViewRepresentable._overrideSizeThatFits(_: inout __C.CGSize, in: SwiftUI._ProposedSize, uiView: A.UIViewType) -> ()
+                 U static (extension in SwiftUI):SwiftUI.UIViewRepresentable._modifyBridgedViewInputs(inout SwiftUI._ViewInputs) -> ()
+                 U (extension in SwiftUI):SwiftUI.UIViewRepresentable.body.getter : Swift.Never
+                 U static (extension in SwiftUI):SwiftUI.UIViewRepresentable._makeView(view: SwiftUI._GraphValue<A>, inputs: SwiftUI._ViewInputs) -> SwiftUI._ViewOutputs
+                 U (extension in SwiftUI):SwiftUI.UIViewRepresentable< where A.Coordinator == ()>.makeCoordinator() -> ()
+                 U protocol descriptor for SwiftUI.App
+                 U associated conformance descriptor for SwiftUI.App.SwiftUI.App.Body: SwiftUI.Scene
+                 U method descriptor for SwiftUI.App.body.getter : A.Body
+                 U static (extension in SwiftUI):SwiftUI.App.main() -> ()
+                 U method descriptor for SwiftUI.App.init() -> A
+                 U static SwiftUI.Edge.Set.all.getter : SwiftUI.Edge.Set
+                 U static SwiftUI.Font.caption.getter : SwiftUI.Font
+                 U SwiftUI.Text.font(SwiftUI.Font?) -> SwiftUI.Text
+                 U nominal type descriptor for SwiftUI.Text
+                 U SwiftUI.Text.init(_: SwiftUI.LocalizedStringKey, tableName: Swift.String?, bundle: __C.NSBundle?, comment: Swift.StaticString?) -> SwiftUI.Text
+                 U SwiftUI.Text.init<A where A: Swift.StringProtocol>(A) -> SwiftUI.Text
+                 U protocol descriptor for SwiftUI.View
+                 U method descriptor for static SwiftUI.View._makeView(view: SwiftUI._GraphValue<A>, inputs: SwiftUI._ViewInputs) -> SwiftUI._ViewOutputs
+                 U method descriptor for static SwiftUI.View._makeViewList(view: SwiftUI._GraphValue<A>, inputs: SwiftUI._ViewListInputs) -> SwiftUI._ViewListOutputs
+                 U method descriptor for static SwiftUI.View._viewListCount(inputs: SwiftUI._ViewListCountInputs) -> Swift.Int?
+                 U associated conformance descriptor for SwiftUI.View.SwiftUI.View.Body: SwiftUI.View
+                 U method descriptor for SwiftUI.View.body.getter : A.Body
+                 U static (extension in SwiftUI):SwiftUI.View._makeView(view: SwiftUI._GraphValue<A>, inputs: SwiftUI._ViewInputs) -> SwiftUI._ViewOutputs
+                 U static (extension in SwiftUI):SwiftUI.View._makeViewList(view: SwiftUI._GraphValue<A>, inputs: SwiftUI._ViewListInputs) -> SwiftUI._ViewListOutputs
+                 U static (extension in SwiftUI):SwiftUI.View._viewListCount(inputs: SwiftUI._ViewListCountInputs) -> Swift.Int?
+                 U (extension in SwiftUI):SwiftUI.View.onChange<A where A1: Swift.Equatable>(of: A1, initial: Swift.Bool, _: (A1, A1) -> ()) -> some
+                 U opaque type descriptor for <<opaque return type of (extension in SwiftUI):SwiftUI.View.onChange<A where A1: Swift.Equatable>(of: A1, initial: Swift.Bool, _: (A1, A1) -> ()) -> some>>
+                 U protocol descriptor for SwiftUI.Scene
+                 U (extension in SwiftUI):SwiftUI.Button< where A == SwiftUI.Text>.init(_: SwiftUI.LocalizedStringKey, action: () -> ()) -> SwiftUI.Button<SwiftUI.Text>
+                 U nominal type descriptor for SwiftUI.Button
+                 U nominal type descriptor for SwiftUI.VStack
+                 U protocol conformance descriptor for SwiftUI.VStack<A> : SwiftUI.View in SwiftUI
+                 U SwiftUI.Binding.wrappedValue.getter : A
+                 U SwiftUI.Binding.wrappedValue.setter : A
+                 U nominal type descriptor for SwiftUI.Binding
+                 U static SwiftUI.Alignment.center.getter : SwiftUI.Alignment
+                 U SwiftUI.LazyState.init(wrappedValue: @autoclosure () -> A) -> SwiftUI.LazyState<A>
+                 U SwiftUI.LazyState.projectedValue.getter : SwiftUI.Binding<A>
+                 U nominal type descriptor for SwiftUI.LazyState.Storage
+                 U type metadata accessor for SwiftUI.LazyState
+                 U nominal type descriptor for SwiftUI.LazyState
+                 U associated type descriptor for Swift.CaseIterable.AllCases
+                 U static Dispatch.DispatchQoS.unspecified.getter : Dispatch.DispatchQoS
+                 U type metadata accessor for Dispatch.DispatchQoS
+                 U associated type descriptor for Swift.RawRepresentable.RawValue
+                 U type metadata accessor for CoreAudio.UnsafeMutableAudioBufferListPointer
+                 U nominal type descriptor for CoreAudio.UnsafeMutableAudioBufferListPointer
+                 U protocol conformance descriptor for CoreAudio.UnsafeMutableAudioBufferListPointer : Swift.Collection in CoreAudio
+                 U CoreAudio.UnsafeMutableAudioBufferListPointer.init(Swift.UnsafeMutablePointer<__C.AudioBufferList>) -> CoreAudio.UnsafeMutableAudioBufferListPointer
+                 U value witness table for Builtin.UnknownObject
+                 U value witness table for Builtin.BridgeObject
+                 U value witness table for Builtin.Int64
+                 U value witness table for Builtin.NativeObject
+                 U Swift.CancellationError.init() -> Swift.CancellationError
+                 U (extension in Foundation):Swift.Dictionary._bridgeToObjectiveC() -> __C.NSDictionary
+                 U static (extension in Foundation):Swift.Dictionary._unconditionallyBridgeFromObjectiveC(__C.NSDictionary?) -> [A : B]
+                 U protocol conformance descriptor for < where A: Swift.Encodable, B: Swift.Encodable> [A : B] : Swift.Encodable in Swift
+                 U protocol conformance descriptor for < where A: Swift.Decodable, B: Swift.Decodable> [A : B] : Swift.Decodable in Swift
+                 U method descriptor for Swift.Encodable.encode(to: Swift.Encoder) throws -> ()
+                 U protocol descriptor for Swift.Encodable
+                 U method descriptor for Swift.Hashable._rawHashValue(seed: Swift.Int) -> Swift.Int
+                 U method descriptor for Swift.Hashable.hash(into: inout Swift.Hasher) -> ()
+                 U method descriptor for Swift.Hashable.hashValue.getter : Swift.Int
+                 U protocol descriptor for Swift.Hashable
+                 U base conformance descriptor for Swift.Hashable: Swift.Equatable
+                 U (extension in Swift):Swift.BidirectionalCollection< where A.Element == Swift.String>.joined(separator: Swift.String) -> Swift.String
+                 U dispatch thunk of static Swift.Equatable.== infix(A, A) -> Swift.Bool
+                 U method descriptor for static Swift.Equatable.== infix(A, A) -> Swift.Bool
+                 U protocol descriptor for Swift.Equatable
+                 U (extension in Foundation):Swift.String._bridgeToObjectiveC() -> __C.NSString
+                 U static (extension in Foundation):Swift.String._forceBridgeFromObjectiveC(_: __C.NSString, result: inout Swift.String?) -> ()
+                 U static (extension in Foundation):Swift.String._conditionallyBridgeFromObjectiveC(_: __C.NSString, result: inout Swift.String?) -> Swift.Bool
+                 U static (extension in Foundation):Swift.String._unconditionallyBridgeFromObjectiveC(__C.NSString?) -> Swift.String
+                 U (extension in Foundation):Swift.String.init(format: __shared Swift.String, _: Swift.CVarArg...) -> Swift.String
+                 U Swift.String.utf8CString.getter : Swift.ContiguousArray<Swift.Int8>
+                 U static Swift.String._fromSubstring(__shared Swift.Substring) -> Swift.String
+                 U Swift.String.hash(into: inout Swift.Hasher) -> ()
+                 U nominal type descriptor for Swift.String.Index
+                 U Swift.String.index(_: Swift.String.Index, offsetBy: Swift.Int, limitedBy: Swift.String.Index) -> Swift.String.Index?
+                 U Swift.String.append(Swift.String) -> ()
+                 U Swift.String.UTF8View._foreignCount() -> Swift.Int
+                 U Swift.String.hashValue.getter : Swift.Int
+                 U type metadata for Swift.String
+                 U protocol witness table for Swift.String : Swift.Encodable in Swift
+                 U protocol witness table for Swift.String : Swift.Hashable in Swift
+                 U protocol witness table for Swift.String : Swift.Equatable in Swift
+                 U protocol witness table for Swift.String : Swift.Decodable in Swift
+                 U protocol conformance descriptor for Swift.String : Swift.StringProtocol in Swift
+                 U Swift.String.subscript.getter : (Swift.Range<Swift.String.Index>) -> Swift.Substring
+                 U method descriptor for Swift.RawRepresentable.rawValue.getter : A.RawValue
+                 U method descriptor for Swift.RawRepresentable.init(rawValue: A.RawValue) -> A?
+                 U protocol descriptor for Swift.RawRepresentable
+                 U (extension in Swift):Swift.RawRepresentable< where A: Swift.Encodable, A.Swift.RawRepresentable.RawValue == Swift.String>.encode(to: Swift.Encoder) throws -> ()
+                 U (extension in Swift):Swift.RawRepresentable< where A: Swift.Decodable, A.Swift.RawRepresentable.RawValue == Swift.String>.init(from: Swift.Decoder) throws -> A
+                 U generic pre-specialization <Swift.AnyObject> of Swift.Array._makeUniqueAndReserveCapacityIfNotUnique() -> ()
+                 U static (extension in Foundation):Swift.Array._unconditionallyBridgeFromObjectiveC(__C.NSArray?) -> [A]
+                 U generic pre-specialization <Swift.AnyObject> of Swift.Array._createNewBuffer(bufferIsUnique: Swift.Bool, minimumCapacity: Swift.Int, growForAppend: Swift.Bool) -> ()
+                 U generic pre-specialization <Swift.AnyObject> of Swift.Array._appendElementAssumeUniqueAndCapacity(_: Swift.Int, newElement: __owned A) -> ()
+                 U protocol conformance descriptor for [A] : Swift.BidirectionalCollection in Swift
+                 U protocol conformance descriptor for [A] : Swift.Sequence in Swift
+                 U protocol conformance descriptor for <A where A: Swift.Decodable> [A] : Swift.Decodable in Swift
+                 U protocol conformance descriptor for [A] : Swift.Collection in Swift
+                 U type metadata for Swift.Bool
+                 U dispatch thunk of Swift.Actor.unownedExecutor.getter : Swift.UnownedSerialExecutor
+                 U method descriptor for Swift.Actor.unownedExecutor.getter : Swift.UnownedSerialExecutor
+                 U protocol descriptor for Swift.Actor
+                 U Swift.CheckedContinuation.init(continuation: Swift.UnsafeContinuation<A, B>, function: Swift.String) -> Swift.CheckedContinuation<A, B>
+                 U Swift.CheckedContinuation.resume(throwing: __owned B) -> ()
+                 U Swift.CheckedContinuation.resume(returning: __owned A) -> ()
+                 U type metadata accessor for Swift.CancellationError
+                 U protocol conformance descriptor for Swift.CancellationError : Swift.Error in Swift
+                 U static Swift.MainActor.shared.getter : Swift.MainActor
+                 U type metadata accessor for Swift.MainActor
+                 U protocol witness table for Swift.MainActor : Swift.Actor in Swift
+                 U Swift.TaskPriority.rawValue.getter : Swift.UInt8
+                 U type metadata accessor for Swift.TaskPriority
+                 U Swift.Task.cancel() -> ()
+                 U (extension in Swift):Swift.Task< where B == Swift.Never>.value.getter : A
+                 U async function pointer to (extension in Swift):Swift.Task< where B == Swift.Never>.value.getter : A
+                 U static (extension in Swift):Swift.Task< where A == Swift.Never, B == Swift.Never>.isCancelled.getter : Swift.Bool
+                 U static (extension in Swift):Swift.Task< where A == Swift.Never, B == Swift.Never>.checkCancellation() throws -> ()
+                 U static (extension in Swift):Swift.Task< where A == Swift.Never, B == Swift.Never>.sleep(nanoseconds: Swift.UInt64) async throws -> ()
+                 U async function pointer to static (extension in Swift):Swift.Task< where A == Swift.Never, B == Swift.Never>.sleep(nanoseconds: Swift.UInt64) async throws -> ()
+                 U Swift.ThrowingTaskGroup.awaitAllRemainingTasks() async -> ()
+                 U async function pointer to Swift.ThrowingTaskGroup.awaitAllRemainingTasks() async -> ()
+                 U Swift.ThrowingTaskGroup.next(isolation: isolated Swift.Actor?) async throws -> A?
+                 U async function pointer to Swift.ThrowingTaskGroup.next(isolation: isolated Swift.Actor?) async throws -> A?
+                 U Swift.ThrowingTaskGroup.cancelAll() -> ()
+                 U type metadata for Swift.Double
+                 U protocol witness table for Swift.Double : Swift.CVarArg in Swift
+                 U method descriptor for Swift.Decodable.init(from: Swift.Decoder) throws -> A
+                 U protocol descriptor for Swift.Decodable
+                 U Swift.Set.init(minimumCapacity: Swift.Int) -> Swift.Set<A>
+                 U protocol witness table for Swift.Int : SwiftUI._FormatSpecifiable in SwiftUI
+                 U type metadata for Swift.Int
+                 U protocol witness table for Swift.Int : Swift.CustomStringConvertible in Swift
+                 U dispatch thunk of Swift.Collection.startIndex.getter : A.Index
+                 U dispatch thunk of Swift.Collection.endIndex.getter : A.Index
+                 U dispatch thunk of Swift.Collection.formIndex(after: inout A.Index) -> ()
+                 U dispatch thunk of Swift.Collection.subscript.read : (A.Index) -> A.Element
+                 U (extension in Foundation):Swift.Range< where A == Swift.String.Index>.init(_: __C._NSRange, in: __shared Swift.String) -> Swift.Range<Swift.String.Index>?
+                 U (extension in Foundation):__C.NSURLSession.data(for: Foundation.URLRequest, delegate: __C.NSURLSessionTaskDelegate?) async throws -> (Foundation.Data, __C.NSURLResponse)
+                 U async function pointer to (extension in Foundation):__C.NSURLSession.data(for: Foundation.URLRequest, delegate: __C.NSURLSessionTaskDelegate?) async throws -> (Foundation.Data, __C.NSURLResponse)
+                 U type metadata accessor for (extension in Dispatch):__C.OS_dispatch_queue.Attributes
+                 U nominal type descriptor for (extension in Dispatch):__C.OS_dispatch_queue.Attributes
+                 U protocol conformance descriptor for (extension in Dispatch):__C.OS_dispatch_queue.Attributes : Swift.SetAlgebra in Dispatch
+                 U enum case for (extension in Dispatch):__C.OS_dispatch_queue.AutoreleaseFrequency.inherit((extension in Dispatch):__C.OS_dispatch_queue.AutoreleaseFrequency.Type) -> (extension in Dispatch):__C.OS_dispatch_queue.AutoreleaseFrequency
+                 U type metadata accessor for (extension in Dispatch):__C.OS_dispatch_queue.AutoreleaseFrequency
+                 U (extension in Dispatch):__C.OS_dispatch_queue.init(label: Swift.String, qos: Dispatch.DispatchQoS, attributes: (extension in Dispatch):__C.OS_dispatch_queue.Attributes, autoreleaseFrequency: (extension in Dispatch):__C.OS_dispatch_queue.AutoreleaseFrequency, target: __C.OS_dispatch_queue?) -> __C.OS_dispatch_queue
+                 U (extension in ScreenCaptureKit):__C.SCContentSharingPicker.defaultConfiguration.setter : ScreenCaptureKit.SCContentSharingPickerConfiguration
+                 U (extension in CoreMedia):__C.CMTime.init(value: Swift.Int64, timescale: Swift.Int32) -> __C.CMTime
+                 U (extension in Foundation):__C._NSRange.init<A, B where A: Swift.RangeExpression, B: Swift.StringProtocol, A.Bound == Swift.String.Index>(_: A, in: B) -> __C._NSRange
+                 U type metadata for Swift.UInt
+                 U (extension in Foundation):Swift.StringProtocol.trimmingCharacters(in: Foundation.CharacterSet) -> Swift.String
+                 U (extension in Foundation):Swift.StringProtocol.replacingOccurrences<A, B where A1: Swift.StringProtocol, B1: Swift.StringProtocol>(of: A1, with: B1, options: __C.NSStringCompareOptions, range: Swift.Range<Swift.String.Index>?) -> Swift.String
+                 U (extension in Foundation):Swift.StringProtocol.caseInsensitiveCompare<A where A1: Swift.StringProtocol>(A1) -> __C.NSComparisonResult
+                 U (extension in Foundation):Swift.StringProtocol.contains<A where A1: Swift.StringProtocol>(A1) -> Swift.Bool
+                 U dispatch thunk of Swift.SetAlgebra.init<A where A1: Swift.Sequence, A.Element == A1.Element>(__owned A1) -> A
+                 U Swift._HashTable.previousHole(before: Swift._HashTable.Bucket) -> Swift._HashTable.Bucket
+                 U Swift.AnyHashable._rawHashValue(seed: Swift.Int) -> Swift.Int
+                 U static Swift.AnyHashable.== infix(Swift.AnyHashable, Swift.AnyHashable) -> Swift.Bool
+                 U nominal type descriptor for Swift.AnyHashable
+                 U type metadata for Swift.AnyHashable
+                 U protocol witness table for Swift.AnyHashable : Swift.Hashable in Swift
+                 U Swift.AnyHashable.init<A where A: Swift.Hashable>(A) -> Swift.AnyHashable
+                 U static Swift._SetStorage.copy(original: Swift.__RawSetStorage) -> Swift._SetStorage<A>
+                 U static Swift._SetStorage.resize(original: Swift.__RawSetStorage, capacity: Swift.Int, move: Swift.Bool) -> Swift._SetStorage<A>
+                 U nominal type descriptor for Swift._SetStorage
+                 U Swift._StringGuts.foreignErrorCorrectedScalar(startingAt: Swift.String.Index) -> (Swift.Unicode.Scalar, scalarLength: Swift.Int)
+                 U Swift._StringGuts.grow(Swift.Int) -> ()
+                 U protocol descriptor for Swift.CaseIterable
+                 U associated conformance descriptor for Swift.CaseIterable.Swift.CaseIterable.AllCases: Swift.Collection
+                 U method descriptor for static Swift.CaseIterable.allCases.getter : A.AllCases
+                 U nominal type descriptor for Swift.StaticString
+                 U generic pre-specialization <Swift.AnyObject> of Swift._ArrayBuffer._getElementSlowPath(Swift.Int) -> Swift.AnyObject
+                 U type metadata accessor for Swift.DecodingError
+                 U Swift._StringObject.sharedUTF8.getter : Swift.UnsafeBufferPointer<Swift.UInt8>
+                 U static Swift.ContiguousArray._allocateBufferUninitialized(minimumCapacity: Swift.Int) -> Swift._ContiguousArrayBuffer<A>
+                 U nominal type descriptor for Swift.IndexingIterator
+                 U nominal type descriptor for Swift.PartialRangeFrom
+                 U protocol conformance descriptor for Swift.PartialRangeFrom<A> : Swift.RangeExpression in Swift
+                 U protocol descriptor for Swift.CustomReflectable
+                 U method descriptor for Swift.CustomReflectable.customMirror.getter : Swift.Mirror
+                 U Swift._assertionFailure(_: Swift.StaticString, _: Swift.String, file: Swift.StaticString, line: Swift.UInt, flags: Swift.UInt32) -> Swift.Never
+                 U Swift._assertionFailure(_: Swift.StaticString, _: Swift.String, flags: Swift.UInt32) -> Swift.Never
+                 U Swift._CocoaArrayWrapper.endIndex.getter : Swift.Int
+                 U Swift._CocoaArrayWrapper.subscript.getter : (Swift.Int) -> Swift.AnyObject
+                 U static Swift._DictionaryStorage.copy(original: Swift.__RawDictionaryStorage) -> Swift._DictionaryStorage<A, B>
+                 U static Swift._DictionaryStorage.resize(original: Swift.__RawDictionaryStorage, capacity: Swift.Int, move: Swift.Bool) -> Swift._DictionaryStorage<A, B>
+                 U static Swift._DictionaryStorage.allocate(capacity: Swift.Int) -> Swift._DictionaryStorage<A, B>
+                 U nominal type descriptor for Swift._DictionaryStorage
+                 U protocol descriptor for Swift._SwiftNewtypeWrapper
+                 U base conformance descriptor for Swift._SwiftNewtypeWrapper: Swift.RawRepresentable
+                 U base conformance descriptor for Swift._SwiftNewtypeWrapper: Swift._HasCustomAnyHashableRepresentation
+                 U (extension in Swift):Swift._SwiftNewtypeWrapper< where A: Swift.Hashable, A.Swift.RawRepresentable.RawValue: Swift.Hashable>._toCustomAnyHashable() -> Swift.AnyHashable?
+                 U protocol descriptor for Swift._ObjectiveCBridgeable
+                 U method descriptor for static Swift._ObjectiveCBridgeable._forceBridgeFromObjectiveC(_: A._ObjectiveCType, result: inout A?) -> ()
+                 U method descriptor for static Swift._ObjectiveCBridgeable._conditionallyBridgeFromObjectiveC(_: A._ObjectiveCType, result: inout A?) -> Swift.Bool
+                 U method descriptor for static Swift._ObjectiveCBridgeable._unconditionallyBridgeFromObjectiveC(A._ObjectiveCType?) -> A
+                 U method descriptor for Swift._ObjectiveCBridgeable._bridgeToObjectiveC() -> A._ObjectiveCType
+                 U Swift._findStringSwitchCase(cases: [Swift.StaticString], string: Swift.String) -> Swift.Int
+                 U Swift.withThrowingTaskGroup<A, B where A: Swift.Sendable>(of: A.Type, returning: B.Type, isolation: isolated Swift.Actor?, body: (inout Swift.ThrowingTaskGroup<A, Swift.Error>) async throws -> B) async throws -> B
+                 U async function pointer to Swift.withThrowingTaskGroup<A, B where A: Swift.Sendable>(of: A.Type, returning: B.Type, isolation: isolated Swift.Actor?, body: (inout Swift.ThrowingTaskGroup<A, Swift.Error>) async throws -> B) async throws -> B
+                 U Swift.KeyedDecodingContainer.decodeIfPresent(_: Swift.String.Type, forKey: A) throws -> Swift.String?
+                 U Swift.KeyedDecodingContainer.decodeIfPresent(_: Swift.Bool.Type, forKey: A) throws -> Swift.Bool?
+                 U Swift.KeyedDecodingContainer.decodeIfPresent(_: Swift.Int.Type, forKey: A) throws -> Swift.Int?
+                 U Swift.KeyedDecodingContainer.decodeIfPresent<A where A1: Swift.Decodable>(_: A1.Type, forKey: A) throws -> A1?
+                 U Swift.KeyedDecodingContainer.decode(_: Swift.String.Type, forKey: A) throws -> Swift.String
+                 U Swift.KeyedDecodingContainer.decode<A where A1: Swift.Decodable>(_: A1.Type, forKey: A) throws -> A1
+                 U nominal type descriptor for Swift.KeyedDecodingContainer
+                 U Swift.KeyedEncodingContainer.encodeIfPresent(_: Swift.String?, forKey: A) throws -> ()
+                 U Swift.KeyedEncodingContainer.encode(_: Swift.String, forKey: A) throws -> ()
+                 U Swift.KeyedEncodingContainer.encode<A where A1: Swift.Encodable>(_: A1, forKey: A) throws -> ()
+                 U nominal type descriptor for Swift.KeyedEncodingContainer
+                 U Swift._minimumMergeRunLength(Swift.Int) -> Swift.Int
+                 U protocol descriptor for Swift.CustomStringConvertible
+                 U dispatch thunk of Swift.CustomStringConvertible.description.getter : Swift.String
+                 U method descriptor for Swift.CustomStringConvertible.description.getter : Swift.String
+                 U nominal type descriptor for Swift._ContiguousArrayStorage
+                 U Swift._stringCompareWithSmolCheck(_: Swift._StringGuts, _: Swift._StringGuts, expecting: Swift._StringComparisonResult) -> Swift.Bool
+                 U protocol descriptor for Swift.CustomDebugStringConvertible
+                 U method descriptor for Swift.CustomDebugStringConvertible.debugDescription.getter : Swift.String
+                 U dispatch thunk of Swift.SingleValueDecodingContainer.decode(Swift.String.Type) throws -> Swift.String
+                 U dispatch thunk of Swift.SingleValueEncodingContainer.encode(Swift.String) throws -> ()
+                 U protocol descriptor for Swift._HasCustomAnyHashableRepresentation
+                 U method descriptor for Swift._HasCustomAnyHashableRepresentation._toCustomAnyHashable() -> Swift.AnyHashable?
+                 U Swift.ELEMENT_TYPE_OF_SET_VIOLATES_HASHABLE_REQUIREMENTS(Any.Type) -> Swift.Never
+                 U Swift.KEY_TYPE_OF_DICTIONARY_VIOLATES_HASHABLE_REQUIREMENTS(Any.Type) -> Swift.Never
+                 U protocol descriptor for Swift.Error
+                 U method descriptor for Swift.Error._getEmbeddedNSError() -> Swift.AnyObject?
+                 U method descriptor for Swift.Error._code.getter : Swift.Int
+                 U method descriptor for Swift.Error._domain.getter : Swift.String
+                 U method descriptor for Swift.Error._userInfo.getter : Swift.AnyObject?
+                 U (extension in Swift):Swift.Error._getEmbeddedNSError() -> Swift.AnyObject?
+                 U (extension in Swift):Swift.Error._code.getter : Swift.Int
+                 U (extension in Swift):Swift.Error._domain.getter : Swift.String
+                 U (extension in Swift):Swift.Error._userInfo.getter : Swift.AnyObject?
+                 U protocol self-conformance witness table for Swift.Error
+                 U protocol witness table for Swift.Never : SwiftUI.View in SwiftUI
+                 U nominal type descriptor for Swift.Never
+                 U type metadata for Swift.Never
+                 U protocol witness table for Swift.Never : Swift.Error in Swift
+                 U Swift.Hasher.init(_seed: Swift.Int) -> Swift.Hasher
+                 U Swift.Hasher._combine(Swift.UInt) -> ()
+                 U Swift.Hasher._finalize() -> Swift.Int
+                 U type metadata accessor for Swift.Mirror.DisplayStyle
+                 U nominal type descriptor for Swift.Mirror.DisplayStyle
+                 U enum case for Swift.Mirror.AncestorRepresentation.generated(Swift.Mirror.AncestorRepresentation.Type) -> Swift.Mirror.AncestorRepresentation
+                 U type metadata accessor for Swift.Mirror.AncestorRepresentation
+                 U Swift.Mirror.init<A>(_: A, children: Swift.KeyValuePairs<Swift.String, Any>, displayStyle: Swift.Mirror.DisplayStyle?, ancestorRepresentation: Swift.Mirror.AncestorRepresentation) -> Swift.Mirror
+                 U nominal type descriptor for Swift.UInt32
+                 U nominal type descriptor for Swift.UInt64
+                 U protocol descriptor for Swift.CVarArg
+                 U dispatch thunk of Swift.Decoder.singleValueContainer() throws -> Swift.SingleValueDecodingContainer
+                 U dispatch thunk of Swift.Decoder.container<A where A1: Swift.CodingKey>(keyedBy: A1.Type) throws -> Swift.KeyedDecodingContainer<A1>
+                 U dispatch thunk of Swift.Encoder.singleValueContainer() -> Swift.SingleValueEncodingContainer
+                 U dispatch thunk of Swift.Encoder.container<A where A1: Swift.CodingKey>(keyedBy: A1.Type) -> Swift.KeyedEncodingContainer<A1>
+                 U protocol descriptor for Swift.CodingKey
+                 U method descriptor for Swift.CodingKey.stringValue.getter : Swift.String
+                 U method descriptor for Swift.CodingKey.init(stringValue: Swift.String) -> A?
+                 U method descriptor for Swift.CodingKey.intValue.getter : Swift.Int?
+                 U method descriptor for Swift.CodingKey.init(intValue: Swift.Int) -> A?
+                 U base conformance descriptor for Swift.CodingKey: Swift.CustomStringConvertible
+                 U base conformance descriptor for Swift.CodingKey: Swift.CustomDebugStringConvertible
+                 U (extension in Swift):Swift.CodingKey.description.getter : Swift.String
+                 U (extension in Swift):Swift.CodingKey.debugDescription.getter : Swift.String
+                 U Swift._typeName(_: Any.Type, qualified: Swift.Bool) -> Swift.String
+                 U type metadata for Any
+                 U type metadata for ()
+                 U value witness table for ()
+                 U _AVAudioSessionCategoryPlayback
+                 U _AVAudioSessionInterruptionNotification
+                 U _AVAudioSessionInterruptionTypeKey
+                 U _AVAudioSessionMediaServicesWereLostNotification
+                 U _AVAudioSessionMediaServicesWereResetNotification
+                 U _AVAudioSessionModeMoviePlayback
+                 U _AVAudioSessionRouteChangeNotification
+                 U _AVAudioSessionRouteChangeReasonKey
+                 U _AVLayerVideoGravityResizeAspect
+                 U _CGBitmapContextCreate
+                 U _CGColorSpaceCreateDeviceRGB
+                 U _CGContextFillRect
+                 U _CGContextScaleCTM
+                 U _CGContextSetFillColorWithColor
+                 U _CGContextTranslateCTM
+                 U _CMAudioFormatDescriptionGetStreamBasicDescription
+                 U _CMClockGetHostTimeClock
+                 U _CMSampleBufferCreateReadyWithImageBuffer
+                 U _CMSampleBufferDataIsReady
+                 U _CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer
+                 U _CMSampleBufferGetFormatDescription
+                 U _CMSampleBufferGetNumSamples
+                 U _CMSampleBufferIsValid
+                 U _CMTimebaseCreateWithSourceClock
+                 U _CMTimebaseGetTime
+                 U _CMTimebaseSetRate
+                 U _CMTimebaseSetTime
+                 U _CMVideoFormatDescriptionCreateForImageBuffer
+                 U _CVPixelBufferCreate
+                 U _CVPixelBufferGetBaseAddress
+                 U _CVPixelBufferGetBytesPerRow
+                 U _CVPixelBufferLockBaseAddress
+                 U _CVPixelBufferUnlockBaseAddress
+                 U _NSFontAttributeName
+                 U _NSForegroundColorAttributeName
+                 U _NSParagraphStyleAttributeName
+                 U _OBJC_CLASS_$_AVAudioSession
+                 U _OBJC_CLASS_$_AVPictureInPictureController
+                 U _OBJC_CLASS_$_AVPictureInPictureControllerContentSource
+                 U _OBJC_CLASS_$_AVSampleBufferDisplayLayer
+                 U _OBJC_CLASS_$_CALayer
+                 U _OBJC_CLASS_$_NSDateFormatter
+                 U _OBJC_CLASS_$_NSHTTPURLResponse
+                 U _OBJC_CLASS_$_NSJSONSerialization
+                 U _OBJC_CLASS_$_NSLock
+                 U _OBJC_CLASS_$_NSMutableParagraphStyle
+                 U _OBJC_CLASS_$_NSNotificationCenter
+                 U _OBJC_CLASS_$_NSObject
+                 U _OBJC_CLASS_$_NSOperationQueue
+                 U _OBJC_CLASS_$_NSRegularExpression
+                 U _OBJC_CLASS_$_NSTextCheckingResult
+                 U _OBJC_CLASS_$_NSTimer
+                 U _OBJC_CLASS_$_NSURLSession
+                 U _OBJC_CLASS_$_NSURLSessionConfiguration
+                 U _OBJC_CLASS_$_OS_dispatch_queue
+                 U _OBJC_CLASS_$_SCContentSharingPicker
+                 U _OBJC_CLASS_$_SCStream
+                 U _OBJC_CLASS_$_SCStreamConfiguration
+                 U _OBJC_CLASS_$_SFSpeechAudioBufferRecognitionRequest
+                 U _OBJC_CLASS_$_SFSpeechRecognizer
+                 U _OBJC_CLASS_$_UIColor
+                 U _OBJC_CLASS_$_UIFont
+                 U _OBJC_CLASS_$_UIView
+                 U _OBJC_CLASS_$_Swift._SwiftObject
+                 U _OBJC_METACLASS_$_NSObject
+                 U _OBJC_METACLASS_$_UIView
+                 U _OBJC_METACLASS_$_Swift._SwiftObject
+                 U _UIGraphicsPopContext
+                 U _UIGraphicsPushContext
+                 U __Block_copy
+                 U __Block_release
+                 U __NSConcreteStackBlock
+                 U ___chkstk_darwin
+                 U ___stack_chk_fail
+                 U ___stack_chk_guard
+                 U __availability_version_check
+0000000100000000 T __mh_execute_header
+                 U __objc_empty_cache
+                 U __swiftEmptyArrayStorage
+                 U __swiftEmptyDictionarySingleton
+                 U __swiftEmptySetSingleton
+                 U __swift_FORCE_LOAD_$_swiftAVFoundation
+                 U __swift_FORCE_LOAD_$_swiftCoreAudio
+                 U __swift_FORCE_LOAD_$_swiftCoreFoundation
+                 U __swift_FORCE_LOAD_$_swiftCoreImage
+                 U __swift_FORCE_LOAD_$_swiftCoreLocation
+                 U __swift_FORCE_LOAD_$_swiftCoreMIDI
+                 U __swift_FORCE_LOAD_$_swiftDispatch
+                 U __swift_FORCE_LOAD_$_swiftFoundation
+                 U __swift_FORCE_LOAD_$_swiftMetal
+                 U __swift_FORCE_LOAD_$_swiftOSLog
+                 U __swift_FORCE_LOAD_$_swiftObjectiveC
+                 U __swift_FORCE_LOAD_$_swiftQuartzCore
+                 U __swift_FORCE_LOAD_$_swiftSpatial
+                 U __swift_FORCE_LOAD_$_swiftUIKit
+                 U __swift_FORCE_LOAD_$_swiftUniformTypeIdentifiers
+                 U __swift_FORCE_LOAD_$_swiftXPC
+                 U __swift_FORCE_LOAD_$_swift_Builtin_float
+                 U __swift_FORCE_LOAD_$_swiftos
+                 U __swift_FORCE_LOAD_$_swiftsimd
+                 U __swift_stdlib_reportUnimplementedInitializer
+                 U __swift_stdlib_strtod_clocale
+                 U _bzero
+                 U _dispatch_once_f
+                 U _dlsym
+                 U _exp2
+                 U _fclose
+                 U _fopen
+                 U _fread
+                 U _free
+                 U _fseek
+                 U _ftell
+                 U _kCFAllocatorDefault
+                 U _kCMTimeInvalid
+                 U _kCMTimePositiveInfinity
+                 U _kCMTimeZero
+                 U _kCVPixelBufferCGBitmapContextCompatibilityKey
+                 U _kCVPixelBufferCGImageCompatibilityKey
+                 U _malloc
+                 U _malloc_size
+                 U _memcpy
+                 U _memmove
+                 U _objc_allocWithZone
+                 U _objc_msgSend
+                 U _objc_msgSendSuper2
+                 U _objc_opt_self
+                 U _objc_release
+                 U _objc_release_x10
+                 U _objc_release_x19
+                 U _objc_release_x20
+                 U _objc_release_x21
+                 U _objc_release_x22
+                 U _objc_release_x23
+                 U _objc_release_x24
+                 U _objc_release_x25
+                 U _objc_release_x26
+                 U _objc_release_x27
+                 U _objc_release_x28
+                 U _objc_release_x8
+                 U _objc_release_x9
+                 U _objc_retain
+                 U _objc_retainAutoreleasedReturnValue
+                 U _objc_retain_x11
+                 U _objc_retain_x19
+                 U _objc_retain_x2
+                 U _objc_retain_x20
+                 U _objc_retain_x21
+                 U _objc_retain_x22
+                 U _objc_retain_x23
+                 U _objc_retain_x24
+                 U _objc_retain_x25
+                 U _objc_retain_x26
+                 U _objc_retain_x27
+                 U _objc_retain_x8
+                 U _rewind
+                 U _sscanf
+                 U _swift_allocBox
+                 U _swift_allocError
+                 U _swift_allocObject
+                 U _swift_arrayDestroy
+                 U _swift_arrayInitWithCopy
+                 U _swift_arrayInitWithTakeBackToFront
+                 U _swift_arrayInitWithTakeFrontToBack
+                 U _swift_beginAccess
+                 U _swift_bridgeObjectRelease
+                 U _swift_bridgeObjectRetain
+                 U _swift_bridgeObjectRetain_n
+                 U _swift_continuation_await
+                 U _swift_continuation_init
+                 U _swift_deallocClassInstance
+                 U _swift_deallocObject
+                 U _swift_defaultActor_deallocate
+                 U _swift_defaultActor_destroy
+                 U _swift_defaultActor_initialize
+                 U _swift_deletedAsyncMethodErrorTu
+                 U _swift_deletedMethodError
+                 U _swift_dynamicCast
+                 U _swift_dynamicCastObjCClass
+                 U _swift_endAccess
+                 U _swift_errorRelease
+                 U _swift_errorRetain
+                 U _swift_getEnumTagSinglePayloadGeneric
+                 U _swift_getForeignTypeMetadata
+                 U _swift_getKeyPath
+                 U _swift_getObjCClassFromMetadata
+                 U _swift_getObjCClassMetadata
+                 U _swift_getObjectType
+                 U _swift_getOpaqueTypeConformance2
+                 U _swift_getSingletonMetadata
+                 U _swift_getTypeByMangledNameInContext
+                 U _swift_getTypeByMangledNameInContext2
+                 U _swift_getTypeByMangledNameInContextInMetadataState
+                 U _swift_getTypeByMangledNameInContextInMetadataState2
+                 U _swift_getWitnessTable
+                 U _swift_initStackObject
+                 U _swift_initStaticObject
+                 U _swift_initStructMetadata
+                 U _swift_isEscapingClosureAtFileLocation
+                 U _swift_isUniquelyReferenced_nonNull_native
+                 U _swift_makeBoxUnique
+                 U _swift_release
+                 U _swift_release_n
+                 U _swift_release_x1
+                 U _swift_release_x10
+                 U _swift_release_x19
+                 U _swift_release_x20
+                 U _swift_release_x21
+                 U _swift_release_x22
+                 U _swift_release_x23
+                 U _swift_release_x24
+                 U _swift_release_x25
+                 U _swift_release_x26
+                 U _swift_release_x27
+                 U _swift_release_x8
+                 U _swift_release_x9
+                 U _swift_retain
+                 U _swift_retain_x1
+                 U _swift_retain_x19
+                 U _swift_retain_x2
+                 U _swift_retain_x20
+                 U _swift_retain_x21
+                 U _swift_retain_x22
+                 U _swift_retain_x23
+                 U _swift_retain_x24
+                 U _swift_retain_x25
+                 U _swift_retain_x26
+                 U _swift_retain_x27
+                 U _swift_retain_x8
+                 U _swift_retain_x9
+                 U _swift_setDeallocating
+                 U _swift_slowAlloc
+                 U _swift_slowDealloc
+                 U _swift_storeEnumTagSinglePayloadGeneric
+                 U _swift_taskGroup_destroy
+                 U _swift_taskGroup_initialize
+                 U _swift_taskGroup_wait_next_throwing
+                 U _swift_task_alloc
+                 U _swift_task_create
+                 U _swift_task_dealloc
+                 U _swift_task_getMainExecutor
+                 U _swift_task_isCurrentExecutor
+                 U _swift_task_reportUnexpectedExecutor
+                 U _swift_task_switch
+                 U _swift_unknownObjectRelease
+                 U _swift_unknownObjectRetain
+                 U _swift_unknownObjectWeakAssign
+                 U _swift_unknownObjectWeakDestroy
+                 U _swift_unknownObjectWeakInit
+                 U _swift_unknownObjectWeakLoadStrong
+                 U _swift_updateClassMetadata2
+                 U _swift_weakDestroy
+                 U _swift_weakInit
+                 U _swift_weakLoadStrong
+                 U _swift_willThrow

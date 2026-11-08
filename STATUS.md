@@ -1,11 +1,14 @@
 # AIUtility 开发状态
 
-## 独立工程审查（2026-11-07，验证进行中）
+## 独立工程审查完成验证（2026-11-08）
 
 - 仓库已 public；main 保持 f17d20d，UI 分支 claude/ecstatic-planck-rzpvn6 保持独立，工程修复在 codex/poc-engineering-audit。
 - 只读证据与 P0/P1/P2 分级、修复范围和实际 CI 失败原因见 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md)。未修改 UI/资源/Core。
 - 旧 PoC 运行 42366153728 已证明 SDK 27.1 Archive、未签名 IPA、11 项预安装检查通过；下文早期“10 项”“没有 SDK/IPA”属于历史记录。
-- 修复后正在验证 Swift 6 与生命周期回归。编译不等于真机采集；iPad、免费签名和首次 USB 配对阻碍仍未解除。
+- 最终源码 `680f3d2` 在 [42378051064](https://github.com/7869123/ios/actions/runs/42378051064) 四个 job 全部 success：Linux/macOS Core 各 36 通过、1 跳过；Linux/macOS PoC 生命周期各 14 通过；Vision 2 通过、Keychain 1 跳过。
+- PoC Swift 6 Simulator/iphoneos Archive、未签名 IPA、13/13 预安装检查通过；所有保存的命令退出码均为 0。旧 SDK 隔离错误与符号检查失败记录均保留在 [验证证据](validation/engineering-audit/README.md)。
+- 工程修复见 [PR #2](https://github.com/7869123/ios/pull/2)，目标 Claude 分支，不合并 main。验证已集成至 d7859b0；后续 UI 6b335ab 未纳入本次完整 App 验证，三点差异不修改 UI，预合并检查无冲突。
+- 编译不等于真机采集；iPad、免费签名和首次 USB 配对阻碍仍未解除。连续 ASR、非英文语言选择、现代渲染 API 迁移仍未完成；无真实付费 API 调用。
 
 ## 批量开发节奏与 CI 成本（2026-11-07）
 

@@ -2,7 +2,9 @@
 
 **已完成 iOS 27.1 SDK 模拟器构建、iphoneos 未签名 Archive 与 IPA 打包，尚未签名、安装或真机测试，不能认定跨 App 能力成功。** 用户首台目标为 iPad mini 6 / iPadOS 27.2（用户提供，未实机核验）。历史构建证据为 [42366153728](https://github.com/7869123/ios/actions/runs/42366153728)。
 
-当前工程审查与修复验证以 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md) 为准。下文保留前期调查记录；其中“未编译”“Swift 5 模式”和尚未修复的生命周期描述是历史状态，不代表当前修复已通过 SDK 验证。
+2026-11-08 更新：最终源码 `680f3d2` 已在 [42378051064](https://github.com/7869123/ios/actions/runs/42378051064) 通过 Swift 6 iphoneos Archive、Simulator 构建、未签名 IPA 打包和 13 项预安装检查；Linux/macOS 各 14 项生命周期回归通过。Swift 6 delegate 隔离、会话身份、共用停止屏障和停止失败禁止重启已实现并编译。**尚无系统采集、Speech、PiP 或中断处理的真机测试。**
+
+当前结论以 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md) 及 [证据](validation/engineering-audit/README.md) 为准。下文保留前期调查记录；其中“未编译”“Swift 5 模式”和旧生命周期问题属于历史描述，已修代码与仍需运行时验证的范围见首节，不应混用。
 
 普通 AppleServices 与 SwiftUI App 已在 [42354651780](https://github.com/7869123/ios/actions/runs/42354651780) 通过 iOS SDK 26.5 编译，macOS 两项 Vision 测试通过；这些不包含此 PoC。该 runner（macos-latest，Xcode 26.6）最高只有 iOS 26.5 SDK，这就是 PoC 编译检查一直失败的原因；poc-sdk 现改用 `xcode-27` runner，见下节。本文采集/Speech/PiP 符号及生命周期问题仍待处理。
 
@@ -32,7 +34,7 @@
 ### 待真机验证的新增风险
 
 1. **音频会话类别**：SubtitlePiPProbe 当前使用 `.playback` + `.moviePlayback` + `.mixWithOthers`。`.playback` 与 `.playAndRecord` 在后台存活、与来源 App 混音/打断、路由及采集是否被系统静音方面可能不同；需在 iPad 上分别对比后台采集持续性与 RMS。
-2. **ScreenAudioProbe.start() 失败时会重复 stop**：`startCapture` 抛错后 catch 先 `await stop()`，再调用 `onTermination`，而 PoCSession 的 `onTermination` 又调用 `capture.stop()`，导致 `stopCapture`/picker 移除执行两次；picker 取消、启动失败和 didStop 回调路径同样如此。需确认重复调用是否安全，或加入幂等/会话身份保护。
+2. **历史重复 stop 风险已修复代码路径**：当前共用异步释放屏障、每轮 callback 身份及 picker 注册标志阻止重复清理；停止异常保留句柄并阻止开始，显式停止才重试。14 项回归与 Swift 6 SDK 构建已通过；系统真实停止/错误码行为仍需 iPad 验证。
 3. **Host 的 ASR 语言写死为 en-US**：`LocalSpeechProbe.start(locale:)` 默认 `en-US`，PoCSession 调用时未传入语言，Host 也不能选择。需改为目标内容语言（例如日语/中文来源素材）并确认对应本地语言包支持 on-device 识别。
 
 ## 第二轮静态审计：需真实 SDK 核对的符号
@@ -52,7 +54,7 @@
 | `AVAudioSession.setCategory(.playback, .moviePlayback, .mixWithOthers)`、`setActive`；`UIBackgroundModes: screen-capture/audio` | SDK 对模式和值的支持 | 来源 App 音频是否受影响；锁屏、蓝牙、来电与权限 |
 | AppleServices：`SecItemCopyMatching/Update/Add`、`VNRecognizeTextRequest.cancel`、`VNImageRequestHandler(data:options:)`、ImageIO 属性读取 | Swift 6 桥接、VNRequest Sendable/隔离、Keychain 属性合法性 | 真实原子更新、锁屏访问、OCR EXIF 方向和语言支持 |
 
-### 已识别、尚未修复或验证的生命周期问题
+### 历史识别的生命周期问题（最新修复与验证见首节）
 
 1. `PoCSession.start()` 等待 Speech 授权期间如发生 stop → start，旧 start 的 catch 仍可能清理新会话；LocalSpeechProbe 的 revision 只能保护其自身回调，不能替代外层生命周期编号。
 2. `PoCSession.stop()` 在 await capture.stop 后再停 Speech/PiP；如果另一 start 已进入，旧 stop 可能结束新 Speech/PiP。`ScreenAudioProbe.stop()` 同样在 await 后清空属性，需结合会话身份重构并以 Apple 测试验收。
@@ -71,17 +73,17 @@
 
 没有声明 `com.apple.developer.persistent-content-capture`：该 [VNC 持续采集权限](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.persistent-content-capture) 只适用于 macOS，iOS 用不到，本工程不需要它。本诊断工程验证普通系统选择器路径；若签名或运行时提示额外能力要求，应记录原始系统分类并按官方流程处理。
 
-## 已写的可运行路径（等待实际构建）
+## 已写的诊断路径（已通过 SDK 构建，等待设备）
 
 `PoCs/iOS27Capture` 独立 Swift Package + XcodeGen Host，与生产 AppleServices 分离。
 
 1. Host 的“授权并采集”先请求 Speech 权限，检查识别器可用且支持本地识别，设置 requiresOnDeviceRecognition=true；不回退到云 ASR。
-2. 系统选择器让用户选择整个屏幕，关闭麦克风/摄像头选项。SCStream 开启 capturesAudio、排除自身音频，目标 48 kHz 单声道，同时接收并丢弃低频小尺寸屏幕帧。
+2. 系统选择器让用户选择整个屏幕，关闭麦克风/摄像头选项。SCStream 开启 capturesAudio、排除自身音频，目标 48 kHz 单声道，同时接收并丢弃小尺寸屏幕帧。iOS 不提供 minimumFrameInterval，不能声称已限制屏幕帧率。
 3. 串行队列接收 .audio CMSampleBuffer，直接交给本地 Speech；只发布缓冲数、样本数、格式与 RMS 指标。32-bit float PCM 才计算 RMS，其他格式标为不可测，不假装非静音。
 4. 本地 ASR 的 partial text 显示在诊断页；Host 预览层与 PiP 字幕每 0.5 秒生成一张真实 CVPixelBuffer/CMSampleBuffer，交给 AVSampleBufferDisplayLayer。
 5. PiP 使用 AVPictureInPictureController.ContentSource(sampleBufferDisplayLayer:playbackDelegate:)；isPictureInPicturePossible 为真才允许启动。收到系统回调只显示回调事实，不将整条链路标成验收成功。
 6. PoCSession 可注入真实 TranslationEngine，对 final 语音段使用 videoSubtitle 的已保存模型。新任务取消旧翻译，序号阻止迟到结果覆盖新字幕。默认 Host 没有 Key，明确只做本地英文 ASR 诊断。
-7. “停止”撤销选择器观察、停止 SCStream、取消语音/翻译并关闭 PiP；原始音视频和转写不写文件，不输出文本日志。
+7. “停止”撤销选择器观察、停止 SCStream、取消语音/翻译并关闭 PiP；SDK 停止/音频停用异常时保留失败状态，阻止开始，允许用户显式重试。原始音视频和转写不写文件，不输出文本日志。
 
 Host 是最小技术诊断界面，不是正式产品 UI。本轮没有花时间复刻游戏界面。
 
@@ -93,7 +95,7 @@ Host 是最小技术诊断界面，不是正式产品 UI。本轮没有花时间
 - partial 的源字幕可实时刷新；自动翻译只处理 final。长段落的翻译延迟尚未解决，默认 Host 也未开启翻译。
 - PiP 的字幕专用画面是否满足平台行为和最终分发要求，是否被后台调度、音频会话或其他 App 音频打断。播放会话采用 mixWithOthers，仍需测量其影响。
 - 手机旋转、系统选择器变更、Seek、倍速、蓝牙路由、来电、锁屏、DRM 静音、错误恢复、内存和耗电。
-- 新 SDK 的回调隔离约束尚未编译核验。PoC 使用 Swift 5 语言模式，后续应在确认 SDK 声明后逐步收紧隔离。
+- 新 SDK 的回调隔离已在 Swift 6 / SDK 27.1 核验；回调传递身份，不传 SCStream。剩余使用锁或串行队列保护的 unchecked Sendable 与系统框架线程行为仍需运行时验证，编译通过不能证明这些语义。
 
 ## 构建与真机安装
 

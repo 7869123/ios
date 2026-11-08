@@ -1,6 +1,6 @@
 # iOS 27 采集 PoC：安装前检查报告
 
-记录日期：2026-11-07。范围：`PoCs/iOS27Capture`（AIUtility Probe）。
+记录日期：2026-11-07；2026-11-08 更新工程验证。范围：`PoCs/iOS27Capture`（AIUtility Probe）。
 
 > **本 PoC 尚未在任何真机上安装或运行，未通过真机验证。** 本报告只覆盖 GitHub Actions 上的编译、打包、静态审查和资料核对。用户当前只能远程控制 Windows 11，iPad mini 6 / iPadOS 27.2 无法通过 USB 连接这台电脑，且没有付费 Apple Developer 账号；需要真实设备的步骤已暂停。
 
@@ -15,14 +15,16 @@
 | 项 | 结果 |
 |---|---|
 | Runner | `xcode-27-arm64`，macOS 27.0.1，Xcode 27.1（27A9275），SDK `iphoneos27.1` / `iphonesimulator27.1`【已验证·CI】 |
-| 最新运行 | [42366153728](https://github.com/7869123/ios/actions/runs/42366153728)（18b6622），整个运行结论 **success**：core-linux、apple、app、poc-sdk 全部通过【已验证·CI】 |
+| 最新运行 | [42378051064](https://github.com/7869123/ios/actions/runs/42378051064)（680f3d2），整个运行结论 **success**：core-linux、apple、app、poc-sdk 全部通过【已验证·CI】 |
 | 模拟器构建 | 通过（3b1fa1c 起；之前三次均为退出码 65）【已验证·CI】 |
 | 真机 Release archive（不签名） | 通过【已验证·CI】 |
-| 预安装审查 | 11/11 PASS（见第 3 节）【已验证·CI】 |
-| 未签名 IPA | artifact `PoC-unsigned-ipa-42366153728-1`，保留 7 天（2026-11-14 过期）；IPA 的 SHA-256 记录在同次 `poc-evidence-42366153728-1` 的 `ipa-contents.log` 中【已验证·CI】 |
-| 编译证据 | artifact `poc-evidence-<run_id>-1`，包含 environment / generate / simulator-build / archive / ipa-contents / preinstall-audit / exit-codes 七个日志 |
+| 预安装审查 | 13/13 PASS；新增真实 ScreenAudioProbe/PoCSession 类符号检查【已验证·CI】 |
+| 未签名 IPA | [PoC-unsigned-ipa-42378051064-1](https://github.com/7869123/ios/actions/runs/42378051064/artifacts/13576218828)，保留至 2026-11-14；SHA-256：`88d7cd6035b1e9f4d937ed49450e2dba1aa38778d6c608144ebe6c265c1ff440`【已验证·CI】 |
+| 编译证据 | artifact `poc-evidence-42378051064-1`：原有七个日志加 lifecycle-tests/device-symbols；归档版本见 validation/engineering-audit。诊断 Release 保留本地符号，仍使用 Release 优化，不签名、不上传 dSYM 或缓存 |
 
-### 模拟器条件编译修复
+### 历史模拟器条件编译修复
+
+以下是首次修复范围；本次独立工程审查也修改了探针内部生命周期与隔离，见 ENGINEERING_REVIEW.md。当前 iphoneos 在无法导入 ScreenCaptureKit 时编译报错，禁止退回占位 Host。
 
 - **原因**：iphonesimulator 27.1 SDK 不提供 ScreenCaptureKit。`PoCSession.swift`、`ScreenAudioProbe.swift` 外面是 `#if os(iOS) && canImport(ScreenCaptureKit)`，在模拟器构建中被整段剔除，Host 因此找不到这两个类型。
 - **修复范围**：只改了 `Host/ProbeApp.swift`。
@@ -85,7 +87,7 @@
 
 ## 5. 代码风险与独立修复
 
-独立工程审查见 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md)。并发停止、迟到回调、PiP 隔离与资源清理正在单独 PR 中修复，不能把旧运行 42366153728 当作修复后的验证。Swift 6 编译及回归结果以该报告的最终运行记录为准。
+独立工程审查见 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md)。并发停止、迟到回调、PiP 隔离及停止异常处理已在 PR #2 实现，最终运行 42378051064 验证源码 680f3d2；不使用旧运行证明新源码。14 项可移植测试不代表系统框架运行时通过。
 
 - 音频会话使用 `.playback`；它与 `.playAndRecord` 对后台采集的影响不同，需要对比验证。
 - 原实现 `ScreenAudioProbe.start()` 失败时会重复执行 stop；独立修复使用共用释放屏障，需同时核对回归和 SDK 编译证据。
