@@ -2,6 +2,8 @@
 
 记录日期：2026-11-08。依据：用户指定的
 `origin/claude/ecstatic-planck-rzpvn6:TASK_MEDIA_MODULES.md`，读取版本 `a01e814`。
+本轮按 `origin/claude/ecstatic-planck-rzpvn6:MEDIA_INTERFACES_REVIEW.md`
+（读取版本 `b44ae48`）第 3 节 R1–R5 修订。审核意见原则认可原草案，但**不等于用户已授权进入 P1**。
 本文件只定义拟议契约；**未创建 Swift Package、实现、站点解析器或媒体测试，代码签名未编译验证**。
 用户审核通过后才进入 P1；下列默认值及接口调整均不能视为已批准或已可用。
 
@@ -10,9 +12,10 @@
 | 阶段 | 后续交付 | 当前状态 |
 |---|---|---|
 | P0 | 本接口文档 | 草案，等待审核 |
-| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/重试/续传、持久化历史 | 未实现 |
+| P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | 未实现，不含任何断点续传 |
+| P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
 | P2 | 多图拼接、视频转 GIF、图片文件指纹 | 未实现 |
-| P3 | B站、X、Pixiv 原图及 Ugoira；三个站点各自提交，不分优先级 | 未实现，公开下载可行性未确认 |
+| P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 未实现，公开下载可行性未确认 |
 | P4 | SauceNAO 反向搜图 | 未实现，真实调用默认关闭 |
 
 搜图 Bot 酱仍属于既定产品范围；本轮 P4 只冻结 SauceNAO 的扩展入口，不虚构 Bot 酱的可调用接口。
@@ -72,6 +75,13 @@ public struct MediaItem: Sendable, Identifiable {
     public let title: String
     public let variants: [MediaVariant]
 }
+
+public enum MediaSelection: Sendable, Hashable {
+    case automatic
+    case variant(itemID: MediaItemID, variantID: String)
+    case bilibiliAllParts
+    case ugoiraGIF(keepOriginalArchive: Bool)
+}
 ```
 
 | 类型 / 字段 | 含义、隔离及失败语义 |
@@ -83,10 +93,10 @@ public struct MediaItem: Sendable, Identifiable {
 | width / height / estimatedBytes | 未知为 nil；正值且有上限。estimatedBytes 仅估计，不能冒充准确进度分母 |
 | fileExtension | 输出建议扩展名，白名单验证，不接受路径、分隔符或任意服务端文件名 |
 | requiresAssembly | 表示下载完还需处理；不能把原始分离轨直接标为已完成的 MP4 |
-| MediaSelection | 拟议枚举：automatic / variant(itemID:variantID:)。automatic 的规则见下文，variant 必须重新验证属于该 item |
+| MediaSelection | 不可变、Sendable 选择值：automatic 按默认规则；variant 必须重新验证属于该 item；bilibiliAllParts 预留全部分 P；ugoiraGIF 显式指定是否同时保留原始归档和时序清单 |
 | MediaTransferPlan | 临时 Sendable 计划：item/variant 身份、按序 components、assembly、可信大小/校验信息；不 Codable，不进入 UI 快照或历史 |
 | MediaComponent | 计划内唯一组件 ID、角色（文件/视频轨/音频轨/动画归档/时序元数据）、临时请求；顺序下载，不能自行再派生并行任务 |
-| MediaAssembly | 拟议枚举：passthrough / muxAudioVideo / ugoiraArchiveAndTiming；标明最终输出列表，不将组装留给 UI 猜测 |
+| MediaAssembly | 拟议枚举：passthrough / muxAudioVideo / ugoiraToGIF(keepOriginalArchive: Bool)；标明最终输出列表，不将组装留给 UI 猜测 |
 | UgoiraFrame | 帧文件名和正的 delayMilliseconds；必须保留顺序/时长并验证归档内文件存在，禁止路径穿越及无限解压 |
 
 MediaTransferPlan / MediaComponent 的真实 URL、请求头、签名参数只在当前操作内存存在；description、debugDescription、
@@ -97,7 +107,17 @@ B站仅显式指定页、未指定时首页；同一 X 帖子或 Pixiv 作品的
 优先原图/最高公开可获取且当前平台能正确交付的变体；不选择会员或需额外权限的清晰度。
 达到资源数量上限时返回 resourceLimitExceeded，不静默截断。P1 先支持真实直链，三站点能力在 P3 审核验证后注册。
 
-Ugoira 默认交付建议为原归档 + 帧时序清单，不丢时序冒充动画；转换 GIF/视频是后续单独确认的能力。
+`bilibiliAllParts` 仅预留表达方式，覆盖该作品全部分 P，不展开推荐或合集；P3 可只实现默认单 P。
+未实现时 capabilities.supportsAllBilibiliParts=false，显式请求返回 unsupportedFormat，不能悄悄只下载第一 P。
+非 B站来源使用该选择为 invalidSelection；待实现全部分 P 时需补充解析契约、资源上限与测试并单独审核。
+
+P2 GIF 编码能力完成后，P3 Ugoira **默认自动按原帧时序转为 GIF**，而非以归档代替动画交付。
+automatic 与 Ugoira 的 variant 选择默认不保留原件；选择 ugoiraGIF(keepOriginalArchive: true)
+则额外交付原始归档 + 完整帧时序清单，三者共用该任务输出清单。此选项仅用于 Ugoira，其他内容返回 invalidSelection。
+转码是该任务的组装步骤，占用同一活动槽；在 GIF 完成、校验并提交前不能发布 completed。
+P2 编码器缺失、平台不支持或无法正确表达原帧时序时明确失败，不能回退为归档并声称默认交付成功。
+不得把不同 delayMilliseconds 统一为 fps；原件保留选项纳入选择身份和去重键，不能与仅 GIF 的任务误判重复。
+automatic/variant 与显式 ugoiraGIF(false) 如最终选择相同内容和交付形式，应归一为同一去重身份，不能重复下载。
 DASH 计划包含视频/音频和显式 mux：Apple 组装器只接受本地文件；不可用时返回 unsupportedPlatform/unsupportedFormat，
 不假装 Linux 已合并，不悄悄降级为无声视频。原始分轨交付如需开放，必须由用户明确选择。
 
@@ -154,6 +174,7 @@ public enum DownloadState: Sendable, Equatable {
     case interrupted
     case completed(files: [DownloadedFile])
     case duplicate(existing: DownloadID)
+    case deletionIncomplete(remainingFiles: [DownloadedFile])
     case failed(MediaError)
     case cancelled
 }
@@ -168,14 +189,17 @@ public enum DownloadState: Sendable, Equatable {
 | DownloadRecord | id、安全来源身份/展示信息、最终状态、attempt 摘要、输出引用及时间；Codable，不能含 Cookie、授权头、签名 URL 或 resumeData |
 | EnqueueReceipt | id + disposition：created / alreadyQueued / alreadyCompleted / retryRequired。UI 据此提示，不能只返回 ID 隐藏重复情况 |
 | CancelResult | accepted / alreadyTerminal / tooLate / notFound；accepted 只代表取消请求已生效，不声称系统资源已释放 |
-| DownloadCapabilities | 实际可下载的 sources、支持的组装/本地工具能力；未实现功能不出现在可用集合中 |
+| DownloadCapabilities | 实际可下载的 sources、支持的组装/本地工具能力、supportsDownloadResume、supportsAllBilibiliParts；P1 续传为 false，未实现的全部分 P 为 false，不以预留签名宣称支持 |
+| DeleteResult | Sendable/Equatable 值：任务 id、deleted（本次实际删除的文件）、alreadyMissing（原已缺失）、failed（FileDeletionFailure 列表）；全部已移除或缺失且记录提交成功才算全部删除 |
+| FileDeletionFailure | Sendable/Equatable 值：文件 ID + 安全 MediaError；没有绝对路径或底层错误文本。因取消而未尝试的文件用 cancelled 分类 |
 
 queued(position:) 从 1 开始，仅计等待项；无活动任务时队首也先完成持久化再启动。
 DownloadProgress 与 DownloadedFile 须符合 Equatable，保证 DownloadState 的比较契约；时间使用可持久化的时间值。
 
 **进度口径：** 同一 attemptID、同一阶段内 bytesWritten 与已知 fraction 单调不减。
 估计大小不作分母；总长度不可信或未齐时 fraction=nil，UI 显示字节/活动状态。
-服务器拒绝续传而需从头传输时产生新 attemptID，明确重置，不用高水位伪装已经保留的字节。
+P1 每次自动/手动重试都从头开始并产生新 attemptID；断开前字节不拼接到新尝试。
+P1b 经单独审核后才允许续传；服务器拒绝续传而需从头传输时也必须新建 attemptID，明确重置，不用高水位伪装已保留字节。
 手动重试也产生新 attemptID。下载字节完成仍不代表组装/提交完成，只有 completed 才是任务成功。
 因此“全生命周期百分比永不下降”不作承诺；此项口径需用户审核后冻结。
 
@@ -195,12 +219,17 @@ public actor DownloadManager {
     public func updates() -> AsyncStream<DownloadQueueSnapshot>
     public func history() async throws(MediaError) -> [DownloadRecord]
     public func clearHistory() async throws(MediaError)
+    public func deleteFiles(for id: DownloadID) async throws(MediaError) -> DeleteResult
     public func fileURL(for file: DownloadedFile) async throws(MediaError) -> URL
     public func shutdown() async throws(MediaError)
 }
 ```
 
 外部访问 actor 仍须 await，即使成员签名未写 async。初始化执行存储恢复，失败不返回半初始化管理器。
+App 启动时显示“媒体模块加载中”；初始化错误按 storageUnavailable 等分类显示，并允许用户重试。
+失败/取消路径须释放本次持有的资源、撤销未发布观察者及任务，不能残留锁或半写入配置；
+恢复写入采用原子替换，失败后旧可读状态保留。调用方可对同一命名空间安全地重新创建实例，
+无需手工删除文件或重启 App；不存在两个成功实例同时持有同一命名空间的承诺。
 DownloadConfiguration 指定受验证的沙盒根、有限 DownloadPolicy、真实能力装配；测试依赖通过模块内测试入口注入，
 不在生产构造器默认注册 Mock 或未实现站点。
 两者均为 Sendable 配置值：前者包含存储命名空间、沙盒根、策略及解析器注册；后者包含第 7 节所有有限限额与重试规则。
@@ -211,11 +240,12 @@ DownloadConfiguration 指定受验证的沙盒根、有限 DownloadPolicy、真�
 | enqueue | actor 分配递增入队序号，顺序不按站点或方法返回快慢重排。排队信息持久化成功才回 created；失败不偷偷开始下载 |
 | enqueue(item,variant) | 同一条队列、同一活动槽，重新校验身份/变体，不信任外部构造的描述；不能绕过解析限流 |
 | cancel | 当前 actor turn 设置取消标志、发布 queued→cancelled 或 active→cancelling，并取消工作 Task，不等待网络 I/O 才更新 UI |
-| retry | 只允许 failed/cancelled/interrupted，或确认输出缺失的旧 completed；不允许活动任务重试。复用任务 ID、新 attemptID，加入队尾，重新解析临时地址 |
+| retry | 只允许 failed/cancelled/interrupted，或确认输出缺失的旧 completed；不允许活动任务或正在删除的任务重试。复用任务 ID、新 attemptID，加入队尾，重新解析临时地址；P1 始终从头下载 |
 | retryCleanup | 仅重试已阻塞的清理，不重新解析或下载；失败继续报告 cleanupFailed 并保留阻塞状态 |
 | updates | 每次调用创建独立订阅，立即交付当前完整快照，之后广播；bufferingNewest(1) 合并高频进度。取消订阅不取消任务，结束订阅须移除观察者 |
 | history | 读取已提交的持久化记录，稳定排序；失败抛 storageUnavailable，不伪造空历史 |
 | clearHistory | 只清除终态记录及其去重索引，不取消活动/排队任务，也不删除下载文件；写入失败保持旧历史。返回后后续快照不可重新出现旧记录 |
+| deleteFiles | 只删除指定任务已提交且由模块拥有的输出及相应记录；排队/活动/取消清理/提交中的任务返回 invalidState。返回每文件真实结果，不能把部分失败报告为全部删除；详见下节 |
 | fileURL | 校验文件仍存在、相对路径未穿越且位于授权沙盒；丢失为 outputMissing；不能返回站点文件名拼成的任意 URL |
 | shutdown | 不再接收新任务，取消/等待清理，持久化队列并关闭订阅；清理失败须返回错误，不宣布已关闭 |
 
@@ -245,12 +275,32 @@ DownloadConfiguration 指定受验证的沙盒根、有限 DownloadPolicy、真�
   committing 以后取消返回 tooLate，等待真实提交结果；成功后 cancelled 不能逆转 completed。
 - 文件与历史不宣称操作系统跨文件原子事务。记录 prepared → 发布完整输出目录 → 提交历史；有提交日志供重启恢复。
   未提交的文件不可分享，崩溃后按日志清理或完成恢复，不把孤立 .part 标为 completed。
-- pending FIFO 与已提交历史保存在 Documents 专用目录；可恢复的 .part/校验信息在 Caches，允许系统清理，不能承诺永不丢失。
-- 重启后未开始队列保持顺序；原运行项变 interrupted，默认等待用户 retry，入队尾后重新获取公开下载计划，不自动重放请求。
+- pending FIFO 与已提交历史保存在 Documents 专用目录；临时 .part 在 Caches，允许系统清理。
+  P1 的 .part 仅供当前尝试暂存，不做同进程重试续接或跨重启恢复；确认旧写入停止后清理再开始新尝试。
+- 重启后未开始队列保持顺序；原运行项变 interrupted，等待用户 retry，入队尾后重新获取公开下载计划并从零下载，不自动重放请求。
 - 已验证安全来源 ID 可持久化，完整签名链接/凭据和系统 opaque resumeData 不落历史。
   若直链无法保留无敏感信息的恢复地址，则报告需要重新提供链接，不能伪装可跨重启续传。
 
-## 7. 媒体专用传输、续传与限额
+### 删除文件、部分失败与历史清空
+
+- deleteFiles 在 manager actor 隔离下预留该任务的删除操作，拒绝同 ID 的并发删除/retry；不影响其他任务输出。
+  不把网络取消接口当文件删除；不存在的任务/文件归属记录返回 notFound，不接受任意外部路径。
+  与 clearHistory 共用 revision/仓储写入顺序；清空后延迟到达的删除结果只能更新文件归属，不能恢复历史。
+- 只处理已提交输出，校验相对路径、沙盒归属和文件身份；不递归删除用户目录、不删输入或其他任务共用文件。
+  已缺失的输出归 alreadyMissing；实际删掉的归 deleted；每个失败/未尝试输出逐一进入 failed。
+- 全部输出已移除/缺失后删除任务记录及去重索引；再次加入同一链接是新任务。
+  部分删除则发布 deletionIncomplete，保留剩余文件与失败信息以便重试删除，同时移除原任务的去重证据；
+  不继续显示完整 completed，也不重新下载已经删除的文件。部分删除不支持 download retry，用户可新建下载任务。
+- 文件删除不能回滚为完整旧文件。开始前持久化删除意图，逐项记录结果；元数据写入失败抛 storageUnavailable，
+  保留恢复依据，重启核实实际文件后再修复记录，不谎称磁盘回滚。删除期间的旧回调不得复活旧记录/去重证据。
+- 取消删除在文件间安全点确认；尚未尝试项以 cancelled 记入 DeleteResult.failed，完成结果记录后返回部分结果。
+  尚未开始删除时可直接抛 cancelled。任何情况下都不能宣称已删除失败项。
+- clearHistory 仍只清记录，不删文件。为清空后还能用已知 DownloadID 删除遗留输出，仅保留最小文件归属清单
+  （ID、沙盒相对文件引用、必要的删除恢复信息），不保留来源链接、标题、站点内容身份或去重证据，
+  不通过 history/updates 重新展示旧任务。deleteFiles 对已清空历史的任务仅操作此清单，不重建历史记录；
+  UI 可在清空前组合调用删除接口。不新增“清空全部下载文件”接口。
+
+## 7. 媒体专用传输、限额与 P1b 续传预留
 
 以下是**模块内部依赖契约**，不作为 App 公共 API；P1 用可注入假传输/假时钟/仓储做离线测试。
 
@@ -275,7 +325,11 @@ DownloadPolicy 是 Sendable 不可变配置，建议初值：单活动槽 1（�
   生产不自动读系统 Cookie/凭据库；普通 User-Agent，不模拟用户身份。
 - 对显式私网/本机地址和解析结果做有限目标检查；不能把字符串域名检查宣称为完整 DNS 重绑定防护。
   若 URLSession 无法满足所选目标约束，P1 须先报告限制，不跳过检查假装安全。
-- 续传仅在服务端支持且资源身份/强校验器一致时发 Range + If-Range：206 必须起止范围吻合；200 表示从头开始，
+**P1 不实现以下续传路径：** 网络中断视为当前尝试失败，只在有限自动重试规则允许时从零开始；
+不发 Range / If-Range、不追加旧 .part、不解码系统 resumeData，capabilities.supportsDownloadResume=false。
+同次运行续接和跨重启续接均属于 **P1b，P1 之后单独审核**。以下仅保留后续设计约束：
+
+- P1b 续传仅在服务端支持且资源身份/强校验器一致时发 Range + If-Range：206 必须起止范围吻合；200 表示从头开始，
   禁止追加；416 不能直接标完成，须核验本地长度/身份，不能确认则重新开始。没有可信校验器不跨尝试拼接字节。
 - 新地址和新资源不是同一概念；签名地址过期时先受控重新解析，再验证资源身份。不能仅凭文件名或相同长度续传。
 
@@ -331,6 +385,9 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
 - stitch 先应用图像方向，再计算像素尺寸/间距；输出默认 PNG。无输入、非法列数/间距或超出像素限额明确失败。
 - GIF 帧时间为 start + n/fps 且小于片段结束，保持顺序；按输入方向缩放且不放大小视频，不包含音轨。
   按帧编码，不把全部帧无上限驻留内存。检查实际帧数/总时长，不能只靠文件扩展名宣称 GIF 成功。
+- P2 另在 Apple target 内部抽出共用的顺序 GIF 编码器，支持逐帧输入及每帧独立时长，供 P3 Ugoira 组装复用；
+  不将 Ugoira 伪装成视频后套用 makeGIF 的固定 fps。原帧顺序/独立时长必须保留并验证每帧及总时长，
+  编码器不能准确表达的输入返回 unsupportedFormat，不静默统一间隔或舍弃时序。编码取消须清理临时 GIF。
 - stripMetadata 移除 EXIF/GPS/IPTC/XMP/注释等非必要元数据，保留正确显示所需的尺寸/颜色信息并规范方向。
   不能无损满足的格式明确 unsupportedFormat，不偷偷改成有损重编码。reencode 允许显式编码变化，subtlePixelNoise 会改像素。
   输入已规范化而 bytesChanged=false 不是失败，UI 必须能区分；原输入字节始终不变。
@@ -352,27 +409,37 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
 
 - P1 Linux：各来源语法、参数/短链重路由、未知链接、FIFO、任意时刻活动槽≤1、任务内串行网络、
   排队/活动取消、清理失败阻塞、旧 generation、重试上限/退避/限流、重复入队、每 attempt 进度单调、
-  部分响应续传校验、持久化/清空失败回滚及重启 interrupted 恢复。
+  重试从零且不发 Range/不追加旧文件、队列与历史原子持久化及清空失败回滚、重启 interrupted/手动从头重试；
+  删除成功/原已缺失/部分失败/取消、活动任务拒绝删除、并发删除/retry、去重失效、清空历史后删除、删除日志恢复；
+  初始化失败/取消后无遗留工作和锁、旧快照可读且同一命名空间重建成功。
+- P1b 单独审核后的测试：同进程/跨重启续接、206/200/416、校验器变化、过期地址重解析及 .part 不匹配；不算 P1 验收项。
 - P2 macOS：拼接尺寸/顺序/方向/间距、GIF 帧数/时长、原文件不变、元数据实际去除、限额及取消清理。
+  共用 GIF 编码器覆盖不同逐帧时长、顺序与总时长、不可准确表达时序的明确失败。
 - P3 每站离线 HTML/JSON 样例单独提交；只公开无争议样例，去掉账号/Cookie/Token/个人主页内容。
   只用官方公开文档化接口或网页公开数据，遇私有接口、登录模拟或受限资源停下报告，不能为了测绿绕过。
+  B站覆盖默认首 P/链接指定 P、未支持全部分 P 时明确拒绝；Ugoira 覆盖默认 GIF/可选保留原件、变长帧时序、
+  组装全程单活动槽、取消清理、平台/编码器缺失不假成功，以及交付选项参与去重。
 - 普通 CI 传输层禁止向真实站点和付费 API 联网；真实集成测试单独授权、默认关闭，沿用 AIUTILITY_LIVE_TESTS=1。
   P0 没有新增测试、没有运行 Swift 编译或 Actions；现有历史通过记录不算媒体模块证据。
 - Claude 后续需新增 Media 纯逻辑 Linux 测试、Apple 工具 macOS 测试和 iOS SDK 编译步骤；本轮不改 workflow。
   App 只调用 manager，独立订阅快照并回 MainActor；按 EnqueueReceipt/CancelResult 提示，不把取消请求等同已释放。
   多文件完成/重复/中断/提交中需有对应展示；能力通过并获审核前仍标“规划中”。
+  初始化提供加载/分类错误/重试入口；区分 clearHistory 和 deleteFiles，对部分删除列出未删除项；
+  未支持的续传/全部分 P 选项保持不可用，Ugoira 原件保留选项默认关闭。以上仅为后续接线约定，本轮不改 UI。
 
 ## 12. 本轮审核点与进入 P1 的门槛
 
 请审核以下具体选择，而不是默认把建议当产品定案：
 
 1. 取消逻辑立即生效，但实际下一任务等释放确认；清理失败全队列阻塞，提交阶段取消可能 tooLate。
-2. 自动下载范围及默认最高公开兼容变体；同一作品的有界多文件；Ugoira 暂以归档+时序交付、DASH 显式组装。
+2. 自动下载范围及默认最高公开兼容变体；同一作品的有界多文件；Ugoira 默认 GIF、原归档+时序可选保留；DASH 显式组装；B站预留全部分 P，未实现须明确拒绝。
 3. 进度单调的范围为同 attempt/阶段，完整重传允许显式重置，不伪造百分比。
-4. clearHistory 只清记录、不删文件且移除对应去重证据；重启中断不自动重放；敏感直链可能需用户重提供。
+4. clearHistory 只清记录、不删文件且移除对应去重证据；新增 deleteFiles，部分删除如实报告；初始化失败可安全重建。
+   P1 重启中断等待手动从头重试；敏感直链可能需用户重提供；所有断点续传移至单独审核的 P1b。
 5. 默认 HTTPS、有限请求/时限/资源策略；P2 本地工具的统一任务接入与 P4 具体搜图字段另行冻结。
 
 - [x] 已形成 P0 接口草案，未写实现、未改现有公共 API。
+- [x] 按 b44ae48 的审核文件第 3 节完成 R1–R5 文档修订（不是运行验证）。
 - [ ] 用户审核 MEDIA_INTERFACES.md 通过。
 - [ ] 用户明确授权进入 P1。
 

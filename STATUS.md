@@ -3,8 +3,10 @@
 ## 媒体模块 P0 接口草案（2026-11-08，等待审核）
 
 已按用户指定读取 Claude 分支 a01e814 的 TASK_MEDIA_MODULES.md，仅编写
-[MEDIA_INTERFACES.md](MEDIA_INTERFACES.md)。明确自动路由、FIFO 单活动槽、取消/重复/重试/续传、
-历史、多文件及本地工具的接口边界，保留全部既定媒体与搜图需求。
+[MEDIA_INTERFACES.md](MEDIA_INTERFACES.md)；再按 b44ae48 的 MEDIA_INTERFACES_REVIEW.md
+第 3 节完成 R1–R5 修订：全部断点续传移至 P1b 单独审核，P1 重试从零；增加 deleteFiles 和部分失败结果；
+明确初始化失败可安全重建；P3 Ugoira 依赖 P2 默认转 GIF、原件可选保留；预留 B站全部分 P，未实现时明确拒绝。
+保留自动路由、FIFO 单活动槽、去重、历史、多文件、本地工具及全部既定媒体与搜图需求。
 本轮未创建 AIUtilityMedia 包、未写实现或媒体测试、未改 Core/AppleServices 公共 API、UI、PoC 或 workflow，
 没有运行媒体编译/Actions。草案及建议值尚待用户审核，停止在 P0，不进入 P1。
 
