@@ -2,6 +2,7 @@ import SwiftUI
 import Security
 import UIKit
 import AIUtilityMedia
+import AIUtilityMediaApple
 
 /// Owns the single download manager (one task at a time, FIFO) and mirrors its queue for the UI.
 /// Site resolvers are switched on here; they have only been checked against offline samples, so the
@@ -18,7 +19,8 @@ import AIUtilityMedia
         guard manager == nil, !starting else { return }
         starting = true; defer { starting = false }
         do {
-            let configuration = try DownloadConfiguration(sites: [.bilibili, .x, .pixiv])
+            // Pixiv Ugoira archives become GIFs on device (frame timeline rounded to 10 ms, total kept).
+            let configuration = try DownloadConfiguration(sites: [.bilibili, .x, .pixiv], assembler: UgoiraAssembler())
             let manager = try await DownloadManager(configuration: configuration)
             self.manager = manager
             startupError = nil
@@ -31,13 +33,14 @@ import AIUtilityMedia
     }
 
     /// Returns true when the link was accepted into the queue.
-    func enqueue(_ text: String) async -> Bool {
+    func enqueue(_ text: String, keepUgoiraArchive: Bool = false) async -> Bool {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let url = URL(string: trimmed), url.scheme?.lowercased() == "https" || url.scheme?.lowercased() == "http" else {
             lastError = .invalidURL; return false
         }
         guard let manager else { lastError = startupError ?? .invalidState; return false }
-        do { _ = try await manager.enqueue(link: url); return true }
+        let options = SiteOptions(pixiv: PixivOptions(keepUgoiraArchive: keepUgoiraArchive))
+        do { _ = try await manager.enqueue(link: url, options: options); return true }
         catch { lastError = error; return false }
     }
 
@@ -92,7 +95,7 @@ extension MediaError {
         case .storageUnavailable: "无法读写本地存储。"
         case .parsingChanged: "站点返回的格式变了，解析失败。"
         case .unsupportedFormat: "这种格式暂不支持。"
-        case .unsupportedPlatform: "这一项在当前版本还不能处理（例如 Pixiv 动图）。"
+        case .unsupportedPlatform: "这一项在当前版本还不能处理。"
         case .resourceLimitExceeded: "超出大小或数量限制。"
         case .integrityMismatch: "文件校验失败。"
         case .cleanupFailed: "临时文件清理失败。"

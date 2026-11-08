@@ -81,15 +81,6 @@ private func encodeFrames(generator: AVAssetImageGenerator, plan: [GIFTimeline.F
     return try encoder.finish()
 }
 
-/// Redraws a frame at exactly the output size when the generator's rounding differs.
-private func fitted(_ image: CGImage, to size: (width: Int, height: Int)) throws(MediaError) -> CGImage {
-    if image.width == size.width, image.height == size.height { return image }
-    let context = try ImageIOSupport.context(width: size.width, height: size.height, background: nil)
-    context.draw(image, in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
-    guard let result = context.makeImage() else { throw .resourceLimitExceeded }
-    return result
-}
-
 #else
 
 public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOptions) async throws(MediaError) -> GIFResult {

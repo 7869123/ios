@@ -21,7 +21,7 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 | P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | Linux 45 项通过；修复后 macOS 测试与两种 iOS SDK 构建通过（run 42466209488）；真实网络未验证，不含断点续传 |
 | P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
 | P2 | 多图拼接、视频转 GIF、图片文件指纹 | 已实现于 `AIUtilityMediaApple`（Claude Code 接手后），待 macOS 测试与 iOS SDK 编译验证；未接入 App 界面 |
-| P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 三个解析器已实现，只用离线样例测试；未对真实站点验证，默认不注册（`DownloadConfiguration(sites:)` 显式开启）；Ugoira 组装未接线 |
+| P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 三个解析器已实现，只用离线样例测试；未对真实站点验证，默认不注册（`DownloadConfiguration(sites:)` 显式开启）；Ugoira 在本机组装为 GIF |
 | P4 | SauceNAO 反向搜图 | `SauceNAOProvider` 已实现，只用离线样例测试；真实调用只在 App 中由用户发起，尚未联网验证 |
 
 搜图 Bot 酱仍属于既定产品范围；本轮 P4 只冻结 SauceNAO 的扩展入口，不虚构 Bot 酱的可调用接口。
@@ -461,7 +461,11 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
 - `NetworkClient.fetchJSON`：元数据请求同样经过 DNS 校验、重定向逐跳检查、请求预算与限流，响应上限 `maxMetadataBytes`，只保留在内存。
 - 注册：`DownloadConfiguration(..., sites: [.bilibili, .x, .pixiv])` 显式开启，默认空集合；自定义解析器优先于内置解析器。
 - Pixiv：`/ajax/illust/{id}`（多页再读 `/pages`），每页一个 item，原图来自 `i.pximg.net`；`xRestrict>0` 或原图地址缺失 → `requiresLogin`。
-  Ugoira 读 `/ugoira_meta`，计划为原始帧归档 + `.ugoiraToGIF`；组装尚未接到下载管理器，所以下载时明确失败（`unsupportedPlatform`），不把归档冒充默认结果。
+  Ugoira 读 `/ugoira_meta`，计划为原始帧归档 + `.ugoiraToGIF` + 帧列表（`MediaTransferPlan.ugoiraFrames`：文件名与毫秒时长）。
+  下载管理器先按 ZIP 检查归档，再交给 `DownloadConfiguration(assembler:)` 提供的组装器（App 使用 `AIUtilityMediaApple.UgoiraAssembler`），
+  输出 GIF；`keepUgoiraArchive=true` 时另存原始归档。未配置组装器时仍明确失败（`unsupportedPlatform`），不把归档冒充默认结果。
+  帧时长（用户选定“兼容优先”）：GIF 只有 10 ms 精度，每帧结束时间按真实累计时间四舍五入到 10 ms，单帧误差 ≤ 5 ms、总时长不变；
+  少于 20 ms 的帧取 GIF 最小 20 ms（会略微拉长总时长）。ZIP 读取支持存储与 deflate，校验大小与 CRC-32，不支持加密/ZIP64。
 - B站：`/x/web-interface/view` 取分 P，`?p=N` 指定，否则第 1 P；`/x/player/playurl?fnval=1&platform=html5` 取匿名可得的单文件 MP4（通常 ≤720p），
   无需音视频合并。预览/付费 → `accessRestricted(.payment)`，地区 → `.region`，多段 → `unsupportedFormat`，CDN 主机限 `*.bilivideo.com/.cn`、`*.hdslb.com`。全部分 P 仍不支持。
 - X：网页嵌入使用的 `cdn.syndication.twimg.com/tweet-result` 公开端点（未确认其长期稳定性）。`token` 按 JS `((id/1e15)*π).toString(36)` 去掉 0 和点计算，

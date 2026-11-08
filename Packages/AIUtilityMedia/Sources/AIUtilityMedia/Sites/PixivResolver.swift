@@ -2,15 +2,17 @@ import Foundation
 
 /// Pixiv artworks through the public web API (`/ajax/illust/...`) without an account. Each page is
 /// one item with its original image. R-18 / restricted works and works whose originals are hidden
-/// from anonymous visitors fail with `.requiresLogin`. Ugoira yields its original frame archive with
-/// `.ugoiraToGIF` assembly; until the Apple assembly step is wired the download manager refuses it
-/// (`unsupportedPlatform`) instead of delivering a bare archive as the default result.
+/// from anonymous visitors fail with `.requiresLogin`. Ugoira yields its original frame archive plus
+/// the frame list (file names and millisecond delays) with `.ugoiraToGIF` assembly; the download
+/// manager turns it into a GIF through the platform assembler, and refuses it (`unsupportedPlatform`)
+/// when none is configured instead of delivering a bare archive as the default result.
 actor PixivResolver: MediaResolver {
     nonisolated let source = MediaSource.pixiv
     static let referer = "https://www.pixiv.net/"
     static let maxPages = 64
     private let client: NetworkClient
     private var originals: [MediaItemID: URL] = [:]
+    private var frames: [MediaItemID: [UgoiraFrame]] = [:]
     init(client: NetworkClient) { self.client = client }
 
     nonisolated func canResolve(_ url: URL) -> Bool { Self.artworkID(url) != nil }
@@ -57,7 +59,7 @@ actor PixivResolver: MediaResolver {
     }
 
     func resolve(_ url: URL) async throws(MediaError) -> [MediaItem] {
-        originals = [:]
+        originals = [:]; frames = [:]
         guard let id = Self.artworkID(url) else { throw .unsupportedSource }
         let context = RequestContext(referer: Self.referer)
         let base = "https://www.pixiv.net/ajax/illust/" + id
@@ -79,7 +81,11 @@ actor PixivResolver: MediaResolver {
             let variant = try MediaVariant(id: "ugoira", kind: .ugoira, qualityLabel: "Ugoira → GIF",
                                            width: illust.width.flatMap(Self.positive), height: illust.height.flatMap(Self.positive),
                                            fileExtension: "gif", requiresAssembly: true)
+            var list: [UgoiraFrame] = []
+            for frame in body.frames { list.append(try UgoiraFrame(file: frame.file, delayMilliseconds: frame.delay)) }
+            guard Set(list.map { $0.file }).count == list.count else { throw .parsingChanged }
             originals[itemID] = archive
+            frames[itemID] = list
             return [try MediaItem(id: itemID, title: title, variants: [variant])]
         }
 
@@ -118,7 +124,8 @@ actor PixivResolver: MediaResolver {
         if variant.kind == .ugoira {
             return try MediaTransferPlan(itemID: item.id, variant: variant,
                                          effectiveOptions: options.effective(source: .pixiv, ugoira: true), components: [component],
-                                         assembly: .ugoiraToGIF(keepOriginalArchive: options.pixiv.keepUgoiraArchive))
+                                         assembly: .ugoiraToGIF(keepOriginalArchive: options.pixiv.keepUgoiraArchive),
+                                         ugoiraFrames: frames[item.id] ?? [])
         }
         return try MediaTransferPlan(itemID: item.id, variant: variant, effectiveOptions: options.effective(source: .pixiv),
                                      components: [component])

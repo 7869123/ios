@@ -131,6 +131,42 @@ public enum MediaAssembly: Sendable, Equatable {
     case passthrough, muxAudioVideo, ugoiraToGIF(keepOriginalArchive: Bool)
 }
 
+/// One Ugoira frame: the file name inside the frame archive and its original delay.
+public struct UgoiraFrame: Sendable, Hashable, Codable {
+    public let file: String
+    public let delayMilliseconds: Int
+    public init(file: String, delayMilliseconds: Int) throws(MediaError) {
+        guard !file.isEmpty, file.utf8.count <= 255, !file.contains("/"), !file.contains("\\"), file != "..",
+              delayMilliseconds > 0, delayMilliseconds <= 600_000 else { throw .invalidInput }
+        self.file = file; self.delayMilliseconds = delayMilliseconds
+    }
+}
+
+/// Post-download processing (for example Ugoira frames to GIF), supplied by the platform layer
+/// (`AIUtilityMediaApple.UgoiraAssembler`). Inputs are the downloaded component files in plan order,
+/// already size- and type-checked; the result must be a new file inside `outputDirectory`.
+public protocol MediaAssembler: Sendable {
+    func assemble(_ job: AssemblyJob) async throws(MediaError) -> AssemblyResult
+}
+
+public struct AssemblyJob: Sendable {
+    public let assembly: MediaAssembly
+    public let inputs: [URL]
+    public let ugoiraFrames: [UgoiraFrame]
+    public let outputDirectory: URL
+    public let maxOutputBytes: Int64
+    public init(assembly: MediaAssembly, inputs: [URL], ugoiraFrames: [UgoiraFrame], outputDirectory: URL, maxOutputBytes: Int64) {
+        self.assembly = assembly; self.inputs = inputs; self.ugoiraFrames = ugoiraFrames
+        self.outputDirectory = outputDirectory; self.maxOutputBytes = maxOutputBytes
+    }
+}
+
+public struct AssemblyResult: Sendable {
+    public let file: URL
+    public let fileExtension: String
+    public init(file: URL, fileExtension: String) { self.file = file; self.fileExtension = fileExtension }
+}
+
 /// Sensitive requests are memory-only and never participate in reflection/logging.
 public struct MediaComponent: Sendable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
     public let id: String
@@ -157,13 +193,19 @@ public struct MediaTransferPlan: Sendable, CustomStringConvertible, CustomDebugS
     public let effectiveOptions: SiteOptions
     public let components: [MediaComponent]
     public let assembly: MediaAssembly
+    /// Frame order and original per-frame delays for `.ugoiraToGIF`; empty otherwise.
+    public let ugoiraFrames: [UgoiraFrame]
     public init(itemID: MediaItemID, variant: MediaVariant, effectiveOptions: SiteOptions = .init(),
-                components: [MediaComponent], assembly: MediaAssembly = .passthrough) throws(MediaError) {
+                components: [MediaComponent], assembly: MediaAssembly = .passthrough,
+                ugoiraFrames: [UgoiraFrame] = []) throws(MediaError) {
         guard !components.isEmpty, components.count <= 64,
               Set(components.map(\.id)).count == components.count else { throw .invalidInput }
         try variant.validate()
+        if case .ugoiraToGIF = assembly {
+            guard !ugoiraFrames.isEmpty, ugoiraFrames.count <= 10_000 else { throw .invalidInput }
+        } else if !ugoiraFrames.isEmpty { throw .invalidInput }
         self.itemID = itemID; self.variant = variant; self.effectiveOptions = effectiveOptions
-        self.components = components; self.assembly = assembly
+        self.components = components; self.assembly = assembly; self.ugoiraFrames = ugoiraFrames
     }
     public var description: String { "MediaTransferPlan([redacted])" }
     public var debugDescription: String { description }

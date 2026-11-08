@@ -168,7 +168,7 @@ struct Harness: Sendable {
     let clock: TestClock
     let env: MediaEnvironment
     init(steps: [FixtureTransport.Step] = [], policy: DownloadPolicy = .init(minimumRequestInterval: 0, minimumFreeBytes: 0),
-         resolvers: [any MediaResolver] = [], sites: Set<MediaSource> = []) throws {
+         resolvers: [any MediaResolver] = [], sites: Set<MediaSource> = [], assembler: (any MediaAssembler)? = nil) throws {
         root = FileManager.default.temporaryDirectory.appendingPathComponent("media-tests-" + UUID().uuidString).resolvingSymlinksInPath()
         let configuration = try DownloadConfiguration(testRoot: root, policy: policy)
         store = FixtureManifestStore(); transport = FixtureTransport(steps); clock = TestClock()
@@ -176,7 +176,8 @@ struct Harness: Sendable {
         let client = NetworkClient(policy: policy, transport: transport, validator: FixtureDestination(), clock: clock)
         let all: [any MediaResolver] = [DirectMediaResolver(client: client)] + resolvers + siteResolvers(sites, client: client)
         env = MediaEnvironment(repository: store, files: files, client: client,
-            router: LinkRouter(resolvers: all, client: client), policy: policy, clock: clock, sources: Set(all.map(\.source)))
+            router: LinkRouter(resolvers: all, client: client), policy: policy, clock: clock, sources: Set(all.map(\.source)),
+            assembler: assembler)
     }
     func manager() throws -> DownloadManager { try DownloadManager(environment: env) }
     func cleanup() throws { try FileManager.default.removeItem(at: root) }

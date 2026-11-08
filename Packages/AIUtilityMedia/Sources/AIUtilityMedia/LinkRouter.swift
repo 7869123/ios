@@ -78,7 +78,7 @@ actor DirectMediaResolver: MediaResolver {
 }
 
 enum MediaFormat: Equatable {
-    case jpeg, png, gif, webp, mp4, mov, webm, mp3, wav, ogg
+    case jpeg, png, gif, webp, mp4, mov, webm, mp3, wav, ogg, zip
     static func from(_ value: String?) -> MediaFormat? {
         switch value?.split(separator: ";").first?.trimmingCharacters(in: .whitespaces).lowercased() {
         case "image/jpeg": .jpeg
@@ -91,15 +91,16 @@ enum MediaFormat: Equatable {
         case "audio/mpeg": .mp3
         case "audio/wav", "audio/x-wav": .wav
         case "audio/ogg": .ogg
+        case "application/zip", "application/x-zip-compressed": .zip
         default: nil
         }
     }
     var ext: String {
         switch self { case .jpeg: "jpg"; case .png: "png"; case .gif: "gif"; case .webp: "webp"; case .mp4: "mp4"
-        case .mov: "mov"; case .webm: "webm"; case .mp3: "mp3"; case .wav: "wav"; case .ogg: "ogg" }
+        case .mov: "mov"; case .webm: "webm"; case .mp3: "mp3"; case .wav: "wav"; case .ogg: "ogg"; case .zip: "zip" }
     }
     var kind: MediaVariant.Kind {
-        switch self { case .jpeg, .png, .gif, .webp: .image; case .mp4, .mov, .webm: .video; default: .audio }
+        switch self { case .jpeg, .png, .gif, .webp: .image; case .mp4, .mov, .webm: .video; case .zip: .ugoira; default: .audio }
     }
     func matches(_ data: Data) -> Bool {
         let b = Array(data)
@@ -114,6 +115,7 @@ enum MediaFormat: Equatable {
         case .mp3: return text(0..<3) == "ID3" || (b.count >= 2 && b[0] == 0xff && b[1] & 0xe0 == 0xe0)
         case .wav: return text(0..<4) == "RIFF" && text(8..<12) == "WAVE"
         case .ogg: return text(0..<4) == "OggS"
+        case .zip: return b.starts(with: [0x50, 0x4b, 0x03, 0x04])
         }
     }
 }

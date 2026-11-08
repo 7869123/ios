@@ -98,9 +98,79 @@ struct PixivResolverTests {
         try await manager.shutdown()
     }
 
+    private func ugoiraHarness(_ assembler: FakeAssembler) async throws -> Harness {
+        let h = try Harness(sites: [.pixiv], assembler: assembler)
+        await h.transport.setBody("https://www.pixiv.net/ajax/illust/100000009", data: siteJSON("""
+        {"error":false,"body":{"illustId":"100000009","illustTitle":"Loop","illustType":2,"xRestrict":0,"pageCount":1,
+         "urls":{"original":"https://i.pximg.net/img-original/img/2024/01/01/00/00/00/100000009_ugoira0.jpg"}}}
+        """))
+        await h.transport.setBody("https://www.pixiv.net/ajax/illust/100000009/ugoira_meta", data: siteJSON("""
+        {"error":false,"body":{"originalSrc":"https://i.pximg.net/img-zip-ugoira/img/2024/01/01/00/00/00/100000009_ugoira1920x1080.zip",
+         "frames":[{"file":"000000.jpg","delay":33},{"file":"000001.jpg","delay":67}]}}
+        """))
+        await h.transport.setBody("https://i.pximg.net/img-zip-ugoira/img/2024/01/01/00/00/00/100000009_ugoira1920x1080.zip",
+                                  data: Data([0x50, 0x4b, 0x03, 0x04]) + Data(count: 60), contentType: "application/zip")
+        return h
+    }
+
+    @Test func ugoiraIsAssembledIntoGIFWithFramesAndRefererPassedOn() async throws {
+        let assembler = FakeAssembler()
+        let h = try await ugoiraHarness(assembler); defer { try? h.cleanup() }
+        let manager = try h.manager()
+        let receipt = try await manager.enqueue(link: URL(string: "https://www.pixiv.net/artworks/100000009")!)
+        let state = try await waitFor(manager, id: receipt.id)
+        guard case .completed(let files) = state else { Issue.record("expected completion, got \(state)"); return }
+        #expect(files.map(\.fileName).allSatisfy { $0.hasSuffix(".gif") } && files.count == 1)
+        #expect(files.first?.kind == .ugoira)
+        let job = try #require(await assembler.lastJob())
+        let expected = [try UgoiraFrame(file: "000000.jpg", delayMilliseconds: 33),
+                        try UgoiraFrame(file: "000001.jpg", delayMilliseconds: 67)]
+        #expect(job.frames == expected)
+        #expect(job.inputs == 1)
+        #expect(await h.transport.sentReferers().last == pixivReferer)
+        try await manager.shutdown()
+    }
+
+    @Test func ugoiraCanKeepTheOriginalArchiveToo() async throws {
+        let h = try await ugoiraHarness(FakeAssembler()); defer { try? h.cleanup() }
+        let manager = try h.manager()
+        let receipt = try await manager.enqueue(link: URL(string: "https://www.pixiv.net/artworks/100000009")!,
+                                                options: SiteOptions(pixiv: .init(keepUgoiraArchive: true)))
+        let state = try await waitFor(manager, id: receipt.id)
+        guard case .completed(let files) = state else { Issue.record("expected completion, got \(state)"); return }
+        #expect(files.map { ($0.fileName as NSString).pathExtension }.sorted() == ["gif", "zip"])
+        try await manager.shutdown()
+    }
+
+    @Test func assemblerFailureFailsTheTaskWithoutFiles() async throws {
+        let h = try await ugoiraHarness(FakeAssembler(failure: .integrityMismatch)); defer { try? h.cleanup() }
+        let manager = try h.manager()
+        let receipt = try await manager.enqueue(link: URL(string: "https://www.pixiv.net/artworks/100000009")!)
+        let state = try await waitFor(manager, id: receipt.id)
+        if case .failed(let error) = state { #expect(error == .integrityMismatch) } else { Issue.record("expected failure, got \(state)") }
+        #expect(state.files.isEmpty)
+        try await manager.shutdown()
+    }
+
     @Test func onlyArtworkPathsAreAccepted() {
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/artworks/123")!) == "123")
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/artworks/12a")!) == nil)
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/tags/123")!) == nil)
+    }
+}
+
+/// Records the job and writes a tiny GIF-signature file, standing in for the Apple assembler.
+actor FakeAssembler: MediaAssembler {
+    struct Seen: Sendable { let frames: [UgoiraFrame]; let inputs: Int }
+    private var seen: Seen?
+    private let failure: MediaError?
+    init(failure: MediaError? = nil) { self.failure = failure }
+    func lastJob() -> Seen? { seen }
+    func assemble(_ job: AssemblyJob) async throws(MediaError) -> AssemblyResult {
+        seen = Seen(frames: job.ugoiraFrames, inputs: job.inputs.count)
+        if let failure { throw failure }
+        let file = job.outputDirectory.appendingPathComponent("out.gif")
+        do { try Data("GIF89a-fixture".utf8).write(to: file) } catch { throw .storageUnavailable }
+        return AssemblyResult(file: file, fileExtension: "gif")
     }
 }

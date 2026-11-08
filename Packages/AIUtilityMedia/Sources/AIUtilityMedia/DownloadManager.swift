@@ -8,6 +8,7 @@ struct MediaEnvironment: Sendable {
     let policy: DownloadPolicy
     let clock: any MediaClock
     let sources: Set<MediaSource>
+    var assembler: (any MediaAssembler)? = nil
     static func production(_ configuration: DownloadConfiguration) throws -> MediaEnvironment {
         let clock = SystemMediaClock()
         let client = NetworkClient(policy: configuration.policy, transport: URLSessionMediaTransport(),
@@ -19,7 +20,7 @@ struct MediaEnvironment: Sendable {
         return MediaEnvironment(repository: try DiskManifestStore(root: configuration.root),
                                 files: try SandboxFiles(root: configuration.root, cache: configuration.cache),
                                 client: client, router: LinkRouter(resolvers: resolvers, client: client), policy: configuration.policy,
-                                clock: clock, sources: Set(resolvers.map(\.source)))
+                                clock: clock, sources: Set(resolvers.map(\.source)), assembler: configuration.assembler)
     }
 }
 
@@ -371,7 +372,15 @@ public actor DownloadManager {
         var plans: [MediaTransferPlan] = []
         for (item, variant) in chosen {
             let plan = try await env.router.prepare(item: item, variantID: variant.id, options: row.options)
-            guard plan.assembly == .passthrough, !variant.requiresAssembly, variant.kind != .ugoira else { throw MediaError.unsupportedPlatform }
+            switch plan.assembly {
+            case .passthrough:
+                guard !variant.requiresAssembly, variant.kind != .ugoira else { throw MediaError.unsupportedPlatform }
+            case .ugoiraToGIF:
+                // Without a platform assembler the archive is never delivered as if it were the default result.
+                guard env.assembler != nil, variant.kind == .ugoira, !plan.ugoiraFrames.isEmpty else { throw MediaError.unsupportedPlatform }
+            case .muxAudioVideo:
+                throw MediaError.unsupportedPlatform
+            }
             plans.append(plan)
         }
         let identity = StableDigest.hex(plans.map { Self.selectionKey(.variant(itemID: $0.itemID, variantID: $0.variant.id)) + Self.optionKey($0.effectiveOptions) }.joined(separator: "|"))
@@ -391,7 +400,19 @@ public actor DownloadManager {
         var files: [DownloadedFile] = [], written: Int64 = 0
         let components = plans.reduce(0) { $0 + $1.components.count }
         guard components <= env.policy.maxOutputs else { throw MediaError.resourceLimitExceeded }
+        func stage(_ source: URL, ext: String, size: Int64, kind: MediaVariant.Kind) throws -> DownloadedFile {
+            let fileID = UUID(), name = fileID.uuidString + "." + ext
+            let stagedFile = staging.appendingPathComponent(name)
+            try FileManager.default.moveItem(at: source, to: stagedFile)
+            guard let inode = (try FileManager.default.attributesOfItem(atPath: stagedFile.path)[.systemFileNumber] as? NSNumber)?.uint64Value else {
+                throw MediaError.storageUnavailable
+            }
+            return DownloadedFile(id: fileID, fileName: name,
+                relativePath: "outputs/" + id.rawValue.uuidString + "/" + attempt.uuidString + "/" + name,
+                bytes: size, kind: kind, fileIdentity: inode)
+        }
         for plan in plans {
+            var archives: [(url: URL, size: Int64)] = []
             for component in plan.components {
                 try Task.checkCancellation()
                 try env.files.checkSpace(env.policy.minimumFreeBytes + min(plan.variant.estimatedBytes ?? env.policy.maxFileBytes, env.policy.maxFileBytes))
@@ -403,19 +424,39 @@ public actor DownloadManager {
                         Task { await self?.progress(id, attempt: attempt, bytes: base + bytes, total: components == 1 ? total : nil) }
                     }
                 try Task.checkCancellation()
-                let size = try env.files.inspect(part, response: response, variant: plan.variant, policy: env.policy)
+                let expected = plan.assembly == .passthrough ? plan.variant : Self.archiveVariant
+                let size = try env.files.inspect(part, response: response, variant: expected, policy: env.policy)
                 written += size
                 guard written <= env.policy.maxTaskBytes else { throw MediaError.resourceLimitExceeded }
-                let fileID = UUID(), name = fileID.uuidString + "." + plan.variant.fileExtension
-                let stagedFile = staging.appendingPathComponent(name)
-                try FileManager.default.moveItem(at: part, to: stagedFile)
-                guard let inode = (try FileManager.default.attributesOfItem(atPath: stagedFile.path)[.systemFileNumber] as? NSNumber)?.uint64Value else {
-                    throw MediaError.storageUnavailable
+                if plan.assembly == .passthrough {
+                    files.append(try stage(part, ext: plan.variant.fileExtension, size: size, kind: plan.variant.kind))
+                } else {
+                    archives.append((part, size))
                 }
-                files.append(DownloadedFile(id: fileID, fileName: name,
-                    relativePath: "outputs/" + id.rawValue.uuidString + "/" + attempt.uuidString + "/" + name,
-                    bytes: size, kind: plan.variant.kind, fileIdentity: inode))
             }
+            guard plan.assembly != .passthrough else { continue }
+            guard let assembler = env.assembler else { throw MediaError.unsupportedPlatform }
+            try setState(id, attempt, .processing(DownloadProgress(attemptID: attempt, phase: .processing, bytesWritten: written, totalBytes: nil)))
+            let workspace = staging.appendingPathComponent("assembly-" + UUID().uuidString, isDirectory: true)
+            try FileManager.default.createDirectory(at: workspace, withIntermediateDirectories: false)
+            let job = AssemblyJob(assembly: plan.assembly, inputs: archives.map { $0.url }, ugoiraFrames: plan.ugoiraFrames,
+                                  outputDirectory: workspace, maxOutputBytes: min(env.policy.maxFileBytes, env.policy.maxTaskBytes - written))
+            let output = try await assembler.assemble(job)
+            try Task.checkCancellation()
+            guard output.file.deletingLastPathComponent().standardizedFileURL.path == workspace.standardizedFileURL.path,
+                  MediaVariant.extensions.contains(output.fileExtension) else { throw MediaError.integrityMismatch }
+            try SandboxFiles.noLinks(output.file)
+            let size = (try FileManager.default.attributesOfItem(atPath: output.file.path)[.size] as? NSNumber)?.int64Value ?? 0
+            guard size > 0, size <= env.policy.maxFileBytes else { throw MediaError.resourceLimitExceeded }
+            written += size
+            guard written <= env.policy.maxTaskBytes else { throw MediaError.resourceLimitExceeded }
+            files.append(try stage(output.file, ext: output.fileExtension, size: size, kind: plan.variant.kind))
+            if case .ugoiraToGIF(keepOriginalArchive: true) = plan.assembly {
+                for archive in archives { files.append(try stage(archive.url, ext: "zip", size: archive.size, kind: .ugoira)) }
+            } else {
+                for archive in archives { try? FileManager.default.removeItem(at: archive.url) }
+            }
+            try? FileManager.default.removeItem(at: workspace)
         }
         try Task.checkCancellation()
         guard isCurrent(id, attempt), let index = manifest.tasks.firstIndex(where: { $0.id == id }) else { throw MediaError.cancelled }
@@ -428,6 +469,8 @@ public actor DownloadManager {
         next.ownership[id.rawValue.uuidString] = Ownership(files: retained + files, deleting: false)
         try commit(next); broadcast(); inputs.removeValue(forKey: id); release(id)
     }
+    /// Downloaded archives (Ugoira frames) are checked as ZIP files before assembly.
+    static let archiveVariant = try! MediaVariant(id: "archive", kind: .ugoira, qualityLabel: "Archive", fileExtension: "zip")
     // Internal callback seam also permits deterministic out-of-order/generation regression tests.
     func progress(_ id: DownloadID, attempt: UUID, bytes: Int64, total: Int64?) {
         guard isCurrent(id, attempt), let index = manifest.tasks.firstIndex(where: { $0.id == id }),

@@ -13,7 +13,7 @@ struct MediaTool: Identifiable {
     let page: Page
     static let downloads: [MediaTool] = [
         .init(id: "downloads", title: "链接下载", icon: "arrow.down.circle",
-              detail: "粘贴 B站 / X / Pixiv 链接，排队逐个下载；动图暂不支持", status: .untested, page: .downloads),
+              detail: "粘贴 B站 / X / Pixiv 链接，排队逐个下载；Pixiv 动图转 GIF", status: .untested, page: .downloads),
     ]
     static let local: [MediaTool] = [
         .init(id: "stitch", title: "多图拼接", icon: "rectangle.split.1x2", detail: "纵向、横向或网格，按选择顺序", status: .available, page: .stitch),
@@ -80,6 +80,7 @@ struct MediaTool: Identifiable {
     @ObservedObject var media: MediaModel
     @State private var link = ""
     @State private var busy = false
+    @State private var keepArchive = false
     @State private var shared: SharedFile?
 
     var body: some View {
@@ -94,7 +95,7 @@ struct MediaTool: Identifiable {
                     Button {
                         Task {
                             busy = true
-                            if await media.enqueue(link) { link = "" }
+                            if await media.enqueue(link, keepUgoiraArchive: keepArchive) { link = "" }
                             busy = false
                         }
                     } label: { Label("加入队列", systemImage: "plus.circle.fill") }
@@ -102,7 +103,8 @@ struct MediaTool: Identifiable {
                     .disabled(busy || link.trimmingCharacters(in: .whitespaces).isEmpty)
                     if busy { ProgressView() }
                 }
-                Text("B站：公开 MP4（通常 ≤720P），多 P 用 ?p= 指定一集。X：图片原图与视频。Pixiv：原图，动图（Ugoira）暂不支持。")
+                Toggle("Pixiv 动图同时保留原始帧压缩包", isOn: $keepArchive).font(.subheadline)
+                Text("B站：公开 MP4（通常 ≤720P），多 P 用 ?p= 指定一集。X：图片原图与视频。Pixiv：原图；动图在本机转成 GIF，每帧时长按 GIF 精度（10 毫秒）对齐，总时长不变。")
                     .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 if let error = media.lastError ?? media.startupError {
                     Label(error.userMessage, systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(UtilityTheme.danger)
