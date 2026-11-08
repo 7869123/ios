@@ -471,6 +471,7 @@ public actor DownloadManager {
 func siteResolvers(_ sites: Set<MediaSource>, client: NetworkClient) -> [any MediaResolver] {
     var resolvers: [any MediaResolver] = []
     if sites.contains(.bilibili) { resolvers.append(BilibiliResolver(client: client)) }
+    if sites.contains(.x) { resolvers.append(XResolver(client: client)) }
     if sites.contains(.pixiv) { resolvers.append(PixivResolver(client: client)) }
     return resolvers
 }

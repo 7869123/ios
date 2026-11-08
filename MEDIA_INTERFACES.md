@@ -21,7 +21,7 @@ P1 源码/边界及交给 Claude 的验证命令见 [包说明](Packages/AIUtili
 | P1 | 自动链接路由、FIFO 单任务下载、进度/取消/从头重试、限流/去重、队列与历史原子持久化、删除文件 | Linux 45 项通过；修复后 macOS 测试与两种 iOS SDK 构建通过（run 42466209488）；真实网络未验证，不含断点续传 |
 | P1b | 同一次运行内及跨重启的 Range / If-Range 断点续传、.part 续接校验 | 移出 P1；P1 后单独审核、授权 |
 | P2 | 多图拼接、视频转 GIF、图片文件指纹 | 已实现于 `AIUtilityMediaApple`（Claude Code 接手后），待 macOS 测试与 iOS SDK 编译验证；未接入 App 界面 |
-| P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 未实现，公开下载可行性未确认 |
+| P3 | B站、X、Pixiv 原图及 Ugoira；Ugoira 默认 GIF，依赖 P2；三个站点各自提交，不分优先级 | 三个解析器已实现，只用离线样例测试；未对真实站点验证，默认不注册（`DownloadConfiguration(sites:)` 显式开启）；Ugoira 组装未接线 |
 | P4 | SauceNAO 反向搜图 | 未实现，真实调用默认关闭 |
 
 搜图 Bot 酱仍属于既定产品范围；本轮 P4 只冻结 SauceNAO 的扩展入口，不虚构 Bot 酱的可调用接口。
@@ -453,6 +453,20 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
   仍有可识别元数据即返回 `unsupportedFormat`。`reencode` / `subtlePixelNoise` 解码时已应用方向，输出不带源元数据。
 - 默认限额：输入 200 MB、32 张、单图/画布 8000 万像素、输出 200 MB、GIF 600 帧 / 60 s。
 - 统一任务展示：本地工具是一次性 async 调用，由 UI 直接持有 Task 并可取消，不进入下载队列，也不新增第二条并发队列。
+
+### 9b. P3 站点解析实现（Claude Code）
+
+- 只匿名读取公开接口：不发送 Cookie、账号、Token 或签名。需要登录、付费、会员、地区限制的内容返回对应 `MediaError`，不绕过。
+- 新增内部 `RequestContext`：仅支持 Referer（两站的图片/视频 CDN 会检查）。`MediaComponent` 公开初始化器不变，站点组件内部携带 Referer。
+- `NetworkClient.fetchJSON`：元数据请求同样经过 DNS 校验、重定向逐跳检查、请求预算与限流，响应上限 `maxMetadataBytes`，只保留在内存。
+- 注册：`DownloadConfiguration(..., sites: [.bilibili, .x, .pixiv])` 显式开启，默认空集合；自定义解析器优先于内置解析器。
+- Pixiv：`/ajax/illust/{id}`（多页再读 `/pages`），每页一个 item，原图来自 `i.pximg.net`；`xRestrict>0` 或原图地址缺失 → `requiresLogin`。
+  Ugoira 读 `/ugoira_meta`，计划为原始帧归档 + `.ugoiraToGIF`；组装尚未接到下载管理器，所以下载时明确失败（`unsupportedPlatform`），不把归档冒充默认结果。
+- B站：`/x/web-interface/view` 取分 P，`?p=N` 指定，否则第 1 P；`/x/player/playurl?fnval=1&platform=html5` 取匿名可得的单文件 MP4（通常 ≤720p），
+  无需音视频合并。预览/付费 → `accessRestricted(.payment)`，地区 → `.region`，多段 → `unsupportedFormat`，CDN 主机限 `*.bilivideo.com/.cn`、`*.hdslb.com`。全部分 P 仍不支持。
+- X：网页嵌入使用的 `cdn.syndication.twimg.com/tweet-result` 公开端点（未确认其长期稳定性）。`token` 按 JS `((id/1e15)*π).toString(36)` 去掉 0 和点计算，
+  JS 移植版与 V8 在 20 万个随机 ID 上一致。墓碑（受保护、年龄限制、已删除）→ `accessRestricted(.permission)`；图片取 `name=orig`，视频列出渐进式 MP4 码率。
+- 测试：`PixivResolverTests`、`BilibiliResolverTests`、`XResolverTests` 均为虚构的离线样例；真实联网测试尚未编写，需要在可访问这些站点的网络里另行验证。
 
 ## 10. P4 搜图扩展与凭据边界
 
