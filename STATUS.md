@@ -1,5 +1,13 @@
 # AIUtility 开发状态
 
+## 媒体模块 P0 接口草案（2026-11-08，等待审核）
+
+已按用户指定读取 Claude 分支 a01e814 的 TASK_MEDIA_MODULES.md，仅编写
+[MEDIA_INTERFACES.md](MEDIA_INTERFACES.md)。明确自动路由、FIFO 单活动槽、取消/重复/重试/续传、
+历史、多文件及本地工具的接口边界，保留全部既定媒体与搜图需求。
+本轮未创建 AIUtilityMedia 包、未写实现或媒体测试、未改 Core/AppleServices 公共 API、UI、PoC 或 workflow，
+没有运行媒体编译/Actions。草案及建议值尚待用户审核，停止在 P0，不进入 P1。
+
 ## 最新工程集成完成验证（2026-11-08）
 
 按本轮明确授权，在 Codex 分支集成 Claude 输入 fdb42c6，保留双方历史；PR #1/#2 与 main 均不合并。
