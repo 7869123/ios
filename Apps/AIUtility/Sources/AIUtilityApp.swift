@@ -9,7 +9,7 @@ import AIUtilityAppleServices
     @State private var appearance = AppearanceStore()
     var body: some Scene {
         WindowGroup {
-            RootView().environmentObject(model).environment(wallpaper).environment(appearance).tint(UtilityTheme.cyan).preferredColorScheme(.light)
+            RootView().environmentObject(model).environment(wallpaper).environment(appearance).environment(\.locale, Locale(identifier: "zh_Hans_CN")).tint(UtilityTheme.cyan).preferredColorScheme(.light)
             #if DEBUG
                 .task {
                     Self.applyReviewOrientation()
@@ -91,6 +91,8 @@ extension AIUtilityApp {
     let services = AIUtilityServices()
     @Published var screenshotDraft = ""
     @Published var subtitleDraft = ""
+    /// Per-provider Key status, refreshed on every cold start (see KeyHealth.swift).
+    @Published var keyStatus: [ProviderID: KeyStatus] = [:]
     @Published var screenshotProvider: ProviderID {
         didSet { UserDefaults.standard.set(screenshotProvider.rawValue, forKey: "screenshotProvider") }
     }
@@ -100,6 +102,8 @@ extension AIUtilityApp {
     init() {
         screenshotProvider = ProviderID(rawValue: UserDefaults.standard.string(forKey: "screenshotProvider") ?? "") ?? .openAI
         subtitleProvider = ProviderID(rawValue: UserDefaults.standard.string(forKey: "subtitleProvider") ?? "") ?? .openAI
+        // Cold start: AppModel is created once per process, so this runs once per launch.
+        Task { [weak self] in await self?.checkAllKeys() }
     }
 }
 

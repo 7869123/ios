@@ -34,6 +34,7 @@ import SwiftUI
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 header
+                setupNotice
                 section("常用", tiles: daily)
                 section("媒体工具", tiles: media)
             }
@@ -66,8 +67,8 @@ import SwiftUI
 
     private var providerSummary: some View {
         HStack(spacing: 10) {
-            summaryChip(label: "截图", value: app.screenshotProvider.title)
-            summaryChip(label: "字幕", value: app.subtitleProvider.title)
+            summaryChip(label: "截图", provider: app.screenshotProvider)
+            summaryChip(label: "字幕", provider: app.subtitleProvider)
             Button { open(.settings) } label: {
                 Label("壁纸", systemImage: "photo")
                     .font(.footnote.weight(.semibold))
@@ -80,18 +81,59 @@ import SwiftUI
         }
     }
 
-    private func summaryChip(label: String, value: String) -> some View {
-        Button { open(.settings) } label: {
+    /// Provider chip with the real Key status from the cold-start check.
+    private func summaryChip(label: String, provider: ProviderID) -> some View {
+        let status = app.status(of: provider)
+        return Button { open(.settings) } label: {
             HStack(spacing: 6) {
                 Text(label).foregroundStyle(UtilityTheme.inkSecondary)
-                Text(value).fontWeight(.semibold).foregroundStyle(UtilityTheme.ink)
+                Text(provider.title).fontWeight(.semibold).foregroundStyle(UtilityTheme.ink)
+                if status == .checking || status == .unknown {
+                    ProgressView().controlSize(.mini)
+                } else {
+                    Circle().fill(status.color).frame(width: 7, height: 7)
+                }
+                Text(status.title).fontWeight(.semibold).foregroundStyle(status.color)
             }
             .font(.footnote)
             .padding(.horizontal, 12).padding(.vertical, 8)
             .glassSurface(Capsule())
         }
         .buttonStyle(PressableCardStyle())
-        .accessibilityLabel("\(label)翻译供应商：\(value)，打开设置")
+        .accessibilityLabel("\(label)翻译供应商：\(provider.title)，\(status.title)，打开设置")
+    }
+
+    /// First-run / broken-configuration guidance; hidden while checking and when everything is usable.
+    @ViewBuilder private var setupNotice: some View {
+        let screenshot = app.status(of: app.screenshotProvider)
+        let subtitle = app.status(of: app.subtitleProvider)
+        let message: String? = {
+            if app.nothingConfigured { return "还没有配置 AI 供应商，截图翻译和字幕翻译暂不可用。" }
+            func problem(_ name: String, _ provider: ProviderID, _ s: KeyStatus) -> String? {
+                switch s {
+                case .notConfigured: "\(name)所选的 \(provider.title) 还没有配置 Key。"
+                case .rejected: "\(name)所选的 \(provider.title) Key 已失效或没有权限。"
+                case .available(false): "\(name)所选的 \(provider.title) 绑定的模型已不在模型目录中。"
+                default: nil
+                }
+            }
+            return problem("截图翻译", app.screenshotProvider, screenshot) ?? problem("字幕翻译", app.subtitleProvider, subtitle)
+        }()
+        if let message {
+            Button { open(.settings) } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "key.horizontal").font(.body.weight(.semibold)).foregroundStyle(UtilityTheme.poc)
+                    Text(message).font(.subheadline).foregroundStyle(UtilityTheme.ink).multilineTextAlignment(.leading)
+                    Spacer(minLength: 8)
+                    Text("去设置").font(.subheadline.weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
+                    Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
+                }
+                .padding(.horizontal, 14).padding(.vertical, 12)
+                .glassSurface(RoundedRectangle(cornerRadius: 14))
+            }
+            .buttonStyle(PressableCardStyle())
+            .accessibilityHint("打开设置配置 AI 供应商")
+        }
     }
 
     private func section(_ title: String, tiles: [Tile]) -> some View {

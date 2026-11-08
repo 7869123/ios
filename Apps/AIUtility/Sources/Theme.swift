@@ -16,6 +16,7 @@ enum UtilityTheme {
     static let stroke = brand.opacity(0.16)
     static let planned = Color(red: 0.36, green: 0.42, blue: 0.48)      // #5B6B7B (5.5:1 on white)
     static let poc = Color(red: 0.66, green: 0.37, blue: 0.0)           // #A85F00 (4.9:1 on white)
+    static let danger = Color(red: 0.70, green: 0.15, blue: 0.12)       // #B3261E (6.4:1 on white)
     /// Kept for existing call sites: the tint colour.
     static let cyan = brandStrong
 

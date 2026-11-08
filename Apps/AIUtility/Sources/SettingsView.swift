@@ -121,6 +121,7 @@ import AIUtilityCore
         perform {
             try await app.services.configurations.saveKey(provider: selected, key: APIKey(suppliedKey), models: bindings)
             candidateKey = ""; hasSavedKey = true
+            Task { await app.recheckKey(selected) }
             return "已验证并保存共享 Key 和两个模型绑定。"
         }
     }
@@ -128,6 +129,7 @@ import AIUtilityCore
         let selected = provider
         perform {
             try await app.services.configurations.switchModel(provider: selected, feature: feature, model: model)
+            Task { await app.recheckKey(selected) }
             return "已验证并切换模型，继续使用已有共享 Key。"
         }
     }
