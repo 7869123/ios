@@ -6,6 +6,8 @@
 [MEDIA_INTERFACES.md](MEDIA_INTERFACES.md)；再按 b44ae48 的 MEDIA_INTERFACES_REVIEW.md
 第 3 节完成 R1–R5 修订：全部断点续传移至 P1b 单独审核，P1 重试从零；增加 deleteFiles 和部分失败结果；
 明确初始化失败可安全重建；P3 Ugoira 依赖 P2 默认转 GIF、原件可选保留；预留 B站全部分 P，未实现时明确拒绝。
+再按 e3526f5 审核文件第 3b 节落实 R6：MediaSelection 仅保留通用选择，站点行为拆为可 Codable 的 SiteOptions，
+两个 enqueue 重载及 prepare 显式传递选项；忽略不相关选项，仅生效选项参与去重/组装；队列冻结选项副本。
 保留自动路由、FIFO 单活动槽、去重、历史、多文件、本地工具及全部既定媒体与搜图需求。
 本轮未创建 AIUtilityMedia 包、未写实现或媒体测试、未改 Core/AppleServices 公共 API、UI、PoC 或 workflow，
 没有运行媒体编译/Actions。草案及建议值尚待用户审核，停止在 P0，不进入 P1。
