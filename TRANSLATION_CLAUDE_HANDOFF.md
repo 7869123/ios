@@ -7,6 +7,7 @@
 - 仓库所有者本轮重新分配底层工作给 Codex，UI/UX 仍归 Claude。没有修改 Apps、壁纸、资源、workflow、scripts 或媒体生产实现。不把本交接当作跨分支合并授权。
 - **本批新增代码尚未通过 Swift 编译/测试或 Apple SDK 验证**。静态检查不是编译；已有基线 CI 不能套用到新代码。触发 CI/重跑需所有者确认。
 - 所有者随后单独授权了 PoC 两处逻辑文件：LocalSpeechProbe / PoCSession 已加入三语参数、50 秒轮转/最多 2 秒排空与字幕队列接线，**仍未编译/运行验证**。Host UI、采集和 PiP 实现没有改；不能描述成跨 App 采集已可用。
+- 之后用户明确要求“加入缓存机制”，源码 `2272e99`。下面的缓存小节取代旧空窗说明；新代码仍未编译/测试，旧 c9496fa CI 询问不能当作本批 CI 授权。
 
 ## 组合入口
 
@@ -88,8 +89,24 @@ await pipeline.closeEventStreams() // 控制器销毁/丢弃本次订阅时关�
 - 暂停/中断应调用 stop/pause；恢复显式 start。没有自动播放控制、麦克风或屏幕后台截图。独立 PoC 已按另行授权接上管线，正式 App 尚未接线。
 - Apple `AppleSpeechLanguageSupport.capabilities()` 提供三种 Locale 的本机能力快照，不弹权限、不开始采集。supportsOnDeviceRecognition 不能当作语言包一定可用；运行时仍需检查权限/语言包/设备并处理错误。
 - PoC 新增 `PoCSession(..., sourceLanguage: SupportedLanguage)`，保留原 targetLanguage 字符串调用；接受三种目标语言的名称/代码，其他目标在有翻译引擎时明确拒绝。正式控制器应先读取保存的语言，手动选择 ASR 源，不给 Speech 使用 automatic。
-- 识别轮转只在旧任务 completed 后新建，最多等待 2 秒；此间未投递音频，可能缺字。没有音频回放缓冲、格式转换或无缝识别保证。未知识别错误停止；停止后 Speech 资源未确认则现有生命周期禁止重启。细节见 `POC_TRANSLATION_PLAN.md`。
+- 识别轮转只在旧任务 completed 后新建，最多等待 2 秒；此间未投递音频现改为有界缓存，详见下一小节。没有重叠回放、格式转换或无缝识别保证。未知识别错误停止；停止后 Speech 资源未确认则现有生命周期禁止重启。
 - 既有 Host 默认 engine=nil，并用 speech.caption 显示原文；其原文到 PiP 的显示绑定本轮未改。正式接入真实引擎时，Claude 需避免该绑定覆盖译文，不能只创建 pipeline 就假定正式字幕界面已接通。
+
+### ASR 音频缓存（新增）
+
+- 新增 Core 公开类型 AudioRolloverPolicy、AudioRolloverBuffer<Payload: Sendable>、BufferedAudioPacket、AudioRolloverSnapshot、AudioBufferPhase/Failure/AudioEnqueueResult。不是持久化格式，也不改变 SpeechTranscript、翻译提示词、Key 或模型接口。
+- 单拥有者应串行调用 start → enqueue/takeNext → beginRollover → enqueue → resume/takeNext → stop；每次 start 生成新 UUID，所有读写/停止都带 session。过期 session 不能清空/消费新会话。
+- enqueue 的 makePayload 闭包仅在容量、格式、时间校验通过后运行；异常进入 failed 并清理未投递数据。失败不能 resume，显式重新 start 才重置。调用方不得复制队列后创建两个消费者。
+- PoC 使用 NSLock 保护拥有权、一个串行 Speech worker 逐包投递；新实时数据排在积压包之后，不绕过队列。轮转前已投递的包不再缓存或重放，避免产生额外重复翻译。
+- 请求 token / 非阻塞回调交接收尾为 `42a1bec`：final/error 回调只尝试立即封住对应旧请求，绝不等待投递锁；锁忙时由原 MainActor 双代次检查接续轮转，避免同步回调重入 append 的死锁。旧请求回调不能封住新请求。不保证已 append 给旧请求的全部音频都已被识别。
+- 默认同时限制为 5 秒（音频量与未投递时间跨度）、8 MiB PCM 字节、512 包；这是上限，不是固定等待。8 MiB 不含对象开销/系统 Speech 缓冲。普通实时输入积压同样受限；容量超限明确停止并报 capacityExceeded。
+- PoC 用 CMBlockBufferCreateContiguous + AlwaysCopyData，再创建独立 PCM sample buffer；保留格式/采样数/PTS，不在磁盘写音频，不把原缓冲裸指针跨回调保存。帧复制本身与 API 可用性仍需真实 SDK/运行时验证。
+- LocalSpeechProbe 新增只读 `audioBufferSnapshot`：phase、failure、queuedPackets/Bytes/Duration、accepted/dequeued/duplicate/discardedPackets、peakQueuedBytes、sourceGapSeconds。仅元数据；dequeued 不表示识别成功，sourceGap 表示输入本来有缺口，不是假装缓存能补回。
+- 正式控制器的停止、跳转、来源/语言切换和系统中断应通过原 PoCSession.stop 清空音频后再显式重启。单独暂停 Core 翻译管线不会替代停止音频生产者。UI 本轮不改。
+- 不保证识别器能追平实时输入，也不保证跨词切分准确。若要少量重叠音频，需先加基于音频时间范围的文字去重并另行审核，不能用相同文字粗暴删除真实重复台词。
+- 本轮新增 13 个 Core 回归声明（总数 81），实际执行 0。1000 次轮转测试是纯队列场景，不是设备长时 ASR。获批后运行 Core/Apple/PoC SDK，再实机检查缺字、重复、延迟、内存和清理。
+
+官方符号依据：[数据强制复制](https://developer.apple.com/documentation/coremedia/cmblockbuffercreatecontiguous(allocator:sourcebuffer:blockallocator:customblocksource:offsettodata:datalength:flags:blockbufferout:))、[PCM sample buffer 创建](https://developer.apple.com/documentation/coremedia/cmaudiosamplebuffercreatereadywithpacketdescriptions(allocator:databuffer:formatdescription:samplecount:presentationtimestamp:packetdescriptions:samplebufferout:))。文档核对不等于 SDK 编译成功。
 
 ## DeepSeek 余额
 

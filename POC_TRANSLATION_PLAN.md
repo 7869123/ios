@@ -2,7 +2,20 @@
 
 所有者先要求提交提案，再明确授权仅修改 LocalSpeechProbe.swift 和 PoCSession.swift。本轮按该范围实施；Host UI、ScreenAudioProbe、ProbeLifecycle、SubtitlePiPProbe 没有修改。以下从提案转为源码说明，**尚未通过真实编译/ASR 运行验证**，也没有 CI 触发授权。
 
-## 现状
+## 后续获批：加入有界音频缓存
+
+用户了解方案后明确要求“加入缓存机制”。源码 `2272e99`：
+
+- Core 新增可测试的 AudioRolloverBuffer；PoC 只在 LocalSpeechProbe 内接入。缓存默认同时受 5 秒音频时长/时间跨度、8 MiB 数据和 512 包限制。不是句子缓存，不等待满额后识别。
+- 正常与补送音频通过同一 FIFO、单串行 worker。轮转原子切换为 buffering 后才 endAudio；旧任务完成、新请求就绪后补送未投递包，再继续实时输入。没有已投递音频的重叠 pre-roll。
+- 只对有效 PCM 使用独立数据拷贝；容量校验先于分配。原采集缓冲、原始播放、采集授权、后台模式和 PiP 路线不变。
+- 停止/中断通过原 speech.stop 清缓存并分离请求。每包 append 与停止之间有同步边界，旧 worker/会话不能取新会话的包；每包 autoreleasepool，避免长循环积累临时对象。
+- 收尾 `42a1bec` 增加按请求 token 的非阻塞 final/error 交接，回调不等待投递锁；MainActor 保留双代次检查及轮转兜底。不能把 append 返回当成识别完成确认。
+- 容量超限、格式变化、部分重叠、非法时间/数据或复制失败会清空并明确失败；原停止失败禁止重启机制仍保留。完全过期的时间范围按重复包拒绝，计入 duplicatePackets。
+- 新增 13 个纯逻辑回归声明，验证顺序、容量、重复、旧会话、释放和 1000 次轮转；**并未执行，也不验证 Apple Speech 或 PCM 复制**。新增 CoreMedia 符号必须经真实 SDK 编译和合成/真机音频检查。
+- 该方案取代下方旧提交的“排空期间不缓存”。Speech 任务完成超时仍为最多 2 秒；若超时仍失败并清缓存，不靠延长缓存掩盖资源释放失败。
+
+## 开发前基线（历史）
 
 LocalSpeechProbe.start 接受 Locale，但 PoCSession 使用 en-US 默认值；final/error 结束后要求手动重启。每个 final 创建一个翻译任务并取消前一个，可能丢掉长视频中的前段译文。采集/PiP 已有代次、停止失败、重复停止和延迟回调保护，必须保留。
 
@@ -23,7 +36,7 @@ LocalSpeechProbe.start 接受 Locale，但 PoCSession 使用 en-US 默认值；f
 
 ## 必须保留的限制
 
-- 轮转排空期间不重放音频，sink 会暂时停止投递，存在最长约 2 秒的识别空窗。真机必须测缺字、丢段与轮转频率；不能称为无缝连续 ASR。如需音频缓冲/转换或 SpeechAnalyzer 路线，应另提方案，不隐性扩大当前修改。
+- 轮转排空期间改为缓存尚未投递音频，不能据此保证无漏字。词语切分边界和 Speech 能否及时处理积压仍需真机验证；若要加入重叠音频、格式转换或 SpeechAnalyzer，应另提方案。
 - SpeechAudioSink 只接收有效 PCM、8–192 kHz、1–2 声道；同一识别请求内格式变化会失败，不伪造成功或静默替换麦克风。实际 Speech 是否接受设备提供格式仍需验证。
 - 取消后的 Speech 释放确认加入会话清理成功条件；超时进入现有 releaseFailed 机制，用户停止重试或结束 App。原 capture/PiP 清理顺序保留。
 - Host 默认仍为英文、engine=nil 本地诊断；本轮不添加语言 UI，不连接真实 API Key。三语参数、共享引擎和字幕接口供后续正式接线。

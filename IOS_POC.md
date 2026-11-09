@@ -1,5 +1,15 @@
 # iOS 27 跨 App 音频与 PiP 字幕 PoC
 
+## 最新补充：轮转缓存源码（2272e99，尚未编译/运行）
+
+用户在审阅缓存说明后明确授权加入。默认 5 秒 / 8 MiB PCM 数据 / 512 包；客户端单 FIFO 顺序投递，新请求开始后补送轮转期间未投递音频。Core 的 AudioRolloverBuffer 提供有界状态、会话代次和数字快照；LocalSpeechProbe 深拷贝 PCM，不长时间保留采集池缓冲，不重放已交给旧请求的包。
+
+停止/中断/失败清空缓存；超限或格式/时间不兼容明确停止。采集、PiP、Host UI、原生命周期类、权限和后台模式没有改动。新增 13 个纯逻辑测试声明，实际执行 0；新 CoreMedia 调用、Swift 6 SDK 编译、音频副本完整性/时间戳、ASR 积压消化和长期运行均未验证。
+
+必须在设备上测识别空窗是否消除、跨词边界是否丢字、是否重复字幕，以及客户端/系统内存与延迟。缓存不能恢复系统未采到的音频；8 MiB 不包含对象开销或 Speech 内部缓冲，不能称为整个 ASR 的硬内存上限。没有加入重叠重放/转码，不承诺无缝连续识别。
+
+[获批缓存方案](POC_TRANSLATION_PLAN.md) 与 [当前验证状态](validation/translation-completeness/README.md)。下节的“未投递空窗”是 12ed6bf 的历史状态，现已由缓存源码取代，但尚未验证。
+
 ## 本轮获批翻译接线：新源码尚未 SDK 验证
 
 所有者先审阅方案后，明确批准仅修改 LocalSpeechProbe.swift 和 PoCSession.swift，源码提交 `12ed6bf`。本轮没有改 Host UI、ScreenAudioProbe、ProbeLifecycle、SubtitlePiPProbe、权限或后台模式。

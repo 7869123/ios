@@ -2,6 +2,8 @@
 
 ## 最新：翻译底层独立开发分支
 
+用户随后明确要求加入 ASR 缓存，源码 `2272e99`：Core AudioRolloverBuffer 默认最多 5 秒/8 MiB/512 包，PoC LocalSpeechProbe 深拷贝并顺序补送未投递 PCM，停止/超限清空。新增 13 项测试源码（尚未执行）。不修改其他 PoC 源码或 UI，不触发 CI。缓存不保证切词准确、Speech 追平实时音频或采集成功，必须完成新提交的 SDK 和实机验证。
+
 先读 [TRANSLATION_CLAUDE_HANDOFF.md](TRANSLATION_CLAUDE_HANDOFF.md) 和 [TRANSLATION_AUDIT.md](TRANSLATION_AUDIT.md)。本轮所有者已重新分配 Codex 的底层工作，不包含 UI；后续明确批准了 PoC 两处逻辑文件，详情见 [方案](POC_TRANSLATION_PLAN.md)。
 分支 `codex/translation-completeness` 从最新已审计开发基线 `7ff4111` 建立，没有合并 PR/推送 main 或修改 Claude 分支。新增提示词/语言、字幕管线、推理、余额、用量、区域 OCR 及安全取消接口供 Claude 正式接线。
 **新代码尚未真实编译/测试；CI 需另行确认。** 不沿用下方历史成功作为新代码证据。不修改 UI、主题、壁纸、媒体实现、工作流或脚本；App Intents 和正式字幕 UI 没有实现。连续 ASR 的 SDK/长时运行与轮转空窗、跨 App 采集、PiP、签名安装仍需验证。

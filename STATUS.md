@@ -1,5 +1,14 @@
 # AIUtility 开发状态
 
+## 最新：ASR 轮转音频缓存（用户明确授权；未编译）
+
+- 缓存源码 `2272e99`，请求 token 与锁收尾 `42a1bec`，仍在 `codex/translation-completeness`。新增 Core 的 AudioRolloverBuffer 与 13 项回归测试；PoC 仅修改 LocalSpeechProbe.swift，未改 Host UI、采集、PiP、生命周期类或正式 App。
+- 默认 5 秒 / 8 MiB PCM / 512 包三重上限，正常投递和轮转补送使用同一 FIFO。旧识别结束期间继续缓存；新请求就绪立即排空，不等待满 5 秒。只补送尚未投递的音频，不加入重叠重放。
+- PCM 深拷贝独立存放，单 worker、逐包同步边界和会话 token；停止/失败清空，旧会话无法取出新包。超限、格式变化、部分时间重叠、无效包或复制失败明确停止，不无限积压；快照只暴露数量/时长和安全状态。
+- **新增测试仅为源码，实际执行 0 项**；Core 当前 81 个 @Test 声明，Apple 6 个。Swift / Apple SDK / 真机均未验证，CI 未获授权。用户之前收到的 c9496fa CI 询问不覆盖这一新增提交。
+- 缓存可覆盖客户端轮转期间的未投递音频，不解决系统采集缺音；词语跨识别边界、Speech 消化积压的速度和内部内存仍需真机测试，不能标记为无缝识别。
+- 接口与验证细节见 [Claude 交接](TRANSLATION_CLAUDE_HANDOFF.md)、[PoC 方案](POC_TRANSLATION_PLAN.md) 和 [验证状态](validation/translation-completeness/README.md)。下方“未缓存空窗”的描述仅对应此前提交。
+
 ## 本轮翻译底层增量（独立分支，真实验证待确认）
 
 - 所有者重新分配 Codex 处理底层业务/API/持久化/测试，未授权 UI 修改；随后单独授权 LocalSpeechProbe、PoCSession 两处 PoC 逻辑。分支 `codex/translation-completeness`，基线 `7ff4111`，审计 `c178776`，P0 `659de51`，API/OCR `fa81778`，获批 PoC `12ed6bf`，回归补充 `c9c572b`。未合并 PR、未写 main/Claude 分支。

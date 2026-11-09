@@ -6,6 +6,8 @@
 
 ## 本批
 
+追加缓存源码 `2272e99`，回调 token / 锁收尾 `42a1bec`：Core 有界队列和 13 项回归声明，PoC 仅 LocalSpeechProbe 接线；实际 Swift 编译/测试仍 0，没有新增 CI run。后文基线结果不验证缓存。本地静态检查已覆盖 88 个 Swift 文件，完整预推送检查收尾再执行；不得将其当作 Swift 测试。
+
 源码阶段提交：`659de51`、`fa81778`、`12ed6bf`、`c9c572b`。独立分支 `codex/translation-completeness`，本机 Windows 无 Swift，未安装工具链。
 
 | 检查 | 实际状态 |
@@ -13,12 +15,12 @@
 | Swift build/test | 未启动；进程退出码不适用；本批 Swift 测试实际执行 0 |
 | Apple SDK / App / PoC Archive | 未启动；需确认 CI；无本批 run ID / artifact |
 | 真实 AI API / 余额 / usage | 未执行，未使用真实 Key、未产生付费测试 |
-| Swift 语法/源码卫生/plist | 已执行，退出 0，86 个 Swift 文件；只是静态检查 |
+| Swift 语法/源码卫生/plist | 已执行，退出 0，88 个 Swift 文件；只是静态检查 |
 | git diff --check | 已执行，退出 0 |
 | 完整 scripts/prepush_check.sh | 42e79f3 已执行 PASS / 退出 0，13 项 Python 脚本回归通过；不是 Swift 单元测试。最终收尾提交须再次执行；实际日志保存在忽略的 artifacts/translation-completeness |
-| iPad 采集 / Speech / PiP / 后台 | 无真机证据；轮转空窗、格式、语言包和停止确认必须实机验证 |
+| iPad 采集 / Speech / PiP / 后台 | 无真机证据；缓存补送、切词、积压消化、格式、语言包和停止确认必须实机验证 |
 
-新增 Core 31 个 @Test 声明（现有总数 68），Apple 3 个（总数 6），原测试未删减。这只是源码数量，不是执行/通过数量。
+翻译批新增 Core 31 个 @Test 声明，缓存再新增 13 个（当前总数 81）；Apple 新增 3 个（总数 6），原测试未删减。这只是源码数量，不是执行/通过数量。缓存用纯队列数据测试 1000 次轮转，并非真实 ASR 或 PCM 复制验证。
 
 ## 待确认的一批 CI
 
