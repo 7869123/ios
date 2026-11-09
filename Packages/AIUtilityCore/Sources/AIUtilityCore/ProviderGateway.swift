@@ -37,6 +37,7 @@ public struct RetryPolicy: Sendable {
         guard retry < maxRetries else { return nil }
         switch error {
         case .rateLimited(let retryAfter):
+            if let retryAfter, !retryAfter.isFinite || retryAfter < 0 { return nil }
             // Don't retry earlier than Retry-After. A longer wait ends this request.
             if let retryAfter, retryAfter > maxDelay { return nil }
             return max(retryAfter ?? 0, min(maxDelay, baseDelay * pow(2, Double(retry))))
@@ -54,8 +55,8 @@ public struct ProviderGateway: Sendable {
         self.adapters = adapters.reduce(into: [:]) { $0[$1.provider] = $1 }
         self.budget = budget; self.retry = retry
     }
-    public static func official(budget: CallBudget = CallBudget()) -> ProviderGateway {
-        ProviderGateway(adapters: ProviderID.allCases.map { OfficialAPIAdapter(provider: $0) }, budget: budget)
+    public static func official(budget: CallBudget = CallBudget(), usageLedger: OpenAIUsageLedger? = nil) -> ProviderGateway {
+        ProviderGateway(adapters: ProviderID.allCases.map { OfficialAPIAdapter(provider: $0, usageLedger: usageLedger) }, budget: budget)
     }
 
     public func listModels(provider: ProviderID, key: APIKey, timeout: TimeInterval = 20) async throws -> [AIModel] {

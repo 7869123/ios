@@ -76,7 +76,8 @@ struct SubtitleSegmenter: Sendable {
 
     mutating func flush(at time: TimeInterval) -> [String] {
         guard time.isFinite, time >= lastTimestamp,
-              time - lastChanged >= policy.stabilityInterval else { return [] }
+              time - lastChanged >= policy.stabilityInterval,
+              hypothesis.count - consumed >= 8 else { return [] }
         return drain(stableCount: hypothesis.count, final: true)
     }
 
@@ -106,6 +107,7 @@ struct SubtitleSegmenter: Sendable {
 
 public struct SubtitleMetrics: Sendable, Equatable {
     public let completed: Int
+    public let failed: Int
     public let dropped: Int
     public let duplicateEvents: Int
     public let pending: Int
@@ -130,6 +132,7 @@ public actor SubtitleTranslationSession {
     }
     private let translate: Translate
     private let policy: SubtitlePolicy
+    private let diagnostics: TranslationDiagnostics?
     private var segmenter: SubtitleSegmenter
     private var handle: UUID?
     private var revision: UInt64 = 0
@@ -139,16 +142,18 @@ public actor SubtitleTranslationSession {
     private var worker: Task<Void, Never>?
     private var ordinal: UInt64 = 0
     private var completed = 0
+    private var failed = 0
     private var dropped = 0
     private var observers: [UUID: AsyncStream<SubtitleEvent>.Continuation] = [:]
 
     public init(engine: TranslationEngine, policy: SubtitlePolicy = SubtitlePolicy()) {
-        self.init(policy: policy) { text, provider, languages in
+        self.init(policy: policy, diagnostics: engine.diagnostics) { text, provider, languages in
             try await engine.translate(text, provider: provider, feature: .videoSubtitle, languages: languages)
         }
     }
-    public init(policy: SubtitlePolicy = SubtitlePolicy(), translate: @escaping Translate) {
+    public init(policy: SubtitlePolicy = SubtitlePolicy(), diagnostics: TranslationDiagnostics? = nil, translate: @escaping Translate) {
         self.translate = translate; self.policy = policy; self.segmenter = SubtitleSegmenter(policy: policy)
+        self.diagnostics = diagnostics
     }
     deinit { worker?.cancel(); observers.values.forEach { $0.finish() } }
 
@@ -162,6 +167,10 @@ public actor SubtitleTranslationSession {
         return pair.stream
     }
     private func removeObserver(_ id: UUID) { observers.removeValue(forKey: id) }
+    /// The owning controller calls this after stop when disposing its subscriptions.
+    public func closeEventStreams() {
+        observers.values.forEach { $0.finish() }; observers.removeAll()
+    }
 
     /// Resume/seek/reconfigure by starting a fresh epoch. No replay of pre-pause audio or text.
     @discardableResult
@@ -172,7 +181,7 @@ public actor SubtitleTranslationSession {
         guard revision == expected, !Task.isCancelled else { throw AIUtilityError.cancelled }
         self.provider = provider; self.languages = languages
         segmenter = SubtitleSegmenter(policy: policy)
-        completed = 0; dropped = 0; ordinal = 0
+        completed = 0; failed = 0; dropped = 0; ordinal = 0
         let id = UUID(); handle = id
         return id
     }
@@ -183,6 +192,7 @@ public actor SubtitleTranslationSession {
     public func pause() async { await stop() }
     private func invalidate(expected: UInt64) async {
         let old = handle; handle = nil; queue.removeAll(keepingCapacity: false)
+        segmenter = SubtitleSegmenter(policy: policy)
         let pending = worker; pending?.cancel()
         if let old { emit(.stopped(session: old)) }
         await pending?.value
@@ -199,7 +209,7 @@ public actor SubtitleTranslationSession {
         try enqueue(segmenter.flush(at: time), session: session)
     }
     public func metrics() -> SubtitleMetrics {
-        SubtitleMetrics(completed: completed, dropped: dropped, duplicateEvents: segmenter.duplicateEvents, pending: queue.count)
+        SubtitleMetrics(completed: completed, failed: failed, dropped: dropped, duplicateEvents: segmenter.duplicateEvents, pending: queue.count)
     }
     private func enqueue(_ texts: [String], session: UUID) throws {
         guard !Task.isCancelled else { throw AIUtilityError.cancelled }
@@ -211,7 +221,10 @@ public actor SubtitleTranslationSession {
         }
         if discarded > 0 { dropped += discarded; emit(.dropped(session: session, count: discarded)) }
         if worker == nil, !queue.isEmpty {
-            worker = Task { [weak self] in await self?.drain(session: session) }
+            worker = Task { [weak self] in
+                guard let self else { return }
+                await self.drain(session: session)
+            }
         }
     }
     private func drain(session: UUID) async {
@@ -223,12 +236,20 @@ public actor SubtitleTranslationSession {
             do {
                 let text = try await translate(segment.text, provider, languages)
                 guard handle == session, !Task.isCancelled else { break }
+                await diagnostics?.record(stage: .subtitleQueueToOutput, milliseconds: segment.enqueued.duration(to: clock.now).milliseconds, outcome: .success)
+                guard handle == session, !Task.isCancelled else { break }
                 completed += 1
                 emit(.translated(session: session, ordinal: segment.ordinal, text: text,
                                  apiMilliseconds: began.duration(to: clock.now).milliseconds, queueMilliseconds: wait))
             } catch {
                 guard handle == session, !Task.isCancelled else { break }
-                emit(.failed(session: session, ordinal: segment.ordinal, error: AIUtilityError.sanitized(error)))
+                failed += 1
+                let error = AIUtilityError.sanitized(error)
+                emit(.failed(session: session, ordinal: segment.ordinal, error: error))
+                if error == .cancelled {
+                    queue.removeAll(); handle = nil
+                    emit(.stopped(session: session)); break
+                }
             }
         }
         // A concurrent stop/start owns worker clearing while waiting for cancellation acknowledgement.

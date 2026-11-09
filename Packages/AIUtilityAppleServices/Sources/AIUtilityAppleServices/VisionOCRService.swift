@@ -19,10 +19,14 @@ private final class VisionCancellation: @unchecked Sendable {
     }
 }
 
-public struct VisionOCRService: OCRService {
+public struct VisionOCRService: RegionOCRService {
     public init() {}
     public func recognize(imageData: Data, languages: [String] = ["en-US", "ja-JP", "zh-Hans"]) async throws -> OCRResult {
+        try await recognize(imageData: imageData, languages: languages, region: nil)
+    }
+    public func recognize(imageData: Data, languages: [String], region: OCRRegion?) async throws -> OCRResult {
         guard !imageData.isEmpty, imageData.count <= 32_000_000 else { throw AIUtilityError.invalidRequest }
+        guard !languages.isEmpty, languages.count <= 3 else { throw AIUtilityError.invalidRequest }
         let cancellation = VisionCancellation()
         let worker = Task.detached(priority: .userInitiated) { () throws -> OCRResult in
             try Task.checkCancellation()
@@ -35,7 +39,11 @@ public struct VisionOCRService: OCRService {
             let request = VNRecognizeTextRequest()
             request.recognitionLevel = .accurate
             request.usesLanguageCorrection = true
+            let supported = try request.supportedRecognitionLanguages()
+            guard languages.allSatisfy({ supported.contains($0) }) else { throw AIUtilityError.unsupportedPlatform }
             request.recognitionLanguages = languages
+            request.automaticallyDetectsLanguage = languages.count > 1
+            if let region { request.regionOfInterest = CGRect(x: region.x, y: region.y, width: region.width, height: region.height) }
             cancellation.install(request)
             let handler = VNImageRequestHandler(data: imageData, options: [:])
             do { try handler.perform([request]) }

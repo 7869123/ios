@@ -16,7 +16,7 @@ public struct AppleTextLanguageDetector: TextLanguageDetector {
             throw AIUtilityError.invalidRequest // Uncertain/unsupported detection requires a manual source choice.
         }
         switch language {
-        case .simplifiedChinese, .traditionalChinese: return .simplifiedChinese
+        case .simplifiedChinese: return .simplifiedChinese
         case .english: return .english
         case .japanese: return .japanese
         default: throw AIUtilityError.invalidRequest
@@ -44,7 +44,9 @@ public struct SpeechLanguageCapability: Sendable {
             let locale = Locale(identifier: language.speechLocaleIdentifier)
             let recognizer = SFSpeechRecognizer(locale: locale)
             return SpeechLanguageCapability(language: language, localeIdentifier: locale.identifier,
-                supportedLocale: supported.contains(locale), available: recognizer?.isAvailable == true,
+                supportedLocale: supported.contains(where: {
+                    $0.identifier.replacingOccurrences(of: "_", with: "-").caseInsensitiveCompare(language.speechLocaleIdentifier) == .orderedSame
+                }), available: recognizer?.isAvailable == true,
                 onDeviceRecognition: recognizer?.supportsOnDeviceRecognition == true)
         }
     }

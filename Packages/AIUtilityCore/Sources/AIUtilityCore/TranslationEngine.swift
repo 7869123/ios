@@ -50,25 +50,27 @@ public struct TranslationEngine: Sendable {
     private let privacy: PrivacyPolicy
     private let preferences: TranslationPreferences?
     private let detector: (any TextLanguageDetector)?
+    public let diagnostics: TranslationDiagnostics
     public init(configurations: ConfigurationCoordinator, gateway: ProviderGateway,
                 privacy: PrivacyPolicy = PrivacyPolicy(), preferences: TranslationPreferences? = nil,
-                detector: (any TextLanguageDetector)? = nil) {
+                detector: (any TextLanguageDetector)? = nil, diagnostics: TranslationDiagnostics = TranslationDiagnostics()) {
         self.configurations = configurations; self.gateway = gateway; self.privacy = privacy
         self.preferences = preferences; self.detector = detector
+        self.diagnostics = diagnostics
     }
 
     public var supportsAutomaticTextDetection: Bool { detector != nil }
 
     /// Uses independently persisted feature settings. Supplying languages overrides only this call.
     public func translate(_ text: String, provider: ProviderID, feature: TranslationFeature,
-                          languages: TranslationLanguages? = nil, maxOutputTokens: Int = 1024,
+                          languages: TranslationLanguages? = nil, maxOutputTokens: Int? = nil,
                           timeout: TimeInterval = 30) async throws -> String {
         try await translateMeasured(text, provider: provider, feature: feature, languages: languages,
                                     maxOutputTokens: maxOutputTokens, timeout: timeout).text
     }
 
     public func translateMeasured(_ text: String, provider: ProviderID, feature: TranslationFeature,
-                                  languages: TranslationLanguages? = nil, maxOutputTokens: Int = 1024,
+                                  languages: TranslationLanguages? = nil, maxOutputTokens: Int? = nil,
                                   timeout: TimeInterval = 30) async throws -> TranslationOutput {
         let clock = ContinuousClock()
         let started = clock.now
@@ -93,13 +95,27 @@ public struct TranslationEngine: Sendable {
 
     /// Send OCR text or finalized speech segments here, never screenshots/audio by default.
     public func translate(_ text: String, targetLanguage: String, provider: ProviderID,
-                          feature: TranslationFeature, maxOutputTokens: Int = 1024,
+                          feature: TranslationFeature, maxOutputTokens: Int? = nil,
                           timeout: TimeInterval = 30) async throws -> String {
         try validateText(text)
         guard !targetLanguage.isEmpty, targetLanguage.utf8.count <= 80,
               targetLanguage.unicodeScalars.allSatisfy({ CharacterSet.letters.contains($0) || " -()".unicodeScalars.contains($0) })
         else { throw AIUtilityError.invalidRequest }
-        // Source-compatible legacy entry point; Claude should move the UI to the typed overload.
+        // Existing UI also benefits from stored source preferences, prompts and reasoning budgets.
+        let selected = try await preferences?.languages(for: feature) ?? TranslationLanguages()
+        let knownTarget: SupportedLanguage?
+        switch targetLanguage.lowercased() {
+        case "zh-cn", "简体中文", "chinese", "simplified chinese": knownTarget = .simplifiedChinese
+        case "en", "en-us", "english": knownTarget = .english
+        case "ja", "ja-jp", "日本語", "japanese": knownTarget = .japanese
+        default: knownTarget = nil
+        }
+        if let knownTarget {
+            return try await translate(text, provider: provider, feature: feature,
+                languages: TranslationLanguages(source: selected.source, target: knownTarget),
+                maxOutputTokens: maxOutputTokens, timeout: timeout)
+        }
+        // Preserve older callers' other target languages; the typed API intentionally offers three.
         return try await execute(text, source: "the original language of the source text", target: targetLanguage,
                                  provider: provider, feature: feature, maxOutputTokens: maxOutputTokens, timeout: timeout)
     }
@@ -111,17 +127,42 @@ public struct TranslationEngine: Sendable {
     }
 
     private func execute(_ text: String, source: String, target: String, provider: ProviderID,
-                         feature: TranslationFeature, maxOutputTokens: Int, timeout: TimeInterval) async throws -> String {
+                         feature: TranslationFeature, maxOutputTokens: Int?, timeout: TimeInterval) async throws -> String {
         let (config, revision) = try await configurations.snapshot(provider: provider, feature: feature)
         guard let model = config.models[feature] else { throw AIUtilityError.notConfigured }
         let redacted = RedactedText(text, key: config.key, policy: privacy)
         let prompt = try await preferences?.prompt(for: feature) ?? TranslationPrompts.defaults(for: feature)
         // Do not send a credential if it was accidentally pasted into an editable prompt.
         let safePrompt = config.key.withValue { prompt.replacingOccurrences(of: $0, with: "<redacted credential>") }
+        let reasoning = try await preferences?.reasoningSettings(provider: provider, model: model)
         let request = try GenerationRequest(model: model,
             instructions: TranslationPrompts.instructions(prompt: safePrompt, source: source, target: target),
-            text: redacted.text, maxOutputTokens: maxOutputTokens)
-        let result = try await gateway.generate(provider: provider, key: config.key, request: request, timeout: timeout)
+            text: redacted.text, maxOutputTokens: maxOutputTokens ?? reasoning?.totalOutputTokens ?? 1024, reasoning: reasoning?.effort ?? .auto)
+        let (observer, changes) = try await configurations.revisionEvents()
+        let started = ContinuousClock().now
+        let result: GenerationResult
+        do {
+            guard await configurations.bindingRevision(provider: provider) == revision else { throw AIUtilityError.cancelled }
+            result = try await withThrowingTaskGroup(of: GenerationResult.self) { group in
+                group.addTask { try await gateway.generate(provider: provider, key: config.key, request: request, timeout: timeout) }
+                group.addTask {
+                    for await changed in changes {
+                        if changed[provider, default: 0] != revision { throw AIUtilityError.cancelled }
+                    }
+                    throw AIUtilityError.cancelled
+                }
+                defer { group.cancelAll() }
+                guard let value = try await group.next() else { throw AIUtilityError.cancelled }
+                return value
+            }
+            await configurations.removeRevisionObserver(observer)
+            await diagnostics.record(stage: .translationAPI, milliseconds: started.duration(to: ContinuousClock().now).milliseconds, outcome: .success)
+        } catch {
+            await configurations.removeRevisionObserver(observer)
+            let failure = AIUtilityError.sanitized(error)
+            await diagnostics.record(stage: .translationAPI, milliseconds: started.duration(to: ContinuousClock().now).milliseconds, outcome: .failure(failure))
+            throw failure
+        }
         guard !Task.isCancelled else { throw AIUtilityError.cancelled }
         guard await configurations.bindingRevision(provider: provider) == revision else { throw AIUtilityError.cancelled }
         return try redacted.restore(result.text)

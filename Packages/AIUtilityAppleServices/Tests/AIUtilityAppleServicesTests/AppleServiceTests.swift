@@ -20,6 +20,18 @@ func keychainReplacesSingleProviderRecordAtomically() throws {
 }
 #endif
 
+#if canImport(NaturalLanguage)
+@Test func appleTextDetectionUsesRealLocalEngine() async throws {
+    let detector = AppleTextLanguageDetector()
+    let english = try await detector.detect("This is a long English sentence about reading a book and watching a movie with friends.")
+    let japanese = try await detector.detect("今日はとても良い天気ですね。友達と一緒に映画を見に行きたいと思います。")
+    let chinese = try await detector.detect("今天的天气非常晴朗，我们准备和朋友一起去公园散步，然后回家阅读一本有趣的书。")
+    #expect(english == .english)
+    #expect(japanese == .japanese)
+    #expect(chinese == .simplifiedChinese)
+}
+#endif
+
 #if canImport(Vision) && canImport(CoreGraphics)
 import CoreGraphics
 import CoreText
@@ -50,5 +62,35 @@ import UniformTypeIdentifiers
     await #expect(throws: AIUtilityError.invalidRequest) {
         try await VisionOCRService().recognize(imageData: Data("not an image".utf8), languages: ["en-US"])
     }
+}
+
+@Test func visionRegionRecognizesOnlyTheSelectedHalf() async throws {
+    let context = try #require(CGContext(data: nil, width: 1200, height: 600, bitsPerComponent: 8,
+        bytesPerRow: 4800, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    context.setFillColor(CGColor(gray: 1, alpha: 1))
+    context.fill(CGRect(x: 0, y: 0, width: 1200, height: 600))
+    let attributes: [NSAttributedString.Key: Any] = [NSAttributedString.Key(kCTFontAttributeName as String): CTFontCreateWithName("Helvetica" as CFString, 72, nil),
+        NSAttributedString.Key(kCTForegroundColorAttributeName as String): CGColor(gray: 0, alpha: 1)]
+    for (text, y) in [("TOP SELECTED", 420.0), ("BOTTOM EXCLUDED", 80.0)] {
+        context.textPosition = CGPoint(x: 40, y: y)
+        CTLineDraw(CTLineCreateWithAttributedString(NSAttributedString(string: text, attributes: attributes)), context)
+    }
+    let image = try #require(context.makeImage())
+    let data = NSMutableData()
+    let destination = try #require(CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil))
+    CGImageDestinationAddImage(destination, image, nil)
+    #expect(CGImageDestinationFinalize(destination))
+    let region = try OCRRegion(x: 0, y: 0.5, width: 1, height: 0.5)
+    let result = try await VisionOCRService().recognize(imageData: data as Data, languages: ["en-US"], region: region)
+    #expect(result.text.uppercased().contains("TOP"))
+    #expect(!result.text.uppercased().contains("BOTTOM"))
+}
+
+@Test func cancelledVisionNeverReturnsSuccessfulOCR() async {
+    let task = Task {
+        withUnsafeCurrentTask { $0?.cancel() }
+        return try await VisionOCRService().recognize(imageData: Data([1]), languages: ["en-US"])
+    }
+    await #expect(throws: AIUtilityError.cancelled) { try await task.value }
 }
 #endif

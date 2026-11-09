@@ -26,6 +26,11 @@ public struct TranslationLanguages: Codable, Equatable, Sendable {
     }
 }
 
+public struct ModelReasoningSettings: Sendable, Equatable {
+    public let effort: ReasoningEffort
+    public let totalOutputTokens: Int
+}
+
 /// Automatic detection is opt-in and only available when a real engine is injected.
 public protocol TextLanguageDetector: Sendable {
     func detect(_ text: String) async throws -> SupportedLanguage
@@ -60,13 +65,15 @@ private struct PreferencesDocument: Codable, Sendable {
     var version = 1
     var features: [String: FeaturePreferences] = [:]
     var reasoning: [String: [String: ReasoningEffort]] = [:]
+    var outputLimits: [String: [String: Int]] = [:]
     init() {}
-    private enum CodingKeys: String, CodingKey { case version, features, reasoning }
+    private enum CodingKeys: String, CodingKey { case version, features, reasoning, outputLimits }
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         version = try container.decode(Int.self, forKey: .version)
         features = try container.decodeIfPresent([String: FeaturePreferences].self, forKey: .features) ?? [:]
         reasoning = try container.decodeIfPresent([String: [String: ReasoningEffort]].self, forKey: .reasoning) ?? [:]
+        outputLimits = try container.decodeIfPresent([String: [String: Int]].self, forKey: .outputLimits) ?? [:]
     }
 }
 
@@ -104,14 +111,30 @@ public actor TranslationPreferences {
     public func reasoning(provider: ProviderID, model: String) throws -> ReasoningEffort {
         try load().reasoning[provider.rawValue]?[model] ?? .auto
     }
-    public func saveReasoning(_ effort: ReasoningEffort, provider: ProviderID, model: String) throws {
+    public func outputTokenLimit(provider: ProviderID, model: String) throws -> Int {
+        try load().outputLimits[provider.rawValue]?[model] ?? 1024
+    }
+    public func reasoningSettings(provider: ProviderID, model: String) throws -> ModelReasoningSettings {
+        let value = try load()
+        return ModelReasoningSettings(effort: value.reasoning[provider.rawValue]?[model] ?? .auto,
+                                      totalOutputTokens: value.outputLimits[provider.rawValue]?[model] ?? 1024)
+    }
+    /// Explicit total output budget; thinking tokens share this ceiling with visible translation.
+    /// No automatic increase in spend when effort changes. UI should show the capability guidance.
+    public func saveReasoning(_ effort: ReasoningEffort, provider: ProviderID, model: String,
+                              totalOutputTokens: Int) throws {
         guard ReasoningCapabilities.forModel(model, provider: provider).efforts.contains(effort) else {
+            throw AIUtilityError.invalidRequest
+        }
+        guard !model.isEmpty, model.utf8.count <= 256, (16...65_536).contains(totalOutputTokens) else {
             throw AIUtilityError.invalidRequest
         }
         var value = try load()
         var models = value.reasoning[provider.rawValue] ?? [:]
         guard models[model] != nil || models.count < 256 else { throw AIUtilityError.invalidRequest }
         models[model] = effort; value.reasoning[provider.rawValue] = models
+        var limits = value.outputLimits[provider.rawValue] ?? [:]
+        limits[model] = totalOutputTokens; value.outputLimits[provider.rawValue] = limits
         try commit(value)
     }
     private func load() throws -> PreferencesDocument {
@@ -122,13 +145,14 @@ public actor TranslationPreferences {
                 value = try JSONDecoder().decode(PreferencesDocument.self, from: data)
                 guard value.version == 1,
                       value.features.values.allSatisfy({ ($0.prompt?.utf8.count ?? 0) <= 4096 }),
-                      value.reasoning.values.allSatisfy({ $0.count <= 256 }) else { throw AIUtilityError.storageFailure }
+                      value.reasoning.values.allSatisfy({ $0.count <= 256 }),
+                      value.outputLimits.values.allSatisfy({ $0.count <= 256 && $0.values.allSatisfy({ (16...65_536).contains($0) }) }) else { throw AIUtilityError.storageFailure }
             } else { value = PreferencesDocument() }
             document = value; return value
         } catch { throw AIUtilityError.storageFailure }
     }
     private func commit(_ value: PreferencesDocument) throws {
-        try Task.checkCancellation()
+        guard !Task.isCancelled else { throw AIUtilityError.cancelled }
         do { try store.write(JSONEncoder().encode(value), to: .translationPreferences) }
         catch { throw AIUtilityError.storageFailure }
         document = value
