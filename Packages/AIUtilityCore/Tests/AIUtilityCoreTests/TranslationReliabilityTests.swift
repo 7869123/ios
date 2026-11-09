@@ -141,3 +141,36 @@ private actor FIFORecorder {
     #expect(try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 2, text: "Changed world.", isFinal: true, timestamp: 4)).isEmpty)
     #expect(try segmenter.ingest(SpeechTranscript(utteranceID: UUID(), sequence: 1, text: "old callback", isFinal: true, timestamp: 0)).isEmpty)
 }
+
+private struct SlowOCR: RegionOCRService {
+    func recognize(imageData: Data, languages: [String]) async throws -> OCRResult {
+        try await recognize(imageData: imageData, languages: languages, region: nil)
+    }
+    func recognize(imageData: Data, languages: [String], region: OCRRegion?) async throws -> OCRResult {
+        try await Task.sleep(for: .seconds(60))
+        return OCRResult(lines: [])
+    }
+}
+@Test func screenshotDeadlineCancelsOCRAndDoesNotSendAPIRequest() async throws {
+    let transport = ScriptedTransport([])
+    let (engine, _) = try configuredEngine(transport: transport)
+    let workflow = ScreenshotTranslationWorkflow(ocr: SlowOCR(), translation: engine)
+    await #expect(throws: AIUtilityError.timeout) {
+        try await workflow.recognize(imageData: Data([1]), source: .japanese, timeout: 0.03)
+    }
+    #expect(await transport.requests.isEmpty)
+    let draft = await workflow.draft()
+    #expect(draft?.id == nil)
+    await workflow.cancel()
+}
+
+@Test func upstreamRefusalIsNotFabricatedAndNoClientSensitiveContentFilterIsAdded() async throws {
+    let transport = ScriptedTransport([response(#"{"status":"completed","output":[{"type":"message","content":[{"type":"refusal","refusal":"not returned as a translation"}]}]}"#)])
+    let (engine, _) = try configuredEngine(transport: transport)
+    await #expect(throws: AIUtilityError.contentRejected) {
+        try await engine.translate("An adult dialogue from a novel.", provider: .openAI, feature: .videoSubtitle)
+    }
+    let request = try #require(await transport.requests.first)
+    let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    #expect(body["input"] as? String == "An adult dialogue from a novel.")
+}

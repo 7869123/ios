@@ -76,6 +76,25 @@ func autoReasoningNeverSendsParameters(_ provider: ProviderID) async throws {
     #expect(await service.budget.snapshot().reservedOutputTokens == 256)
 }
 
+@Test func translationUsesSavedReasoningBudgetAndSourceWithoutExtraRequests() async throws {
+    let preferences = TranslationPreferences(store: TestLocalStore())
+    try await preferences.saveReasoning(.high, provider: .openAI, model: "gpt-5.4", totalOutputTokens: 32_768)
+    try await preferences.saveLanguages(TranslationLanguages(source: .japanese, target: .english), for: .videoSubtitle)
+    let credentials = TestCredentialStore()
+    try credentials.replace(provider: .openAI, configuration: ProviderConfiguration(key: APIKey("test-key"), models: [.videoSubtitle: "gpt-5.4"]))
+    let transport = ScriptedTransport([success(.openAI)])
+    let service = gateway(.openAI, transport)
+    let engine = TranslationEngine(configurations: ConfigurationCoordinator(store: credentials, gateway: service), gateway: service, preferences: preferences)
+    let result = try await engine.translate("こんにちは", targetLanguage: "English", provider: .openAI, feature: .videoSubtitle)
+    #expect(result == "你好")
+    let requests = await transport.requests
+    #expect(requests.count == 1)
+    let body = try #require(try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any])
+    #expect(body["max_output_tokens"] as? Int == 32_768)
+    #expect((body["reasoning"] as? [String: String])?["effort"] == "high")
+    #expect((body["instructions"] as? String)?.contains("Japanese (ja)") == true)
+}
+
 private let meteredSuccess = #"{"model":"gpt-5.4","status":"completed","output":[{"type":"message","content":[{"type":"output_text","text":"translated"}]}],"usage":{"input_tokens":12,"output_tokens":20,"total_tokens":32,"output_tokens_details":{"reasoning_tokens":15}}}"#
 
 @Test func openAIActualUsageIsPersistentPerModelAndSessionScoped() async throws {
