@@ -133,7 +133,8 @@ private final class AudioTestPayload: Sendable {
         let payload = AudioTestPayload(); held = payload
         try buffer.enqueue(session: session, byteCount: 4, presentationTime: 0, duration: 0.25, formatID: 1) { payload }
     }
-    #expect(held != nil)
+    let retained = held != nil
+    #expect(retained)
     buffer.stop(session: session)
     #expect(held == nil)
     #expect(buffer.snapshot().queuedBytes == 0)

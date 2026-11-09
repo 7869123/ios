@@ -32,26 +32,30 @@ final class SpeechAudioSink: @unchecked Sendable {
     private let lock = NSLock()
     private let delivery = DispatchQueue(label: "com.aiutility.poc.speech-delivery")
     private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var requestToken: UUID?
     private var buffer = AudioRolloverBuffer<OwnedAudioSample>()
     private var format: CMFormatDescription?
     private var worker: UUID?
 
-    @discardableResult func install(_ value: SFSpeechAudioBufferRecognitionRequest) -> Bool {
+    func install(_ value: SFSpeechAudioBufferRecognitionRequest) -> UUID? {
         lock.lock(); defer { lock.unlock() }
         if buffer.phase == .stopped { buffer.start(); format = nil }
         else {
-            guard let session = buffer.session, buffer.resume(session: session) else { return false }
+            guard let session = buffer.session, buffer.resume(session: session) else { return nil }
         }
-        request = value; scheduleLocked(); return true
+        let token = UUID(); requestToken = token
+        request = value; scheduleLocked(); return token
     }
-    @discardableResult func beginRollover() -> Bool {
+    @discardableResult func beginRollover(requestToken expected: UUID? = nil) -> Bool {
         lock.lock(); defer { lock.unlock() }
+        guard let requestToken, expected == nil || requestToken == expected else { return false }
+        if buffer.phase == .buffering { return true }
         guard let session = buffer.session, buffer.beginRollover(session: session) else { return false }
         request = nil; return true
     }
     func stop() {
         lock.lock(); defer { lock.unlock() }
-        request = nil; format = nil
+        request = nil; requestToken = nil; format = nil
         if let session = buffer.session { buffer.stop(session: session) }
     }
     func snapshot() -> AudioRolloverSnapshot {
@@ -177,12 +181,16 @@ final class SpeechAudioSink: @unchecked Sendable {
         request.requiresOnDeviceRecognition = true
         request.shouldReportPartialResults = true
         self.request = request
-        guard sink.install(request) else { throw ProbeError.speechUnavailable }
+        guard let audioRequest = sink.install(request) else { throw ProbeError.speechUnavailable }
         state = "等待音频；尚未验证"
-        task = recognizer.recognitionTask(with: request) { [weak self] result, error in
+        let sink = self.sink
+        task = recognizer.recognitionTask(with: request) { [weak self, sink] result, error in
             let text = result?.bestTranscription.formattedString
             let isFinal = result?.isFinal == true
             let failed = error != nil
+            // Seal the ended request immediately, before main-actor callback scheduling.
+            // A late result from an older request cannot detach a newer recognizer's input.
+            if isFinal || failed { sink.beginRollover(requestToken: audioRequest) }
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 guard self.revision == revision, self.requestRevision == requestRevision else { return }
