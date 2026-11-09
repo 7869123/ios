@@ -6,31 +6,111 @@ import AudioToolbox
 import AIUtilityCore
 @preconcurrency import Speech
 
-/// Only the serial ScreenCaptureKit queue calls append. Main actor swaps the request under lock.
+/// The queued sample owns a deep copy of PCM bytes, not a pointer into the capture pool.
+/// No code mutates it after construction; the sink serializes all Speech access.
+private struct OwnedAudioSample: @unchecked Sendable {
+    let sample: CMSampleBuffer
+    static func copy(_ source: CMSampleBuffer, block: CMBlockBuffer, format: CMFormatDescription,
+                     bytes: Int) throws -> OwnedAudioSample {
+        var copiedBlock: CMBlockBuffer?
+        guard CMBlockBufferCreateContiguous(allocator: kCFAllocatorDefault, sourceBuffer: block,
+            blockAllocator: kCFAllocatorDefault, customBlockSource: nil, offsetToData: 0, dataLength: bytes,
+            flags: kCMBlockBufferAlwaysCopyDataFlag, blockBufferOut: &copiedBlock) == noErr,
+              let copiedBlock else { throw AudioBufferFailure.copyFailed }
+        var copiedSample: CMSampleBuffer?
+        guard CMAudioSampleBufferCreateReadyWithPacketDescriptions(allocator: kCFAllocatorDefault,
+            dataBuffer: copiedBlock, formatDescription: format, sampleCount: CMSampleBufferGetNumSamples(source),
+            presentationTimeStamp: CMSampleBufferGetPresentationTimeStamp(source), packetDescriptions: nil,
+            sampleBufferOut: &copiedSample) == noErr, let copiedSample else { throw AudioBufferFailure.copyFailed }
+        return OwnedAudioSample(sample: copiedSample)
+    }
+}
+
+/// One bounded queue for normal delivery and rollover. A single worker submits FIFO audio.
+/// The lock covers one Speech append, not the entire backlog, so stop can detach between packets.
 final class SpeechAudioSink: @unchecked Sendable {
     private let lock = NSLock()
+    private let delivery = DispatchQueue(label: "com.aiutility.poc.speech-delivery")
     private var request: SFSpeechAudioBufferRecognitionRequest?
-    private var sampleRate: Double?
-    private var channels: UInt32?
-    private var invalidFormat = false
-    func install(_ value: SFSpeechAudioBufferRecognitionRequest?) {
+    private var buffer = AudioRolloverBuffer<OwnedAudioSample>()
+    private var format: CMFormatDescription?
+    private var worker: UUID?
+
+    @discardableResult func install(_ value: SFSpeechAudioBufferRecognitionRequest) -> Bool {
         lock.lock(); defer { lock.unlock() }
-        request = value; sampleRate = nil; channels = nil; invalidFormat = false
+        if buffer.phase == .stopped { buffer.start(); format = nil }
+        else {
+            guard let session = buffer.session, buffer.resume(session: session) else { return false }
+        }
+        request = value; scheduleLocked(); return true
+    }
+    @discardableResult func beginRollover() -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        guard let session = buffer.session, buffer.beginRollover(session: session) else { return false }
+        request = nil; return true
+    }
+    func stop() {
+        lock.lock(); defer { lock.unlock() }
+        request = nil; format = nil
+        if let session = buffer.session { buffer.stop(session: session) }
+    }
+    func snapshot() -> AudioRolloverSnapshot {
+        lock.lock(); defer { lock.unlock() }; return buffer.snapshot()
     }
     func append(_ buffer: CMSampleBuffer) {
         lock.lock(); defer { lock.unlock() }
-        guard let request else { return }
+        guard let session = self.buffer.session,
+              self.buffer.phase == .live || self.buffer.phase == .buffering else { return }
         guard CMSampleBufferIsValid(buffer), CMSampleBufferDataIsReady(buffer),
               let description = CMSampleBufferGetFormatDescription(buffer),
-              let format = CMAudioFormatDescriptionGetStreamBasicDescription(description)?.pointee,
-              format.mFormatID == kAudioFormatLinearPCM, format.mSampleRate.isFinite,
-              (8000...192000).contains(format.mSampleRate), (1...2).contains(format.mChannelsPerFrame),
-              sampleRate == nil || sampleRate == format.mSampleRate,
-              channels == nil || channels == format.mChannelsPerFrame else { invalidFormat = true; return }
-        sampleRate = format.mSampleRate; channels = format.mChannelsPerFrame
-        request.appendAudioSampleBuffer(buffer)
+              let audio = CMAudioFormatDescriptionGetStreamBasicDescription(description)?.pointee,
+              audio.mFormatID == kAudioFormatLinearPCM, audio.mSampleRate.isFinite,
+              (8000...192000).contains(audio.mSampleRate), (1...2).contains(audio.mChannelsPerFrame),
+              CMSampleBufferGetNumSamples(buffer) > 0,
+              let block = CMSampleBufferGetDataBuffer(buffer) else {
+            self.buffer.reject(.invalidPacket, session: session); request = nil; return
+        }
+        if let format, !CMFormatDescriptionEqual(description, otherFormatDescription: format) {
+            self.buffer.reject(.formatChanged, session: session); request = nil; return
+        }
+        do {
+            try self.buffer.enqueue(session: session, byteCount: CMBlockBufferGetDataLength(block),
+                presentationTime: CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(buffer)),
+                duration: Double(CMSampleBufferGetNumSamples(buffer)) / audio.mSampleRate, formatID: 1) {
+                    try OwnedAudioSample.copy(buffer, block: block, format: description, bytes: CMBlockBufferGetDataLength(block))
+                }
+            self.format = description
+            scheduleLocked()
+        } catch { request = nil } // The bounded queue retains a safe failure code, never raw audio/errors.
     }
-    func hasInvalidFormat() -> Bool { lock.lock(); defer { lock.unlock() }; return invalidFormat }
+    private func scheduleLocked() {
+        guard worker == nil, request != nil, let session = buffer.session, buffer.phase == .live,
+              buffer.snapshot().queuedPackets > 0 else { return }
+        let id = UUID(); worker = id
+        delivery.async { [weak self] in
+            guard let self else { return }
+            self.drain(worker: id, session: session)
+        }
+    }
+    private func drain(worker id: UUID, session: UUID) {
+        while true {
+            let again = autoreleasepool { () -> Bool in
+                lock.lock(); defer { lock.unlock() }
+                guard worker == id else { return false }
+                guard buffer.session == session, buffer.phase == .live, let request else {
+                    worker = nil
+                    scheduleLocked() // A queued old worker may wake after a newer session starts.
+                    return false
+                }
+                guard let packet = buffer.takeNext(session: session) else {
+                    worker = nil; return false
+                }
+                request.appendAudioSampleBuffer(packet.payload.sample)
+                return true
+            }
+            if !again { return }
+        }
+    }
 }
 
 @available(iOS 27.0, *)
@@ -56,6 +136,8 @@ final class SpeechAudioSink: @unchecked Sendable {
     public var onStableTick: ((TimeInterval) -> Void)?
     public var onFailure: (() -> Void)?
     public var onFinalText: ((String) -> Void)?
+    /// Queue counts/durations only; dequeued audio is not proof of successful recognition.
+    public var audioBufferSnapshot: AudioRolloverSnapshot { sink.snapshot() }
     public init() {}
     public func start(language: SupportedLanguage) async throws {
         try await start(locale: Locale(identifier: language.speechLocaleIdentifier))
@@ -95,7 +177,7 @@ final class SpeechAudioSink: @unchecked Sendable {
         request.requiresOnDeviceRecognition = true
         request.shouldReportPartialResults = true
         self.request = request
-        sink.install(request)
+        guard sink.install(request) else { throw ProbeError.speechUnavailable }
         state = "等待音频；尚未验证"
         task = recognizer.recognitionTask(with: request) { [weak self] result, error in
             let text = result?.bestTranscription.formattedString
@@ -119,7 +201,7 @@ final class SpeechAudioSink: @unchecked Sendable {
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
                 guard let self, self.revision == revision, self.requestRevision == requestRevision, !self.rolling else { return }
-                if self.sink.hasInvalidFormat() { self.fail(); return }
+                if self.sink.snapshot().failure != nil { self.fail(); return }
                 self.onStableTick?(self.elapsed())
                 if began.duration(to: ContinuousClock().now) >= .seconds(50) {
                     self.rollover(revision: revision, requestRevision: requestRevision); return
@@ -140,12 +222,14 @@ final class SpeechAudioSink: @unchecked Sendable {
     private func rollover(revision: Int, requestRevision: Int) {
         guard self.revision == revision, self.requestRevision == requestRevision, !rolling else { return }
         rolling = true; rotationTask?.cancel(); rotationTask = nil
-        sink.install(nil); request?.endAudio()
-        // No audio replay or parallel recognizers. The bounded drain gap must be measured on device.
+        guard sink.beginRollover() else { fail(); return }
+        request?.endAudio()
+        // Capture continues into bounded memory. New Speech consumes only unsubmitted packets.
         rolloverTask = Task { @MainActor [weak self] in
             guard let self else { return }
             for _ in 0..<100 {
                 guard !Task.isCancelled, self.revision == revision, self.requestRevision == requestRevision else { return }
+                if self.sink.snapshot().failure != nil { self.fail(); return }
                 if self.task?.state == .completed { break }
                 do { try await Task.sleep(for: .milliseconds(20)) } catch { return }
             }
@@ -157,15 +241,17 @@ final class SpeechAudioSink: @unchecked Sendable {
         }
     }
     private func fail() {
+        let bufferFailure = sink.snapshot().failure
         stop()
-        state = "本地识别已停止：权限、语言包、格式或识别任务错误；请检查后手动重启"
+        if let bufferFailure { state = "音频缓存已停止：" + bufferFailure.rawValue + "；请检查后手动重启" }
+        else { state = "本地识别已停止：权限、语言包、格式或识别任务错误；请检查后手动重启" }
         onFailure?()
     }
     public func stop() {
         revision &+= 1; requestRevision &+= 1
         rotationTask?.cancel(); rotationTask = nil
         rolloverTask?.cancel(); rolloverTask = nil
-        sink.install(nil); request?.endAudio(); task?.cancel()
+        sink.stop(); request?.endAudio(); task?.cancel()
         if let task { draining = task }
         request = nil; task = nil; recognizer = nil; state = "已停止；无真机结论"
         lastText = ""; finalSent = false; rolling = false
