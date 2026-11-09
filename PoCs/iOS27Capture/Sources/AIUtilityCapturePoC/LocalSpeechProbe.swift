@@ -48,6 +48,16 @@ final class SpeechAudioSink: @unchecked Sendable {
     }
     @discardableResult func beginRollover(requestToken expected: UUID? = nil) -> Bool {
         lock.lock(); defer { lock.unlock() }
+        return beginRolloverLocked(requestToken: expected)
+    }
+    /// Speech may invoke a result handler during append; never wait on its delivery lock there.
+    /// If the lock is occupied, the revision-checked main-actor callback performs the transition.
+    func sealFromCallback(requestToken: UUID) {
+        guard lock.try() else { return }
+        defer { lock.unlock() }
+        _ = beginRolloverLocked(requestToken: requestToken)
+    }
+    private func beginRolloverLocked(requestToken expected: UUID?) -> Bool {
         guard let requestToken, expected == nil || requestToken == expected else { return false }
         if buffer.phase == .buffering { return true }
         guard let session = buffer.session, buffer.beginRollover(session: session) else { return false }
@@ -188,9 +198,9 @@ final class SpeechAudioSink: @unchecked Sendable {
             let text = result?.bestTranscription.formattedString
             let isFinal = result?.isFinal == true
             let failed = error != nil
-            // Seal the ended request immediately, before main-actor callback scheduling.
+            // Best-effort sealing before main-actor scheduling, without blocking a Speech callback.
             // A late result from an older request cannot detach a newer recognizer's input.
-            if isFinal || failed { sink.beginRollover(requestToken: audioRequest) }
+            if isFinal || failed { sink.sealFromCallback(requestToken: audioRequest) }
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 guard self.revision == revision, self.requestRevision == requestRevision else { return }
