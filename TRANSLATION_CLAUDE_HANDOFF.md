@@ -5,7 +5,7 @@
 - 开发基线为 `7ff41115adf3b6c0e80e54c9af6d566712f48399`，独立分支 `codex/translation-completeness`；只读审计提交 `c178776`，P0 源码提交 `659de51`。后续以本分支提交历史为准。
 - 先读 `AGENTS.md`、本文件、`TRANSLATION_AUDIT.md`、`POC_TRANSLATION_PLAN.md`，再读 Core/AppleServices 源码与测试。
 - 仓库所有者本轮重新分配底层工作给 Codex，UI/UX 仍归 Claude。没有修改 Apps、壁纸、资源、workflow、scripts 或媒体生产实现。不把本交接当作跨分支合并授权。
-- **本批新增代码尚未通过 Swift 编译/测试或 Apple SDK 验证**。静态检查不是编译；已有基线 CI 不能套用到新代码。触发 CI/重跑需所有者确认。
+- **首轮真实 CI 42647207277：0ee791b 的 Linux Core 生产源码编译成功，测试模块编译失败，Core 测试执行 0；Apple/App/PoC SDK 被依赖阻断。** 测试宏修复为 6aa6f64，只改三份测试表达式，@Test/#expect/#require 数量及生产源码不变；修复未复验。实际日志见 validation/translation-completeness/attempt-1/；本轮一次 CI 已使用，重跑需确认。没有创建 PR 或合并任何分支。
 - 所有者随后单独授权了 PoC 两处逻辑文件：LocalSpeechProbe / PoCSession 已加入三语参数、50 秒轮转/最多 2 秒排空与字幕队列接线，**仍未编译/运行验证**。Host UI、采集和 PiP 实现没有改；不能描述成跨 App 采集已可用。
 - 之后用户明确要求“加入缓存机制”，源码 `2272e99`。下面的缓存小节取代旧空窗说明；新代码仍未编译/测试，旧 c9496fa CI 询问不能当作本批 CI 授权。
 
@@ -167,7 +167,7 @@ bash scripts/ci_apple.sh
 bash scripts/ci_app.sh
 ```
 
-现有 workflow 已包含 Core/Media/生命周期和 AppleServices 测试、双 SDK 构建、App Archive/未签名 IPA；本批无工具变化。因已获批修改 PoC，待所有者确认后建议一次 build_apple=true、build_poc=true，publish_previews=false、live_checks=false，包含 iOS 27 的真正设备 SDK 代码编译/Archive。不运行真实 AI API、真实私密媒体测试；不上传缓存或敏感用户输入。
+现有 workflow 已包含 Core/Media/生命周期和 AppleServices 测试、双 SDK 构建、App Archive/未签名 IPA；本批无工具变化。首次 build_apple=true、build_poc=true、publish_previews=false、live_checks=false 已执行并在测试模块编译阶段失败；Linux 生命周期 14 通过、媒体 92 通过/4 跳过，但 Apple/PoC/App 尚未执行。修复后相同输入的重验需所有者确认，不自行重跑。不运行真实 AI API、真实私密媒体测试；不上传缓存或敏感用户输入。
 
 ## Claude 的第一项接线任务
 

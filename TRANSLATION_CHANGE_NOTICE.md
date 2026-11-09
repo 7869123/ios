@@ -1,5 +1,11 @@
 # 给 Claude 的变更通知（待所有者决定集成）
 
+## 最新：首轮 CI 测试编译修复
+
+- 验证源 0ee791b，Actions 42647207277：Core 生产 build=0，测试模块 test=1（执行 0），原因是新增测试的宏展开错误；生命周期 14 通过、Media 92 通过/4 跳过，Apple/PoC/App 被依赖阻断。未创建 PR、未合并分支。
+- 修复 `6aa6f64`：只修改 APIConfigurationFeatureTests.swift、TranslationFeatureTests.swift、TranslationReliabilityTests.swift，将宏、throwing 读取、JSON 解码拆开。三份文件的 @Test/#expect/#require 数量保留，生产代码不改。
+- **无接口变化，无工具变化**。后续经所有者批准集成时需包含本测试修复，否则测试模块不能编译。修复仍未复验，不能声明 Core 测试或 Apple 编译通过；重跑需另行确认。证据在 validation/translation-completeness/attempt-1/。
+
 ## 后续：有界 ASR 缓存
 
 - 用户明确授权，缓存源码 `2272e99`，回调 token / 锁收尾 `42a1bec`；新增 Core AudioRolloverBuffer.swift / AudioRolloverBufferTests.swift，只改 PoC LocalSpeechProbe.swift 接线，其他生产源码不变。

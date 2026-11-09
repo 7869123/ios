@@ -1,0 +1,244 @@
+{
+  "source_sha": "0ee791b8837485fb5000bbb887d57168e55e2d51",
+  "compiler": "Swift version 6.0.3 (swift-6.0.3-RELEASE)\nTarget: x86_64-unknown-linux-gnu",
+  "run": {
+    "id": 42647207277,
+    "event": "workflow_dispatch",
+    "head_sha": "0ee791b8837485fb5000bbb887d57168e55e2d51",
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/7869123/ios/actions/runs/42647207277",
+    "run_attempt": 1
+  },
+  "jobs": [
+    {
+      "id": 129263578035,
+      "name": "core-linux",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-09T15:41:38Z",
+          "completed_at": "2026-11-09T15:41:39Z"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-09T15:41:39Z",
+          "completed_at": "2026-11-09T15:42:06Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-09T15:42:06Z",
+          "completed_at": "2026-11-09T15:42:08Z"
+        },
+        {
+          "name": "Real compiler and offline tests with preserved exit codes",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4,
+          "started_at": "2026-11-09T15:42:08Z",
+          "completed_at": "2026-11-09T15:42:43Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-09T15:42:43Z",
+          "completed_at": "2026-11-09T15:42:44Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-09T15:42:44Z",
+          "completed_at": "2026-11-09T15:42:44Z"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-09T15:42:44Z",
+          "completed_at": "2026-11-09T15:42:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-09T15:42:45Z",
+          "completed_at": "2026-11-09T15:42:45Z"
+        }
+      ]
+    },
+    {
+      "id": 129263579817,
+      "name": "live-checks",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    },
+    {
+      "id": 129264288804,
+      "name": "poc-sdk",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    },
+    {
+      "id": 129264289118,
+      "name": "apple",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    },
+    {
+      "id": 129264290028,
+      "name": "app",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    }
+  ],
+  "dispatch_count_this_authorization": 1,
+  "inputs": {
+    "build_apple": true,
+    "build_poc": true,
+    "publish_previews": false,
+    "live_checks": false
+  },
+  "exit_codes": {
+    "swift_version": 0,
+    "core_build": 0,
+    "core_tests": 1,
+    "poc_lifecycle_tests": 0,
+    "media_build": 0,
+    "media_tests": 0
+  },
+  "core_tests": {
+    "status": "not_started_test_module_compilation_failed",
+    "executed": 0,
+    "passed": 0,
+    "failed": null,
+    "skipped": null,
+    "declarations": 81
+  },
+  "test_counts": {
+    "media-tests.log": {
+      "passed": 92,
+      "skipped": 4,
+      "failed": 0
+    },
+    "poc-lifecycle-tests.log": {
+      "passed": 14,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "diagnostic_locations": [
+    {
+      "file": "APIConfigurationFeatureTests.swift",
+      "line": 10
+    },
+    {
+      "file": "APIConfigurationFeatureTests.swift",
+      "line": 114
+    },
+    {
+      "file": "APIConfigurationFeatureTests.swift",
+      "line": 25
+    },
+    {
+      "file": "APIConfigurationFeatureTests.swift",
+      "line": 73
+    },
+    {
+      "file": "APIConfigurationFeatureTests.swift",
+      "line": 92
+    },
+    {
+      "file": "TranslationFeatureTests.swift",
+      "line": 129
+    },
+    {
+      "file": "TranslationReliabilityTests.swift",
+      "line": 174
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13688865952,
+      "name": "core-linux-evidence-42647207277-1",
+      "digest": "sha256:25eb1aa52bed43bfa533fd5484618b26c63b8db8c69ca8ec699dda7e73c70f0f",
+      "size_in_bytes": 8756,
+      "expires_at": "2026-11-16T15:42:43Z"
+    }
+  ],
+  "verified_archive_sha256": "25eb1aa52bed43bfa533fd5484618b26c63b8db8c69ca8ec699dda7e73c70f0f",
+  "logs": {
+    "logs/core-build.log": {
+      "original_sha256": "7e37e39ae8da274a2ddca18be0bdcee5dd42d8909018d8ed39a993e5c58c474d",
+      "stored_sha256": "7e37e39ae8da274a2ddca18be0bdcee5dd42d8909018d8ed39a993e5c58c474d",
+      "original_bytes": 1061
+    },
+    "logs/core-tests.log": {
+      "original_sha256": "4d58696dd2d77caeb4dfe73de668d5d3d74a40e858fd7c36fd5daa811dda3516",
+      "stored_sha256": "2730ee053527d7687e0c294d6a16721721fb62b37b2be3f697a2f2a333421062",
+      "original_bytes": 23978
+    },
+    "logs/exit-codes.txt": {
+      "original_sha256": "6fdd11d0a704a3c582437ec8d53cdc38f8fccc8afa007cd0de41fc821a35909e",
+      "stored_sha256": "6fdd11d0a704a3c582437ec8d53cdc38f8fccc8afa007cd0de41fc821a35909e",
+      "original_bytes": 92
+    },
+    "logs/media-build.log": {
+      "original_sha256": "91b2bc617245c5351d3bdd932168d86c1b30ae80a01bc8530538dc4ee621cea5",
+      "stored_sha256": "91b2bc617245c5351d3bdd932168d86c1b30ae80a01bc8530538dc4ee621cea5",
+      "original_bytes": 1108
+    },
+    "logs/media-tests.log": {
+      "original_sha256": "df791e57041c04dd9eff4fa27e47be8ce69e71a05b70edda31bced33825a5408",
+      "stored_sha256": "49f1d78e9ba18f74aed773be27e8318c3f8aa41d8a258e01c67d20b373c054c0",
+      "original_bytes": 17722
+    },
+    "logs/poc-lifecycle-tests.log": {
+      "original_sha256": "8f4c7d0cc03077f86c151a793cc0fc6b3337ceff67a5e7ee08a13bd2ff2cacea",
+      "stored_sha256": "5a91ccd365a122d74d437da383dc9ba3e6699863620905d374d138a95d4fc7e4",
+      "original_bytes": 5497
+    },
+    "logs/swift-version.log": {
+      "original_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "stored_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "original_bytes": 75
+    }
+  },
+  "fix": {
+    "sha": "6aa6f64325ae92966847e809c1cd9a51b8507b88",
+    "production_core_source_tree": "dfbd0e3055324be5b700f048f4cf412939ab809d",
+    "production_sources_changed": false,
+    "assertion_counts_unchanged": true,
+    "revalidated": false
+  },
+  "unverified": [
+    "Core functional tests",
+    "macOS packages/tests",
+    "Apple SDKs",
+    "App builds/IPA",
+    "PoC SDK Archive/IPA",
+    "iPad audio/ASR/PiP",
+    "live AI APIs"
+  ],
+  "normalization": "CI workspace, home and UUIDs replaced; LF/trailing whitespace normalized; raw/stored hashes retained."
+}

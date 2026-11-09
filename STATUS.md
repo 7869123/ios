@@ -1,5 +1,13 @@
 # AIUtility 开发状态
 
+## 最新真实 CI：Core 生产源码通过，测试模块失败，修复待复验
+
+- 所有者授权编译且禁止合并；仅在 Codex 分支执行 [42647207277](https://github.com/7869123/ios/actions/runs/42647207277)，源码 `0ee791b`，整体 failure。未创建 PR 或合并分支。
+- Linux Swift 6.0.3：Core build=0；Core test=1，因新增测试宏展开编译错误，实际功能测试执行 0 项。生命周期 14 通过；Media build/test=0，92 通过/4 live 跳过/0 失败。六个退出码为 0/0/1/0/0/0。
+- Apple、App、PoC SDK 因依赖 Core 成功而跳过，live-checks 显式关闭；无本轮 macOS 测试、iOS SDK、Archive 或 IPA 证据，更无真机结论。
+- 修复 `6aa6f64` 仅拆开三份测试文件的嵌套宏、throwing 读取与 JSON 解码；@Test、#expect、#require 数量均保留，生产源码和公开接口不变。**修复尚未编译/执行，重跑需单独确认。**
+- [首轮完整证据](validation/translation-completeness/attempt-1/README.md) 含真实命令、job ID、退出码、7 份日志、artifact SHA-256。下方“没有本批 CI”的内容为此前源码阶段记录。
+
 ## 最新：ASR 轮转音频缓存（用户明确授权；未编译）
 
 - 缓存源码 `2272e99`，请求 token 与锁收尾 `42a1bec`，仍在 `codex/translation-completeness`。新增 Core 的 AudioRolloverBuffer 与 13 项回归测试；PoC 仅修改 LocalSpeechProbe.swift，未改 Host UI、采集、PiP、生命周期类或正式 App。

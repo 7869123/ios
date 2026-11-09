@@ -1,5 +1,10 @@
 # iOS 27 跨 App 音频与 PiP 字幕 PoC
 
+## 最新 CI 门槛：尚未执行本批 iOS SDK 验证
+
+[42647207277](https://github.com/7869123/ios/actions/runs/42647207277) 按授权开启了 build_poc，但 Linux Core 测试模块编译失败，poc-sdk job 被依赖阻断而 skipped。不能把“开启输入”当作已经运行 Archive。Linux Core 生产源码与有界队列编译成功，14 项可移植生命周期测试通过；它们不编译 iOS Speech/CoreMedia/ScreenCaptureKit 代码。
+测试宏修复为 `6aa6f64`，未改任何 PoC 生产源码；待单独授权重验。[逐项证据](validation/translation-completeness/attempt-1/README.md)。下方缓存及此前 Archive 成功记录均不能替代本批 SDK/真机验证。
+
 ## 最新补充：轮转缓存源码（2272e99，尚未编译/运行）
 
 用户在审阅缓存说明后明确授权加入。默认 5 秒 / 8 MiB PCM 数据 / 512 包；客户端单 FIFO 顺序投递，新请求开始后补送轮转期间未投递音频。Core 的 AudioRolloverBuffer 提供有界状态、会话代次和数字快照；LocalSpeechProbe 深拷贝 PCM，不长时间保留采集池缓冲，不重放已交给旧请求的包。

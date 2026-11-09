@@ -1,5 +1,10 @@
 # AIUtility 交接
 
+## 最新验证交接（修复待重验）
+
+用户已授权编译、不合并分支。本轮只运行一次 [42647207277](https://github.com/7869123/ios/actions/runs/42647207277)（0ee791b）：Linux Core 生产源码编译成功；测试模块宏展开失败，Core 测试执行 0。生命周期 14 通过，媒体 92 通过/4 跳过；Apple/App/PoC SDK 因前置失败未运行。三家真实 API、Speech、PiP、缓存补送和真机没有通过结论。
+`6aa6f64` 仅修复三份新增 Core 测试表达式，断言数和生产源码不变，尚未复验。[证据、真实退出码与下一步门槛](validation/translation-completeness/attempt-1/README.md)。本轮一次 CI 授权已使用，需确认后再跑；不创建或合并 PR，不拉取 Claude 分支。
+
 ## 最新：翻译底层独立开发分支
 
 用户随后明确要求加入 ASR 缓存，源码 `2272e99`：Core AudioRolloverBuffer 默认最多 5 秒/8 MiB/512 包，PoC LocalSpeechProbe 深拷贝并顺序补送未投递 PCM，停止/超限清空。新增 13 项测试源码（尚未执行）。不修改其他 PoC 源码或 UI，不触发 CI。缓存不保证切词准确、Speech 追平实时音频或采集成功，必须完成新提交的 SDK 和实机验证。

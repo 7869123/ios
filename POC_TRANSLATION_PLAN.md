@@ -1,6 +1,6 @@
 # iOS 27 PoC 翻译接线方案（本轮已获授权，验证待确认）
 
-所有者先要求提交提案，再明确授权仅修改 LocalSpeechProbe.swift 和 PoCSession.swift。本轮按该范围实施；Host UI、ScreenAudioProbe、ProbeLifecycle、SubtitlePiPProbe 没有修改。以下从提案转为源码说明，**尚未通过真实编译/ASR 运行验证**，也没有 CI 触发授权。
+所有者先要求提交提案，再明确授权仅修改 LocalSpeechProbe.swift 和 PoCSession.swift，并进一步授权缓存和一次编译、不合并。Host UI、ScreenAudioProbe、ProbeLifecycle、SubtitlePiPProbe 没有修改。本次 42647207277 的 Core 测试模块编译失败，iOS SDK job 被依赖阻断；Core 生产源码 Linux 编译成功，**iOS/ASR 尚未验证**。测试修复 6aa6f64 待单独授权重验，见 validation/translation-completeness/attempt-1/。
 
 ## 后续获批：加入有界音频缓存
 
