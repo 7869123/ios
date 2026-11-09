@@ -15,7 +15,7 @@
 | 真实 AI API / 余额 / usage | 未执行，未使用真实 Key、未产生付费测试 |
 | Swift 语法/源码卫生/plist | 已执行，退出 0，86 个 Swift 文件；只是静态检查 |
 | git diff --check | 已执行，退出 0 |
-| 完整 scripts/prepush_check.sh | 收尾时执行；实际日志保存在忽略的 artifacts/translation-completeness，不是 Swift 编译 |
+| 完整 scripts/prepush_check.sh | 42e79f3 已执行 PASS / 退出 0，13 项 Python 脚本回归通过；不是 Swift 单元测试。最终收尾提交须再次执行；实际日志保存在忽略的 artifacts/translation-completeness |
 | iPad 采集 / Speech / PiP / 后台 | 无真机证据；轮转空窗、格式、语言包和停止确认必须实机验证 |
 
 新增 Core 31 个 @Test 声明（现有总数 68），Apple 3 个（总数 6），原测试未删减。这只是源码数量，不是执行/通过数量。

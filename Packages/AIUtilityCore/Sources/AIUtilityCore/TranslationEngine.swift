@@ -78,6 +78,7 @@ public struct TranslationEngine: Sendable {
         let selected: TranslationLanguages
         if let languages { selected = languages }
         else { selected = try await preferences?.languages(for: feature) ?? TranslationLanguages() }
+        guard !Task.isCancelled else { throw AIUtilityError.cancelled }
         let source: SupportedLanguage
         if let language = selected.source.language { source = language }
         else {
@@ -163,8 +164,8 @@ public struct TranslationEngine: Sendable {
             await diagnostics.record(stage: .translationAPI, milliseconds: started.duration(to: ContinuousClock().now).milliseconds, outcome: .failure(failure))
             throw failure
         }
-        guard !Task.isCancelled else { throw AIUtilityError.cancelled }
-        guard await configurations.bindingRevision(provider: provider) == revision else { throw AIUtilityError.cancelled }
+        let currentRevision = await configurations.bindingRevision(provider: provider)
+        guard !Task.isCancelled, currentRevision == revision else { throw AIUtilityError.cancelled }
         return try redacted.restore(result.text)
     }
 }

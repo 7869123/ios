@@ -89,6 +89,7 @@ await pipeline.closeEventStreams() // 控制器销毁/丢弃本次订阅时关�
 - Apple `AppleSpeechLanguageSupport.capabilities()` 提供三种 Locale 的本机能力快照，不弹权限、不开始采集。supportsOnDeviceRecognition 不能当作语言包一定可用；运行时仍需检查权限/语言包/设备并处理错误。
 - PoC 新增 `PoCSession(..., sourceLanguage: SupportedLanguage)`，保留原 targetLanguage 字符串调用；接受三种目标语言的名称/代码，其他目标在有翻译引擎时明确拒绝。正式控制器应先读取保存的语言，手动选择 ASR 源，不给 Speech 使用 automatic。
 - 识别轮转只在旧任务 completed 后新建，最多等待 2 秒；此间未投递音频，可能缺字。没有音频回放缓冲、格式转换或无缝识别保证。未知识别错误停止；停止后 Speech 资源未确认则现有生命周期禁止重启。细节见 `POC_TRANSLATION_PLAN.md`。
+- 既有 Host 默认 engine=nil，并用 speech.caption 显示原文；其原文到 PiP 的显示绑定本轮未改。正式接入真实引擎时，Claude 需避免该绑定覆盖译文，不能只创建 pipeline 就假定正式字幕界面已接通。
 
 ## DeepSeek 余额
 

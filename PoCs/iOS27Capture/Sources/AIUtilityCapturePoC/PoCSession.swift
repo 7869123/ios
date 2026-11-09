@@ -104,7 +104,8 @@ import AIUtilityCore
                     self.translationState = "已收到分段译文；需真机核验顺序和延迟"
                 case .failed(let current, _, let error) where current == handle:
                     self.translationState = "翻译失败：" + error.description
-                    if [.cancelled, .unauthorized, .forbidden, .quotaExceeded, .budgetExceeded, .notConfigured, .modelUnavailable].contains(error) {
+                    let fatalErrors: [AIUtilityError] = [.cancelled, .unauthorized, .forbidden, .quotaExceeded, .budgetExceeded, .notConfigured, .modelUnavailable]
+                    if fatalErrors.contains(error) {
                         await self.stop(expected: session); return
                     }
                 case .dropped(let current, let count) where current == handle:

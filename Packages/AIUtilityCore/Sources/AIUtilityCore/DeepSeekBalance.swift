@@ -119,7 +119,8 @@ public actor DeepSeekBalanceMonitor {
             let (config, revision) = try await configurations.savedSnapshot(provider: .deepSeek)
             try await budget.reserve(outputTokens: 0)
             let current = try await adapter.balance(key: config.key, timeout: timeout)
-            guard !Task.isCancelled, await configurations.bindingRevision(provider: .deepSeek) == revision else {
+            let currentRevision = await configurations.bindingRevision(provider: .deepSeek)
+            guard !Task.isCancelled, currentRevision == revision else {
                 throw AIUtilityError.cancelled
             }
             balance = current; updatedAt = now; status = .success
