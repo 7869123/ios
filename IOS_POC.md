@@ -1,5 +1,17 @@
 # iOS 27 跨 App 音频与 PiP 字幕 PoC
 
+## 本轮获批翻译接线：新源码尚未 SDK 验证
+
+所有者先审阅方案后，明确批准仅修改 LocalSpeechProbe.swift 和 PoCSession.swift，源码提交 `12ed6bf`。本轮没有改 Host UI、ScreenAudioProbe、ProbeLifecycle、SubtitlePiPProbe、权限或后台模式。
+
+- 按 zh-CN / en-US / ja-JP 选择本地 Speech；无自动多语 ASR、无云端/麦克风回退。默认 Host 仍是英文、engine=nil 诊断，不因接口新增而宣称三语实机通过。
+- 每次识别独立 epoch 和递增事件序号；约 50 秒轮转、等待旧任务 completed 最多 2 秒。双代次拒绝旧回调，未知识别错误停止，停止释放未确认进入原生命周期的 releaseFailed 机制。
+- 稳定 partial/final 经有界流进入 Core 的有限分段 FIFO，防重复 final/请求乱序；停止取消排队和在途请求。系统中断仍停止，显式授权后再开始，不自动恢复采集。
+- **轮转排空期间未投递音频，存在丢字/空窗风险**。PCM 8–192 kHz / 1–2 声道检查不等于 Speech 一定接受该设备格式；无格式转换。若需连续音频缓冲或更换 ASR 路线，应另行设计和授权。
+- 原生命周期 14 项测试源码保留；新增 Core 分段回归不执行 Apple Speech。新代码的 Swift 6 / SDK Archive、Speech 取消完成语义、语言包、至少 30 分钟识别、中断/路由、PiP/跨 App 后台均**未验证**。
+
+[获批方案及验收矩阵](POC_TRANSLATION_PLAN.md)、[本轮验证状态](validation/translation-completeness/README.md)。下文 SDK 成功是历史结果，不能用于新提交；需用户确认后再运行新 CI。
+
 **已完成 iOS 27.1 SDK 模拟器构建、iphoneos 未签名 Archive 与 IPA 打包，尚未签名、安装或真机测试，不能认定跨 App 能力成功。** 用户首台目标为 iPad mini 6 / iPadOS 27.2（用户提供，未实机核验）。历史构建证据为 [42366153728](https://github.com/7869123/ios/actions/runs/42366153728)。
 
 2026-11-08 更新：最终源码 `680f3d2` 已在 [42378051064](https://github.com/7869123/ios/actions/runs/42378051064) 通过 Swift 6 iphoneos Archive、Simulator 构建、未签名 IPA 打包和 13 项预安装检查；Linux/macOS 各 14 项生命周期回归通过。Swift 6 delegate 隔离、会话身份、共用停止屏障和停止失败禁止重启已实现并编译。**尚无系统采集、Speech、PiP 或中断处理的真机测试。**

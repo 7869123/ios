@@ -1,5 +1,15 @@
 # AIUtility 开发状态
 
+## 本轮翻译底层增量（独立分支，真实验证待确认）
+
+- 所有者重新分配 Codex 处理底层业务/API/持久化/测试，未授权 UI 修改；随后单独授权 LocalSpeechProbe、PoCSession 两处 PoC 逻辑。分支 `codex/translation-completeness`，基线 `7ff4111`，审计 `c178776`，P0 `659de51`，API/OCR `fa81778`，获批 PoC `12ed6bf`，回归补充 `c9c572b`。未合并 PR、未写 main/Claude 分支。
+- 新源码：两套独立可编辑提示词和恢复默认、三语语言偏好/同语直返、本地自动检测接口、有限稳定分段/FIFO/去重/取消、模型推理能力与显式输出预算、真实 DeepSeek 余额接口与提醒抑制、OpenAI 实际 usage 本地账本、区域 OCR/编辑稿工作流、阶段耗时诊断和配置版本兼容。
+- PoC：三语参数、约 50 秒识别轮转、最多 2 秒排空/停止确认、Core 字幕接线；仅两处获批文件，Host UI/ScreenAudioProbe/ProbeLifecycle/SubtitlePiPProbe 不变。排空期间存在识别空窗，尚未验证是否丢字，不能称为无缝连续 ASR。
+- **本批 Swift 编译和测试执行数量仍为 0**；新增 31 个 Core 测试声明、3 个 Apple 测试声明不是通过证据。现 Core 源码总计 68 个 @Test、Apple 6 个；原测试全部保留。Windows 未安装 Swift，尚无本批 CI 运行 ID。
+- 基线 [42486839669](https://github.com/7869123/ios/actions/runs/42486839669) 的通过结果仅用于审计，不验证本批源码。触发 CI / 创建会自动跑 Linux 的 PR 前，按 AGENTS 第 5 节请求本批授权。
+- UI 页面和系统快捷入口未接线；三家真实 API、余额实查、真实用量、iOS Keychain/真实截图、多语语言包、跨 App 音频/Speech/PiP/后台、签名安装与长时实机均未验证。既有媒体实现不改、不删、不重复开发。
+- [只读审计](TRANSLATION_AUDIT.md)、[Claude 接口交接](TRANSLATION_CLAUDE_HANDOFF.md)、[PoC 获批方案与风险](POC_TRANSLATION_PLAN.md)、[本轮验证状态](validation/translation-completeness/README.md)。下方内容保留为历史，不能覆盖本节的新验证边界。
+
 ## 待办：首次启动引导页（用户 2026-11-08 提出，尚未开始）
 
 - 需求：App 首次启动后显示引导页，可随时「跳过」。看完或跳过后不再自动出现。

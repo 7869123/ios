@@ -1,5 +1,12 @@
 # AIUtility 交接
 
+## 最新：翻译底层独立开发分支
+
+先读 [TRANSLATION_CLAUDE_HANDOFF.md](TRANSLATION_CLAUDE_HANDOFF.md) 和 [TRANSLATION_AUDIT.md](TRANSLATION_AUDIT.md)。本轮所有者已重新分配 Codex 的底层工作，不包含 UI；后续明确批准了 PoC 两处逻辑文件，详情见 [方案](POC_TRANSLATION_PLAN.md)。
+分支 `codex/translation-completeness` 从最新已审计开发基线 `7ff4111` 建立，没有合并 PR/推送 main 或修改 Claude 分支。新增提示词/语言、字幕管线、推理、余额、用量、区域 OCR 及安全取消接口供 Claude 正式接线。
+**新代码尚未真实编译/测试；CI 需另行确认。** 不沿用下方历史成功作为新代码证据。不修改 UI、主题、壁纸、媒体实现、工作流或脚本；App Intents 和正式字幕 UI 没有实现。连续 ASR 的 SDK/长时运行与轮转空窗、跨 App 采集、PiP、签名安装仍需验证。
+不把此交接当作跨分支集成授权，待用户决定集成和 CI；每次推送需附接口/工具变更通知。
+
 ## 当前任务
 
 用户授权分阶段推进：先真实验证 Apple 平台，再开发可编译的 SwiftUI App。不得跳过关键包、删除测试或使用空实现。私有远程为 7869123/ios，普通 push，保留历史；不在 Windows 安装 Swift。
