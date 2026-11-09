@@ -171,6 +171,8 @@ private struct SlowOCR: RegionOCRService {
         try await engine.translate("An adult dialogue from a novel.", provider: .openAI, feature: .videoSubtitle)
     }
     let request = try #require(await transport.requests.first)
-    let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    let requestData = try #require(request.httpBody)
+    let requestJSON = try JSONSerialization.jsonObject(with: requestData)
+    let body = try #require(requestJSON as? [String: Any])
     #expect(body["input"] as? String == "An adult dialogue from a novel.")
 }

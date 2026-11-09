@@ -76,9 +76,11 @@ func configuredEngine(transport: ScriptedTransport, preferences: TranslationPref
             } else {
                 #expect(output.text == "你好")
                 #expect(output.requestedAPI)
-                let body = try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any]
+                let requestData = try #require(requests.first?.httpBody)
+                let body = try JSONSerialization.jsonObject(with: requestData) as? [String: Any]
                 let instructions = try #require(body?["instructions"] as? String)
-                #expect(instructions.contains(try #require(source.language).instructionName))
+                let sourceLanguage = try #require(source.language)
+                #expect(instructions.contains(sourceLanguage.instructionName))
                 #expect(instructions.contains(target.instructionName))
                 #expect(requests.count == 1)
             }
@@ -98,7 +100,8 @@ func configuredEngine(transport: ScriptedTransport, preferences: TranslationPref
     #expect(output == text)
     let requests = await transport.requests
     #expect(requests.count == 1) // No separate prompt warm-up/validation call.
-    let body = try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any]
+    let requestData = try #require(requests.first?.httpBody)
+    let body = try JSONSerialization.jsonObject(with: requestData) as? [String: Any]
     #expect(body?["input"] as? String == text)
     let instructions = try #require(body?["instructions"] as? String)
     #expect(instructions.contains("Custom Japanese (ja) into English (en)"))
@@ -126,7 +129,8 @@ func configuredEngine(transport: ScriptedTransport, preferences: TranslationPref
     try await settings.saveLanguages(TranslationLanguages(source: .japanese, target: .english), for: .videoSubtitle)
     let next = TranslationPreferences(store: FileLocalDataStore(directory: directory))
     #expect(try await next.languages(for: .videoSubtitle).source == .japanese)
-    let data = try #require(store.read(.translationPreferences))
+    let persistedPreferences = try store.read(.translationPreferences)
+    let data = try #require(persistedPreferences)
     #expect(!String(decoding: data, as: UTF8.self).contains("key"))
 }
 
