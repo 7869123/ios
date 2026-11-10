@@ -142,12 +142,19 @@ import AIUtilityCore
     @Environment(WallpaperStore.self) private var wallpaper
     var body: some View {
         WorkspacePage {
-            PageHeader(title: "设置", subtitle: "AI 供应商与模型 · 外观与壁纸")
+            PageHeader(title: "设置", subtitle: "AI 供应商与模型 · 翻译 · 外观与壁纸")
             NavigationLink {
                 ProviderSettingsView().navigationTitle("AI 供应商与模型").navigationBarTitleDisplayMode(.inline)
             } label: {
                 SettingsEntry(icon: "key.horizontal", title: "AI 供应商与模型",
                               detail: ProviderID.allCases.map { "\($0.title) \(app.status(of: $0).title)" }.joined(separator: " · "))
+            }
+            .buttonStyle(PressableCardStyle())
+            NavigationLink {
+                TranslationSettingsView().navigationTitle("翻译提示词与语言").navigationBarTitleDisplayMode(.inline)
+            } label: {
+                SettingsEntry(icon: "character.bubble", title: "翻译提示词与语言",
+                              detail: "截图与字幕各一套提示词和语言 · 简体中文 / English / 日本語")
             }
             .buttonStyle(PressableCardStyle())
             NavigationLink {

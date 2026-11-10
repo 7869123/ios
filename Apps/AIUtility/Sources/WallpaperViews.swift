@@ -219,8 +219,9 @@ struct WallpaperDraft: Identifiable {
     }
 
     @ViewBuilder private var buttons: some View {
+        let pickTitle = store.image == nil ? "从照片选择" : "从照片更换"
         PhotosPicker(selection: $photoItem, matching: .images) {
-            Label(store.image == nil ? "从照片选择" : "从照片更换", systemImage: "photo.on.rectangle")
+            Label(pickTitle, systemImage: "photo.on.rectangle")
         }
         .buttonStyle(PrimaryActionStyle())
         .disabled(loading)

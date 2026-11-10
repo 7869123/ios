@@ -115,11 +115,6 @@ extension ProviderID {
     }
 }
 
-enum TranslationLanguage: String, CaseIterable, Identifiable {
-    case chinese = "简体中文", english = "English", japanese = "日本語", korean = "한국어"
-    var id: String { rawValue }
-}
-
 enum UserFacingError {
     static func text(_ error: any Error) -> String {
         switch AIUtilityError.sanitized(error) {

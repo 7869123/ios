@@ -51,8 +51,10 @@ private struct ToolStatusRow: View {
         WorkspacePage {
             PageHeader(title: "多图拼接", subtitle: "按选择顺序拼成一张 PNG")
             UtilityCard {
+                // Titles are computed here: PhotosPicker's label closure is not main-actor isolated.
+                let pickTitle = picks.isEmpty ? "选择图片（最多 32 张）" : "已选 \(picks.count) 张，重新选择"
                 PhotosPicker(selection: $picks, maxSelectionCount: 32, selectionBehavior: .ordered, matching: .images) {
-                    Label(picks.isEmpty ? "选择图片（最多 32 张）" : "已选 \(picks.count) 张，重新选择", systemImage: "photo.on.rectangle")
+                    Label(pickTitle, systemImage: "photo.on.rectangle")
                 }
                 Picker("排列", selection: $mode) { ForEach(Mode.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.segmented)
                 if mode == .grid { Stepper("每行 \(columns) 张", value: $columns, in: 1...8) }
@@ -109,8 +111,9 @@ private struct ToolStatusRow: View {
         WorkspacePage {
             PageHeader(title: "视频转 GIF", subtitle: "在设备上转换，不上传")
             UtilityCard {
+                let pickTitle = video == nil ? "选择视频" : "已选择视频，重新选择"
                 PhotosPicker(selection: $pick, matching: .videos) {
-                    Label(video == nil ? "选择视频" : "已选择视频，重新选择", systemImage: "film")
+                    Label(pickTitle, systemImage: "film")
                 }
                 Stepper("开始 \(start, specifier: "%.1f") 秒", value: $start, in: 0...600, step: 0.5)
                 Stepper("时长 \(duration, specifier: "%.1f") 秒", value: $duration, in: 0.5...60, step: 0.5)
@@ -185,8 +188,9 @@ private struct ToolStatusRow: View {
         WorkspacePage {
             PageHeader(title: "图片文件指纹", subtitle: "生成新文件，原图不变")
             UtilityCard {
+                let pickTitle = input == nil ? "选择图片" : "已选择图片，重新选择"
                 PhotosPicker(selection: $pick, matching: .images) {
-                    Label(input == nil ? "选择图片" : "已选择图片，重新选择", systemImage: "photo")
+                    Label(pickTitle, systemImage: "photo")
                 }
                 Picker("方式", selection: $method) { ForEach(Method.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.segmented)
                 Text(explanation).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)

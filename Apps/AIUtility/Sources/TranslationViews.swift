@@ -81,7 +81,7 @@ import AIUtilityCore
     @Binding var input: String
     @Binding var translating: Bool
     var inputLocked = false
-    @State private var language = TranslationLanguage.chinese
+    @State private var languages = TranslationLanguages()
     @State private var output = ""
     @State private var status = "在设置中验证 Key 和模型后即可使用。"
     @State private var operation: Task<Void, Never>?
@@ -93,9 +93,7 @@ import AIUtilityCore
             Picker("供应商", selection: provider) {
                 ForEach(ProviderID.allCases, id: \.self) { Text($0.title).tag($0) }
             }.disabled(translating)
-            Picker("目标语言", selection: $language) {
-                ForEach(TranslationLanguage.allCases) { Text($0.rawValue).tag($0) }
-            }.disabled(translating)
+            TranslationLanguagePickers(feature: feature, languages: $languages, disabled: translating)
             Text("原文").font(.headline)
             TextEditor(text: $input).frame(minHeight: 150, maxHeight: 250)
                 .scrollContentBackground(.hidden).utilityField()
@@ -122,15 +120,16 @@ import AIUtilityCore
         .onDisappear { operation?.cancel() }
     }
     private func translate() {
-        let text = input, target = language.rawValue, selectedProvider = provider.wrappedValue
+        let text = input, selected = languages, selectedProvider = provider.wrappedValue, feature = feature
         translating = true
         output = ""
         status = "正在请求所选模型…"
         operation = Task {
             defer { translating = false; operation = nil }
             do {
-                let result = try await app.services.translation.translate(text, targetLanguage: target,
-                    provider: selectedProvider, feature: feature)
+                // Typed overload: the pair shown above, which is also the saved per-feature preference.
+                let result = try await app.services.translation.translate(text, provider: selectedProvider,
+                    feature: feature, languages: selected)
                 try Task.checkCancellation()
                 output = result
                 status = "已收到译文。"
