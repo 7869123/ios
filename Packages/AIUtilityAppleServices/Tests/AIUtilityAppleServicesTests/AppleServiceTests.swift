@@ -29,6 +29,8 @@ func keychainReplacesSingleProviderRecordAtomically() throws {
     #expect(english == .english)
     #expect(japanese == .japanese)
     #expect(chinese == .simplifiedChinese)
+    let korean = try await detector.detect("오늘은 날씨가 정말 좋아서 친구들과 함께 공원에 가서 산책을 하고 맛있는 음식을 먹었습니다.")
+    #expect(korean == .korean)
 }
 #endif
 

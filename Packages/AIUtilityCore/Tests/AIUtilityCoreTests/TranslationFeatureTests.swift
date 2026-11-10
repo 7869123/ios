@@ -60,8 +60,10 @@ func configuredEngine(transport: ScriptedTransport, preferences: TranslationPref
     #expect(try future.read(.translationPreferences) == bytes)
 }
 
+/// Every manual source × target pair (4 × 4, twelve cross-language directions plus same-language bypass).
 @Test func sixDirectionsAndSameLanguageBypassAreRealEngineBehavior() async throws {
-    let sources: [SourceLanguage] = [.simplifiedChinese, .english, .japanese]
+    let sources: [SourceLanguage] = [.simplifiedChinese, .english, .japanese, .korean]
+    #expect(Set(sources.compactMap(\.language)) == Set(SupportedLanguage.allCases))
     for source in sources {
         for target in SupportedLanguage.allCases {
             let transport = ScriptedTransport([success(.openAI)])
@@ -200,4 +202,20 @@ private actor SubtitleTestGate {
     #expect(next != id)
     #expect(await session.metrics().pending == 0)
     await session.stop()
+}
+
+@Test func koreanIsATypedLanguageAndLegacyNamesMapToIt() async throws {
+    #expect(SupportedLanguage(rawValue: "ko") == .korean)
+    #expect(SourceLanguage(rawValue: "ko")?.language == .korean)
+    #expect(SupportedLanguage.korean.speechLocaleIdentifier == "ko-KR")
+    #expect(SupportedLanguage.korean.visionLanguageIdentifier == "ko-KR")
+    // The legacy string entry point routes 한국어 to the typed path (instructions name the language).
+    let transport = ScriptedTransport([success(.openAI)])
+    let (engine, _) = try configuredEngine(transport: transport)
+    _ = try await engine.translate("sample source", targetLanguage: "한국어", provider: .openAI, feature: .videoSubtitle)
+    let requests = await transport.requests
+    let requestData = try #require(requests.first?.httpBody)
+    let body = try JSONSerialization.jsonObject(with: requestData) as? [String: Any]
+    let instructions = try #require(body?["instructions"] as? String)
+    #expect(instructions.contains(SupportedLanguage.korean.instructionName))
 }

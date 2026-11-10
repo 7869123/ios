@@ -3,7 +3,7 @@ import AIUtilityCore
 
 extension SupportedLanguage {
     var title: String {
-        switch self { case .simplifiedChinese: "简体中文"; case .english: "English"; case .japanese: "日本語" }
+        switch self { case .simplifiedChinese: "简体中文"; case .english: "English"; case .japanese: "日本語"; case .korean: "한국어" }
     }
 }
 
@@ -87,7 +87,7 @@ extension TranslationFeature {
             UtilityCard {
                 Text("语言").font(.headline)
                 TranslationLanguagePickers(feature: feature, languages: $languages)
-                Text("支持简体中文、English、日本語互译。这里的选择与翻译页面里的是同一份设置。")
+                Text("支持简体中文、English、日本語、한국어互译。这里的选择与翻译页面里的是同一份设置。")
                     .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             }
             UtilityCard {

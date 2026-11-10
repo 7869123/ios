@@ -154,7 +154,7 @@ import AIUtilityCore
                 TranslationSettingsView().navigationTitle("翻译提示词与语言").navigationBarTitleDisplayMode(.inline)
             } label: {
                 SettingsEntry(icon: "character.bubble", title: "翻译提示词与语言",
-                              detail: "截图与字幕各一套提示词和语言 · 简体中文 / English / 日本語")
+                              detail: "截图与字幕各一套提示词和语言 · 简体中文 / English / 日本語 / 한국어")
             }
             .buttonStyle(PressableCardStyle())
             NavigationLink {

@@ -1,20 +1,23 @@
 import Foundation
 
 public enum SupportedLanguage: String, Codable, Sendable, CaseIterable {
-    case simplifiedChinese = "zh-CN", english = "en", japanese = "ja"
+    case simplifiedChinese = "zh-CN", english = "en", japanese = "ja", korean = "ko"
     public var speechLocaleIdentifier: String {
-        switch self { case .simplifiedChinese: "zh-CN"; case .english: "en-US"; case .japanese: "ja-JP" }
+        switch self { case .simplifiedChinese: "zh-CN"; case .english: "en-US"; case .japanese: "ja-JP"; case .korean: "ko-KR" }
     }
     public var visionLanguageIdentifier: String {
-        switch self { case .simplifiedChinese: "zh-Hans"; case .english: "en-US"; case .japanese: "ja-JP" }
+        switch self { case .simplifiedChinese: "zh-Hans"; case .english: "en-US"; case .japanese: "ja-JP"; case .korean: "ko-KR" }
     }
     public var instructionName: String {
-        switch self { case .simplifiedChinese: "Simplified Chinese (zh-CN)"; case .english: "English (en)"; case .japanese: "Japanese (ja)" }
+        switch self {
+        case .simplifiedChinese: "Simplified Chinese (zh-CN)"; case .english: "English (en)"
+        case .japanese: "Japanese (ja)"; case .korean: "Korean (ko)"
+        }
     }
 }
 
 public enum SourceLanguage: String, Codable, Sendable, CaseIterable {
-    case automatic, simplifiedChinese = "zh-CN", english = "en", japanese = "ja"
+    case automatic, simplifiedChinese = "zh-CN", english = "en", japanese = "ja", korean = "ko"
     public var language: SupportedLanguage? { SupportedLanguage(rawValue: rawValue) }
 }
 

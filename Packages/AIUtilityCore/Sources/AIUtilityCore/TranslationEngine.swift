@@ -109,6 +109,7 @@ public struct TranslationEngine: Sendable {
         case "zh-cn", "简体中文", "chinese", "simplified chinese": knownTarget = .simplifiedChinese
         case "en", "en-us", "english": knownTarget = .english
         case "ja", "ja-jp", "日本語", "japanese": knownTarget = .japanese
+        case "ko", "ko-kr", "한국어", "korean": knownTarget = .korean
         default: knownTarget = nil
         }
         if let knownTarget {
@@ -116,7 +117,7 @@ public struct TranslationEngine: Sendable {
                 languages: TranslationLanguages(source: selected.source, target: knownTarget),
                 maxOutputTokens: maxOutputTokens, timeout: timeout)
         }
-        // Preserve older callers' other target languages; the typed API intentionally offers three.
+        // Preserve older callers' other target languages; the typed API offers zh-CN / en / ja / ko.
         return try await execute(text, source: "the original language of the source text", target: targetLanguage,
                                  provider: provider, feature: feature, maxOutputTokens: maxOutputTokens, timeout: timeout)
     }

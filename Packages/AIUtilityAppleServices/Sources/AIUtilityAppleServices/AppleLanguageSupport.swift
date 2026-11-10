@@ -19,6 +19,7 @@ public struct AppleTextLanguageDetector: TextLanguageDetector {
         case .simplifiedChinese: return .simplifiedChinese
         case .english: return .english
         case .japanese: return .japanese
+        case .korean: return .korean
         default: throw AIUtilityError.invalidRequest
         }
     }
