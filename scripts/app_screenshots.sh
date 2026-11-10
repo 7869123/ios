@@ -69,8 +69,8 @@ shoot() {
   xcrun simctl install "$udid" "$app" || return 1
   page=""; scheme=""
   if [ "${SCREENSHOT_SET:-all}" = "new" ]; then
-    # Only the pages added most recently (translation settings, provider cards, region OCR).
-    for page in settings-translation settings-provider screenshot-region; do
+    # Only the pages added most recently (translation settings, provider page, provider cards, region OCR).
+    for page in settings-translation settings-provider settings-cards screenshot-region; do
       capture "$udid" portrait
       if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
     done

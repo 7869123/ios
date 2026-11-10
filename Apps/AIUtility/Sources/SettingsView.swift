@@ -57,13 +57,6 @@ import AIUtilityCore
                 if provider == .deepSeek { DeepSeekBalanceCard() }
             }
             if provider == .openAI { OpenAIUsageCard() }
-            #if DEBUG
-            if ReviewLaunch.previewProviderCards && !hasSavedKey {
-                // Layout preview for screenshots: sample model, no Key, no data.
-                ReasoningSettingsCard(provider: .openAI, model: "gpt-5.4", featureTitle: "截图翻译（预览）")
-                DeepSeekBalanceCard()
-            }
-            #endif
             UtilityCard {
                 Text("调用与隐私").font(.headline)
                 Text(budget).font(.subheadline)
@@ -188,6 +181,10 @@ import AIUtilityCore
         .navigationDestination(item: $autoOpen) { page in
             if page == "settings-provider" {
                 ProviderSettingsView().navigationTitle("AI 供应商与模型").navigationBarTitleDisplayMode(.inline)
+            } else if page == "settings-cards" {
+                #if DEBUG
+                ProviderCardsPreview().navigationTitle("AI 供应商与模型").navigationBarTitleDisplayMode(.inline)
+                #endif
             } else {
                 TranslationSettingsView().navigationTitle("翻译提示词与语言").navigationBarTitleDisplayMode(.inline)
             }
@@ -263,3 +260,18 @@ import AIUtilityCore
         }
     }
 }
+
+#if DEBUG
+/// CI review screenshots only (`-AIUtilityPage settings-cards`): the provider page's newer cards at the top
+/// of the screen. Layout preview with a sample model ID; no Key, no balance or usage data.
+@MainActor struct ProviderCardsPreview: View {
+    var body: some View {
+        WorkspacePage {
+            PageHeader(title: "供应商附加功能", subtitle: "布局预览 · 示例模型，无 Key、无数据")
+            ReasoningSettingsCard(provider: .openAI, model: "gpt-5.4", featureTitle: "截图翻译（预览）")
+            DeepSeekBalanceCard()
+            OpenAIUsageCard()
+        }
+    }
+}
+#endif

@@ -210,7 +210,7 @@ struct MediaTool: Identifiable {
 #if DEBUG
 /// CI review screenshots only: `-AIUtilityPage <downloads|stitch|gif|fingerprint|search>`.
 enum ReviewLaunch {
-    /// Raw value of `-AIUtilityPage`: a media tool page, or settings-translation / settings-provider /
+    /// Raw value of `-AIUtilityPage`: a media tool page, or settings-translation / settings-provider / settings-cards /
     /// screenshot-region for the translation pages.
     static var page: String? {
         let args = ProcessInfo.processInfo.arguments
@@ -220,8 +220,5 @@ enum ReviewLaunch {
     static var mediaPage: MediaTool.Page? { page.flatMap(MediaTool.Page.init(rawValue:)) }
     static var settingsPage: String? { page.flatMap { $0.hasPrefix("settings-") ? $0 : nil } }
     static var screenshotRegion: Bool { page == "screenshot-region" }
-    /// Settings preview shows the reasoning, balance and usage cards without a saved Key (layout only,
-    /// sample model ID, no data).
-    static var previewProviderCards: Bool { page == "settings-provider" }
 }
 #endif
