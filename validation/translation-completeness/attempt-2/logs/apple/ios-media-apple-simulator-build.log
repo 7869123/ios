@@ -1,0 +1,360 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -scheme AIUtilityMediaApple -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath [CI_WORKSPACE]/artifacts/media-simulator-build CODE_SIGNING_ALLOWED=NO build
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    SDKROOT = iphonesimulator26.5
+
+Resolve Package Graph
+2026-11-10 01:58:43.951 xcodebuild[4871:19312] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+
+
+Resolved source packages:
+  AIUtilityMedia: [CI_WORKSPACE]/Packages/AIUtilityMedia
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (3 targets)
+    Target 'AIUtilityMediaApple' in project 'AIUtilityMedia'
+        ➜ Explicit dependency on target 'AIUtilityMediaApple' in project 'AIUtilityMedia'
+        ➜ Explicit dependency on target 'AIUtilityMedia' in project 'AIUtilityMedia'
+    Target 'AIUtilityMediaApple' in project 'AIUtilityMedia'
+        ➜ Explicit dependency on target 'AIUtilityMedia' in project 'AIUtilityMedia'
+    Target 'AIUtilityMedia' in project 'AIUtilityMedia' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 7f6beaea46096c6f5450164c573e21d0
+Build description path: [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/XCBuildData/7f6beaea46096c6f5450164c573e21d0.xcbuilddata
+ClangStatCache /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -o [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftFileList
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_const_extract_protocols.json (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_const_extract_protocols.json
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftConstValuesFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftConstValuesFileList
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.LinkFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.LinkFileList
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-OutputFileMap.json (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-OutputFileMap.json
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_const_extract_protocols.json (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_const_extract_protocols.json
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftFileList
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftConstValuesFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftConstValuesFileList
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.LinkFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.LinkFileList
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-OutputFileMap.json (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-OutputFileMap.json
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.modulemap (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.modulemap
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.DependencyStaticMetadataFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.DependencyMetadataFileList (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    write-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.DependencyMetadataFileList
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/AIUtilityMediaApple.modulemap [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.modulemap (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.modulemap [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator
+
+SwiftDriver AIUtilityMediaApple normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+    builtin-SwiftDriver -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityMediaApple -Onone @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path [CI_WORKSPACE]/artifacts/media-simulator-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -sdk-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftmodule -validate-clang-modules-once -clang-build-session-file [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitymedia -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_const_extract_protocols.json -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/include -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources-normal/arm64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources/arm64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-Swift.h -working-directory [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver AIUtilityMediaApple normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+    builtin-SwiftDriver -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityMediaApple -Onone @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target x86_64-apple-ios17.0-simulator -g -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path [CI_WORKSPACE]/artifacts/media-simulator-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -sdk-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftmodule -validate-clang-modules-once -clang-build-session-file [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitymedia -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_const_extract_protocols.json -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/include -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources-normal/x86_64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources/x86_64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-Swift.h -working-directory [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/_Builtin_intrinsics-6W9P0UD483N4B81L8MM44YLGB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/dnssd-5KRQ68AG0SZEP0J4CBN7RKVLC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/UniformTypeIdentifiers-C9DRQ08ULAU848Y5BYMPGC0YN.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreGraphics-2626YUIPD7KKN2TSGQBO76XS3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreGraphics-6TL6Q1ONUL93ZGQC8BCUEEUT4.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/_Builtin_tgmath-D7QS97QW5NSAJYU9LO9E5XXWH.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/ImageIO-1KCQATRZV2E3ILKLYJZV17ZX1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreMIDI-2C38KGW4IBTWZWZO3C2745G66.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/IOSurface-26KNWKN06OI1DJG4HIH8UTE8W.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/OpenGLES-CIDOFZRSM19G5WBN60XDRV18T.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/IOSurface-BG78IDZOJL39RV27S9AFVPV8R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Metal-4OI1L2AWY771N7N2ZID0YLGOW.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/dnssd-C6NLBLDSMT7MVC7DZ2BJAFFCN.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreMIDI-2NH3L2SJBCTQEJR7BVQ7E5OCK.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/_Builtin_intrinsics-KLRAQEDNCC2VBT0HGT7337CK.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Metal-40F2IG7PSGZC04NPQZBC645OC.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreAudioTypes-BJ63JIECTWV7C5YTL205G36UR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/ImageIO-B22RXUVALKIRPDFQPQ93XJJ0X.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreAudio-7SFMRIOTCOWYQC7XMKEXL2T7Q.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreVideo-3TQ15DB444IGT2MFK92A5Q2CE.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Compression-DSKYS8NF2SVM2F1O7GEI4E7DS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Compression-1YLJMCKMTO8EHYB21ZITDHHYS.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreMedia-1E01T5WQAHIF7ITG77K4RAIHR.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreImage-B5GSDGLTZKH4WE24AMEUGCOXM.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/QuartzCore-EXBVJ9T727DHWHFF99E6QI5V3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreAudioTypes-2Z954K66VVAIZ3J6HLR3YJ1L0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/OpenGLES-C4RW0ROEVKL5AT52NYFMOVOI6.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/UniformTypeIdentifiers-9E63VNKACZZROSCK0Q0CWW3VR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Network-1HLE7SDJIFJVA8D3JVBGV7S8M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AudioToolbox-CIDUHSFINC9BDKOO8FZSF2UW9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreAudio-61PEYIAPD71D7JHH0PHUIS3V5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreVideo-63PDSEJADEG9082L59HO7KA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AVRouting-ELPJIC3B5D0E4NA1MURKUAS4R.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Network-F3DWI695RPY2OO2371EAVC86F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreImage-90DOXDSO9THELMXHS2WMMWZNG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/CoreMedia-DO0BCR1TCWYXUD35TPGVXJ0ZD.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AudioToolbox-E74I1YG0VV9LALJGCNK51793J.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AVRouting-NVPAJGXIT37UN0QJZ4AB8LHW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/QuartzCore-62RKMVTYIYW803QLSTP0A32EI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AVFAudio-63LMQ9UWOCE6HMIYQK58YL5WH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/MediaToolbox-DNQWVIFYJGEJ3K9K8Y9CVJ846.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AVFAudio-JI8YJHVFOG6ZCG5K4NUTMW9I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/_Builtin_tgmath-A4WOJNJHZA6ZA34Q0786PKI7G.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/MediaToolbox-3W395TVM168BAMFKC275BBQJ2.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/simd-74EGBZRI9RYLI7K7Q7JV9U04R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/simd-1GGQ9DXRH1T5PUHWCCE1R76BB.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AVFoundation-9TP3VMMALG8IUV9FCXB42BT3X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/AVFoundation-CDF753KEOT3RY4HZKKVIWRXOG.pcm
+
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ AIUtilityMediaApple (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+EmitSwiftModule normal x86_64 (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftCompile normal x86_64 Compiling\ VideoGIF.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/VideoGIF.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+SwiftCompile normal x86_64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/VideoGIF.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftCompile normal x86_64 Compiling\ ProcessingTypes.swift,\ UgoiraAssembly.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ProcessingTypes.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/UgoiraAssembly.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftCompile normal x86_64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ProcessingTypes.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftCompile normal x86_64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/UgoiraAssembly.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ AIUtilityMediaApple (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+EmitSwiftModule normal arm64 (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftDriverJobDiscovery normal x86_64 Emitting module for AIUtilityMediaApple (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftDriver\ Compilation\ Requirements AIUtilityMediaApple normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityMediaApple -Onone @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target x86_64-apple-ios17.0-simulator -g -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path [CI_WORKSPACE]/artifacts/media-simulator-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -sdk-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftmodule -validate-clang-modules-once -clang-build-session-file [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitymedia -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_const_extract_protocols.json -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/include -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources-normal/x86_64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources/x86_64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-Swift.h -working-directory [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for AIUtilityMediaApple (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftDriver\ Compilation\ Requirements AIUtilityMediaApple normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityMediaApple -Onone @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path [CI_WORKSPACE]/artifacts/media-simulator-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -sdk-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftmodule -validate-clang-modules-once -clang-build-session-file [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitymedia -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_const_extract_protocols.json -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/include -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources-normal/arm64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources/arm64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-Swift.h -working-directory [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ VideoGIF.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/VideoGIF.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+SwiftCompile normal arm64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/VideoGIF.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftMergeGeneratedHeaders [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/AIUtilityMediaApple-Swift.h [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-Swift.h [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-Swift.h (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-swiftHeaderTool -arch arm64 [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-Swift.h -arch x86_64 [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-Swift.h -o [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/AIUtilityMediaApple-Swift.h
+
+SwiftDriverJobDiscovery normal x86_64 Compiling ProcessingTypes.swift, UgoiraAssembly.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/x86_64-apple-ios-simulator.swiftmodule [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftmodule (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftmodule [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/x86_64-apple-ios-simulator.swiftmodule
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/x86_64-apple-ios-simulator.swiftdoc [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftdoc (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftdoc [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/x86_64-apple-ios-simulator.swiftdoc
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/x86_64-apple-ios-simulator.abi.json [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.abi.json (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.abi.json [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/x86_64-apple-ios-simulator.abi.json
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/arm64-apple-ios-simulator.swiftmodule [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftmodule (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftmodule [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/arm64-apple-ios-simulator.swiftdoc [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftdoc (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftdoc [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/arm64-apple-ios-simulator.abi.json [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.abi.json (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.abi.json [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftsourceinfo (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftsourceinfo [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo
+
+Copy [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftsourceinfo (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftsourceinfo [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftCompile normal arm64 Compiling\ GIFEncoding.swift,\ ImageTools.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/GIFEncoding.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ImageTools.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+SwiftCompile normal arm64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/GIFEncoding.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftCompile normal arm64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ImageTools.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftDriverJobDiscovery normal x86_64 Compiling VideoGIF.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftCompile normal x86_64 Compiling\ GIFEncoding.swift,\ ImageTools.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/GIFEncoding.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ImageTools.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+SwiftCompile normal x86_64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/GIFEncoding.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftCompile normal x86_64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ImageTools.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftCompile normal arm64 Compiling\ ProcessingTypes.swift,\ UgoiraAssembly.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ProcessingTypes.swift [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/UgoiraAssembly.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+SwiftCompile normal arm64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/ProcessingTypes.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftCompile normal arm64 [CI_WORKSPACE]/Packages/AIUtilityMedia/Sources/AIUtilityMediaApple/UgoiraAssembly.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+
+
+SwiftDriverJobDiscovery normal arm64 Compiling VideoGIF.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GIFEncoding.swift, ImageTools.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftDriverJobDiscovery normal x86_64 Compiling GIFEncoding.swift, ImageTools.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftDriver\ Compilation AIUtilityMediaApple normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+    builtin-Swift-Compilation -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityMediaApple -Onone @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target x86_64-apple-ios17.0-simulator -g -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path [CI_WORKSPACE]/artifacts/media-simulator-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -sdk-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftmodule -validate-clang-modules-once -clang-build-session-file [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitymedia -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_const_extract_protocols.json -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/include -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources-normal/x86_64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources/x86_64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-Swift.h -working-directory [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode -experimental-emit-module-separately -disable-cmo
+
+Ld [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/Binary/AIUtilityMediaApple.o normal x86_64 (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target x86_64-apple-ios17.0-simulator -r -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -O0 -F[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -filelist [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.LinkFileList -nostdlib -Xlinker -object_path_lto -Xlinker [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_lto.o -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.swiftmodule @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple-linker-args.resp -o [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/Binary/AIUtilityMediaApple.o
+
+SwiftDriverJobDiscovery normal arm64 Compiling ProcessingTypes.swift, UgoiraAssembly.swift (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+
+SwiftDriver\ Compilation AIUtilityMediaApple normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode
+    builtin-Swift-Compilation -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AIUtilityMediaApple -Onone @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path [CI_WORKSPACE]/artifacts/media-simulator-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc [CI_WORKSPACE]/artifacts/media-simulator-build/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -sdk-module-cache-path [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftmodule -validate-clang-modules-once -clang-build-session-file [CI_WORKSPACE]/artifacts/media-simulator-build/ModuleCache.noindex/Session.modulevalidation -package-name aiutilitymedia -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_const_extract_protocols.json -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/include -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources-normal/arm64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources/arm64 -Xcc -I[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-Swift.h -working-directory [CI_WORKSPACE]/Packages/AIUtilityMedia/.swiftpm/xcode -experimental-emit-module-separately -disable-cmo
+
+Ld [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/Binary/AIUtilityMediaApple.o normal arm64 (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0-simulator -r -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -O0 -F[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -filelist [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.LinkFileList -nostdlib -Xlinker -object_path_lto -Xlinker [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_lto.o -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.swiftmodule @[CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple-linker-args.resp -o [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/Binary/AIUtilityMediaApple.o
+
+CreateUniversalBinary [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.o normal arm64\ x86_64 (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/lipo -create [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/Binary/AIUtilityMediaApple.o [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/Binary/AIUtilityMediaApple.o -output [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.o
+
+ExtractAppIntentsMetadata (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.lplfl1/Metal.xctoolchain --module-name AIUtilityMediaApple --sdk-root /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 17.0 --bundle-identifier aiutilitymedia.AIUtilityMediaApple --output [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.appintents --target-triple arm64-apple-ios17.0-simulator --target-triple x86_64-apple-ios17.0-simulator --binary-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.o --dependency-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple_dependency_info.dat --dependency-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple_dependency_info.dat --stringsdata-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --stringsdata-file [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftFileList --source-file-list [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftFileList --metadata-file-list [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.DependencyMetadataFileList --static-metadata-file-list [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/AIUtilityMediaApple.DependencyStaticMetadataFileList --swift-const-vals-list [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/arm64/AIUtilityMediaApple.SwiftConstValuesFileList --swift-const-vals-list [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Intermediates.noindex/AIUtilityMedia.build/Debug-iphonesimulator/AIUtilityMediaApple.build/Objects-normal/x86_64/AIUtilityMediaApple.SwiftConstValuesFileList --force --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-11-10 01:58:51.062 appintentsmetadataprocessor[5146:20066] Starting appintentsmetadataprocessor export
+2026-11-10 01:58:51.074 appintentsmetadataprocessor[5146:20066] Extracted no relevant App Intents symbols, skipping writing output
+
+RegisterExecutionPolicyException [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.o (in target 'AIUtilityMediaApple' from project 'AIUtilityMedia')
+    cd [CI_WORKSPACE]/Packages/AIUtilityMedia
+    builtin-RegisterExecutionPolicyException [CI_WORKSPACE]/artifacts/media-simulator-build/Build/Products/Debug-iphonesimulator/AIUtilityMediaApple.o
+
+** BUILD SUCCEEDED **

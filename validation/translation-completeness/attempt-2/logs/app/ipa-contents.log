@@ -1,0 +1,12 @@
+== app: AIUtility.app
+== bundle id / version
+com.aiutility.app
+0.2.0
+== launch screen
+LaunchScreen
+== code signature (expected unsigned)
+artifacts/app-archive/AIUtility.xcarchive/Products/Applications/AIUtility.app: code object is not signed at all
+== lipo
+Non-fat file: artifacts/app-archive/AIUtility.xcarchive/Products/Applications/AIUtility.app/AIUtility is architecture: arm64
+-rw-r--r--  1 runner  staff  1778908 Nov 10 02:02 artifacts/app-ipa/AIUtility-unsigned.ipa
+ffacfe5326afe78ec118e45b6fe3f6efb091157a1650a41756d455498379e388  artifacts/app-ipa/AIUtility-unsigned.ipa

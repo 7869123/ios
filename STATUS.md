@@ -1,5 +1,48 @@
 # AIUtility 开发状态
 
+## 最新：完整复编译通过，真机仍未验证
+
+- 被测源 `05508ba75f86ebbc50bf8bc65f0947f50805ed7c`，[Actions 42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success。用户授权修复重试直至通过；本次只运行一次，未合并或读取 Claude 分支、未创建 PR。
+- Core Linux / macOS 各 **82 通过、1 live API 跳过、0 失败**；AppleServices **5 通过、1 Keychain 跳过**；Media Linux **92 通过/4 跳过**、macOS **108 通过/5 跳过**；可移植 PoC 生命周期两个宿主各 **14 通过**。26 个记录的命令退出码全为 0。
+- AppleServices、Media、MediaApple 的模拟器/真机 SDK 编译通过；Xcode 27.1 / iOS 27.1 下 PoC Swift 6 模拟器编译、iphoneos Archive、未签名 IPA、13 项预安装检查通过；App 两个 SDK 编译、Release Archive 和未签名 IPA 通过。
+- 首轮 7 处宏编译错误及后续字幕旧尾句修复已实际验证；13 项 Core 音频队列测试通过，不等同于真实 Speech/PCM 补送验证。真实 API、iOS Keychain、截图质量、ASR/跨 App 捕获、PiP/后台、签名安装与 iPad mini 6 真机仍未验证。
+- 保留警告：PoC 的音频中断/display layer 弃用接口、App UI 的 MainActor/Sendable 闭包、未使用 Bool 与元数据/方向诊断。未修改 UI、PoC 或工具来消除警告。截图发布/live-checks 关闭。
+- [完整测试/命令/退出码/Artifact/风险记录](validation/translation-completeness/attempt-2/README.md)。35 份日志与原始/归档哈希已保存；后续仅文档/证据变动不改变被测源码。下方未编译/未重跑描述均为此前阶段历史。
+
+## 最新修复：先修代码，未重跑 CI
+
+- 已逐项核对首轮日志的 7 处测试编译错误，保留 `6aa6f64` 的修复与全部旧断言。
+- 补修 Core 字幕分段：ASR 修正触及已提交前缀时，立即丢弃被推翻的未提交尾句并推进事件序号；final 同时结束该 utterance，避免静默 flush、下一轮识别或迟到回调把旧尾句送去翻译。公开签名不变；不修改 PoC 或 UI。
+- 新增 2 个同步回归测试声明，其中 1 个含两组参数；Core 当前 83 个 @Test 声明。测试尚未编译/执行，不能据此报告通过。此前生产编译成功只覆盖 `0ee791b`，不覆盖本次分段修复。
+- 本地静态检查退出 0（88 个 Swift 文件），不是 Swift 编译。没有重跑 Actions、创建 PR 或合并分支；待所有者确认后复验。[修复审查与验证边界](validation/translation-completeness/repair-review.md)。
+
+## 最新真实 CI：Core 生产源码通过，测试模块失败，修复待复验
+
+- 所有者授权编译且禁止合并；仅在 Codex 分支执行 [42647207277](https://github.com/7869123/ios/actions/runs/42647207277)，源码 `0ee791b`，整体 failure。未创建 PR 或合并分支。
+- Linux Swift 6.0.3：Core build=0；Core test=1，因新增测试宏展开编译错误，实际功能测试执行 0 项。生命周期 14 通过；Media build/test=0，92 通过/4 live 跳过/0 失败。六个退出码为 0/0/1/0/0/0。
+- Apple、App、PoC SDK 因依赖 Core 成功而跳过，live-checks 显式关闭；无本轮 macOS 测试、iOS SDK、Archive 或 IPA 证据，更无真机结论。
+- 修复 `6aa6f64` 仅拆开三份测试文件的嵌套宏、throwing 读取与 JSON 解码；@Test、#expect、#require 数量均保留，生产源码和公开接口不变。**修复尚未编译/执行，重跑需单独确认。**
+- [首轮完整证据](validation/translation-completeness/attempt-1/README.md) 含真实命令、job ID、退出码、7 份日志、artifact SHA-256。下方“没有本批 CI”的内容为此前源码阶段记录。
+
+## 最新：ASR 轮转音频缓存（用户明确授权；未编译）
+
+- 缓存源码 `2272e99`，请求 token 与锁收尾 `42a1bec`，仍在 `codex/translation-completeness`。新增 Core 的 AudioRolloverBuffer 与 13 项回归测试；PoC 仅修改 LocalSpeechProbe.swift，未改 Host UI、采集、PiP、生命周期类或正式 App。
+- 默认 5 秒 / 8 MiB PCM / 512 包三重上限，正常投递和轮转补送使用同一 FIFO。旧识别结束期间继续缓存；新请求就绪立即排空，不等待满 5 秒。只补送尚未投递的音频，不加入重叠重放。
+- PCM 深拷贝独立存放，单 worker、逐包同步边界和会话 token；停止/失败清空，旧会话无法取出新包。超限、格式变化、部分时间重叠、无效包或复制失败明确停止，不无限积压；快照只暴露数量/时长和安全状态。
+- **新增测试仅为源码，实际执行 0 项**；Core 当前 81 个 @Test 声明，Apple 6 个。Swift / Apple SDK / 真机均未验证，CI 未获授权。用户之前收到的 c9496fa CI 询问不覆盖这一新增提交。
+- 缓存可覆盖客户端轮转期间的未投递音频，不解决系统采集缺音；词语跨识别边界、Speech 消化积压的速度和内部内存仍需真机测试，不能标记为无缝识别。
+- 接口与验证细节见 [Claude 交接](TRANSLATION_CLAUDE_HANDOFF.md)、[PoC 方案](POC_TRANSLATION_PLAN.md) 和 [验证状态](validation/translation-completeness/README.md)。下方“未缓存空窗”的描述仅对应此前提交。
+
+## 本轮翻译底层增量（独立分支，真实验证待确认）
+
+- 所有者重新分配 Codex 处理底层业务/API/持久化/测试，未授权 UI 修改；随后单独授权 LocalSpeechProbe、PoCSession 两处 PoC 逻辑。分支 `codex/translation-completeness`，基线 `7ff4111`，审计 `c178776`，P0 `659de51`，API/OCR `fa81778`，获批 PoC `12ed6bf`，回归补充 `c9c572b`。未合并 PR、未写 main/Claude 分支。
+- 新源码：两套独立可编辑提示词和恢复默认、三语语言偏好/同语直返、本地自动检测接口、有限稳定分段/FIFO/去重/取消、模型推理能力与显式输出预算、真实 DeepSeek 余额接口与提醒抑制、OpenAI 实际 usage 本地账本、区域 OCR/编辑稿工作流、阶段耗时诊断和配置版本兼容。
+- PoC：三语参数、约 50 秒识别轮转、最多 2 秒排空/停止确认、Core 字幕接线；仅两处获批文件，Host UI/ScreenAudioProbe/ProbeLifecycle/SubtitlePiPProbe 不变。排空期间存在识别空窗，尚未验证是否丢字，不能称为无缝连续 ASR。
+- **本批 Swift 编译和测试执行数量仍为 0**；新增 31 个 Core 测试声明、3 个 Apple 测试声明不是通过证据。现 Core 源码总计 68 个 @Test、Apple 6 个；原测试全部保留。Windows 未安装 Swift，尚无本批 CI 运行 ID。
+- 基线 [42486839669](https://github.com/7869123/ios/actions/runs/42486839669) 的通过结果仅用于审计，不验证本批源码。触发 CI / 创建会自动跑 Linux 的 PR 前，按 AGENTS 第 5 节请求本批授权。
+- UI 页面和系统快捷入口未接线；三家真实 API、余额实查、真实用量、iOS Keychain/真实截图、多语语言包、跨 App 音频/Speech/PiP/后台、签名安装与长时实机均未验证。既有媒体实现不改、不删、不重复开发。
+- [只读审计](TRANSLATION_AUDIT.md)、[Claude 接口交接](TRANSLATION_CLAUDE_HANDOFF.md)、[PoC 获批方案与风险](POC_TRANSLATION_PLAN.md)、[本轮验证状态](validation/translation-completeness/README.md)。下方内容保留为历史，不能覆盖本节的新验证边界。
+
 ## 待办：首次启动引导页（用户 2026-11-08 提出，尚未开始）
 
 - 需求：App 首次启动后显示引导页，可随时「跳过」。看完或跳过后不再自动出现。

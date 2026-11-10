@@ -1,0 +1,232 @@
+Building for debugging...
+[0/7] [CI_WORKSPACE]/Packages/AIUtilityCore/.build/arm64-apple-macosx/debug/AIUtilityCorePackageTests.derived/runner.swift
+[1/7] Write sources
+[4/7] Write swift-version-7974D3F7F03D5E95.txt
+[6/19] Compiling AIUtilityCore OCRService.swift
+[7/19] Compiling AIUtilityCore OfficialAPIAdapter.swift
+[8/19] Compiling AIUtilityCore OpenAIUsageLedger.swift
+[9/19] Compiling AIUtilityCore ProviderGateway.swift
+[10/19] Compiling AIUtilityCore ReasoningConfiguration.swift
+[11/19] Compiling AIUtilityCore AudioRolloverBuffer.swift
+[12/19] Compiling AIUtilityCore ConfigurationCoordinator.swift
+[13/19] Compiling AIUtilityCore DeepSeekBalance.swift
+[14/19] Compiling AIUtilityCore Domain.swift
+[15/19] Compiling AIUtilityCore HTTPTransport.swift
+[16/19] Compiling AIUtilityCore LocalDataStore.swift
+[17/19] Emitting module AIUtilityCore
+[18/24] Compiling AIUtilityCore ScreenshotTranslationWorkflow.swift
+[19/24] Compiling AIUtilityCore SubtitleTranslationSession.swift
+[20/24] Compiling AIUtilityCore TranslationDiagnostics.swift
+[21/24] Compiling AIUtilityCore TranslationEngine.swift
+[22/24] Compiling AIUtilityCore TranslationPreferences.swift
+[23/32] Compiling AIUtilityCoreTests LiveAPITests.swift
+[24/32] Compiling AIUtilityCoreTests PrivacyTests.swift
+[25/32] Compiling AIUtilityCoreTests RegressionTests.swift
+[26/35] Emitting module AIUtilityCoreTests
+[27/35] Compiling AIUtilityCoreTests APIConfigurationFeatureTests.swift
+[28/35] Compiling AIUtilityCoreTests AdapterTests.swift
+[29/35] Compiling AIUtilityCoreTests AudioRolloverBufferTests.swift
+[30/35] Compiling AIUtilityCoreTests ConfigurationTests.swift
+[31/35] Compiling AIUtilityCoreTests TestSupport.swift
+[32/35] Compiling AIUtilityCoreTests TranslationFeatureTests.swift
+[33/35] Compiling AIUtilityCoreTests TranslationReliabilityTests.swift
+[34/37] Emitting module AIUtilityCorePackageTests
+[35/37] Compiling AIUtilityCorePackageTests runner.swift
+[35/37] Write Objects.LinkFileList
+[36/37] Linking AIUtilityCorePackageTests
+Build complete! (18.90s)
+Test Suite 'All tests' started at 2026-11-10 01:56:42.785.
+Test Suite 'All tests' passed at 2026-11-10 01:56:42.787.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.002) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test subtitleResultsRemainOrderedAndDuplicateFinalDoesNotCostTwice() started.
+◇ Test normalizedOCRRegionRejectsInvalidBounds() started.
+◇ Test stoppedAndOldSessionAudioCannotAllocateOrClearTheNewSession() started.
+◇ Test absentMalformedUsageAndFailedStatisticsDoNotBreakTranslation() started.
+◇ Test subtitleCommittedPrefixCannotBeRevisedAndStaleEpochIsIgnored() started.
+◇ Test sharedKeySupportsIndependentModelsAndSwitchWithoutReentry() started.
+◇ Test preferenceWriteFailureAndUnknownVersionPreserveOldBytes() started.
+◇ Test boundedDiagnosticsAndOldPreferenceMigration() started.
+◇ Test differentProviderEditsAreIndependent() started.
+◇ Test wrongKeyNeverRetries(_:) started.
+◇ Test foregroundBalanceChecksAreBoundedAndMalformedAmountsRejected() started.
+◇ Test screenshotWorkflowRecognizesOnceEditsAndSendsOnlyText() started.
+◇ Test subtitleFIFOBackpressureAndStopRejectLateResult() started.
+◇ Test malformedAndTruncatedResultsAreRejected() started.
+◇ Test automaticDetectionIsNeverPretendedWhenNoDetectorExists() started.
+◇ Test retryAfterIsNotShortened() started.
+◇ Test audioDuplicateIsNotCopiedOrReplayedAcrossRecognizerRotation() started.
+◇ Test anthropicPaginationUsesBudgetAndEscapedCursor() started.
+◇ Test subtitleInvalidatedFinalCannotFlushOrLeakIntoNextUtterance(_:) started.
+◇ Test promptIsSentOnActualRequestAndUntrustedTextStaysInUserInput() started.
+◇ Test modelCatalogueDoesNotSaveAnUnvalidatedKey() started.
+◇ Test openAIActualUsageIsPersistentPerModelAndSessionScoped() started.
+◇ Test reasoningPreferencesArePerModelPersistedAndBudgetExplicit() started.
+◇ Test keyReplacementHasOneDeadlineAcrossBothModels() started.
+◇ Test audioByteAndPacketLimitsApplyDuringNormalDeliveryAsWellAsRollover() started.
+◇ Test balanceNetworkFailureKeepsPriorValueAndCannotBecomeZero() started.
+◇ Test audioStopAndFailureReleaseOwnedPayloadsImmediately() started.
+◇ Test simultaneousSwitchCannotOverwritePendingKeyReplacement() started.
+◇ Test modelSwitchActivelyCancelsOldTranslationWithoutWaitingForTimeout() started.
+◇ Test emptyBindingsCannotSaveKeyAndIdenticalModelsValidateOnce() started.
+◇ Test audioDurationOverflowFailsBeforeAllocatingAndReleasesBacklog() started.
+◇ Test cancelledValidationNeverSavesAndReleasesEditLock() started.
+◇ Test callerCancellationReachesTransport() started.
+◇ Test concurrentReservationsCannotExceedBudget() started.
+◇ Test sourceAudioGapsAreObservableAndDebugOutputDoesNotExposePayload() started.
+➜ Test liveOfficialAPI(_:) skipped.
+◇ Test keyValidationUsesCheapSupportedReasoningWithoutChangingUserPreference() started.
+◇ Test secretsAreRemovedBeforeNetworkAndRestoredLocally() started.
+◇ Test paginationExhaustionStopsBeforeAnotherHTTPCall() started.
+◇ Test invalidTranslationInputDoesNotReachNetwork() started.
+◇ Test budgetPreventsSecondNetworkCall() started.
+◇ Test partialAudioOverlapFailsInsteadOfGuessingATrimOrRepeatingSpeech() started.
+◇ Test openAITruncationStillCountsActualUsageButNeverReturnsTranslation() started.
+◇ Test promptsAndLanguagesSurviveRecreationIndependently() started.
+◇ Test screenshotCancellationWaitsForNetworkAndPreservesEditableDraft() started.
+◇ Test invalidKeyRollsBackAllBindings(_:) started.
+◇ Test lateSuccessAfterCancellationCannotReplaceOldKey() started.
+◇ Test failedAudioCopyDoesNotPartiallyCommitThePacket() started.
+◇ Test timeoutCancelsTransportAndNeverRetries() started.
+◇ Test openAIContentFilterAndUnknownIncompleteReasonsAreDistinct() started.
+◇ Test modifiedPrivacyMarkersFailClosed() started.
+◇ Test retryIsFiniteAndEveryAttemptReservesBudget() started.
+◇ Test usageAttemptDedupAndCorruptHistoryNeverPretendZeroLifetime() started.
+◇ Test errorClassificationDiscardsVendorMessage() started.
+◇ Test failedModelSwitchLeavesOldConfiguration() started.
+◇ Test audioFormatChangeDuringRolloverCannotBeSilentlyConcatenated() started.
+◇ Test balanceUsesOfficialEndpointAndSharedCredentialWithoutGeneration() started.
+◇ Test case passing 1 argument provider → .deepSeek to wrongKeyNeverRetries(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to wrongKeyNeverRetries(_:) started.
+◇ Test case passing 1 argument provider → .openAI to wrongKeyNeverRetries(_:) started.
+◇ Test modelDiscovery(_:) started.
+◇ Test debugDescriptionsNeverContainCredentialsOrSource() started.
+◇ Test cancellationDuringRetryDoesNotSendAnotherRequest() started.
+◇ Test invalidAudioMetadataNeverAllocatesPayload() started.
+◇ Test subtitleInvalidatedPartialDropsTailAndAdvancesSequenceBeforeRecovery() started.
+◇ Test autoReasoningNeverSendsParameters(_:) started.
+◇ Test officialWireFormat(_:) started.
+◇ Test screenshotDeadlineCancelsOCRAndDoesNotSendAPIRequest() started.
+◇ Test wrongModelIsClassified(_:) started.
+◇ Test audioTimelineSpanCannotRetainStaleAudioAcrossALargeSourceGap() started.
+◇ Test machineErrorTypeSurvivesUnknownOrNonStringCode() started.
+◇ Test manyAudioRotationsRemainBoundedAndDeliverEveryPacketOnce() started.
+◇ Test stableSegmentationDoesNotTranslateEachCharacterOrRepeatedFinal() started.
+◇ Test truncationAndRefusalNeverCountAsValidation(_:) started.
+◇ Test timedOutValidationAndStorageFailureNeverReplaceOldRecord() started.
+◇ Test replacementValidatesEveryExistingModelBeforeCommit() started.
+◇ Test translationUsesSavedReasoningBudgetAndSourceWithoutExtraRequests() started.
+◇ Test openAIOnlyReadsCompletedMessageText() started.
+◇ Test balanceAlertsAreSuppressedAcrossRestartAndRecoverAboveThreshold() started.
+◇ Test filePreferencesPersistWithoutCredentialsOrText() started.
+◇ Test audioRolloverRetainsOnlyUnsubmittedPacketsAndPreservesFIFO() started.
+◇ Test upstreamRefusalIsNotFabricatedAndNoClientSensitiveContentFilterIsAdded() started.
+◇ Test sixDirectionsAndSameLanguageBypassAreRealEngineBehavior() started.
+◇ Test reasoningUsesProviderSpecificFieldsAndRejectsUnknownModels() started.
+◇ Test subtitleBoundsCorrectionsAndNewUtterances() started.
+◇ Test cancelledBeforeEntryConsumesNoBudgetOrNetwork() started.
+◇ Test case passing 1 argument flushBeforeNext → false to subtitleInvalidatedFinalCannotFlushOrLeakIntoNextUtterance(_:) started.
+◇ Test case passing 1 argument flushBeforeNext → true to subtitleInvalidatedFinalCannotFlushOrLeakIntoNextUtterance(_:) started.
+✔ Test stoppedAndOldSessionAudioCannotAllocateOrClearTheNewSession() passed after 0.004 seconds.
+✔ Test normalizedOCRRegionRejectsInvalidBounds() passed after 0.005 seconds.
+✔ Test subtitleCommittedPrefixCannotBeRevisedAndStaleEpochIsIgnored() passed after 0.005 seconds.
+◇ Test case passing 1 argument provider → .deepSeek to invalidKeyRollsBackAllBindings(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to invalidKeyRollsBackAllBindings(_:) started.
+◇ Test case passing 1 argument provider → .openAI to invalidKeyRollsBackAllBindings(_:) started.
+✔ Test preferenceWriteFailureAndUnknownVersionPreserveOldBytes() passed after 0.005 seconds.
+✔ Test boundedDiagnosticsAndOldPreferenceMigration() passed after 0.005 seconds.
+◇ Test case passing 1 argument provider → .deepSeek to modelDiscovery(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to modelDiscovery(_:) started.
+◇ Test case passing 1 argument provider → .openAI to modelDiscovery(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to autoReasoningNeverSendsParameters(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to autoReasoningNeverSendsParameters(_:) started.
+◇ Test case passing 1 argument provider → .openAI to autoReasoningNeverSendsParameters(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to officialWireFormat(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to officialWireFormat(_:) started.
+◇ Test case passing 1 argument provider → .openAI to officialWireFormat(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to wrongModelIsClassified(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to wrongModelIsClassified(_:) started.
+◇ Test case passing 1 argument provider → .openAI to wrongModelIsClassified(_:) started.
+◇ Test case passing 1 argument provider → .deepSeek to truncationAndRefusalNeverCountAsValidation(_:) started.
+◇ Test case passing 1 argument provider → .anthropic to truncationAndRefusalNeverCountAsValidation(_:) started.
+◇ Test case passing 1 argument provider → .openAI to truncationAndRefusalNeverCountAsValidation(_:) started.
+✔ Test automaticDetectionIsNeverPretendedWhenNoDetectorExists() passed after 0.008 seconds.
+✔ Test audioDuplicateIsNotCopiedOrReplayedAcrossRecognizerRotation() passed after 0.008 seconds.
+✔ Test subtitleInvalidatedFinalCannotFlushOrLeakIntoNextUtterance(_:) with 2 test cases passed after 0.008 seconds.
+✔ Test audioByteAndPacketLimitsApplyDuringNormalDeliveryAsWellAsRollover() passed after 0.008 seconds.
+✔ Test reasoningPreferencesArePerModelPersistedAndBudgetExplicit() passed after 0.008 seconds.
+✔ Test audioStopAndFailureReleaseOwnedPayloadsImmediately() passed after 0.008 seconds.
+✔ Test audioDurationOverflowFailsBeforeAllocatingAndReleasesBacklog() passed after 0.008 seconds.
+✔ Test sourceAudioGapsAreObservableAndDebugOutputDoesNotExposePayload() passed after 0.008 seconds.
+✔ Test invalidTranslationInputDoesNotReachNetwork() passed after 0.008 seconds.
+✔ Test partialAudioOverlapFailsInsteadOfGuessingATrimOrRepeatingSpeech() passed after 0.008 seconds.
+✔ Test promptsAndLanguagesSurviveRecreationIndependently() passed after 0.008 seconds.
+✔ Test failedAudioCopyDoesNotPartiallyCommitThePacket() passed after 0.008 seconds.
+✔ Test modifiedPrivacyMarkersFailClosed() passed after 0.008 seconds.
+✔ Test usageAttemptDedupAndCorruptHistoryNeverPretendZeroLifetime() passed after 0.008 seconds.
+✔ Test audioFormatChangeDuringRolloverCannotBeSilentlyConcatenated() passed after 0.007 seconds.
+✔ Test errorClassificationDiscardsVendorMessage() passed after 0.008 seconds.
+✔ Test invalidAudioMetadataNeverAllocatesPayload() passed after 0.007 seconds.
+✔ Test subtitleInvalidatedPartialDropsTailAndAdvancesSequenceBeforeRecovery() passed after 0.007 seconds.
+✔ Test debugDescriptionsNeverContainCredentialsOrSource() passed after 0.007 seconds.
+✔ Test audioTimelineSpanCannotRetainStaleAudioAcrossALargeSourceGap() passed after 0.007 seconds.
+✔ Test machineErrorTypeSurvivesUnknownOrNonStringCode() passed after 0.007 seconds.
+✔ Test stableSegmentationDoesNotTranslateEachCharacterOrRepeatedFinal() passed after 0.007 seconds.
+✔ Test audioRolloverRetainsOnlyUnsubmittedPacketsAndPreservesFIFO() passed after 0.006 seconds.
+✔ Test subtitleBoundsCorrectionsAndNewUtterances() passed after 0.006 seconds.
+✔ Test subtitleResultsRemainOrderedAndDuplicateFinalDoesNotCostTwice() passed after 0.010 seconds.
+✔ Test filePreferencesPersistWithoutCredentialsOrText() passed after 0.006 seconds.
+✔ Test concurrentReservationsCannotExceedBudget() passed after 0.009 seconds.
+✔ Test openAIActualUsageIsPersistentPerModelAndSessionScoped() passed after 0.012 seconds.
+✔ Test openAITruncationStillCountsActualUsageButNeverReturnsTranslation() passed after 0.012 seconds.
+✔ Test balanceUsesOfficialEndpointAndSharedCredentialWithoutGeneration() passed after 0.011 seconds.
+✔ Test autoReasoningNeverSendsParameters(_:) with 3 test cases passed after 0.010 seconds.
+✔ Test manyAudioRotationsRemainBoundedAndDeliverEveryPacketOnce() passed after 0.010 seconds.
+✔ Test cancelledBeforeEntryConsumesNoBudgetOrNetwork() passed after 0.009 seconds.
+✔ Test subtitleFIFOBackpressureAndStopRejectLateResult() passed after 0.013 seconds.
+✔ Test callerCancellationReachesTransport() passed after 0.013 seconds.
+✔ Test lateSuccessAfterCancellationCannotReplaceOldKey() passed after 0.013 seconds.
+✔ Test wrongKeyNeverRetries(_:) with 3 test cases passed after 0.014 seconds.
+✔ Test balanceNetworkFailureKeepsPriorValueAndCannotBecomeZero() passed after 0.014 seconds.
+✔ Test modelCatalogueDoesNotSaveAnUnvalidatedKey() passed after 0.014 seconds.
+✔ Test retryAfterIsNotShortened() passed after 0.014 seconds.
+✔ Test failedModelSwitchLeavesOldConfiguration() passed after 0.013 seconds.
+✔ Test modelDiscovery(_:) with 3 test cases passed after 0.012 seconds.
+✔ Test paginationExhaustionStopsBeforeAnotherHTTPCall() passed after 0.014 seconds.
+✔ Test officialWireFormat(_:) with 3 test cases passed after 0.012 seconds.
+✔ Test foregroundBalanceChecksAreBoundedAndMalformedAmountsRejected() passed after 0.015 seconds.
+✔ Test wrongModelIsClassified(_:) with 3 test cases passed after 0.012 seconds.
+✔ Test cancellationDuringRetryDoesNotSendAnotherRequest() passed after 0.012 seconds.
+✔ Test emptyBindingsCannotSaveKeyAndIdenticalModelsValidateOnce() passed after 0.015 seconds.
+✔ Test simultaneousSwitchCannotOverwritePendingKeyReplacement() passed after 0.015 seconds.
+✔ Test invalidKeyRollsBackAllBindings(_:) with 3 test cases passed after 0.014 seconds.
+✔ Test absentMalformedUsageAndFailedStatisticsDoNotBreakTranslation() passed after 0.015 seconds.
+✔ Test keyValidationUsesCheapSupportedReasoningWithoutChangingUserPreference() passed after 0.015 seconds.
+✔ Test budgetPreventsSecondNetworkCall() passed after 0.014 seconds.
+✔ Test promptIsSentOnActualRequestAndUntrustedTextStaysInUserInput() passed after 0.015 seconds.
+✔ Test secretsAreRemovedBeforeNetworkAndRestoredLocally() passed after 0.015 seconds.
+✔ Test anthropicPaginationUsesBudgetAndEscapedCursor() passed after 0.015 seconds.
+✔ Test upstreamRefusalIsNotFabricatedAndNoClientSensitiveContentFilterIsAdded() passed after 0.012 seconds.
+✔ Test translationUsesSavedReasoningBudgetAndSourceWithoutExtraRequests() passed after 0.012 seconds.
+✔ Test reasoningUsesProviderSpecificFieldsAndRejectsUnknownModels() passed after 0.012 seconds.
+✔ Test modelSwitchActivelyCancelsOldTranslationWithoutWaitingForTimeout() passed after 0.015 seconds.
+✔ Test openAIContentFilterAndUnknownIncompleteReasonsAreDistinct() passed after 0.014 seconds.
+✔ Test openAIOnlyReadsCompletedMessageText() passed after 0.013 seconds.
+✔ Test balanceAlertsAreSuppressedAcrossRestartAndRecoverAboveThreshold() passed after 0.013 seconds.
+✔ Test screenshotWorkflowRecognizesOnceEditsAndSendsOnlyText() passed after 0.016 seconds.
+✔ Test replacementValidatesEveryExistingModelBeforeCommit() passed after 0.013 seconds.
+✔ Test cancelledValidationNeverSavesAndReleasesEditLock() passed after 0.016 seconds.
+✔ Test differentProviderEditsAreIndependent() passed after 0.016 seconds.
+✔ Test malformedAndTruncatedResultsAreRejected() passed after 0.016 seconds.
+✔ Test retryIsFiniteAndEveryAttemptReservesBudget() passed after 0.015 seconds.
+✔ Test screenshotCancellationWaitsForNetworkAndPreservesEditableDraft() passed after 0.015 seconds.
+✔ Test truncationAndRefusalNeverCountAsValidation(_:) with 3 test cases passed after 0.014 seconds.
+✔ Test sharedKeySupportsIndependentModelsAndSwitchWithoutReentry() passed after 0.017 seconds.
+✔ Test sixDirectionsAndSameLanguageBypassAreRealEngineBehavior() passed after 0.014 seconds.
+✔ Test screenshotDeadlineCancelsOCRAndDoesNotSendAPIRequest() passed after 0.093 seconds.
+✔ Test timeoutCancelsTransportAndNeverRetries() passed after 0.094 seconds.
+✔ Test keyReplacementHasOneDeadlineAcrossBothModels() passed after 0.095 seconds.
+✔ Test timedOutValidationAndStorageFailureNeverReplaceOldRecord() passed after 0.092 seconds.
+✔ Test run with 83 tests in 0 suites passed after 0.096 seconds.

@@ -6,7 +6,10 @@ public actor ConfigurationCoordinator {
     private let store: any CredentialStore
     private let gateway: ProviderGateway
     private var editing = Set<ProviderID>()
+    private var revisions: [ProviderID: UInt64] = [:]
+    private var revisionObservers: [UUID: AsyncStream<[ProviderID: UInt64]>.Continuation] = [:]
     public init(store: any CredentialStore, gateway: ProviderGateway) { self.store = store; self.gateway = gateway }
+    deinit { revisionObservers.values.forEach { $0.finish() } }
 
     public func models(provider: ProviderID) throws -> [TranslationFeature: String] {
         try load(provider)?.models ?? [:]
@@ -14,6 +17,25 @@ public actor ConfigurationCoordinator {
     public func configuration(provider: ProviderID, feature: TranslationFeature) throws -> ProviderConfiguration {
         guard let value = try load(provider), value.models[feature] != nil else { throw AIUtilityError.notConfigured }
         return value
+    }
+    func snapshot(provider: ProviderID, feature: TranslationFeature) throws -> (ProviderConfiguration, UInt64) {
+        (try configuration(provider: provider, feature: feature), revisions[provider, default: 0])
+    }
+    public func bindingRevision(provider: ProviderID) -> UInt64 { revisions[provider, default: 0] }
+    func revisionEvents() throws -> (UUID, AsyncStream<[ProviderID: UInt64]>) {
+        guard revisionObservers.count < 64 else { throw AIUtilityError.budgetExceeded }
+        let id = UUID()
+        let pair = AsyncStream<[ProviderID: UInt64]>.makeStream(bufferingPolicy: .bufferingNewest(1))
+        revisionObservers[id] = pair.continuation
+        return (id, pair.stream)
+    }
+    func removeRevisionObserver(_ id: UUID) { revisionObservers.removeValue(forKey: id)?.finish() }
+    func savedConfiguration(provider: ProviderID) throws -> ProviderConfiguration {
+        guard let configuration = try load(provider) else { throw AIUtilityError.notConfigured }
+        return configuration
+    }
+    func savedSnapshot(provider: ProviderID) throws -> (ProviderConfiguration, UInt64) {
+        (try savedConfiguration(provider: provider), revisions[provider, default: 0])
     }
     public func listModels(provider: ProviderID, timeout: TimeInterval = 20) async throws -> [AIModel] {
         guard let value = try load(provider) else { throw AIUtilityError.notConfigured }
@@ -54,8 +76,10 @@ public actor ConfigurationCoordinator {
         try commit(provider, configuration: ProviderConfiguration(key: old.key, models: bindings))
     }
     private func validate(provider: ProviderID, key: APIKey, model: String, timeout: TimeInterval) async throws {
+        let efforts = ReasoningCapabilities.forModel(model, provider: provider).efforts
+        let effort: ReasoningEffort = efforts.contains(.none) ? .none : (efforts.contains(.low) ? .low : .auto)
         let request = try GenerationRequest(model: model,
-            instructions: "Return only the word OK. This is a connectivity test.", text: "Reply OK.", maxOutputTokens: 256)
+            instructions: "Return only the word OK. This is a connectivity test.", text: "Reply OK.", maxOutputTokens: 256, reasoning: effort)
         let result = try await gateway.generate(provider: provider, key: key, request: request, timeout: timeout)
         guard !result.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw AIUtilityError.malformedResponse }
     }
@@ -68,5 +92,7 @@ public actor ConfigurationCoordinator {
         guard !Task.isCancelled else { throw AIUtilityError.cancelled }
         do { try store.replace(provider: provider, configuration: configuration) }
         catch { throw AIUtilityError.storageFailure }
+        revisions[provider, default: 0] &+= 1
+        revisionObservers.values.forEach { $0.yield(revisions) }
     }
 }

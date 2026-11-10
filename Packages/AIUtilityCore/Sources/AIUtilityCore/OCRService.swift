@@ -22,3 +22,16 @@ public protocol OCRService: Sendable {
     /// EXIF orientation comes from the encoded image. No network or file persistence.
     func recognize(imageData: Data, languages: [String]) async throws -> OCRResult
 }
+
+/// Normalized rectangle in the oriented image, origin at bottom left (Vision coordinates).
+public struct OCRRegion: Sendable, Equatable {
+    public let x: Double, y: Double, width: Double, height: Double
+    public init(x: Double, y: Double, width: Double, height: Double) throws {
+        guard [x, y, width, height].allSatisfy(\.isFinite), x >= 0, y >= 0, width > 0, height > 0,
+              x + width <= 1, y + height <= 1 else { throw AIUtilityError.invalidRequest }
+        self.x = x; self.y = y; self.width = width; self.height = height
+    }
+}
+public protocol RegionOCRService: OCRService {
+    func recognize(imageData: Data, languages: [String], region: OCRRegion?) async throws -> OCRResult
+}

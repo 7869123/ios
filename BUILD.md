@@ -1,5 +1,12 @@
 # 构建与测试
 
+## 当前翻译增量：真实复编译通过
+
+被测源 `05508ba75f86ebbc50bf8bc65f0947f50805ed7c`，分支 codex/translation-completeness，[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success。Core Linux/macOS 各 82 通过/1 live 跳过；AppleServices 5 通过/1 Keychain 跳过；Media Linux 92/4、macOS 108/5；可移植 PoC 生命周期各 14 通过，均无失败。26 个记录的命令退出码全为 0。
+AppleServices/Media/MediaApple 的两种 iOS SDK 编译、iOS 27.1 PoC Swift 6 模拟器编译/真机 SDK Archive/未签名 IPA 与 App 编译/Archive/未签名 IPA 全部成功。[实际命令、job ID、完整日志、Artifact 与警告](validation/translation-completeness/attempt-2/README.md)。首轮宏编译失败证据保留在 [attempt-1](validation/translation-completeness/attempt-1/README.md)，本次没有修改 workflow、scripts、源码或测试来制造通过。
+用户本轮授权编译/修复重试直到通过；只使用一次 dispatch，build_apple=true、build_poc=true、publish_previews=false、live_checks=false。不合并分支、不创建 PR。后续新批次仍按 AGENTS 获取授权，不安装 Windows Swift。
+三语 NL 和区域 Vision 使用本地合成数据，Core 只用受控脚本响应；真实 AI/Keychain 集成继续关闭，不上传用户数据或凭据。未签名 IPA 不代表可安装，编译成功不代表采集、Speech、PiP 或后台实机通过。后续文档提交与被测源码的 tree hash 可在 summary.json 核对。
+
 Apple 第一阶段已通过：见 [42353675493](https://github.com/7869123/ios/actions/runs/42353675493)。`bash scripts/ci_apple.sh` 保存环境、macOS Core/AppleServices 测试、iOS 模拟器/设备 SDK 未签名构建的五个退出码，均为 0。环境 Xcode 26.6、Swift 6.3.3、iOS SDK 26.5。普通 push 现在同时保留 Linux 与 Apple 验证；无需 Windows Swift。Keychain 运行时测试仍关闭；iOS 27 SDK、签名和真机另行验证。
 
 SwiftUI App 位于 Apps/AIUtility。`bash scripts/ci_app.sh` 生成真实 Xcode 工程，并构建 Simulator/iphoneos 两个目标。最终成功运行 [42354651780](https://github.com/7869123/ios/actions/runs/42354651780)，source 19d0e02，四个退出码均为 0。生成的 .xcodeproj、DerivedData 和 .app 不提交、不上传；只保存五个指定日志。App 构建步骤依赖 Linux 和 Apple 验证通过。

@@ -1,0 +1,250 @@
+[0/1] Planning build
+Building for debugging...
+[0/11] Write sources
+[1/12] Write swift-version-24593BA9C3E375BF.txt
+[2/12] Wrapping AST for AIUtilityCore for debugging
+[4/21] Emitting module AIUtilityCoreTests
+[5/23] Compiling AIUtilityCoreTests RegressionTests.swift
+[6/23] Compiling AIUtilityCoreTests TestSupport.swift
+[7/23] Compiling AIUtilityCoreTests ConfigurationTests.swift
+[8/23] Compiling AIUtilityCoreTests LiveAPITests.swift
+[9/23] Compiling AIUtilityCoreTests PrivacyTests.swift
+[10/23] Compiling AIUtilityCoreTests TranslationFeatureTests.swift
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/TranslationFeatureTests.swift:129:65: note: expanded code originates here
+127 |     let next = TranslationPreferences(store: FileLocalDataStore(directory: directory))
+128 |     #expect(try await next.languages(for: .videoSubtitle).source == .japanese)
+129 |     let data = try #require(store.read(.translationPreferences))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.read($1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .translationPreferences, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "read", (nil, .__fromSyntaxNode(".translationPreferences"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+130 |     #expect(!String(decoding: data, as: UTF8.self).contains("key"))
+131 | }
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/TranslationReliabilityTests.swift:174:114: note: expanded code originates here
+172 |     }
+173 |     let request = try #require(await transport.requests.first)
+174 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+175 |     #expect(body["input"] as? String == "An adult dialogue from a novel.")
+176 | }
+[11/23] Compiling AIUtilityCoreTests TranslationReliabilityTests.swift
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/TranslationFeatureTests.swift:129:65: note: expanded code originates here
+127 |     let next = TranslationPreferences(store: FileLocalDataStore(directory: directory))
+128 |     #expect(try await next.languages(for: .videoSubtitle).source == .japanese)
+129 |     let data = try #require(store.read(.translationPreferences))
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.read($1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .translationPreferences, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "read", (nil, .__fromSyntaxNode(".translationPreferences"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+130 |     #expect(!String(decoding: data, as: UTF8.self).contains("key"))
+131 | }
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/TranslationReliabilityTests.swift:174:114: note: expanded code originates here
+172 |     }
+173 |     let request = try #require(await transport.requests.first)
+174 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+175 |     #expect(body["input"] as? String == "An adult dialogue from a novel.")
+176 | }
+[12/23] Compiling AIUtilityCoreTests APIConfigurationFeatureTests.swift
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:10:114: note: expanded code originates here
+  8 |     _ = try await OfficialAPIAdapter(provider: provider, transport: transport).generate(sampleRequest(), key: APIKey("test-key"))
+  9 |     let request = try #require(await transport.requests.first)
+ 10 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 11 |     #expect(body["reasoning"] == nil)
+ 12 |     #expect(body["reasoning_effort"] == nil)
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:25:115: note: expanded code originates here
+ 23 |         _ = try await OfficialAPIAdapter(provider: provider, transport: transport).generate(request, key: APIKey("test-key"))
+ 24 |         let sent = try #require(await transport.requests.first)
+ 25 |         let body = try #require(try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 26 |         switch provider {
+ 27 |         case .openAI:
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:73:114: note: expanded code originates here
+ 71 |     try await coordinator.saveKey(provider: .openAI, key: APIKey("test-key"), models: [.videoSubtitle: "gpt-5.4"])
+ 72 |     let request = try #require(await transport.requests.first)
+ 73 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 74 |     #expect((body["reasoning"] as? [String: String])?["effort"] == "none")
+ 75 |     #expect(body["max_output_tokens"] as? Int == 256)
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:92:122: note: expanded code originates here
+ 90 |     let requests = await transport.requests
+ 91 |     #expect(requests.count == 1)
+ 92 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 93 |     #expect(body["max_output_tokens"] as? Int == 32_768)
+ 94 |     #expect((body["reasoning"] as? [String: String])?["effort"] == "high")
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:114:71: note: expanded code originates here
+112 |     #expect(restarted.session.isEmpty)
+113 |     #expect(restarted.lifetime?["gpt-5.4"]?.totalTokens == 32)
+114 |     let data = String(decoding: try #require(store.read(.openAIUsage)), as: UTF8.self)
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.read($1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAIUsage, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "read", (nil, .__fromSyntaxNode(".openAIUsage"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+115 |     #expect(!data.contains("translated"))
+116 |     #expect(!data.contains("test-key"))
+[13/23] Compiling AIUtilityCoreTests AdapterTests.swift
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:10:114: note: expanded code originates here
+  8 |     _ = try await OfficialAPIAdapter(provider: provider, transport: transport).generate(sampleRequest(), key: APIKey("test-key"))
+  9 |     let request = try #require(await transport.requests.first)
+ 10 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 11 |     #expect(body["reasoning"] == nil)
+ 12 |     #expect(body["reasoning_effort"] == nil)
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:25:115: note: expanded code originates here
+ 23 |         _ = try await OfficialAPIAdapter(provider: provider, transport: transport).generate(request, key: APIKey("test-key"))
+ 24 |         let sent = try #require(await transport.requests.first)
+ 25 |         let body = try #require(try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 26 |         switch provider {
+ 27 |         case .openAI:
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:73:114: note: expanded code originates here
+ 71 |     try await coordinator.saveKey(provider: .openAI, key: APIKey("test-key"), models: [.videoSubtitle: "gpt-5.4"])
+ 72 |     let request = try #require(await transport.requests.first)
+ 73 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 74 |     #expect((body["reasoning"] as? [String: String])?["effort"] == "none")
+ 75 |     #expect(body["max_output_tokens"] as? Int == 256)
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:92:122: note: expanded code originates here
+ 90 |     let requests = await transport.requests
+ 91 |     #expect(requests.count == 1)
+ 92 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 93 |     #expect(body["max_output_tokens"] as? Int == 32_768)
+ 94 |     #expect((body["reasoning"] as? [String: String])?["effort"] == "high")
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:114:71: note: expanded code originates here
+112 |     #expect(restarted.session.isEmpty)
+113 |     #expect(restarted.lifetime?["gpt-5.4"]?.totalTokens == 32)
+114 |     let data = String(decoding: try #require(store.read(.openAIUsage)), as: UTF8.self)
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.read($1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAIUsage, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "read", (nil, .__fromSyntaxNode(".openAIUsage"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+115 |     #expect(!data.contains("translated"))
+116 |     #expect(!data.contains("test-key"))
+[14/23] Compiling AIUtilityCoreTests AudioRolloverBufferTests.swift
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:10:114: note: expanded code originates here
+  8 |     _ = try await OfficialAPIAdapter(provider: provider, transport: transport).generate(sampleRequest(), key: APIKey("test-key"))
+  9 |     let request = try #require(await transport.requests.first)
+ 10 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 11 |     #expect(body["reasoning"] == nil)
+ 12 |     #expect(body["reasoning_effort"] == nil)
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:25:115: note: expanded code originates here
+ 23 |         _ = try await OfficialAPIAdapter(provider: provider, transport: transport).generate(request, key: APIKey("test-key"))
+ 24 |         let sent = try #require(await transport.requests.first)
+ 25 |         let body = try #require(try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(sent.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 26 |         switch provider {
+ 27 |         case .openAI:
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:73:114: note: expanded code originates here
+ 71 |     try await coordinator.saveKey(provider: .openAI, key: APIKey("test-key"), models: [.videoSubtitle: "gpt-5.4"])
+ 72 |     let request = try #require(await transport.requests.first)
+ 73 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 74 |     #expect((body["reasoning"] as? [String: String])?["effort"] == "none")
+ 75 |     #expect(body["max_output_tokens"] as? Int == 256)
+
+macro expansion #require:1:61: error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:92:122: note: expanded code originates here
+ 90 |     let requests = await transport.requests
+ 91 |     #expect(requests.count == 1)
+ 92 |     let body = try #require(try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any])
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkValue(try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any], expression: .__fromSyntaxNode("try JSONSerialization.jsonObject(with: #require(requests.first?.httpBody)) as? [String: Any]"), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    |  |                                                             `- error: recursive expansion of macro 'require(_:_:sourceLocation:)'
+    +-------------------------------------------------------------------
+ 93 |     #expect(body["max_output_tokens"] as? Int == 32_768)
+ 94 |     #expect((body["reasoning"] as? [String: String])?["effort"] == "high")
+
+macro expansion #require:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- [CI_WORKSPACE]/Packages/AIUtilityCore/Tests/AIUtilityCoreTests/APIConfigurationFeatureTests.swift:114:71: note: expanded code originates here
+112 |     #expect(restarted.session.isEmpty)
+113 |     #expect(restarted.lifetime?["gpt-5.4"]?.totalTokens == 32)
+114 |     let data = String(decoding: try #require(store.read(.openAIUsage)), as: UTF8.self)
+    +--- macro expansion #require --------------------------------------
+    |1 | Testing.__checkFunctionCall(store.self, calling: {
+    |2 |   $0.read($1)
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 |     }, .openAIUsage, expression: .__fromFunctionCall(.__fromSyntaxNode("store"), "read", (nil, .__fromSyntaxNode(".openAIUsage"))), comments: [], isRequired: true, sourceLocation: Testing.SourceLocation.__here()).__required()
+    +-------------------------------------------------------------------
+115 |     #expect(!data.contains("translated"))
+116 |     #expect(!data.contains("test-key"))
+error: fatalError

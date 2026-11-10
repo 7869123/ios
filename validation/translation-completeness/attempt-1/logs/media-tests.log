@@ -1,0 +1,271 @@
+[0/1] Planning build
+Building for debugging...
+[0/14] Write sources
+[2/15] Write swift-version-24593BA9C3E375BF.txt
+[3/15] Wrapping AST for AIUtilityMediaApple for debugging
+[4/15] Wrapping AST for AIUtilityMedia for debugging
+[6/30] Compiling AIUtilityMediaAppleTests UgoiraTests.swift
+[7/30] Emitting module AIUtilityMediaTests
+[8/33] Compiling AIUtilityMediaTests SandboxPathTests.swift
+[9/33] Compiling AIUtilityMediaTests SiteResolverTests.swift
+[10/33] Compiling AIUtilityMediaTests SoutubotTests.swift
+[11/33] Compiling AIUtilityMediaAppleTests AppleToolTests.swift
+[12/33] Emitting module AIUtilityMediaAppleTests
+[13/33] Compiling AIUtilityMediaAppleTests PlanningTests.swift
+[14/34] Wrapping AST for AIUtilityMediaAppleTests for debugging
+[16/34] Compiling AIUtilityMediaTests RecoveryTests.swift
+[17/34] Compiling AIUtilityMediaTests ReverseSearchTests.swift
+[18/34] Compiling AIUtilityMediaTests RoutingTests.swift
+[19/34] Compiling AIUtilityMediaTests StorageTests.swift
+[20/34] Compiling AIUtilityMediaTests TestSupport.swift
+[21/34] Compiling AIUtilityMediaTests XResolverTests.swift
+[22/34] Compiling AIUtilityMediaTests BilibiliResolverTests.swift
+[23/34] Compiling AIUtilityMediaTests LiveSiteChecks.swift
+[24/34] Compiling AIUtilityMediaTests PixivResolverTests.swift
+[25/34] Compiling AIUtilityMediaTests QueueTests.swift
+[26/35] [CI_WORKSPACE]/Packages/AIUtilityMedia/.build/x86_64-unknown-linux-gnu/debug/AIUtilityMediaPackageDiscoveredTests.derived/all-discovered-tests.swift
+[27/35] Write sources
+[28/35] Wrapping AST for AIUtilityMediaTests for debugging
+[30/39] Compiling AIUtilityMediaPackageDiscoveredTests all-discovered-tests.swift
+[31/39] Compiling AIUtilityMediaPackageDiscoveredTests AIUtilityMediaTests.swift
+[32/39] Compiling AIUtilityMediaPackageDiscoveredTests AIUtilityMediaAppleTests.swift
+[33/39] Emitting module AIUtilityMediaPackageDiscoveredTests
+[34/40] [CI_WORKSPACE]/Packages/AIUtilityMedia/.build/x86_64-unknown-linux-gnu/debug/AIUtilityMediaPackageTests.derived/runner.swift
+[35/40] Write sources
+[36/40] Wrapping AST for AIUtilityMediaPackageDiscoveredTests for debugging
+[38/42] Compiling AIUtilityMediaPackageTests runner.swift
+[39/42] Emitting module AIUtilityMediaPackageTests
+[40/43] Wrapping AST for AIUtilityMediaPackageTests for debugging
+[41/43] Write Objects.LinkFileList
+[42/43] Linking AIUtilityMediaPackageTests.xctest
+Build complete! (7.44s)
+Test Suite 'All tests' started at 2026-11-09 15:42:42.959
+Test Suite 'debug.xctest' started at 2026-11-09 15:42:42.960
+Test Suite 'debug.xctest' passed at 2026-11-09 15:42:42.960
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+Test Suite 'All tests' passed at 2026-11-09 15:42:42.960
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+◇ Test run started.
+↳ Testing Library Version: 6.0.3 (18c42c19cac3faf)
+◇ Suite StitchGeometryTests started.
+◇ Suite XResolverTests started.
+✘ Suite LiveSiteChecks skipped.
+◇ Suite RoutingTests started.
+◇ Suite ReverseSearchTests started.
+◇ Suite SoutubotTests started.
+◇ Suite BilibiliResolverTests started.
+◇ Suite RecoveryTests started.
+◇ Suite QueueTests started.
+◇ Suite StorageTests started.
+◇ Suite SiteRegistrationTests started.
+◇ Suite SandboxPathTests started.
+◇ Suite PixivResolverTests started.
+◇ Suite UgoiraTimingTests started.
+◇ Suite GIFTimelineTests started.
+◇ Suite UnsupportedPlatformTests started.
+◇ Test noiseNeedsExplicitPermission() started.
+◇ Test horizontalRunsLeftToRightAndCentres() started.
+◇ Suite ZipArchiveTests started.
+◇ Test invalidStitchRequestsFail() started.
+◇ Test noiseGeneratorIsDeterministic() started.
+◇ Test verticalStacksInOrderAndCentres() started.
+✘ Test bilibiliPublicVideo() skipped.
+✘ Test xEmbedEndpoint() skipped.
+◇ Test gridFillsRowsWithLargestCells() started.
+✘ Test pixivIllustration() skipped.
+◇ Test tombstonesTextOnlyAndForeignHostsFail() started.
+◇ Test statusIDParsing() started.
+◇ Test tokenMatchesJavaScriptRadixConversion() started.
+✘ Test pixivUgoira() skipped.
+◇ Test photosAndVideosResolveToOriginalAndProgressiveVariants() started.
+◇ Test missingOrMalformedKeyIsNotConfiguredAndNothingIsSent() started.
+◇ Test inputIsCheckedBeforeUpload() started.
+◇ Test serviceErrorsAreClassified() started.
+◇ Test exactHostAndPathRouting() started.
+◇ Test formatSniffing() started.
+◇ Test canonicalIdentityPreservesSemanticQuery() started.
+◇ Test uploadsOnceAndReturnsMatchesAboveThresholdBestFirst() started.
+◇ Test shortLinkReroutesAfterBoundedRedirect() started.
+◇ Test selectionAndOptionsAreOrthogonalAndAssemblyUsesEffectiveOption() started.
+◇ Test statusClassificationAndRetryRules() started.
+◇ Test redirectToPrivateOrCycleIsRejected() started.
+◇ Test unsupportedAllPartsFailsEvenWithSpecifiedVariant() started.
+◇ Test unsafeDestinationsRejectedWithoutNetwork() started.
+◇ Test apiCodesAndSegmentedOrForeignStreamsFailClearly() started.
+◇ Test optionsDecodeMissingFieldsAndRoundTrip() started.
+◇ Test defaultPartIsTheFirstAndAvLinksWork() started.
+◇ Test htmlAndUnavailableSitesDoNotBecomeMedia() started.
+◇ Test videoIDParsing() started.
+◇ Test requestedPartResolvesToSingleProgressiveMP4() started.
+◇ Test allPartsStaysUnsupported() started.
+◇ Test restrictionsAreReportedNotBypassed() started.
+◇ Test responsesAreClassified() started.
+◇ Test searchesWithoutAnyCredentialAndMapsResultsBestFirst() started.
+◇ Test restartNeedsOriginalSensitiveLinkAndNeverPersistsIt() started.
+◇ Test inputIsCheckedBeforeUpload() started.
+◇ Test deletionMetadataFailureRecoversActualDiskWithoutFalseRollback() started.
+◇ Test resolvedAliasesAndIrrelevantPixivOptionsDoNotDownloadTwice() started.
+◇ Test headStatusRefusalAndRetryAfterAreClassified() started.
+◇ Test strictModeUsesTheWebPageFactor() started.
+◇ Test selectedItemIsRevalidatedByResolver() started.
+◇ Test failedCompletionCommitCleansPublishedFilesAndDoesNotClaimSuccess() started.
+◇ Test queuedOptionsAreValueSnapshotsAndAllPartsCannotSilentlyDowngrade() started.
+◇ Test finitePolicyRejectsInvalidConfiguration() started.
+◇ Test fifoSingleSlotIncludingQueuedCancellation() started.
+◇ Test progressRejectsRegressionsAndWrongGenerations() started.
+◇ Test unavailableFilesAndValidPathsAreDifferentErrors() started.
+◇ Test cleanupFailureBlocksNextUntilExplicitRetry() started.
+◇ Test finiteRetriesStartOverAndManualRetryUsesSameID() started.
+◇ Test requestCooldownAndBudgetAreEnforced() started.
+◇ Test taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() started.
+◇ Test cancellationDoesNotReleaseSlotUntilLateTransferAcknowledges() started.
+◇ Test activeAndQueuedTasksCannotBeDeleted() started.
+◇ Test duplicatePendingCompletedAndIrrelevantOptions() started.
+◇ Test sitesAreOffUnlessRequested() started.
+◇ Test realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() started.
+◇ Test transferPlansAndComponentsRedactReflection() started.
+◇ Test twoSubscribersReceiveIndependentCompleteSnapshots() started.
+◇ Test enqueueWriteFailurePreservesOldManifestAndDoesNotStart() started.
+◇ Test deletionJournalRecoveryNeverResurrectsHistory() started.
+◇ Test deletionRemovesDedupAndMissingFileIsReportedHonestly() started.
+◇ Test initializationFailureCanSafelyRetrySameNamespace() started.
+◇ Test systemAliasExceptionRequiresExactPathAndDestination() started.
+◇ Test symlinkInsideOwnedDirectoryAndDanglingLinkRemainRejected() started.
+◇ Test clearHistoryFailureRollsBackAndSuccessKeepsFilesDeletable() started.
+◇ Test persistedManifestHasNoOriginalLinkTitleOrCredentials() started.
+◇ Test commitJournalRecoversPublishedButUncommittedOutput() started.
+◇ Test existingSystemTemporaryDirectoryIsAccepted() started.
+◇ Test forgedOutputPathAndChangedFileAreNotAccepted() started.
+◇ Test contentMismatchIsNeverMarkedCompleteOrRetried() started.
+◇ Test partialDeletionKeepsFailedOutputsAndAllowsFreshDownload() started.
+◇ Test onlyArtworkPathsAreAccepted() started.
+◇ Test ugoiraIsAssembledIntoGIFWithFramesAndRefererPassedOn() started.
+◇ Test multiPageWorkGivesOneItemPerPageInOrder() started.
+◇ Test unexpectedHostsAndShapesAreParsingChanges() started.
+◇ Test ugoiraCanKeepTheOriginalArchiveToo() started.
+◇ Test ugoiraPlansArchiveWithGIFAssemblyAndManagerRefusesUntilAssemblyExists() started.
+◇ Test oddDelaysFollowTheTimelineAndKeepTheTotal() started.
+◇ Test restartMarksRunningInterruptedAndPreservesPendingOrdinal() started.
+◇ Test wholeTenMillisecondDelaysAreExact() started.
+◇ Test tooFastFramesGetTheGIFMinimum() started.
+◇ Test restrictedOrHiddenWorksNeedLoginAndAreNotWorkedAround() started.
+◇ Test assemblerFailureFailsTheTaskWithoutFiles() started.
+◇ Test singleIllustrationResolvesToOriginalWithReferer() started.
+◇ Test gifOptionsAreValidatedBeforeAnyWork() started.
+◇ Test toolsFailHonestlyWithoutImageIO() started.
+◇ Test wholeFrameIntervalsKeepEveryFrameAndTotal() started.
+◇ Test clipShorterThanTwoCentisecondsHasNoPlan() started.
+◇ Test tooShortTrailingFrameMergesIntoPrevious() started.
+◇ Test fractionalIntervalsFollowTrueTimelineAndKeepTotal() started.
+◇ Test storedEntriesAreReadAndVerified() started.
+◇ Test damagedOrForeignDataIsRejected() started.
+◇ Test crcMatchesTheStandardCheckValue() started.
+✔ Test noiseGeneratorIsDeterministic() passed after 0.021 seconds.
+✔ Test horizontalRunsLeftToRightAndCentres() passed after 0.021 seconds.
+✔ Test verticalStacksInOrderAndCentres() passed after 0.021 seconds.
+✔ Test gridFillsRowsWithLargestCells() passed after 0.021 seconds.
+✔ Test noiseNeedsExplicitPermission() passed after 0.021 seconds.
+✔ Test invalidStitchRequestsFail() passed after 0.021 seconds.
+✔ Test missingOrMalformedKeyIsNotConfiguredAndNothingIsSent() passed after 0.021 seconds.
+✔ Test tokenMatchesJavaScriptRadixConversion() passed after 0.021 seconds.
+✔ Test statusIDParsing() passed after 0.021 seconds.
+✔ Test formatSniffing() passed after 0.021 seconds.
+✔ Test exactHostAndPathRouting() passed after 0.021 seconds.
+✔ Test serviceErrorsAreClassified() passed after 0.021 seconds.
+✔ Test canonicalIdentityPreservesSemanticQuery() passed after 0.021 seconds.
+✔ Test uploadsOnceAndReturnsMatchesAboveThresholdBestFirst() passed after 0.021 seconds.
+✔ Test unsupportedAllPartsFailsEvenWithSpecifiedVariant() passed after 0.021 seconds.
+✔ Test selectionAndOptionsAreOrthogonalAndAssemblyUsesEffectiveOption() passed after 0.021 seconds.
+✔ Test unsafeDestinationsRejectedWithoutNetwork() passed after 0.021 seconds.
+✔ Test videoIDParsing() passed after 0.021 seconds.
+✔ Test statusClassificationAndRetryRules() passed after 0.021 seconds.
+✔ Test optionsDecodeMissingFieldsAndRoundTrip() passed after 0.021 seconds.
+✔ Test responsesAreClassified() passed after 0.020 seconds.
+✔ Test inputIsCheckedBeforeUpload() passed after 0.020 seconds.
+✔ Test searchesWithoutAnyCredentialAndMapsResultsBestFirst() passed after 0.020 seconds.
+✔ Test strictModeUsesTheWebPageFactor() passed after 0.020 seconds.
+✔ Test finitePolicyRejectsInvalidConfiguration() passed after 0.020 seconds.
+✔ Test sitesAreOffUnlessRequested() passed after 0.020 seconds.
+✔ Test transferPlansAndComponentsRedactReflection() passed after 0.020 seconds.
+✔ Test inputIsCheckedBeforeUpload() passed after 0.021 seconds.
+✔ Test enqueueWriteFailurePreservesOldManifestAndDoesNotStart() passed after 0.020 seconds.
+✔ Test systemAliasExceptionRequiresExactPathAndDestination() passed after 0.019 seconds.
+✔ Test initializationFailureCanSafelyRetrySameNamespace() passed after 0.020 seconds.
+✔ Test deletionJournalRecoveryNeverResurrectsHistory() passed after 0.020 seconds.
+✔ Test existingSystemTemporaryDirectoryIsAccepted() passed after 0.019 seconds.
+✔ Test forgedOutputPathAndChangedFileAreNotAccepted() passed after 0.019 seconds.
+✔ Test symlinkInsideOwnedDirectoryAndDanglingLinkRemainRejected() passed after 0.019 seconds.
+✔ Test onlyArtworkPathsAreAccepted() passed after 0.019 seconds.
+✔ Test realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() passed after 0.020 seconds.
+✔ Test tooFastFramesGetTheGIFMinimum() passed after 0.019 seconds.
+✔ Test wholeTenMillisecondDelaysAreExact() passed after 0.019 seconds.
+✔ Test oddDelaysFollowTheTimelineAndKeepTheTotal() passed after 0.019 seconds.
+✔ Test commitJournalRecoversPublishedButUncommittedOutput() passed after 0.019 seconds.
+✔ Test restartMarksRunningInterruptedAndPreservesPendingOrdinal() passed after 0.019 seconds.
+✔ Test gifOptionsAreValidatedBeforeAnyWork() passed after 0.019 seconds.
+✔ Test toolsFailHonestlyWithoutImageIO() passed after 0.019 seconds.
+✔ Test wholeFrameIntervalsKeepEveryFrameAndTotal() passed after 0.019 seconds.
+✔ Test clipShorterThanTwoCentisecondsHasNoPlan() passed after 0.019 seconds.
+✔ Test tooShortTrailingFrameMergesIntoPrevious() passed after 0.019 seconds.
+✔ Test fractionalIntervalsFollowTrueTimelineAndKeepTotal() passed after 0.019 seconds.
+✔ Suite StitchGeometryTests passed after 0.027 seconds.
+✔ Suite ReverseSearchTests passed after 0.027 seconds.
+✔ Test damagedOrForeignDataIsRejected() passed after 0.005 seconds.
+✔ Test crcMatchesTheStandardCheckValue() passed after 0.005 seconds.
+✔ Test storedEntriesAreReadAndVerified() passed after 0.005 seconds.
+✔ Test defaultPartIsTheFirstAndAvLinksWork() passed after 0.026 seconds.
+✔ Test photosAndVideosResolveToOriginalAndProgressiveVariants() passed after 0.026 seconds.
+✔ Suite SoutubotTests passed after 0.027 seconds.
+✔ Suite SiteRegistrationTests passed after 0.027 seconds.
+✔ Suite SandboxPathTests passed after 0.027 seconds.
+✔ Suite UgoiraTimingTests passed after 0.027 seconds.
+✔ Suite GIFTimelineTests passed after 0.027 seconds.
+✔ Suite UnsupportedPlatformTests passed after 0.027 seconds.
+✔ Test allPartsStaysUnsupported() passed after 0.026 seconds.
+✔ Suite ZipArchiveTests passed after 0.033 seconds.
+✔ Test shortLinkReroutesAfterBoundedRedirect() passed after 0.032 seconds.
+✔ Test redirectToPrivateOrCycleIsRejected() passed after 0.032 seconds.
+✔ Test singleIllustrationResolvesToOriginalWithReferer() passed after 0.030 seconds.
+✔ Test requestedPartResolvesToSingleProgressiveMP4() passed after 0.032 seconds.
+✔ Test unexpectedHostsAndShapesAreParsingChanges() passed after 0.033 seconds.
+✔ Test multiPageWorkGivesOneItemPerPageInOrder() passed after 0.034 seconds.
+✔ Test tombstonesTextOnlyAndForeignHostsFail() passed after 0.038 seconds.
+✔ Suite XResolverTests passed after 0.047 seconds.
+✔ Test apiCodesAndSegmentedOrForeignStreamsFailClearly() passed after 0.046 seconds.
+✔ Test restrictedOrHiddenWorksNeedLoginAndAreNotWorkedAround() passed after 0.045 seconds.
+✔ Test selectedItemIsRevalidatedByResolver() passed after 0.046 seconds.
+✔ Test deletionMetadataFailureRecoversActualDiskWithoutFalseRollback() passed after 0.050 seconds.
+✔ Test twoSubscribersReceiveIndependentCompleteSnapshots() passed after 0.049 seconds.
+✔ Test restrictionsAreReportedNotBypassed() passed after 0.052 seconds.
+✔ Test clearHistoryFailureRollsBackAndSuccessKeepsFilesDeletable() passed after 0.052 seconds.
+✔ Test persistedManifestHasNoOriginalLinkTitleOrCredentials() passed after 0.052 seconds.
+✔ Test unavailableFilesAndValidPathsAreDifferentErrors() passed after 0.053 seconds.
+✔ Test duplicatePendingCompletedAndIrrelevantOptions() passed after 0.053 seconds.
+✔ Test ugoiraCanKeepTheOriginalArchiveToo() passed after 0.052 seconds.
+✔ Suite BilibiliResolverTests passed after 0.055 seconds.
+✔ Test contentMismatchIsNeverMarkedCompleteOrRetried() passed after 0.053 seconds.
+✔ Test progressRejectsRegressionsAndWrongGenerations() passed after 0.054 seconds.
+✔ Test ugoiraIsAssembledIntoGIFWithFramesAndRefererPassedOn() passed after 0.053 seconds.
+✔ Test failedCompletionCommitCleansPublishedFilesAndDoesNotClaimSuccess() passed after 0.055 seconds.
+✔ Test resolvedAliasesAndIrrelevantPixivOptionsDoNotDownloadTwice() passed after 0.056 seconds.
+✔ Test assemblerFailureFailsTheTaskWithoutFiles() passed after 0.055 seconds.
+✔ Test activeAndQueuedTasksCannotBeDeleted() passed after 0.056 seconds.
+✔ Test ugoiraPlansArchiveWithGIFAssemblyAndManagerRefusesUntilAssemblyExists() passed after 0.057 seconds.
+✔ Test htmlAndUnavailableSitesDoNotBecomeMedia() passed after 0.059 seconds.
+✔ Suite PixivResolverTests passed after 0.062 seconds.
+✔ Suite RoutingTests passed after 0.062 seconds.
+✔ Test restartNeedsOriginalSensitiveLinkAndNeverPersistsIt() passed after 0.061 seconds.
+✔ Test cleanupFailureBlocksNextUntilExplicitRetry() passed after 0.060 seconds.
+✔ Test requestCooldownAndBudgetAreEnforced() passed after 0.061 seconds.
+✔ Test cancellationDoesNotReleaseSlotUntilLateTransferAcknowledges() passed after 0.061 seconds.
+✔ Test fifoSingleSlotIncludingQueuedCancellation() passed after 0.061 seconds.
+✔ Test deletionRemovesDedupAndMissingFileIsReportedHonestly() passed after 0.061 seconds.
+✔ Test taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() passed after 0.061 seconds.
+✔ Test queuedOptionsAreValueSnapshotsAndAllPartsCannotSilentlyDowngrade() passed after 0.063 seconds.
+✔ Test partialDeletionKeepsFailedOutputsAndAllowsFreshDownload() passed after 0.062 seconds.
+✔ Suite StorageTests passed after 0.065 seconds.
+✔ Test headStatusRefusalAndRetryAfterAreClassified() passed after 0.063 seconds.
+✔ Suite RecoveryTests passed after 0.065 seconds.
+✔ Test finiteRetriesStartOverAndManualRetryUsesSameID() passed after 0.064 seconds.
+✔ Suite QueueTests passed after 0.066 seconds.
+✔ Test run with 96 tests passed after 0.066 seconds.
