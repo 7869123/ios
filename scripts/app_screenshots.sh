@@ -2,7 +2,7 @@
 # Capture review screenshots of the home page and of each Media Tools page on an iPad mini simulator
 # (primary) and an iPhone simulator (compatibility check). Uses the Debug simulator build produced
 # by ci_app.sh. Media pages are opened with the DEBUG-only `-AIUtilityPage <page>` launch argument and
-# dark shots use `-AIUtilityAppearance dark`.
+# dark shots use `-AIUtilityAppearance dark`. SCREENSHOT_SET=new captures only the newest pages.
 set -u
 root="$(cd "$(dirname "$0")/.." && pwd)"
 out="$root/artifacts/app/screenshots"
@@ -68,6 +68,17 @@ shoot() {
   xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 || true
   xcrun simctl install "$udid" "$app" || return 1
   page=""; scheme=""
+  if [ "${SCREENSHOT_SET:-all}" = "new" ]; then
+    # Only the pages added most recently (translation settings, provider cards, region OCR).
+    for page in settings-translation settings-provider screenshot-region; do
+      capture "$udid" portrait
+      if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
+    done
+    page=""
+    xcrun simctl shutdown "$udid" || true
+    xcrun simctl delete "$udid" || true
+    return 0
+  fi
   capture "$udid" portrait
   capture "$udid" landscape -AIUtilityPreviewLandscape
   # Media Tools pages: iPad in both orientations, iPhone in portrait.

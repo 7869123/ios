@@ -69,6 +69,8 @@ enum Workspace: String, CaseIterable, Identifiable {
     private static var launchWorkspace: Workspace {
         #if DEBUG
         if ReviewLaunch.mediaPage != nil { return .media }
+        if ReviewLaunch.settingsPage != nil { return .settings }
+        if ReviewLaunch.screenshotRegion { return .screenshot }
         #endif
         return .home
     }

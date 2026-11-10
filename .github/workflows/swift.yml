@@ -26,6 +26,11 @@ on:
         description: 'Commit downscaled app screenshots to validation/ui-preview on this branch (needs build_apple)'
         type: boolean
         default: false
+      screenshot_set:
+        description: 'Which screenshots to capture with publish_previews: all pages, or only the newest pages'
+        type: choice
+        options: [all, new]
+        default: all
       live_checks:
         description: 'Live public-site checks (Pixiv, Bilibili, X, soutubot): metadata and HEAD only, no downloads, no keys'
         type: boolean
@@ -216,6 +221,8 @@ jobs:
         if: github.event_name == 'push' || inputs.publish_previews
         continue-on-error: true
         timeout-minutes: 25
+        env:
+          SCREENSHOT_SET: ${{ inputs.screenshot_set || 'all' }}
         run: bash scripts/app_screenshots.sh
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success' && (github.event_name == 'push' || inputs.publish_previews)
@@ -249,14 +256,13 @@ jobs:
           # Start from an empty folder so a failed capture never leaves an older preview looking current.
           rm -rf validation/ui-preview && mkdir -p validation/ui-preview
           printf 'run=%s\nsha=%s\n' "${{ github.run_id }}" "${{ github.sha }}" > validation/ui-preview/SOURCE.txt
-          # Home in four views, then each Media Tools page (iPad both orientations, iPhone portrait).
-          names="ipad-mini-landscape ipad-mini-portrait iphone-landscape iphone-portrait"
-          for p in downloads stitch gif fingerprint search; do
-            names="$names ipad-mini-portrait-$p ipad-mini-landscape-$p iphone-portrait-$p"
-          done
-          # Dark appearance: home plus two tool pages.
-          for p in "" -downloads -gif; do
-            names="$names ipad-mini-portrait$p-dark ipad-mini-landscape$p-dark iphone-portrait$p-dark"
+          # Publish whatever this run captured (the full set or only the newest pages).
+          names=""
+          for f in artifacts/app/screenshots/*.png; do
+            [ -e "$f" ] || continue
+            n=$(basename "$f" .png)
+            case "$n" in *-raw) continue ;; esac
+            names="$names $n"
           done
           for n in $names; do
             f="artifacts/app/screenshots/$n.png"

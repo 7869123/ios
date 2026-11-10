@@ -58,6 +58,16 @@ import AIUtilityCore
             } catch { if !Task.isCancelled { ocrStatus = "截图无法读取。" } }
         }
         .onDisappear { cancel() }
+        #if DEBUG
+        .onAppear {
+            // Review screenshots only: show the selection box on a bundled image (no recognition run).
+            if ReviewLaunch.screenshotRegion, preview == nil, let sample = UIImage(named: "LaunchArt") {
+                preview = sample; imageData = sample.jpegData(compressionQuality: 0.8)
+                useRegion = true; region = CGRect(x: 0.1, y: 0.08, width: 0.8, height: 0.22)
+                ocrStatus = "预览：框选区域示例。"
+            }
+        }
+        #endif
     }
 
     private func recognize() {

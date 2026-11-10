@@ -57,6 +57,13 @@ import AIUtilityCore
                 if provider == .deepSeek { DeepSeekBalanceCard() }
             }
             if provider == .openAI { OpenAIUsageCard() }
+            #if DEBUG
+            if ReviewLaunch.previewProviderCards && !hasSavedKey {
+                // Layout preview for screenshots: sample model, no Key, no data.
+                ReasoningSettingsCard(provider: .openAI, model: "gpt-5.4", featureTitle: "截图翻译（预览）")
+                DeepSeekBalanceCard()
+            }
+            #endif
             UtilityCard {
                 Text("调用与隐私").font(.headline)
                 Text(budget).font(.subheadline)
@@ -149,6 +156,8 @@ import AIUtilityCore
 /// Settings hub: two sub-pages so Keys and appearance no longer share one long scroll.
 @MainActor struct SettingsView: View {
     @EnvironmentObject private var app: AppModel
+    /// DEBUG review screenshots only: opens one settings sub-page directly.
+    @State private var autoOpen: String?
     @Environment(AppearanceStore.self) private var appearance
     @Environment(WallpaperStore.self) private var wallpaper
     var body: some View {
@@ -175,6 +184,18 @@ import AIUtilityCore
                               detail: "界面透明度 \(Int((appearance.panelTransparency * 100).rounded()))% · \(wallpaperTitle)")
             }
             .buttonStyle(PressableCardStyle())
+        }
+        .navigationDestination(item: $autoOpen) { page in
+            if page == "settings-provider" {
+                ProviderSettingsView().navigationTitle("AI 供应商与模型").navigationBarTitleDisplayMode(.inline)
+            } else {
+                TranslationSettingsView().navigationTitle("翻译提示词与语言").navigationBarTitleDisplayMode(.inline)
+            }
+        }
+        .onAppear {
+            #if DEBUG
+            if autoOpen == nil, let page = ReviewLaunch.settingsPage { autoOpen = page }
+            #endif
         }
     }
     private var wallpaperTitle: String {
