@@ -1,5 +1,10 @@
 # AIUtility 交接
 
+## 最新修复交接：字幕修正尾句清理
+
+用户要求先修好，本次未重跑 CI。已核对首轮 7 处宏编译错误的 `6aa6f64` 修复；另外修正 Core SubtitleSegmenter 在前缀被 ASR 推翻后仍保留旧尾句的问题，并新增 2 个测试声明（其中 1 个参数化），当前 Core 83 个声明、执行 0。公开签名不变，PoC/AppleServices/UI/工具均不修改。
+已提交前缀保持不变，被推翻的尾句明确舍弃；后续兼容假设可继续提交新尾句，不能保证恢复所有 ASR 修正内容。新生产修复未编译，不能套用 `0ee791b` 的 build=0。[详细源码路径、回归场景和未验证项](validation/translation-completeness/repair-review.md)。Claude 的接口使用方式不变，跨分支集成仍需所有者决定。
+
 ## 最新验证交接（修复待重验）
 
 用户已授权编译、不合并分支。本轮只运行一次 [42647207277](https://github.com/7869123/ios/actions/runs/42647207277)（0ee791b）：Linux Core 生产源码编译成功；测试模块宏展开失败，Core 测试执行 0。生命周期 14 通过，媒体 92 通过/4 跳过；Apple/App/PoC SDK 因前置失败未运行。三家真实 API、Speech、PiP、缓存补送和真机没有通过结论。

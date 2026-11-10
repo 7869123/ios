@@ -1,5 +1,12 @@
 # 给 Claude 的变更通知（待所有者决定集成）
 
+## 最新：字幕旧尾句清理（先修代码，未重跑 CI）
+
+- 文件：Core 的 SubtitleTranslationSession.swift、TranslationReliabilityTests.swift，以及 STATUS/HANDOFF/本通知/接口交接/验证文档。首轮 7 处编译诊断的 `6aa6f64` 修复已复核保留。
+- **接口变化**：无公开签名变化；修正行为是 ASR 推翻已提交前缀后，旧未提交尾句立即失效，序号水位推进，final 结束旧 utterance，避免重复/错误翻译。新增 2 个测试声明（其中 1 个两组参数），旧测试保留；尚未编译/执行。
+- **无工具变化**：workflow、scripts、依赖、构建命令均不改；未修改 UI、AppleServices 或任何 PoC 文件。未重跑 CI，不创建 PR、不合并或读取 Claude 分支。
+- Claude 无需调整调用或 UI；用户授权集成后应连同修复与回归一并纳入，仍需真实 Swift/Apple CI 验证。[详细修复记录](validation/translation-completeness/repair-review.md)。
+
 ## 最新：首轮 CI 测试编译修复
 
 - 验证源 0ee791b，Actions 42647207277：Core 生产 build=0，测试模块 test=1（执行 0），原因是新增测试的宏展开错误；生命周期 14 通过、Media 92 通过/4 跳过，Apple/PoC/App 被依赖阻断。未创建 PR、未合并分支。

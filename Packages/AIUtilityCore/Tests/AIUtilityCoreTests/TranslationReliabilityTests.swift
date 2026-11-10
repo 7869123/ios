@@ -142,6 +142,55 @@ private actor FIFORecorder {
     #expect(try segmenter.ingest(SpeechTranscript(utteranceID: UUID(), sequence: 1, text: "old callback", isFinal: true, timestamp: 0)).isEmpty)
 }
 
+@Test(arguments: [false, true])
+func subtitleInvalidatedFinalCannotFlushOrLeakIntoNextUtterance(_ flushBeforeNext: Bool) throws {
+    var segmenter = SubtitleSegmenter(policy: SubtitlePolicy())
+    let id = UUID()
+    let committed = "Committed sentence."
+    let initial = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 1,
+        text: committed, isFinal: false, timestamp: 1))
+    #expect(initial.isEmpty)
+    let published = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 2,
+        text: committed + " obsolete tail", isFinal: false, timestamp: 2))
+    #expect(published == [committed])
+    let invalidated = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 3,
+        text: "Rewritten sentence. corrected tail", isFinal: true, timestamp: 3))
+    #expect(invalidated.isEmpty)
+    if flushBeforeNext {
+        let flushed = segmenter.flush(at: 5)
+        #expect(flushed.isEmpty)
+    }
+    let lateFinal = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 4,
+        text: committed + " obsolete tail", isFinal: true, timestamp: 6))
+    #expect(lateFinal.isEmpty)
+    let next = try segmenter.ingest(SpeechTranscript(utteranceID: UUID(), sequence: 1,
+        text: "next", isFinal: true, timestamp: 7))
+    #expect(next == ["next"])
+}
+
+@Test func subtitleInvalidatedPartialDropsTailAndAdvancesSequenceBeforeRecovery() throws {
+    var segmenter = SubtitleSegmenter(policy: SubtitlePolicy())
+    let id = UUID()
+    let committed = "Committed sentence."
+    _ = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 1,
+        text: committed, isFinal: false, timestamp: 1))
+    let published = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 2,
+        text: committed + " obsolete tail", isFinal: false, timestamp: 2))
+    #expect(published == [committed])
+    let invalidated = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 4,
+        text: "Rewritten sentence. uncertain tail", isFinal: false, timestamp: 4))
+    #expect(invalidated.isEmpty)
+    let stale = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 3,
+        text: committed + " stale tail", isFinal: false, timestamp: 5))
+    #expect(stale.isEmpty)
+    let flushed = segmenter.flush(at: 6)
+    #expect(flushed.isEmpty)
+    let recovered = try segmenter.ingest(SpeechTranscript(utteranceID: id, sequence: 5,
+        text: committed + " corrected tail", isFinal: true, timestamp: 7))
+    #expect(recovered == ["corrected tail"])
+    #expect(segmenter.duplicateEvents == 2)
+}
+
 private struct SlowOCR: RegionOCRService {
     func recognize(imageData: Data, languages: [String]) async throws -> OCRResult {
         try await recognize(imageData: imageData, languages: languages, region: nil)

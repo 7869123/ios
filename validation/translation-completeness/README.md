@@ -1,5 +1,9 @@
 # 翻译增量验证状态
 
+## 后续修复：未重跑 CI
+
+首轮 7 处诊断的 `6aa6f64` 修复已对照原日志核对。另修 Core 分段器被 ASR 推翻的旧尾句清理，新增 2 个 @Test 声明、3 组场景；当前总计 83 个声明，未编译/执行。88 个 Swift 文件静态检查退出 0，不能替代编译。用户要求先修代码，本次未触发 Actions、创建 PR 或合并；原首轮日志与哈希保持不变，不把 `0ee791b` 编译成功扩展到新生产代码。[修复审查](repair-review.md)。
+
 ## 最新：首轮 CI 失败，测试表达式已修复待复验
 
 [42647207277](https://github.com/7869123/ios/actions/runs/42647207277)，源 0ee791b，真实 Swift 6.0.3 / Linux：Core 生产 build=0，Core test=1（测试模块宏展开失败，实际执行 0）；生命周期 14 通过/0 跳过，媒体 92 通过/4 live 跳过。Apple、App、PoC SDK 因依赖失败 skipped；live-checks 关闭。整体 failure。

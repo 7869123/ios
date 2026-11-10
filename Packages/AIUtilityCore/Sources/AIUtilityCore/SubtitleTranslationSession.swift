@@ -63,7 +63,17 @@ struct SubtitleSegmenter: Sendable {
             duplicateEvents += 1; return []
         }
         let committed = String(hypothesis.prefix(consumed))
-        guard value.text.hasPrefix(committed) else { duplicateEvents += 1; return [] }
+        guard value.text.hasPrefix(committed) else {
+            // The recognizer invalidated this hypothesis, including its uncommitted tail.
+            // Keep the published prefix immutable, but never flush the obsolete tail later.
+            hypothesis = committed
+            sequence = value.sequence; lastTimestamp = value.timestamp; lastChanged = value.timestamp
+            duplicateEvents += 1
+            if value.isFinal {
+                retire(value.utteranceID); utterance = nil; hypothesis = ""; consumed = 0
+            }
+            return []
+        }
         let common = zip(hypothesis, value.text).prefix(while: { $0.0 == $0.1 }).count
         if hypothesis != value.text { lastChanged = value.timestamp }
         hypothesis = value.text; sequence = value.sequence; lastTimestamp = value.timestamp

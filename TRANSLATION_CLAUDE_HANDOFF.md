@@ -1,5 +1,10 @@
 # Claude 接线交接：翻译底层增量
 
+## 最新修复（未重跑编译）
+
+首轮日志的 7 处错误已在 `6aa6f64` 拆开宏/throwing 读取。后续只改 Core SubtitleSegmenter：当 ASR 修正与已提交前缀不符，丢弃旧的未提交尾句并推进 sequence/timestamp；不修订已发布字幕，final 结束该 utterance，后续兼容 partial 可重新积累尾句。新增 2 个同步测试声明、3 组场景，不删除旧断言。当前 Core 83 个声明，执行/通过数量仍未知。
+**无公开类型或签名变化；行为变化是旧尾句不再被静默 flush/下一轮/迟到 final 重放。** Claude 的调用方式不变，不需修改 UI。PoC、采集/PiP、AppleServices、工作流、脚本和工具不变。新修复尚未编译，不能引用首轮的生产 build=0 证明它成功；用户要求先修代码，本次没有触发 CI。[逐项修复审查](validation/translation-completeness/repair-review.md)。
+
 ## 边界与证据
 
 - 开发基线为 `7ff41115adf3b6c0e80e54c9af6d566712f48399`，独立分支 `codex/translation-completeness`；只读审计提交 `c178776`，P0 源码提交 `659de51`。后续以本分支提交历史为准。
@@ -83,6 +88,7 @@ await pipeline.closeEventStreams() // 控制器销毁/丢弃本次订阅时关�
 - `SpeechTranscript` 包含新识别请求的 `utteranceID`、请求内递增 `sequence`、累计文本、isFinal，以及同一播放会话的**单调递增经过秒数**。识别请求轮转时不能把 timestamp 归零；播放跳转需新 pipeline session。
 - partial 只提交连续两次稳定的标点前缀/长度达到上限的段；稳定静默至少 1.2 秒且至少 8 字符才 flush；final 提交剩余文字。不按每个字符调用翻译。
 - 同一 utterance 的重复/过期事件及已提交前缀修订不重复发送；不跨新 utterance 粗暴删除真实重复台词。生产端需避免轮转重放同一音频。
+- 修正触及已提交前缀时，旧未提交尾句一并失效，不能再 flush；只接受之后带原已提交前缀的新尾句，final 结束该 utterance。已发布译文不被覆盖，不承诺恢复无法对齐的修正内容。该补修与新增回归仍待真实 Swift 验证。
 - 默认段长 240、累计识别 4096 字符、待译 8 段；单 worker FIFO，溢出明确发 dropped 事件。可调策略有硬上限，不无限保留上下文。
 - `SubtitleEvent.translated` 含 session、ordinal、译文与耗时；failed 为安全错误枚举；dropped/stopped 独立。显示端仍应检查 session/ordinal，丢弃已退出会话事件。有界事件流可能丢掉过旧 UI 事件，不是字幕归档服务。
 - 模型/Key 事务提交会让 TranslationEngine 主动取消该供应商旧请求；输入文本/译文不写磁盘。已到供应商的请求仍可能计费。
