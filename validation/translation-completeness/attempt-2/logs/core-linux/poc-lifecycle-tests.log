@@ -1,0 +1,89 @@
+Building for debugging...
+[0/15] Write sources
+[3/15] Write swift-version-24593BA9C3E375BF.txt
+[5/28] Compiling AIUtilityCore OpenAIUsageLedger.swift
+[6/28] Compiling AIUtilityCore ProviderGateway.swift
+[7/28] Compiling AIUtilityCore ReasoningConfiguration.swift
+[8/28] Compiling AIUtilityCore ScreenshotTranslationWorkflow.swift
+[9/28] Compiling AIUtilityCore AudioRolloverBuffer.swift
+[10/28] Compiling AIUtilityCore ConfigurationCoordinator.swift
+[11/28] Compiling AIUtilityCore DeepSeekBalance.swift
+[12/28] Compiling AIUtilityCore Domain.swift
+[13/28] Emitting module AIUtilityCore
+[14/32] Compiling AIUtilityCore HTTPTransport.swift
+[15/32] Compiling AIUtilityCore LocalDataStore.swift
+[16/32] Compiling AIUtilityCore OCRService.swift
+[17/32] Compiling AIUtilityCore OfficialAPIAdapter.swift
+[18/32] Compiling AIUtilityCore SubtitleTranslationSession.swift
+[19/32] Compiling AIUtilityCore TranslationDiagnostics.swift
+[20/32] Compiling AIUtilityCore TranslationEngine.swift
+[21/32] Compiling AIUtilityCore TranslationPreferences.swift
+[22/33] Wrapping AST for AIUtilityCore for debugging
+[24/38] Compiling AIUtilityCapturePoC ScreenAudioProbe.swift
+[25/39] Compiling AIUtilityCapturePoC SubtitlePiPProbe.swift
+[26/39] Compiling AIUtilityCapturePoC LocalSpeechProbe.swift
+[27/39] Compiling AIUtilityCapturePoC PoCSession.swift
+[28/39] Emitting module AIUtilityCapturePoC
+[29/39] Compiling AIUtilityCapturePoC ProbeLifecycle.swift
+[30/40] Wrapping AST for AIUtilityCapturePoC for debugging
+[32/42] Emitting module AIUtilityCapturePoCTests
+[33/42] Compiling AIUtilityCapturePoCTests ProbeLifecycleTests.swift
+[CI_WORKSPACE]/PoCs/iOS27Capture/Tests/AIUtilityCapturePoCTests/ProbeLifecycleTests.swift:23:16: warning: expression of type 'Bool' is unused
+ 21 |     #expect(gate.begin() == nil)
+ 22 |     pause.resume()
+ 23 |     await stop.value
+    |                `- warning: expression of type 'Bool' is unused
+ 24 |     #expect(gate.phase == .idle)
+ 25 |     #expect(gate.begin() != nil)
+[34/43] [CI_WORKSPACE]/PoCs/iOS27Capture/.build/x86_64-unknown-linux-gnu/debug/AIUtilityCapturePoCPackageDiscoveredTests.derived/all-discovered-tests.swift
+[35/43] Write sources
+[36/43] Wrapping AST for AIUtilityCapturePoCTests for debugging
+[38/46] Compiling AIUtilityCapturePoCPackageDiscoveredTests AIUtilityCapturePoCTests.swift
+[39/46] Compiling AIUtilityCapturePoCPackageDiscoveredTests all-discovered-tests.swift
+[40/46] Emitting module AIUtilityCapturePoCPackageDiscoveredTests
+[41/47] [CI_WORKSPACE]/PoCs/iOS27Capture/.build/x86_64-unknown-linux-gnu/debug/AIUtilityCapturePoCPackageTests.derived/runner.swift
+[42/47] Write sources
+[43/47] Wrapping AST for AIUtilityCapturePoCPackageDiscoveredTests for debugging
+[45/49] Emitting module AIUtilityCapturePoCPackageTests
+[46/49] Compiling AIUtilityCapturePoCPackageTests runner.swift
+[47/50] Wrapping AST for AIUtilityCapturePoCPackageTests for debugging
+[48/50] Write Objects.LinkFileList
+[49/50] Linking AIUtilityCapturePoCPackageTests.xctest
+Build complete! (8.09s)
+Test Suite 'All tests' started at 2026-11-10 01:55:48.469
+Test Suite 'debug.xctest' started at 2026-11-10 01:55:48.470
+Test Suite 'debug.xctest' passed at 2026-11-10 01:55:48.470
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+Test Suite 'All tests' passed at 2026-11-10 01:55:48.470
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+◇ Test run started.
+↳ Testing Library Version: 6.0.3 (18c42c19cac3faf)
+◇ Test pendingStartCannotBecomeRunningAfterCancel() started.
+◇ Test cancellingStopCallerStillFinishesResourceRelease() started.
+◇ Test restartWaitsForActualAsyncRelease() started.
+◇ Test lateMetricsAndPickerCallbacksAreRejected() started.
+◇ Test oldFailureCannotStopReplacement() started.
+◇ Test concurrentStopFailureIsSharedWithoutImplicitRetry() started.
+◇ Test interruptedSessionRequiresExplicitRestart() started.
+◇ Test repeatedStopAfterCompletionDoesNotReleaseTwice() started.
+◇ Test stopIsIdempotentDuringAndAfterRelease() started.
+◇ Test staleFailureDoesNotReleaseNewSessionResources() started.
+◇ Test failedReleaseBlocksRestartUntilExplicitStopRetry() started.
+◇ Test duplicateStartIsRejected() started.
+◇ Test staleStopCompletionCannotClearReplacement() started.
+◇ Test concurrentStopsAwaitOneActualRelease() started.
+✔ Test lateMetricsAndPickerCallbacksAreRejected() passed after 0.001 seconds.
+✔ Test oldFailureCannotStopReplacement() passed after 0.001 seconds.
+✔ Test stopIsIdempotentDuringAndAfterRelease() passed after 0.001 seconds.
+✔ Test pendingStartCannotBecomeRunningAfterCancel() passed after 0.001 seconds.
+✔ Test interruptedSessionRequiresExplicitRestart() passed after 0.001 seconds.
+✔ Test staleStopCompletionCannotClearReplacement() passed after 0.001 seconds.
+✔ Test duplicateStartIsRejected() passed after 0.001 seconds.
+✔ Test restartWaitsForActualAsyncRelease() passed after 0.001 seconds.
+✔ Test repeatedStopAfterCompletionDoesNotReleaseTwice() passed after 0.001 seconds.
+✔ Test failedReleaseBlocksRestartUntilExplicitStopRetry() passed after 0.001 seconds.
+✔ Test staleFailureDoesNotReleaseNewSessionResources() passed after 0.001 seconds.
+✔ Test concurrentStopFailureIsSharedWithoutImplicitRetry() passed after 0.001 seconds.
+✔ Test cancellingStopCallerStillFinishesResourceRelease() passed after 0.001 seconds.
+✔ Test concurrentStopsAwaitOneActualRelease() passed after 0.001 seconds.
+✔ Test run with 14 tests passed after 0.001 seconds.

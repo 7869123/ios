@@ -1,0 +1,52 @@
+Building for debugging...
+[0/8] [CI_WORKSPACE]/Packages/AIUtilityAppleServices/.build/arm64-apple-macosx/debug/AIUtilityAppleServicesPackageTests.derived/runner.swift
+[1/8] Write sources
+[5/8] Write swift-version-7974D3F7F03D5E95.txt
+[7/20] Emitting module AIUtilityCore
+[8/20] Compiling AIUtilityCore AudioRolloverBuffer.swift
+[9/20] Compiling AIUtilityCore ConfigurationCoordinator.swift
+[10/20] Compiling AIUtilityCore DeepSeekBalance.swift
+[11/20] Compiling AIUtilityCore Domain.swift
+[12/20] Compiling AIUtilityCore HTTPTransport.swift
+[13/20] Compiling AIUtilityCore LocalDataStore.swift
+[14/20] Compiling AIUtilityCore OCRService.swift
+[15/20] Compiling AIUtilityCore OfficialAPIAdapter.swift
+[16/20] Compiling AIUtilityCore OpenAIUsageLedger.swift
+[17/20] Compiling AIUtilityCore ProviderGateway.swift
+[18/20] Compiling AIUtilityCore ReasoningConfiguration.swift
+[19/25] Compiling AIUtilityCore ScreenshotTranslationWorkflow.swift
+[20/25] Compiling AIUtilityCore SubtitleTranslationSession.swift
+[21/25] Compiling AIUtilityCore TranslationDiagnostics.swift
+[22/25] Compiling AIUtilityCore TranslationEngine.swift
+[23/25] Compiling AIUtilityCore TranslationPreferences.swift
+[24/29] Compiling AIUtilityAppleServices AIUtilityServices.swift
+[25/29] Compiling AIUtilityAppleServices AppleLanguageSupport.swift
+[26/29] Emitting module AIUtilityAppleServices
+[27/29] Compiling AIUtilityAppleServices KeychainCredentialStore.swift
+[28/30] Compiling AIUtilityAppleServices VisionOCRService.swift
+[29/32] Compiling AIUtilityAppleServicesTests AppleServiceTests.swift
+[30/32] Emitting module AIUtilityAppleServicesTests
+[31/34] Emitting module AIUtilityAppleServicesPackageTests
+[32/34] Compiling AIUtilityAppleServicesPackageTests runner.swift
+[32/34] Write Objects.LinkFileList
+[33/34] Linking AIUtilityAppleServicesPackageTests
+Build complete! (21.58s)
+Test Suite 'All tests' started at 2026-11-10 01:57:07.604.
+Test Suite 'All tests' passed at 2026-11-10 01:57:07.606.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.002) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test cancelledVisionNeverReturnsSuccessfulOCR() started.
+◇ Test visionRegionRecognizesOnlyTheSelectedHalf() started.
+◇ Test visionRejectsInvalidImageLocally() started.
+◇ Test appleTextDetectionUsesRealLocalEngine() started.
+◇ Test visionRecognizesGeneratedLocalImage() started.
+➜ Test keychainReplacesSingleProviderRecordAtomically() skipped.
+✔ Test visionRejectsInvalidImageLocally() passed after 0.035 seconds.
+✔ Test cancelledVisionNeverReturnsSuccessfulOCR() passed after 0.039 seconds.
+✔ Test appleTextDetectionUsesRealLocalEngine() passed after 0.047 seconds.
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+✔ Test visionRecognizesGeneratedLocalImage() passed after 1.174 seconds.
+✔ Test visionRegionRecognizesOnlyTheSelectedHalf() passed after 1.499 seconds.
+✔ Test run with 6 tests in 0 suites passed after 1.499 seconds.

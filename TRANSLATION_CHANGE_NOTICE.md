@@ -1,5 +1,12 @@
 # 给 Claude 的变更通知（待所有者决定集成）
 
+## 最新：完整编译通过与证据交接
+
+- 被测代码提交 05508ba，[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) 四个构建 job 全部 success。Core 每平台 82/1 跳过，AppleServices 5/1，Media Linux 92/4、macOS 108/5，生命周期各 14 通过；26 个命令退出码均为 0，双 SDK/PoC Swift 6 Archive/App Archive/两份未签名 IPA 成功。
+- 本次仅更新 STATUS.md、HANDOFF.md、BUILD.md、IOS_POC.md、POC_TRANSLATION_PLAN.md、本通知、TRANSLATION_CLAUDE_HANDOFF.md 和 validation/translation-completeness 文档/证据（35 份日志与哈希）。无生产源码或测试变动。
+- **无接口变化，无工具变化**：没有修改 workflow、scripts、依赖、构建命令、UI 或 PoC；没有合并/读取 Claude 分支或创建 PR。Claude 无需改调用方式；跨分支集成仍待用户决定。
+- 请 Claude 留意现有 LocalToolViews.swift:55、113、189 与 WallpaperViews.swift:223 的 MainActor/Sendable 警告。PoC 弃用接口、真机 ASR/捕获/PiP/后台与签名安装仍未解决；本通知不把编译成功当成运行时通过。[完整记录](validation/translation-completeness/attempt-2/README.md)。下文为此前阶段通知。
+
 ## 最新：字幕旧尾句清理（先修代码，未重跑 CI）
 
 - 文件：Core 的 SubtitleTranslationSession.swift、TranslationReliabilityTests.swift，以及 STATUS/HANDOFF/本通知/接口交接/验证文档。首轮 7 处编译诊断的 `6aa6f64` 修复已复核保留。

@@ -1,9 +1,14 @@
 # Claude 接线交接：翻译底层增量
 
-## 最新修复（未重跑编译）
+## 最新验证：05508ba 全部编译 job 通过
 
-首轮日志的 7 处错误已在 `6aa6f64` 拆开宏/throwing 读取。后续只改 Core SubtitleSegmenter：当 ASR 修正与已提交前缀不符，丢弃旧的未提交尾句并推进 sequence/timestamp；不修订已发布字幕，final 结束该 utterance，后续兼容 partial 可重新积累尾句。新增 2 个同步测试声明、3 组场景，不删除旧断言。当前 Core 83 个声明，执行/通过数量仍未知。
-**无公开类型或签名变化；行为变化是旧尾句不再被静默 flush/下一轮/迟到 final 重放。** Claude 的调用方式不变，不需修改 UI。PoC、采集/PiP、AppleServices、工作流、脚本和工具不变。新修复尚未编译，不能引用首轮的生产 build=0 证明它成功；用户要求先修代码，本次没有触发 CI。[逐项修复审查](validation/translation-completeness/repair-review.md)。
+[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success：Core Linux/macOS 各 82 通过/1 live 跳过，AppleServices 5/1 Keychain 跳过，Media Linux 92/4、macOS 108/5，生命周期两个宿主各 14 通过。Apple 双 SDK、iOS 27.1 PoC Swift 6 模拟器编译/iphoneos Archive/未签名 IPA/13 项预安装检查及 App 编译/Archive/未签名 IPA 成功。26 个记录的命令退出码均为 0，[35 份日志、哈希、Artifact、警告和完整命令](validation/translation-completeness/attempt-2/README.md)。
+本次用户授权编译/修复重试直到通过，只触发一次 run，没有修改生产代码、测试、UI、PoC 或工具，没有合并。接口使用方式不变。App 的 LocalToolViews.swift:55、113、189 与 WallpaperViews.swift:223 仍有 MainActor/Sendable 闭包警告，请 Claude 独立审查；此记录不授权跨分支同步。真实 API、iOS Keychain、ASR 缓存补送/语言包/边界质量、跨 App 捕获、PiP/后台与签名安装仍未验证。
+
+## 修复内容（已获上方真实编译/测试验证）
+
+首轮日志的 7 处错误已在 `6aa6f64` 拆开宏/throwing 读取。后续只改 Core SubtitleSegmenter：当 ASR 修正与已提交前缀不符，丢弃旧的未提交尾句并推进 sequence/timestamp；不修订已发布字幕，final 结束该 utterance，后续兼容 partial 可重新积累尾句。新增 2 个同步测试声明、3 组场景，不删除旧断言。当前 Core 83 个声明，本次 Linux/macOS 各 82 通过、1 跳过。
+**无公开类型或签名变化；行为变化是旧尾句不再被静默 flush/下一轮/迟到 final 重放。** Claude 的调用方式不变，不需修改 UI。该修复已获最新 CI 验证，不再引用首轮 build=0 作为唯一证据。[逐项修复审查](validation/translation-completeness/repair-review.md)。
 
 ## 边界与证据
 
@@ -11,8 +16,8 @@
 - 先读 `AGENTS.md`、本文件、`TRANSLATION_AUDIT.md`、`POC_TRANSLATION_PLAN.md`，再读 Core/AppleServices 源码与测试。
 - 仓库所有者本轮重新分配底层工作给 Codex，UI/UX 仍归 Claude。没有修改 Apps、壁纸、资源、workflow、scripts 或媒体生产实现。不把本交接当作跨分支合并授权。
 - **首轮真实 CI 42647207277：0ee791b 的 Linux Core 生产源码编译成功，测试模块编译失败，Core 测试执行 0；Apple/App/PoC SDK 被依赖阻断。** 测试宏修复为 6aa6f64，只改三份测试表达式，@Test/#expect/#require 数量及生产源码不变；修复未复验。实际日志见 validation/translation-completeness/attempt-1/；本轮一次 CI 已使用，重跑需确认。没有创建 PR 或合并任何分支。
-- 所有者随后单独授权了 PoC 两处逻辑文件：LocalSpeechProbe / PoCSession 已加入三语参数、50 秒轮转/最多 2 秒排空与字幕队列接线，**仍未编译/运行验证**。Host UI、采集和 PiP 实现没有改；不能描述成跨 App 采集已可用。
-- 之后用户明确要求“加入缓存机制”，源码 `2272e99`。下面的缓存小节取代旧空窗说明；新代码仍未编译/测试，旧 c9496fa CI 询问不能当作本批 CI 授权。
+- 所有者随后单独授权了 PoC 两处逻辑文件：LocalSpeechProbe / PoCSession 已加入三语参数、50 秒轮转/最多 2 秒排空与字幕队列接线，**现已通过 iOS 27.1 SDK 编译，运行时仍未验证**。Host UI、采集和 PiP 实现没有改；不能描述成跨 App 采集已可用。
+- 之后用户明确要求“加入缓存机制”，源码 `2272e99`。下面的缓存小节取代旧空窗说明；Core 队列测试与 PoC SDK 现已通过，真正音频补送和识别质量仍需设备验证。
 
 ## 组合入口
 
@@ -88,7 +93,7 @@ await pipeline.closeEventStreams() // 控制器销毁/丢弃本次订阅时关�
 - `SpeechTranscript` 包含新识别请求的 `utteranceID`、请求内递增 `sequence`、累计文本、isFinal，以及同一播放会话的**单调递增经过秒数**。识别请求轮转时不能把 timestamp 归零；播放跳转需新 pipeline session。
 - partial 只提交连续两次稳定的标点前缀/长度达到上限的段；稳定静默至少 1.2 秒且至少 8 字符才 flush；final 提交剩余文字。不按每个字符调用翻译。
 - 同一 utterance 的重复/过期事件及已提交前缀修订不重复发送；不跨新 utterance 粗暴删除真实重复台词。生产端需避免轮转重放同一音频。
-- 修正触及已提交前缀时，旧未提交尾句一并失效，不能再 flush；只接受之后带原已提交前缀的新尾句，final 结束该 utterance。已发布译文不被覆盖，不承诺恢复无法对齐的修正内容。该补修与新增回归仍待真实 Swift 验证。
+- 修正触及已提交前缀时，旧未提交尾句一并失效，不能再 flush；只接受之后带原已提交前缀的新尾句，final 结束该 utterance。已发布译文不被覆盖，不承诺恢复无法对齐的修正内容。该补修与新增回归已通过 Linux/macOS Core 测试。
 - 默认段长 240、累计识别 4096 字符、待译 8 段；单 worker FIFO，溢出明确发 dropped 事件。可调策略有硬上限，不无限保留上下文。
 - `SubtitleEvent.translated` 含 session、ordinal、译文与耗时；failed 为安全错误枚举；dropped/stopped 独立。显示端仍应检查 session/ordinal，丢弃已退出会话事件。有界事件流可能丢掉过旧 UI 事件，不是字幕归档服务。
 - 模型/Key 事务提交会让 TranslationEngine 主动取消该供应商旧请求；输入文本/译文不写磁盘。已到供应商的请求仍可能计费。
@@ -110,7 +115,7 @@ await pipeline.closeEventStreams() // 控制器销毁/丢弃本次订阅时关�
 - LocalSpeechProbe 新增只读 `audioBufferSnapshot`：phase、failure、queuedPackets/Bytes/Duration、accepted/dequeued/duplicate/discardedPackets、peakQueuedBytes、sourceGapSeconds。仅元数据；dequeued 不表示识别成功，sourceGap 表示输入本来有缺口，不是假装缓存能补回。
 - 正式控制器的停止、跳转、来源/语言切换和系统中断应通过原 PoCSession.stop 清空音频后再显式重启。单独暂停 Core 翻译管线不会替代停止音频生产者。UI 本轮不改。
 - 不保证识别器能追平实时输入，也不保证跨词切分准确。若要少量重叠音频，需先加基于音频时间范围的文字去重并另行审核，不能用相同文字粗暴删除真实重复台词。
-- 本轮新增 13 个 Core 回归声明（总数 81），实际执行 0。1000 次轮转测试是纯队列场景，不是设备长时 ASR。获批后运行 Core/Apple/PoC SDK，再实机检查缺字、重复、延迟、内存和清理。
+- 缓存新增 13 个 Core 回归已在 Linux/macOS 通过；后续分段修复后 Core 总数 83（82 通过/1 跳过）。1000 次轮转测试是纯队列场景，不是设备长时 ASR。PoC SDK 已编译，仍需实机检查缺字、重复、延迟、内存和清理。
 
 官方符号依据：[数据强制复制](https://developer.apple.com/documentation/coremedia/cmblockbuffercreatecontiguous(allocator:sourcebuffer:blockallocator:customblocksource:offsettodata:datalength:flags:blockbufferout:))、[PCM sample buffer 创建](https://developer.apple.com/documentation/coremedia/cmaudiosamplebuffercreatereadywithpacketdescriptions(allocator:databuffer:formatdescription:samplecount:presentationtimestamp:packetdescriptions:samplebufferout:))。文档核对不等于 SDK 编译成功。
 
@@ -162,7 +167,7 @@ await services.screenshots.cancel()
 - 不记录源文本/译文/提示词值/Key/图片/音频；测试只用内置合成常量与脚本响应，不运行付费 API。
 - 本地版本 1 文档为 additive decode，缺少新增推理字段可迁移；损坏或未来版本拒绝覆盖，写入失败保留旧配置。LocalDataStore 不是凭据存储。
 
-候选真实验证（**尚未执行，需要确认 CI**）：
+已在本次获批 CI 执行的真实验证入口（完整命令和退出码见 attempt-2）：
 
 ```sh
 swift build --package-path Packages/AIUtilityCore
@@ -173,7 +178,7 @@ bash scripts/ci_apple.sh
 bash scripts/ci_app.sh
 ```
 
-现有 workflow 已包含 Core/Media/生命周期和 AppleServices 测试、双 SDK 构建、App Archive/未签名 IPA；本批无工具变化。首次 build_apple=true、build_poc=true、publish_previews=false、live_checks=false 已执行并在测试模块编译阶段失败；Linux 生命周期 14 通过、媒体 92 通过/4 跳过，但 Apple/PoC/App 尚未执行。修复后相同输入的重验需所有者确认，不自行重跑。不运行真实 AI API、真实私密媒体测试；不上传缓存或敏感用户输入。
+现有 workflow 已包含 Core/Media/生命周期和 AppleServices 测试、双 SDK 构建、App Archive/未签名 IPA；本批无工具变化。首次 42647207277 在测试模块编译阶段失败；用户随后批准相同输入的修复/重验直至通过，42739095920 已全部通过。build_apple=true、build_poc=true、publish_previews=false、live_checks=false；不运行真实 AI API、真实私密媒体测试，不上传缓存或敏感用户输入。不因本次成功自动合并或继续新一批 CI。
 
 ## Claude 的第一项接线任务
 

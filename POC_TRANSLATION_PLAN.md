@@ -1,6 +1,6 @@
-# iOS 27 PoC 翻译接线方案（本轮已获授权，验证待确认）
+# iOS 27 PoC 翻译接线方案（已获授权，SDK 已编译，真机未验证）
 
-所有者先要求提交提案，再明确授权仅修改 LocalSpeechProbe.swift 和 PoCSession.swift，并进一步授权缓存和一次编译、不合并。Host UI、ScreenAudioProbe、ProbeLifecycle、SubtitlePiPProbe 没有修改。本次 42647207277 的 Core 测试模块编译失败，iOS SDK job 被依赖阻断；Core 生产源码 Linux 编译成功，**iOS/ASR 尚未验证**。测试修复 6aa6f64 待单独授权重验，见 validation/translation-completeness/attempt-1/。
+所有者先要求提交提案，再明确授权仅修改 LocalSpeechProbe.swift 和 PoCSession.swift，并进一步授权缓存及编译/修复重试直至通过、不合并。Host UI、ScreenAudioProbe、ProbeLifecycle、SubtitlePiPProbe 没有修改。最新 [42739095920](https://github.com/7869123/ios/actions/runs/42739095920) 验证源 05508ba：完整 CI success，iOS 27.1 PoC Swift 6 模拟器编译/iphoneos Archive/未签名 IPA/13 项预安装检查成功；Core Linux/macOS 各 82 通过/1 跳过，生命周期各 14 通过。ASR 实际识别、缓存补送、跨 App 采集和 PiP/后台仍未经过真机验证。[证据](validation/translation-completeness/attempt-2/README.md)。首轮 42647207277 失败证据保留在 attempt-1。
 
 ## 后续获批：加入有界音频缓存
 
@@ -12,7 +12,7 @@
 - 停止/中断通过原 speech.stop 清缓存并分离请求。每包 append 与停止之间有同步边界，旧 worker/会话不能取新会话的包；每包 autoreleasepool，避免长循环积累临时对象。
 - 收尾 `42a1bec` 增加按请求 token 的非阻塞 final/error 交接，回调不等待投递锁；MainActor 保留双代次检查及轮转兜底。不能把 append 返回当成识别完成确认。
 - 容量超限、格式变化、部分重叠、非法时间/数据或复制失败会清空并明确失败；原停止失败禁止重启机制仍保留。完全过期的时间范围按重复包拒绝，计入 duplicatePackets。
-- 新增 13 个纯逻辑回归声明，验证顺序、容量、重复、旧会话、释放和 1000 次轮转；**并未执行，也不验证 Apple Speech 或 PCM 复制**。新增 CoreMedia 符号必须经真实 SDK 编译和合成/真机音频检查。
+- 新增 13 个纯逻辑回归已在最新 Linux/macOS Core 测试中通过，覆盖顺序、容量、重复、旧会话、释放和 1000 次轮转；**不验证 Apple Speech 或 PCM 复制**。新增 CoreMedia 符号已通过 iOS 27.1 SDK 编译，仍需合成/真机音频运行检查。
 - 该方案取代下方旧提交的“排空期间不缓存”。Speech 任务完成超时仍为最多 2 秒；若超时仍失败并清缓存，不靠延长缓存掩盖资源释放失败。
 
 ## 开发前基线（历史）

@@ -1,5 +1,11 @@
 # AIUtility 交接
 
+## 最新验证交接：05508ba 完整 CI 通过
+
+[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success：Core Linux/macOS 各 82 通过/1 跳过，AppleServices 5/1，Media Linux 92/4、macOS 108/5，可移植生命周期两个宿主各 14 通过，全部 0 失败。26 个记录的命令退出码均为 0。Apple 两种 SDK、iOS 27.1 PoC Swift 6 Archive/未签名 IPA/13 项预安装检查，以及 App 编译/Archive/未签名 IPA 全部通过。
+用户批准按错误修复/重试直至通过，本次只触发一次，无新编译错误；不合并分支，不修改 UI、PoC 或工具。首轮失败日志仍保留，35 份本次日志、4 份已校验 ZIP 的哈希、真实跳过项和 Artifact 链接见 [attempt-2](validation/translation-completeness/attempt-2/README.md)。未发布截图或运行真实 API/Keychain。
+仍需真机检查缓存补送/边界识别、语言包、跨 App 采集、PiP、后台恢复、内存和签名安装；App 的 MainActor/Sendable 警告交由 Claude 审查，PoC 弃用接口迁移须单独方案。调用接口不变，没有自动集成授权。以下未编译等描述保留为此前阶段历史。
+
 ## 最新修复交接：字幕修正尾句清理
 
 用户要求先修好，本次未重跑 CI。已核对首轮 7 处宏编译错误的 `6aa6f64` 修复；另外修正 Core SubtitleSegmenter 在前缀被 ASR 推翻后仍保留旧尾句的问题，并新增 2 个测试声明（其中 1 个参数化），当前 Core 83 个声明、执行 0。公开签名不变，PoC/AppleServices/UI/工具均不修改。

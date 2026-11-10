@@ -1,5 +1,12 @@
 # 翻译增量验证状态
 
+## 最新：完整复编译通过
+
+被测源 05508ba，[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success。Core Linux/macOS 各 82 通过/1 跳过；AppleServices 5/1；Media Linux 92/4、macOS 108/5；生命周期两宿主各 14 通过；所有测试 0 失败。26 个记录的命令退出码全为 0，Apple 双 SDK、PoC iOS 27.1 Swift 6 模拟器编译/Archive/IPA/13 项预安装检查、App 编译/Archive/IPA 通过。live-checks、真实 API/Keychain 与截图发布关闭。
+用户授权按报错修复/重试直至通过，但只需要 1 个新 run；没有新源码改动、重跑或合并。4 个日志 ZIP 的 digest 与 35 份日志哈希已核对。[完整命令、逐项计数、Artifact 与剩余警告](attempt-2/README.md)、[机器可读摘要](attempt-2/summary.json)。真实采集/ASR 缓存补送、PiP/后台、签名安装与 iPad 真机仍未验证。后续收尾提交仅改文档/证据，被测源码 tree hash 保持不变。
+
+以下均为开发前及首轮失败时的历史状态，不覆盖上方最新结果。
+
 ## 后续修复：未重跑 CI
 
 首轮 7 处诊断的 `6aa6f64` 修复已对照原日志核对。另修 Core 分段器被 ASR 推翻的旧尾句清理，新增 2 个 @Test 声明、3 组场景；当前总计 83 个声明，未编译/执行。88 个 Swift 文件静态检查退出 0，不能替代编译。用户要求先修代码，本次未触发 Actions、创建 PR 或合并；原首轮日志与哈希保持不变，不把 `0ee791b` 编译成功扩展到新生产代码。[修复审查](repair-review.md)。

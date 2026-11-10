@@ -1,0 +1,81 @@
+# Selected PoC symbols; full list retained in the hashed Actions artifact.
+000000010009f540 d direct field offset for AIUtilityCapturePoC.(CaptureOutput in _76E5E00B4669F887DE80FD2B56C0D250).speech : AIUtilityCapturePoC.SpeechAudioSink
+000000010009f4b0 d direct field offset for AIUtilityCapturePoC.(CaptureCallbacks in _76E5E00B4669F887DE80FD2B56C0D250).owner : AIUtilityCapturePoC.ScreenAudioProbe?
+000000010009f170 d direct field offset for AIUtilityCapturePoC.PoCSession.(audioObservers in _234BD1CBB3C7BF39B7D64D3D35294346) : [__C.NSObject]
+000000010000edd0 T variable initialization expression of AIUtilityCapturePoC.PoCSession.(audioObservers in _234BD1CBB3C7BF39B7D64D3D35294346) : [__C.NSObject]
+000000010009f180 d direct field offset for AIUtilityCapturePoC.PoCSession.(sourceLanguage in _234BD1CBB3C7BF39B7D64D3D35294346) : AIUtilityCore.SupportedLanguage
+000000010009f148 d direct field offset for AIUtilityCapturePoC.PoCSession.(translationTask in _234BD1CBB3C7BF39B7D64D3D35294346) : Swift.Task<(), Swift.Never>?
+000000010000a69c T variable initialization expression of AIUtilityCapturePoC.PoCSession.(translationTask in _234BD1CBB3C7BF39B7D64D3D35294346) : Swift.Task<(), Swift.Never>?
+00000001000105f4 T AIUtilityCapturePoC.PoCSession.translationState.getter : Swift.String
+000000010001065c t key path getter for AIUtilityCapturePoC.PoCSession.translationState : Swift.String : AIUtilityCapturePoC.PoCSession
+00000001000106cc t key path setter for AIUtilityCapturePoC.PoCSession.translationState : Swift.String : AIUtilityCapturePoC.PoCSession
+0000000100094a48 S property descriptor for AIUtilityCapturePoC.PoCSession.translationState : Swift.String
+000000010000a2e4 T property wrapped field init accessor of AIUtilityCapturePoC.PoCSession.translationState : Swift.String
+000000010000a2e4 T property wrapper backing initializer of AIUtilityCapturePoC.PoCSession.translationState : Swift.String
+000000010001074c T AIUtilityCapturePoC.PoCSession.$translationState.getter : Combine.Published<Swift.String>.Publisher
+00000001000107bc t key path getter for AIUtilityCapturePoC.PoCSession.$translationState : Combine.Published<Swift.String>.Publisher : AIUtilityCapturePoC.PoCSession
+0000000100010830 t key path setter for AIUtilityCapturePoC.PoCSession.$translationState : Combine.Published<Swift.String>.Publisher : AIUtilityCapturePoC.PoCSession
+0000000100094a58 S property descriptor for AIUtilityCapturePoC.PoCSession.$translationState : Combine.Published<Swift.String>.Publisher
+000000010009f140 d direct field offset for AIUtilityCapturePoC.PoCSession.(_translationState in _234BD1CBB3C7BF39B7D64D3D35294346) : Combine.Published<Swift.String>
+000000010000ed68 T variable initialization expression of AIUtilityCapturePoC.PoCSession.(_translationState in _234BD1CBB3C7BF39B7D64D3D35294346) : Combine.Published<Swift.String>
+0000000100013050 t AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100015ba8 t closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100017294 t partial apply forwarder for closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+00000001000160e0 t closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+00000001000172bc t partial apply forwarder for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100007bf8 t (1) await resume partial function for partial apply forwarder for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100076ce8 s async function pointer to partial apply forwarder for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+00000001000162cc t (3) await resume partial function for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100016150 t (1) suspend resume partial function for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100016234 t (2) suspend resume partial function for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100016314 t (4) suspend resume partial function for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+000000010001634c t (5) suspend resume partial function for closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100076ce0 s async function pointer to closure #1 () async -> () in closure #1 @Sendable (Foundation.Notification) -> () in AIUtilityCapturePoC.PoCSession.(observeAudioEvents in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) -> ()
+0000000100011a88 t AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100011f00 t (4) await resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000127fc t (6) await resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100011c50 t (1) suspend resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100011e24 t (2) suspend resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100011e80 t (3) suspend resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100011f58 t (5) suspend resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100012840 t (7) suspend resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100012978 t (8) suspend resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100012a38 t (9) suspend resume partial function for AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100076bd8 s async function pointer to AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100013738 t closure #1 (AIUtilityCore.SpeechTranscript) -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100017538 t partial apply forwarder for closure #1 (AIUtilityCore.SpeechTranscript) -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100013a80 t closure #2 (Swift.Double) -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100017540 t partial apply forwarder for closure #2 (Swift.Double) -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100013b50 t closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100017734 t partial apply forwarder for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100007dbc t (1) await resume partial function for partial apply forwarder for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100076d50 s async function pointer to partial apply forwarder for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100013d30 t (2) await resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100014248 t (9) await resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100013c78 t (1) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000142c8 t (11) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+000000010001436c t (12) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100014598 t (13) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100013d78 t (3) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100013fb4 t (4) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100014014 t (5) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000140bc t (6) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+000000010001411c t (7) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000141b0 t (8) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100014290 t (10) suspend resume partial function for closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100076d40 s async function pointer to closure #3 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000147b4 t closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100017928 t partial apply forwarder for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100007dbc t (1) await resume partial function for partial apply forwarder for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100076d68 s async function pointer to partial apply forwarder for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000149a8 t (2) await resume partial function for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100015154 t (5) await resume partial function for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000148f4 t (1) suspend resume partial function for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000149f0 t (3) suspend resume partial function for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000150bc t (4) suspend resume partial function for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+000000010001519c t (6) suspend resume partial function for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000151d4 t (7) suspend resume partial function for closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+0000000100076d60 s async function pointer to closure #4 () async -> () in AIUtilityCapturePoC.PoCSession.(prepareTranslation in _234BD1CBB3C7BF39B7D64D3D35294346)(session: Swift.UInt64) async throws -> ()
+00000001000105e4 T AIUtilityCapturePoC.PoCSession.pip.getter : AIUtilityCapturePoC.SubtitlePiPProbe
+0000000100076c40 S property descriptor for AIUtilityCapturePoC.PoCSession.pip : AIUtilityCapturePoC.SubtitlePiPProbe
+0000000100076c50 S direct field offset for AIUtilityCapturePoC.PoCSession.pip : AIUtilityCapturePoC.SubtitlePiPProbe

@@ -1,9 +1,11 @@
 # iOS 27 跨 App 音频与 PiP 字幕 PoC
 
-## 最新 CI 门槛：尚未执行本批 iOS SDK 验证
+## 最新：本批 SDK / Archive / 未签名 IPA 通过，真机未验证
 
-[42647207277](https://github.com/7869123/ios/actions/runs/42647207277) 按授权开启了 build_poc，但 Linux Core 测试模块编译失败，poc-sdk job 被依赖阻断而 skipped。不能把“开启输入”当作已经运行 Archive。Linux Core 生产源码与有界队列编译成功，14 项可移植生命周期测试通过；它们不编译 iOS Speech/CoreMedia/ScreenCaptureKit 代码。
-测试宏修复为 `6aa6f64`，未改任何 PoC 生产源码；待单独授权重验。[逐项证据](validation/translation-completeness/attempt-1/README.md)。下方缓存及此前 Archive 成功记录均不能替代本批 SDK/真机验证。
+被测源 `05508ba`，[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success，poc-sdk job 129575894124。Xcode 27.1（27A9275）、iOS 27.1：xcodegen=0、模拟器 build=0、iphoneos Release Archive=0，Archive 确认 -swift-version 6。可移植生命周期 14 通过/0 跳过/0 失败，未签名 PoC IPA 打包和 13 项预安装检查成功。
+预安装检查验证二进制真实 ScreenAudioProbe/PoCSession 符号、ScreenCaptureKit/Speech/AVKit 链接、权限/后台模式声明，以及未引入麦克风。iOS 27.1 Simulator SDK 没有 ScreenCaptureKit，不能把模拟器编译当作采集验证；iphoneos 代码已真实编译，但未在 iPad 执行。[完整命令、哈希、日志及 IPA 链接](validation/translation-completeness/attempt-2/README.md)。
+Core 有界队列的 13 个测试及字幕分段回归已在 Linux/macOS 执行通过；LocalSpeechProbe 的 PCM 拷贝/投递、三语语言包、轮转追平/边界缺字/重复、内存和停止确认仍需运行时验证。跨 App 捕获、PiP/后台、签名安装与 iPad mini 6 均未验证。
+当前警告：PoCSession.swift:147 的 InterruptionType 在 iOS 27 弃用；SubtitlePiPProbe.swift:73、89、90、118 的 display-layer API 在 iOS 18 弃用，需后续迁移。未修改这些生命周期/PiP 行为消除警告。用户本轮批准编译修复直至通过，但只需 1 个新 run；没有源码追加改动或合并。首轮失败证据保留在 attempt-1，下方“尚未编译”均为此前阶段历史。
 
 ## 最新补充：轮转缓存源码（2272e99，尚未编译/运行）
 

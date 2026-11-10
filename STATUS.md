@@ -1,5 +1,14 @@
 # AIUtility 开发状态
 
+## 最新：完整复编译通过，真机仍未验证
+
+- 被测源 `05508ba75f86ebbc50bf8bc65f0947f50805ed7c`，[Actions 42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success。用户授权修复重试直至通过；本次只运行一次，未合并或读取 Claude 分支、未创建 PR。
+- Core Linux / macOS 各 **82 通过、1 live API 跳过、0 失败**；AppleServices **5 通过、1 Keychain 跳过**；Media Linux **92 通过/4 跳过**、macOS **108 通过/5 跳过**；可移植 PoC 生命周期两个宿主各 **14 通过**。26 个记录的命令退出码全为 0。
+- AppleServices、Media、MediaApple 的模拟器/真机 SDK 编译通过；Xcode 27.1 / iOS 27.1 下 PoC Swift 6 模拟器编译、iphoneos Archive、未签名 IPA、13 项预安装检查通过；App 两个 SDK 编译、Release Archive 和未签名 IPA 通过。
+- 首轮 7 处宏编译错误及后续字幕旧尾句修复已实际验证；13 项 Core 音频队列测试通过，不等同于真实 Speech/PCM 补送验证。真实 API、iOS Keychain、截图质量、ASR/跨 App 捕获、PiP/后台、签名安装与 iPad mini 6 真机仍未验证。
+- 保留警告：PoC 的音频中断/display layer 弃用接口、App UI 的 MainActor/Sendable 闭包、未使用 Bool 与元数据/方向诊断。未修改 UI、PoC 或工具来消除警告。截图发布/live-checks 关闭。
+- [完整测试/命令/退出码/Artifact/风险记录](validation/translation-completeness/attempt-2/README.md)。35 份日志与原始/归档哈希已保存；后续仅文档/证据变动不改变被测源码。下方未编译/未重跑描述均为此前阶段历史。
+
 ## 最新修复：先修代码，未重跑 CI
 
 - 已逐项核对首轮日志的 7 处测试编译错误，保留 `6aa6f64` 的修复与全部旧断言。

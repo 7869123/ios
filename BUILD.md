@@ -1,10 +1,11 @@
 # 构建与测试
 
-## 当前翻译增量的验证门槛
+## 当前翻译增量：真实复编译通过
 
-分支 `codex/translation-completeness` 已执行首轮真实 CI：0ee791b 的 Linux Core build=0，test=1（测试模块编译失败、执行 0），生命周期 14 通过、媒体 92 通过/4 跳过；Apple/PoC/App 被依赖阻断。`6aa6f64` 只修复测试宏表达式，尚未重验。[真实命令、退出码与日志](validation/translation-completeness/attempt-1/README.md)。下面历史通过结果不覆盖本批 Apple 或功能测试。Windows 不安装 Swift，候选命令和接口见 [交接](TRANSLATION_CLAUDE_HANDOFF.md)。
-现有 workflow 不改：PR 自动 Linux；完整 Apple 与 iOS 27 PoC 需手动输入。首轮已使用一次 `build_apple=true`、`build_poc=true`、`publish_previews=false`、`live_checks=false` 授权；修复后再次运行需确认。没有用户确认前不触发或重跑，也不通过创建 PR 隐性触发。用户明确不合并分支，本轮未创建 PR。
-新 Apple 三语 NL、区域 Vision 测试仅本机合成常量；Core 只用脚本响应。真实 AI/Keychain 集成继续关闭，不上传用户截图、音频、原文、Key、Token 或缓存。未签名 IPA 不等于可安装、更不代表实机采集成功。
+被测源 `05508ba75f86ebbc50bf8bc65f0947f50805ed7c`，分支 codex/translation-completeness，[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success。Core Linux/macOS 各 82 通过/1 live 跳过；AppleServices 5 通过/1 Keychain 跳过；Media Linux 92/4、macOS 108/5；可移植 PoC 生命周期各 14 通过，均无失败。26 个记录的命令退出码全为 0。
+AppleServices/Media/MediaApple 的两种 iOS SDK 编译、iOS 27.1 PoC Swift 6 模拟器编译/真机 SDK Archive/未签名 IPA 与 App 编译/Archive/未签名 IPA 全部成功。[实际命令、job ID、完整日志、Artifact 与警告](validation/translation-completeness/attempt-2/README.md)。首轮宏编译失败证据保留在 [attempt-1](validation/translation-completeness/attempt-1/README.md)，本次没有修改 workflow、scripts、源码或测试来制造通过。
+用户本轮授权编译/修复重试直到通过；只使用一次 dispatch，build_apple=true、build_poc=true、publish_previews=false、live_checks=false。不合并分支、不创建 PR。后续新批次仍按 AGENTS 获取授权，不安装 Windows Swift。
+三语 NL 和区域 Vision 使用本地合成数据，Core 只用受控脚本响应；真实 AI/Keychain 集成继续关闭，不上传用户数据或凭据。未签名 IPA 不代表可安装，编译成功不代表采集、Speech、PiP 或后台实机通过。后续文档提交与被测源码的 tree hash 可在 summary.json 核对。
 
 Apple 第一阶段已通过：见 [42353675493](https://github.com/7869123/ios/actions/runs/42353675493)。`bash scripts/ci_apple.sh` 保存环境、macOS Core/AppleServices 测试、iOS 模拟器/设备 SDK 未签名构建的五个退出码，均为 0。环境 Xcode 26.6、Swift 6.3.3、iOS SDK 26.5。普通 push 现在同时保留 Linux 与 Apple 验证；无需 Windows Swift。Keychain 运行时测试仍关闭；iOS 27 SDK、签名和真机另行验证。
 
