@@ -1,11 +1,14 @@
-run=42807299031
-sha=87d5f234f9a0f15d6d82214db43334767bce370d
+run=42812186992
+sha=de501a0250c0b7479d48e4c37f467fda2a87a95a
 ipad-mini-landscape-screenshot-region=in-app
+ipad-mini-landscape-settings-cards=in-app
 ipad-mini-landscape-settings-provider=in-app
 ipad-mini-landscape-settings-translation=in-app
 ipad-mini-portrait-screenshot-region=in-app
+ipad-mini-portrait-settings-cards=in-app
 ipad-mini-portrait-settings-provider=in-app
 ipad-mini-portrait-settings-translation=in-app
 iphone-portrait-screenshot-region=in-app
+iphone-portrait-settings-cards=in-app
 iphone-portrait-settings-provider=in-app
 iphone-portrait-settings-translation=in-app
