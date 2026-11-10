@@ -46,6 +46,17 @@ import AIUtilityCore
                 if busy { HStack { ProgressView(); Button("取消验证", role: .cancel) { operation?.cancel() } } }
                 Text(message).font(.subheadline).textSelection(.enabled)
             }
+            // Saved bindings only: reasoning settings belong to a provider + exact model ID.
+            if hasSavedKey {
+                if !screenshotModel.isEmpty {
+                    ReasoningSettingsCard(provider: provider, model: screenshotModel, featureTitle: "截图翻译")
+                }
+                if !subtitleModel.isEmpty && subtitleModel != screenshotModel {
+                    ReasoningSettingsCard(provider: provider, model: subtitleModel, featureTitle: "字幕翻译")
+                }
+                if provider == .deepSeek { DeepSeekBalanceCard() }
+            }
+            if provider == .openAI { OpenAIUsageCard() }
             UtilityCard {
                 Text("调用与隐私").font(.headline)
                 Text(budget).font(.subheadline)

@@ -6,33 +6,144 @@ import AIUtilityCore
 @MainActor struct ScreenshotView: View {
     @EnvironmentObject private var app: AppModel
     @State private var photo: PhotosPickerItem?
+    @State private var imageData: Data?
+    @State private var preview: UIImage?
+    /// Selection in the displayed image, normalised 0…1 with a top-left origin.
+    @State private var region = CGRect(x: 0.05, y: 0.05, width: 0.9, height: 0.9)
+    @State private var useRegion = false
     @State private var recognizing = false
     @State private var translating = false
-    @State private var ocrStatus = "选择截图后在设备本地识别，可编辑识别文字。"
+    @State private var operation: Task<Void, Never>?
+    @State private var ocrStatus = "选择截图后在设备本地识别，可框选只识别一部分，识别结果可编辑。"
     var body: some View {
         WorkspacePage {
             PageHeader(title: "读懂每一张截图", subtitle: "Discord 对话与图片文字 · 本地 OCR")
             UtilityCard {
+                let pickTitle = preview == nil ? "选择截图" : "换一张截图"
                 PhotosPicker(selection: $photo, matching: .images) {
-                    Label("选择截图", systemImage: "photo.badge.plus").frame(maxWidth: .infinity)
+                    Label(pickTitle, systemImage: "photo.badge.plus").frame(maxWidth: .infinity)
                 }.buttonStyle(PrimaryActionStyle()).disabled(recognizing || translating)
-                if recognizing { ProgressView("正在本地识别…") }
+                if let preview {
+                    Toggle("只识别框选区域", isOn: $useRegion).font(.subheadline).disabled(recognizing)
+                    if useRegion {
+                        RegionSelector(image: preview, region: $region)
+                        Text("拖动方框移动，拖右下角圆点调整大小。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                    } else {
+                        Image(uiImage: preview).resizable().scaledToFit().frame(maxHeight: 280)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    HStack {
+                        Button(useRegion ? "识别框选区域" : "识别整张图") { recognize() }
+                            .buttonStyle(PrimaryActionStyle()).disabled(recognizing || translating)
+                        if recognizing {
+                            ProgressView()
+                            Button("取消", role: .cancel) { cancel() }
+                        }
+                    }
+                }
                 Text(ocrStatus).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             }
             TranslationPanel(feature: .discordScreenshot, input: $app.screenshotDraft, translating: $translating, inputLocked: recognizing)
         }
         .task(id: photo) {
             guard let photo else { return }
-            recognizing = true
-            defer { recognizing = false }
             do {
-                guard let data = try await photo.loadTransferable(type: Data.self) else { throw AIUtilityError.invalidRequest }
-                let result = try await app.services.ocr.recognize(imageData: data)
-                try Task.checkCancellation()
-                app.screenshotDraft = result.text
-                ocrStatus = result.lines.isEmpty ? "未识别到文字，可手动输入。" : "已识别 \(result.lines.count) 行。只有点击翻译才会发送文字。"
-            } catch { if !Task.isCancelled { ocrStatus = UserFacingError.text(error) } }
+                guard let data = try await photo.loadTransferable(type: Data.self), let image = UIImage(data: data) else {
+                    throw AIUtilityError.invalidRequest
+                }
+                imageData = data; preview = image
+                region = CGRect(x: 0.05, y: 0.05, width: 0.9, height: 0.9)
+                ocrStatus = "已载入截图。点「识别」后才会在本机识别文字。"
+                recognize()
+            } catch { if !Task.isCancelled { ocrStatus = "截图无法读取。" } }
         }
+        .onDisappear { cancel() }
+    }
+
+    private func recognize() {
+        guard let data = imageData else { return }
+        let box = useRegion ? region : nil
+        recognizing = true
+        operation = Task {
+            defer { recognizing = false; operation = nil }
+            do {
+                let languages = (try? await app.services.preferences.languages(for: .discordScreenshot)) ?? TranslationLanguages()
+                // Vision uses a bottom-left origin on the orientation-corrected image.
+                let ocrRegion = try box.map {
+                    try OCRRegion(x: max(0, $0.minX), y: max(0, 1 - $0.maxY), width: min($0.width, 1 - max(0, $0.minX)),
+                                  height: min($0.height, 1 - max(0, 1 - $0.maxY)))
+                }
+                let draft = try await app.services.screenshots.recognize(imageData: data, source: languages.source, region: ocrRegion)
+                try Task.checkCancellation()
+                app.screenshotDraft = draft.text
+                let seconds = Double(draft.recognitionDuration.components.attoseconds) / 1e18 + Double(draft.recognitionDuration.components.seconds)
+                ocrStatus = draft.lines.isEmpty ? "未识别到文字，可调整框选范围或手动输入。"
+                    : "已识别 \(draft.lines.count) 行，用时 \(String(format: "%.1f", seconds)) 秒。只有点击翻译才会发送文字。"
+            } catch {
+                if !Task.isCancelled { ocrStatus = UserFacingError.text(error) }
+            }
+        }
+    }
+
+    private func cancel() {
+        operation?.cancel()
+        Task { await app.services.screenshots.cancel() }
+    }
+}
+
+/// Draggable, resizable selection box over an image. `region` is normalised with a top-left origin.
+@MainActor struct RegionSelector: View {
+    let image: UIImage
+    @Binding var region: CGRect
+    @State private var moveStart: CGRect?
+    @State private var resizeStart: CGRect?
+    private let minimum: CGFloat = 0.05
+
+    var body: some View {
+        GeometryReader { geo in
+            let size = geo.size
+            let frame = CGRect(x: region.minX * size.width, y: region.minY * size.height,
+                               width: region.width * size.width, height: region.height * size.height)
+            ZStack(alignment: .topLeading) {
+                Image(uiImage: image).resizable().frame(width: size.width, height: size.height)
+                Color.black.opacity(0.35)
+                    .mask {
+                        Rectangle().overlay(alignment: .topLeading) {
+                            Rectangle().frame(width: frame.width, height: frame.height)
+                                .offset(x: frame.minX, y: frame.minY).blendMode(.destinationOut)
+                        }
+                        .compositingGroup()
+                    }
+                    .allowsHitTesting(false)
+                Rectangle().strokeBorder(UtilityTheme.brand, lineWidth: 2)
+                    .background(Color.white.opacity(0.001))
+                    .frame(width: frame.width, height: frame.height)
+                    .offset(x: frame.minX, y: frame.minY)
+                    .gesture(DragGesture().onChanged { value in
+                        let start = moveStart ?? region
+                        if moveStart == nil { moveStart = start }
+                        let x = min(max(0, start.minX + value.translation.width / size.width), 1 - start.width)
+                        let y = min(max(0, start.minY + value.translation.height / size.height), 1 - start.height)
+                        region = CGRect(x: x, y: y, width: start.width, height: start.height)
+                    }.onEnded { _ in moveStart = nil })
+                Circle().fill(UtilityTheme.brand).frame(width: 26, height: 26)
+                    .overlay(Circle().strokeBorder(.white, lineWidth: 2))
+                    .offset(x: frame.maxX - 13, y: frame.maxY - 13)
+                    .gesture(DragGesture().onChanged { value in
+                        let start = resizeStart ?? region
+                        if resizeStart == nil { resizeStart = start }
+                        let width = min(max(minimum, start.width + value.translation.width / size.width), 1 - start.minX)
+                        let height = min(max(minimum, start.height + value.translation.height / size.height), 1 - start.minY)
+                        region = CGRect(x: start.minX, y: start.minY, width: width, height: height)
+                    }.onEnded { _ in resizeStart = nil })
+                    .accessibilityLabel("调整框选大小")
+            }
+        }
+        .aspectRatio(image.size.width / max(image.size.height, 1), contentMode: .fit)
+        .frame(maxHeight: 360)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("截图框选区域")
     }
 }
 

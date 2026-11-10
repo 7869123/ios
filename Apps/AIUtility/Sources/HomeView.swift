@@ -35,6 +35,7 @@ import AIUtilityCore
             VStack(alignment: .leading, spacing: 22) {
                 header
                 setupNotice
+                lowBalanceNotice
                 section("常用", tiles: daily)
                 section("媒体工具", tiles: media)
             }
@@ -146,6 +147,23 @@ import AIUtilityCore
             }
             .buttonStyle(PressableCardStyle())
             .accessibilityHint("打开设置配置 AI 供应商")
+        }
+    }
+
+    /// DeepSeek balance fell below the user's threshold (shown once per low-balance period).
+    @ViewBuilder private var lowBalanceNotice: some View {
+        if let event = app.lowBalance {
+            HStack(spacing: 12) {
+                Image(systemName: "creditcard.trianglebadge.exclamationmark").font(.body.weight(.semibold)).foregroundStyle(UtilityTheme.poc)
+                Text("DeepSeek 余额 \(DeepSeekBalanceCard.money(event.total)) \(event.currency.rawValue)，已低于提醒阈值 \(DeepSeekBalanceCard.money(event.threshold))。")
+                    .font(.subheadline).foregroundStyle(UtilityTheme.ink).multilineTextAlignment(.leading)
+                Spacer(minLength: 8)
+                Button("去设置") { open(.settings) }.font(.subheadline.weight(.semibold))
+                Button { app.lowBalance = nil } label: { Image(systemName: "xmark") }
+                    .accessibilityLabel("关闭提醒")
+            }
+            .padding(.horizontal, 14).padding(.vertical, 12)
+            .glassSurface(RoundedRectangle(cornerRadius: 14))
         }
     }
 

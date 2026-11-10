@@ -4,6 +4,7 @@ import AIUtilityCore
 import AIUtilityAppleServices
 
 @main @MainActor struct AIUtilityApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var model = AppModel()
     /// One download manager for the whole app (it owns the on-disk queue).
     @StateObject private var media = MediaModel()
@@ -12,6 +13,7 @@ import AIUtilityAppleServices
     var body: some Scene {
         WindowGroup {
             RootView().environmentObject(model).environmentObject(media).environment(wallpaper).environment(appearance).environment(\.locale, Locale(identifier: "zh_Hans_CN")).tint(UtilityTheme.cyan).preferredColorScheme(appearance.preferredColorScheme)
+                .onChange(of: scenePhase, initial: true) { _, phase in model.setForeground(phase == .active) }
             #if DEBUG
                 .task {
                     Self.applyReviewOrientation()
@@ -98,6 +100,9 @@ extension AIUtilityApp {
     @Published var screenshotProvider: ProviderID {
         didSet { UserDefaults.standard.set(screenshotProvider.rawValue, forKey: "screenshotProvider") }
     }
+    /// Latest low-balance event from the DeepSeek monitor, shown once on the home page until dismissed.
+    @Published var lowBalance: LowBalanceEvent?
+    private var balanceLoop: Task<Void, Never>?
     @Published var subtitleProvider: ProviderID {
         didSet { UserDefaults.standard.set(subtitleProvider.rawValue, forKey: "subtitleProvider") }
     }
@@ -106,6 +111,28 @@ extension AIUtilityApp {
         subtitleProvider = ProviderID(rawValue: UserDefaults.standard.string(forKey: "subtitleProvider") ?? "") ?? .openAI
         // Cold start: AppModel is created once per process, so this runs once per launch.
         Task { [weak self] in await self?.checkAllKeys() }
+        Task { [weak self] in await self?.watchLowBalance() }
+    }
+
+    private func watchLowBalance() async {
+        guard let events = try? await services.deepSeekBalance.lowBalanceEvents() else { return }
+        for await event in events { lowBalance = event }
+    }
+
+    /// Foreground only: checks the DeepSeek balance (the monitor throttles to once per 5 minutes)
+    /// while the app is active and a DeepSeek Key is usable. Stops when the app leaves the foreground.
+    func setForeground(_ active: Bool) {
+        balanceLoop?.cancel(); balanceLoop = nil
+        guard active else { return }
+        balanceLoop = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                if self.status(of: .deepSeek).isUsable {
+                    _ = try? await self.services.deepSeekBalance.checkWhileActive()
+                }
+                try? await Task.sleep(for: .seconds(300))
+            }
+        }
     }
 }
 
