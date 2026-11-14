@@ -1,0 +1,5 @@
+environment=0
+generate=0
+simulator-build=0
+device-build=0
+app_device_archive=0

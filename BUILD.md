@@ -1,5 +1,12 @@
 # 构建与测试
 
+## 当前翻译增量：真实复编译通过
+
+被测源 `05508ba75f86ebbc50bf8bc65f0947f50805ed7c`，分支 codex/translation-completeness，[42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success。Core Linux/macOS 各 82 通过/1 live 跳过；AppleServices 5 通过/1 Keychain 跳过；Media Linux 92/4、macOS 108/5；可移植 PoC 生命周期各 14 通过，均无失败。26 个记录的命令退出码全为 0。
+AppleServices/Media/MediaApple 的两种 iOS SDK 编译、iOS 27.1 PoC Swift 6 模拟器编译/真机 SDK Archive/未签名 IPA 与 App 编译/Archive/未签名 IPA 全部成功。[实际命令、job ID、完整日志、Artifact 与警告](validation/translation-completeness/attempt-2/README.md)。首轮宏编译失败证据保留在 [attempt-1](validation/translation-completeness/attempt-1/README.md)，本次没有修改 workflow、scripts、源码或测试来制造通过。
+用户本轮授权编译/修复重试直到通过；只使用一次 dispatch，build_apple=true、build_poc=true、publish_previews=false、live_checks=false。不合并分支、不创建 PR。后续新批次仍按 AGENTS 获取授权，不安装 Windows Swift。
+三语 NL 和区域 Vision 使用本地合成数据，Core 只用受控脚本响应；真实 AI/Keychain 集成继续关闭，不上传用户数据或凭据。未签名 IPA 不代表可安装，编译成功不代表采集、Speech、PiP 或后台实机通过。后续文档提交与被测源码的 tree hash 可在 summary.json 核对。
+
 Apple 第一阶段已通过：见 [42353675493](https://github.com/7869123/ios/actions/runs/42353675493)。`bash scripts/ci_apple.sh` 保存环境、macOS Core/AppleServices 测试、iOS 模拟器/设备 SDK 未签名构建的五个退出码，均为 0。环境 Xcode 26.6、Swift 6.3.3、iOS SDK 26.5。普通 push 现在同时保留 Linux 与 Apple 验证；无需 Windows Swift。Keychain 运行时测试仍关闭；iOS 27 SDK、签名和真机另行验证。
 
 SwiftUI App 位于 Apps/AIUtility。`bash scripts/ci_app.sh` 生成真实 Xcode 工程，并构建 Simulator/iphoneos 两个目标。最终成功运行 [42354651780](https://github.com/7869123/ios/actions/runs/42354651780)，source 19d0e02，四个退出码均为 0。生成的 .xcodeproj、DerivedData 和 .app 不提交、不上传；只保存五个指定日志。App 构建步骤依赖 Linux 和 Apple 验证通过。
@@ -19,7 +26,7 @@ SwiftUI App 位于 Apps/AIUtility。`bash scripts/ci_app.sh` 生成真实 Xcode 
 2026-11-07 第二轮仍没有可用 Swift 编译器，没有安装大型全局依赖。下面的验证脚本**只调用真实 Swift**，不使用语法解析替代；默认关闭付费 API / Keychain 集成测试：
 
 ```powershell
-& 'C:/Users/7869/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' scripts/verify_core.py --output validation/round2-core
+python scripts/verify_core.py --output validation/round2-core
 ```
 
 实际启动器退出码 **2**；三个命令为 not_started，Swift 退出码为 null，执行测试 **0**。这不表示 Swift 编译失败产生诊断，而是编译进程没有启动。记录在 validation/round2-core/。本轮源码修复和回归测试未经类型检查。
@@ -55,7 +62,7 @@ docker run --rm -v "$PWD:/workspace" -w /workspace swift:6.0.3 \
 
 ```powershell
 $env:PYTHONPATH = (Join-Path (Get-Location) 'artifacts/qa-python')
-& 'C:/Users/7869/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' scripts/check_repository.py --swift-grammar
+python scripts/check_repository.py --swift-grammar
 git diff --check
 ```
 
@@ -121,21 +128,30 @@ AIUTILITY_KEYCHAIN_TESTS=1 swift test --package-path Packages/AIUtilityAppleServ
 
 ## CI 与 iOS 27 诊断工程
 
-`.github/workflows/swift.yml` 包含 Linux Swift 6.0.3 Core 测试、macOS Core / Apple 测试、Apple iOS 模拟器构建。当前未配置 Git 远程，因此这些工作流**没有运行结果**。
+`.github/workflows/swift.yml` 包含 Linux Swift 6.0.3 Core / PoC 生命周期测试、macOS Core / Apple 测试、Apple SDK/App 构建。远程已配置为 `7869123/ios`，现为 public。旧成功记录与当前独立审查的逐轮结果见 ENGINEERING_REVIEW.md，不要把历史记录归于修改后的源码。
 
-手动触发并设置 `build_poc=true` 时，额外要求 runner 的 iOS SDK 至少为 27，然后通过 XcodeGen 生成并构建诊断 Host。SDK 不足会明确失败，不以跳过分支伪装 PoC 通过。PoC 的 Swift 5 语言模式用于隔离新 SDK 的回调隔离迁移；Core 与 AppleServices 保持 Swift 6。
+手动在目标审查分支触发，`build_apple=true` 运行普通 Apple/App；`build_poc=true` 独立运行 xcode-27 上的诊断 Host、iphoneos Archive、未签名 IPA 和预安装检查。SDK 不足明确失败。PoC 包与 Host 已改为 Swift 6；macOS 13 最低版本只服务可移植生命周期测试，采集仍要求 iOS 27。
 
 Mac 本地步骤：
 
 ```sh
 xcodebuild -version
 xcrun --sdk iphoneos --show-sdk-version
+swift test --package-path PoCs/iOS27Capture
 cd PoCs/iOS27Capture
 # 需要已安装 XcodeGen
 xcodegen generate --spec project.yml
 xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe \
   -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build
+xcodebuild archive -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe \
+  -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+  -archivePath ../../artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive \
+  -derivedDataPath ../../artifacts/poc-archive-build \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+  STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO
 ```
 
-真机安装需在生成工程中选择开发团队与 iPad，使用 Xcode 正常签名构建。模拟器编译只能检查符号与类型，不能验证跨 App 音频或 PiP 的实际行为。详细设备流程见 [IOS_POC.md](IOS_POC.md)。Windows 无 Xcode，无法在本机完成上述 Apple 构建。
+真机安装需用户控制的签名环境、可用 Team/唯一 Bundle ID、描述文件及设备配对。当前用户普通 Apple ID 且不能首次 USB 配对，安装仍受阻。Simulator 不提供 ScreenCaptureKit，只编译占位 Host 与其余可用模块；必须以 iphoneos Archive 及真机类符号检查证明采集代码未被剔除。两种编译都不证明跨 App 音频或 PiP 运行成功。详细流程见 [INSTALL_PREFLIGHT.md](INSTALL_PREFLIGHT.md)。Windows 不安装 Swift/Xcode。
+
+诊断 Release Archive 保留本地符号以供 `nm | swift-demangle` 核验真实类；仍使用 Release 优化且不签名，不上传构建缓存或 dSYM。普通发行包的符号剥离策略后续另行验证。

@@ -24,6 +24,55 @@ RULES = {
 }
 
 
+# Placeholder local identity, Claude co-authoring, and the CI bot that commits review previews.
+ALLOWED_AUTHORS = {"aiutility@localhost", "noreply@anthropic.com",
+                   "41898283+github-actions[bot]@users.noreply.github.com"}
+
+
+def is_public_ci_tool_path(path, data, match):
+    """A numeric tool version in a CI PATH is not an email address. No other rule is exempted."""
+    if not (path.startswith("validation/") and path.endswith(".log")):
+        return False
+    value = match.group()
+    if not re.fullmatch(rb"[0-9]+(?:\.[0-9]+)+", value.rsplit(b"@", 1)[-1]):
+        return False
+    start = data.rfind(b"\n", 0, match.start()) + 1
+    prefix = data[start:match.start()]
+    end = data.find(b"\n", match.end())
+    line = data[start:end if end >= 0 else len(data)]
+    return (line.lstrip().startswith((b"export PATH=", b"export PATH\\="))
+            and b"/Users/runner/" in line and b"/" in value.rsplit(b"@", 1)[0]
+            and data[match.end():match.end() + 4] == b"/bin")
+
+
+def image_text(data):
+    """For raster images, return only the metadata segments (JPEG APPn/COM before the scan data,
+    PNG tEXt/iTXt/zTXt chunks) so compressed pixels cannot produce chance matches; None if not an image."""
+    if data.startswith(b"\xff\xd8"):
+        out, i = [], 2
+        while i + 4 <= len(data) and data[i] == 0xFF:
+            marker = data[i + 1]
+            if marker == 0xDA:  # start of scan: pixel data follows
+                break
+            length = int.from_bytes(data[i + 2:i + 4], "big")
+            if 0xE0 <= marker <= 0xEF or marker == 0xFE:
+                out.append(data[i + 4:i + 2 + length])
+            i += 2 + length
+        return b"\n".join(out)
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        out, i = [], 8
+        while i + 8 <= len(data):
+            length = int.from_bytes(data[i:i + 4], "big")
+            kind = data[i + 4:i + 8]
+            if kind in (b"tEXt", b"iTXt", b"zTXt", b"eXIf"):
+                out.append(data[i + 8:i + 8 + length])
+            i += 12 + length
+        return b"\n".join(out)
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP" or data[:6] in (b"GIF87a", b"GIF89a"):
+        return b""  # not parsed: only pixel data is expected in these repository assets
+    return None
+
+
 def main():
     rows = git("rev-list", "--objects", "--all").decode().splitlines()
     findings, large, local_paths = [], [], set()
@@ -42,17 +91,23 @@ def main():
             local_paths.add(path)
         if path.endswith((".p12", ".pfx", ".mobileprovision", ".key", ".ipa", ".zip", ".bundle")) or Path(path).name.startswith(".env"):
             findings.append({"path": path, "rule": "sensitive_or_generated_file", "object": oid})
+        image_meta = image_text(data)
         for rule, pattern in RULES.items():
-            for match in re.finditer(pattern, data):
+            # Personal e-mail addresses are searched in image metadata only, not in compressed pixels.
+            haystack = image_meta if rule == "personal_email" and image_meta is not None else data
+            for match in re.finditer(pattern, haystack):
                 value = match.group()
-                if rule == "personal_email" and value.rsplit(b"@", 1)[1].lower() in (b"example.com", b"example.org"):
+                if rule == "personal_email" and value.rsplit(b"@", 1)[1].lower() in (
+                        b"example.com", b"example.org", b"anthropic.com", b"users.noreply.github.com", b"localhost"):
+                    continue
+                if rule == "personal_email" and is_public_ci_tool_path(path, haystack, match):
                     continue
                 findings.append({"path": path, "rule": rule, "object": oid,
-                                 "line": data[:match.start()].count(b"\n") + 1,
+                                 "line": haystack[:match.start()].count(b"\n") + 1,
                                  "fingerprint": hashlib.sha256(value).hexdigest()[:12]})
     author_emails = set(git("log", "--all", "--format=%ae%n%ce").decode().splitlines())
     unexpected_authors = [hashlib.sha256(email.encode()).hexdigest()[:12]
-                          for email in author_emails if email not in {"aiutility@localhost"}]
+                          for email in author_emails if email not in ALLOWED_AUTHORS]
     report = {
         "head": git("rev-parse", "HEAD").decode().strip(),
         "reachable_blobs_scanned": blob_count,

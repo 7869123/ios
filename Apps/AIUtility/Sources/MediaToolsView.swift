@@ -1,51 +1,224 @@
 import SwiftUI
+import AIUtilityMedia
 
-struct MediaTool: Identifiable, Sendable {
+/// Media hub. Statuses are honest: local tools run on device; site downloads and reverse search are
+/// implemented but only tested against offline samples, so they are marked 未实测.
+struct MediaTool: Identifiable {
+    enum Page: String, Hashable, CaseIterable { case downloads, stitch, gif, fingerprint, search }
     let id: String
     let title: String
     let icon: String
     let detail: String
-    static let all: [MediaTool] = [
-        .init(id: "x", title: "X 视频下载", icon: "arrow.down.circle", detail: "解析 X 视频并纳入统一下载任务。"),
-        .init(id: "pixiv", title: "Pixiv 原画与 Ugoira", icon: "photo.on.rectangle.angled", detail: "保留原画下载与 Ugoira 动画处理范围。"),
-        .init(id: "bilibili", title: "B站视频下载", icon: "play.rectangle", detail: "解析视频与清晰度，并通过统一任务管理下载。"),
-        .init(id: "gif", title: "视频转 GIF", icon: "film.stack", detail: "选择片段、尺寸、帧率并在设备上转换。"),
-        .init(id: "fingerprint", title: "图片文件指纹", icon: "fingerprint", detail: "修改图片文件指纹，保留原文件并显示处理结果。"),
-        .init(id: "stitch", title: "多图拼接", icon: "rectangle.split.1x2", detail: "长图、网格与顺序编排。"),
-        .init(id: "search", title: "SauceNAO / 搜图 Bot 酱", icon: "magnifyingglass", detail: "统一来源搜索与结果展示。"),
-        .init(id: "tasks", title: "下载任务与历史", icon: "tray.full", detail: "统一进度、取消、重试与历史记录。")
+    let status: FeatureStatus
+    let page: Page
+    static let downloads: [MediaTool] = [
+        .init(id: "downloads", title: "链接下载", icon: "arrow.down.circle",
+              detail: "粘贴 B站 / X / Pixiv 链接，排队逐个下载；Pixiv 动图转 GIF", status: .untested, page: .downloads),
+    ]
+    static let local: [MediaTool] = [
+        .init(id: "stitch", title: "多图拼接", icon: "rectangle.split.1x2", detail: "纵向、横向或网格，按选择顺序", status: .available, page: .stitch),
+        .init(id: "gif", title: "视频转 GIF", icon: "film.stack", detail: "选片段、帧率与宽度，在设备上转换", status: .available, page: .gif),
+        .init(id: "fingerprint", title: "图片文件指纹", icon: "touchid", detail: "去除元数据、重新编码或轻微像素扰动", status: .available, page: .fingerprint),
+    ]
+    static let search: [MediaTool] = [
+        .init(id: "search", title: "反向搜图", icon: "magnifyingglass", detail: "搜图 Bot 酱（无需 Key）或 SauceNAO（需自备 Key）",
+              status: .untested, page: .search),
     ]
 }
 
 @MainActor struct MediaToolsView: View {
+    @EnvironmentObject private var media: MediaModel
+    /// Set only by the DEBUG review-screenshot launch argument, to open one tool page directly.
+    @State private var autoOpen: MediaTool.Page?
+    @State private var autoOpened = false
+
     var body: some View {
         WorkspacePage {
-            PageHeader(title: "媒体工具箱", subtitle: "所有已确认能力均保留在后续范围")
-            ForEach(MediaTool.all) { tool in
-                NavigationLink {
-                    WorkspacePage {
-                        PageHeader(title: tool.title, subtitle: "后续开发")
-                        UtilityCard {
-                            Label("尚未实现", systemImage: "clock")
-                            Text(tool.detail)
-                            Text("此入口用于浏览开发范围，当前不会发起下载或宣称处理成功。")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }
-                    }.navigationTitle(tool.title)
-                } label: {
-                    UtilityCard {
-                        HStack(spacing: 16) {
-                            Image(systemName: tool.icon).font(.title2).foregroundStyle(UtilityTheme.cyan).frame(width: 34)
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(tool.title).font(.headline).foregroundStyle(UtilityTheme.ink)
-                                Text("后续开发").font(.caption).foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right").foregroundStyle(.secondary)
-                        }
-                    }
-                }.buttonStyle(.plain)
+            PageHeader(title: "媒体工具箱", subtitle: "下载、图片处理与搜图")
+            section("下载", MediaTool.downloads)
+            section("本地工具", MediaTool.local)
+            section("搜图", MediaTool.search)
+            Text("“未实测”表示功能已实现，但只用离线样例测试过，还没有连接真实站点验证。只处理公开内容，不绕过登录、付费或地区限制。")
+                .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                .legibleOnWallpaper()
+        }
+        .task { await media.start() }
+        .navigationDestination(item: $autoOpen) { page in
+            if let tool = (MediaTool.downloads + MediaTool.local + MediaTool.search).first(where: { $0.page == page }) {
+                destination(tool)
+            }
+        }
+        .onAppear {
+            #if DEBUG
+            if !autoOpened, let page = ReviewLaunch.mediaPage { autoOpened = true; autoOpen = page }
+            #endif
+        }
+    }
+
+    private func section(_ title: String, _ tools: [MediaTool]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                SlantBar().fill(UtilityTheme.brand).frame(width: 16, height: 14)
+                Text(title).font(.title3.bold()).foregroundStyle(UtilityTheme.ink)
+            }
+            .legibleOnWallpaper()
+            .accessibilityAddTraits(.isHeader)
+            ForEach(tools) { tool in
+                NavigationLink { destination(tool) } label: {
+                    FeatureTile(title: tool.title, detail: tool.detail, icon: tool.icon, status: tool.status)
+                }
+                .buttonStyle(PressableCardStyle())
             }
         }
     }
+
+    @ViewBuilder private func destination(_ tool: MediaTool) -> some View {
+        Group {
+            switch tool.page {
+            case .downloads: DownloadsView(media: media)
+            case .stitch: StitchToolView()
+            case .gif: GIFToolView()
+            case .fingerprint: FingerprintToolView()
+            case .search: SearchToolView()
+            }
+        }
+        .navigationTitle(tool.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
 }
+
+// MARK: - Downloads
+
+@MainActor struct DownloadsView: View {
+    @ObservedObject var media: MediaModel
+    @State private var link = ""
+    @State private var busy = false
+    @State private var keepArchive = false
+    @State private var shared: SharedFile?
+
+    var body: some View {
+        WorkspacePage {
+            PageHeader(title: "链接下载", subtitle: "一次只下载一个任务，其余排队")
+            UtilityCard {
+                HStack { Text("添加链接").font(.headline); Spacer(); StatusChip(status: .untested) }
+                TextField("https://www.bilibili.com/video/… / x.com/…/status/… / pixiv.net/artworks/…", text: $link)
+                    .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
+                    .utilityField()
+                HStack {
+                    Button {
+                        Task {
+                            busy = true
+                            if await media.enqueue(link, keepUgoiraArchive: keepArchive) { link = "" }
+                            busy = false
+                        }
+                    } label: { Label("加入队列", systemImage: "plus.circle.fill") }
+                    .buttonStyle(PrimaryActionStyle())
+                    .disabled(busy || link.trimmingCharacters(in: .whitespaces).isEmpty)
+                    if busy { ProgressView() }
+                }
+                Toggle("Pixiv 动图同时保留原始帧压缩包", isOn: $keepArchive).font(.subheadline)
+                Text("B站：公开 MP4（通常 ≤720P），多 P 用 ?p= 指定一集。X：图片原图与视频。Pixiv：原图；动图在本机转成 GIF，每帧时长按 GIF 精度（10 毫秒）对齐，总时长不变。")
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                if let error = media.lastError ?? media.startupError {
+                    Label(error.userMessage, systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(UtilityTheme.danger)
+                }
+            }
+            UtilityCard {
+                HStack {
+                    Text("任务与历史").font(.headline)
+                    Spacer()
+                    Button("清空历史") { Task { await media.clearHistory() } }
+                        .font(.footnote).disabled(media.snapshot?.tasks.isEmpty ?? true)
+                }
+                let tasks = (media.snapshot?.tasks ?? []).sorted { $0.createdAt > $1.createdAt }
+                if tasks.isEmpty {
+                    Text("还没有任务。").font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
+                } else {
+                    ForEach(tasks) { task in row(task) }
+                }
+            }
+        }
+        .sheet(item: $shared) { file in ShareSheet(items: [file.url]) }
+    }
+
+    private func row(_ task: DownloadSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(task.title).font(.subheadline.weight(.semibold)).lineLimit(2)
+                Spacer()
+                Text(task.source.map(Self.sourceName) ?? "").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+            }
+            HStack(spacing: 8) {
+                Text(Self.stateText(task.state)).font(.caption).foregroundStyle(Self.stateColor(task.state))
+                if let fraction = Self.fraction(task.state) { ProgressView(value: fraction).frame(maxWidth: 160) }
+                Spacer()
+                actions(task)
+            }
+            .font(.caption)
+            Divider()
+        }
+    }
+
+    @ViewBuilder private func actions(_ task: DownloadSnapshot) -> some View {
+        switch task.state {
+        case .queued, .resolving, .running, .waitingToRetry, .processing:
+            Button("取消") { Task { await media.cancel(task.id) } }
+        case .failed, .cancelled, .interrupted:
+            Button("重试") { Task { await media.retry(task.id) } }
+        case .completed(let files):
+            if let file = files.first {
+                Button("导出") { Task { if let url = await media.fileURL(file) { shared = SharedFile(url: url) } } }
+            }
+            Button("删除文件", role: .destructive) { Task { await media.delete(task.id) } }
+        default:
+            EmptyView()
+        }
+    }
+
+    static func sourceName(_ source: MediaSource) -> String {
+        switch source { case .bilibili: "B站"; case .x: "X"; case .pixiv: "Pixiv"; case .direct: "直链" }
+    }
+    static func fraction(_ state: DownloadState) -> Double? {
+        switch state { case .running(let p), .processing(let p): p.fraction; default: nil }
+    }
+    static func stateText(_ state: DownloadState) -> String {
+        switch state {
+        case .queued(let position): "排队中（第 \(position + 1) 位）"
+        case .resolving: "解析中"
+        case .running: "下载中"
+        case .waitingToRetry(let attempt, _): "等待重试（第 \(attempt) 次）"
+        case .processing: "处理中"
+        case .committing: "保存中"
+        case .cancelling: "取消中"
+        case .interrupted: "已中断"
+        case .completed(let files): "已完成 · \(files.count) 个文件"
+        case .duplicate: "与已完成的任务重复"
+        case .deletionIncomplete: "文件未完全删除"
+        case .failed(let error): "失败：" + error.userMessage
+        case .cancelled: "已取消"
+        }
+    }
+    static func stateColor(_ state: DownloadState) -> Color {
+        switch state {
+        case .failed, .deletionIncomplete: UtilityTheme.danger
+        case .completed: UtilityTheme.brandStrong
+        default: UtilityTheme.inkSecondary
+        }
+    }
+}
+
+#if DEBUG
+/// CI review screenshots only: `-AIUtilityPage <downloads|stitch|gif|fingerprint|search>`.
+enum ReviewLaunch {
+    /// Raw value of `-AIUtilityPage`: a media tool page, or settings-translation / settings-provider / settings-cards /
+    /// screenshot-region for the translation pages.
+    static var page: String? {
+        let args = ProcessInfo.processInfo.arguments
+        guard let index = args.firstIndex(of: "-AIUtilityPage"), index + 1 < args.count else { return nil }
+        return args[index + 1]
+    }
+    static var mediaPage: MediaTool.Page? { page.flatMap(MediaTool.Page.init(rawValue:)) }
+    static var settingsPage: String? { page.flatMap { $0.hasPrefix("settings-") ? $0 : nil } }
+    static var screenshotRegion: Bool { page == "screenshot-region" }
+}
+#endif

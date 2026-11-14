@@ -1,0 +1,23 @@
+Building for debugging...
+[0/3] Write sources
+[2/3] Write swift-version-24593BA9C3E375BF.txt
+[4/13] Emitting module AIUtilityMedia
+[5/16] Compiling AIUtilityMedia SiteSupport.swift
+[6/16] Compiling AIUtilityMedia XResolver.swift
+[7/16] Compiling AIUtilityMedia URLSafety.swift
+[8/16] Compiling AIUtilityMedia DownloadManager.swift
+[9/16] Compiling AIUtilityMedia LinkRouter.swift
+[10/16] Compiling AIUtilityMedia MediaNetwork.swift
+[11/16] Compiling AIUtilityMedia MediaStorage.swift
+[12/16] Compiling AIUtilityMedia MediaTypes.swift
+[13/16] Compiling AIUtilityMedia ReverseImageSearch.swift
+[14/16] Compiling AIUtilityMedia SoutubotProvider.swift
+[15/16] Compiling AIUtilityMedia BilibiliResolver.swift
+[16/16] Compiling AIUtilityMedia PixivResolver.swift
+[18/22] Compiling AIUtilityMediaApple UgoiraAssembly.swift
+[19/22] Emitting module AIUtilityMediaApple
+[20/22] Compiling AIUtilityMediaApple ProcessingTypes.swift
+[21/22] Compiling AIUtilityMediaApple GIFEncoding.swift
+[22/22] Compiling AIUtilityMediaApple ImageTools.swift
+[23/23] Compiling AIUtilityMediaApple VideoGIF.swift
+Build complete! (5.49s)

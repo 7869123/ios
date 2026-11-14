@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--swift-grammar", action="store_true")
 args = parser.parse_args()
 errors = []
-sources = sorted(ROOT.glob("Packages/**/*.swift")) + sorted(ROOT.glob("PoCs/**/*.swift"))
+sources = sorted(ROOT.glob("Packages/**/*.swift")) + sorted(ROOT.glob("PoCs/**/*.swift")) + sorted(ROOT.glob("Apps/**/*.swift"))
 sources = [p for p in sources if ".build" not in p.parts and ".swiftpm" not in p.parts]
 for path in sources:
     text = path.read_text(encoding="utf-8")
@@ -21,7 +21,7 @@ for path in sources:
         errors.append(f"{relative}: possible embedded credential")
     if "Sources" in path.parts and "TODO" in text:
         errors.append(f"{relative}: unfinished production placeholder")
-for path in ROOT.glob("PoCs/**/*.plist"):
+for path in list(ROOT.glob("PoCs/**/*.plist")) + list(ROOT.glob("Apps/**/*.plist")):
     try:
         with path.open("rb") as stream:
             plistlib.load(stream)

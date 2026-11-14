@@ -17,4 +17,4 @@ swift test --package-path Packages/AIUtilityCore
 
 请先修复真实编译/测试失败，再扩展功能。重点审查：Swift 6 Sendable/协议隔离与 Swift Testing 宏、取消后晚到结果、Key 与两功能模型的原子提交、三家错误与拒绝/截断解析、总验证时限。
 
-有 Apple SDK 后再检查 IOS_POC.md 的符号和生命周期竞态；不要声称 iPad mini 6 / iPadOS 27.2 已通过测试。下载器、截图翻译、实时字幕及《Blue Archive》UI 都必须保留在产品范围。
+有 Apple SDK 后再检查 IOS_POC.md 的符号和生命周期竞态；不要声称 iPad mini 6 / iPadOS 27.2 已通过测试。下载器、截图翻译、实时字幕都必须保留在产品范围；UI 目标已于 2026-11-07 更正为 iOS 原生结构 + 原创明快蓝白青风格，见 UIUX_SPEC.md。

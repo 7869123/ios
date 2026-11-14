@@ -1,0 +1,59 @@
+Building for debugging...
+[Pre-planning 1 / 125]
+[Planning deferred tasks]
+[34 / 66]
+[35 / 67] AIUtilityCore
+[40 / 105]
+[45 / 105]
+[47 / 105]
+[52 / 105]
+[53 / 105]
+[54 / 105]
+[57 / 105]
+[59 / 105]
+[61 / 105]
+[63 / 105]
+[66 / 105]
+[67 / 105]
+[68 / 105]
+[69 / 105]
+[73 / 105] AIUtilityCore
+[74 / 105] AIUtilityCore
+[85 / 110] AIUtilityCapturePoC
+[94 / 110] AIUtilityCapturePoC
+[100 / 111] AIUtilityCapturePoCTests-product
+[101 / 115]
+[104 / 115] AIUtilityCapturePoCTests-product
+[109 / 115] AIUtilityCapturePoCTests-product
+[111 / 115] AIUtilityCapturePoCTests-product
+[115 / 115] AIUtilityCapturePoCTests-product
+Build complete! (15.02 sec)
+Test Suite 'All tests' started at 2026-11-07 13:17:15.954.
+Test Suite 'All tests' passed at 2026-11-07 13:17:15.957.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.003) seconds
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test duplicateStartIsRejected() started.
+◇ Test stopIsIdempotentDuringAndAfterRelease() started.
+◇ Test oldFailureCannotStopReplacement() started.
+◇ Test concurrentStopsAwaitOneActualRelease() started.
+◇ Test repeatedStopAfterCompletionDoesNotReleaseTwice() started.
+◇ Test interruptedSessionRequiresExplicitRestart() started.
+◇ Test lateMetricsAndPickerCallbacksAreRejected() started.
+◇ Test staleFailureDoesNotReleaseNewSessionResources() started.
+◇ Test staleStopCompletionCannotClearReplacement() started.
+◇ Test pendingStartCannotBecomeRunningAfterCancel() started.
+◇ Test restartWaitsForActualAsyncRelease() started.
+✔ Test duplicateStartIsRejected() passed after 0.001 seconds.
+✔ Test oldFailureCannotStopReplacement() passed after 0.001 seconds.
+✔ Test stopIsIdempotentDuringAndAfterRelease() passed after 0.001 seconds.
+✔ Test lateMetricsAndPickerCallbacksAreRejected() passed after 0.001 seconds.
+✔ Test pendingStartCannotBecomeRunningAfterCancel() passed after 0.001 seconds.
+✔ Test staleStopCompletionCannotClearReplacement() passed after 0.001 seconds.
+✔ Test interruptedSessionRequiresExplicitRestart() passed after 0.001 seconds.
+✔ Test repeatedStopAfterCompletionDoesNotReleaseTwice() passed after 0.002 seconds.
+✔ Test staleFailureDoesNotReleaseNewSessionResources() passed after 0.002 seconds.
+✔ Test restartWaitsForActualAsyncRelease() passed after 0.001 seconds.
+✔ Test concurrentStopsAwaitOneActualRelease() passed after 0.002 seconds.
+✔ Test run with 11 tests in 0 suites passed after 0.003 seconds.

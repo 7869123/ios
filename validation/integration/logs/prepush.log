@@ -1,0 +1,45 @@
+
+== 1/6 Swift grammar, source hygiene, plists (tree-sitter; not type checking)
+PASS: 37 Swift files; source hygiene and plist validation; Swift grammar parsed
+NOT RUN: Swift type checking, Swift unit tests, Apple SDK build, device validation
+
+== 2/6 Workflow YAML and shell syntax
+yaml ok
+shell ok
+test_actual_email_in_path_export_is_not_exempt (test_preflight.CredentialTests.test_actual_email_in_path_export_is_not_exempt) ... ok
+test_public_tool_version_only_in_validation_path_export (test_preflight.CredentialTests.test_public_tool_version_only_in_validation_path_export) ... ok
+test_secret_rules_stay_active_in_ci_logs (test_preflight.CredentialTests.test_secret_rules_stay_active_in_ci_logs) ... ok
+test_versions_outside_bin_or_public_runner_are_not_exempt (test_preflight.CredentialTests.test_versions_outside_bin_or_public_runner_are_not_exempt) ... ok
+test_artifact_link_does_not_hide_phone_next_to_it (test_preflight.PersonalInfoTests.test_artifact_link_does_not_hide_phone_next_to_it) ... ok
+test_artifact_metadata_is_not_phone (test_preflight.PersonalInfoTests.test_artifact_metadata_is_not_phone) ... ok
+test_malformed_json_is_not_exempt (test_preflight.PersonalInfoTests.test_malformed_json_is_not_exempt) ... ok
+test_metadata_exception_does_not_hide_other_fields (test_preflight.PersonalInfoTests.test_metadata_exception_does_not_hide_other_fields) ... ok
+test_non_validation_json_is_not_exempt (test_preflight.PersonalInfoTests.test_non_validation_json_is_not_exempt) ... ok
+test_only_exact_actions_artifact_url_is_exempt (test_preflight.PersonalInfoTests.test_only_exact_actions_artifact_url_is_exempt) ... ok
+test_public_runner_does_not_hide_other_user_paths (test_preflight.PersonalInfoTests.test_public_runner_does_not_hide_other_user_paths) ... ok
+test_unknown_artifact_name_is_not_exempt (test_preflight.PersonalInfoTests.test_unknown_artifact_name_is_not_exempt) ... ok
+test_windows_path_and_location_are_still_detected (test_preflight.PersonalInfoTests.test_windows_path_and_location_are_still_detected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.001s
+
+OK
+
+== 3/6 Resource integrity (project.yml sources, Info.plist, bundled images)
+resources ok
+
+== 4/6 git diff --check (origin/codex/poc-engineering-audit..HEAD and working tree)
+
+== 5/6 Personal-info scan of the current tree (must be empty)
+no personal path / location / phone patterns
+
+== 5b Commit timezone of commits to push (must be +0000, public repository)
+all commits to push use +0000
+
+== 6/6 Secret and author audit of all reachable history (values never printed)
+blobs 337 | large 0 | unexpected authors 0
+findings in HEAD / commits to push: none
+findings only in already-pushed history (cannot be removed without rewriting): [('credential_in_url', '.github/workflows/swift.yml'), ('personal_email', '.github/workflows/swift.yml')]
+historical local-path files: ['BUILD.md', 'scripts/tests/test_preflight.py', 'validation/engineering-audit/attempts/42376481364/archive.log', 'validation/engineering-audit/attempts/42376873996/archive.log', 'validation/engineering-audit/final/poc/archive.log', 'validation/round2-audit.md']
+
+PRE-PUSH CHECK: PASS (not a substitute for the Apple SDK build)

@@ -103,13 +103,16 @@ public struct GenerationRequest: Sendable, CustomStringConvertible, CustomReflec
     public let instructions: String
     public let text: String
     public let maxOutputTokens: Int
-    public init(model: String, instructions: String, text: String, maxOutputTokens: Int = 1024) throws {
+    public let reasoning: ReasoningEffort
+    public init(model: String, instructions: String, text: String, maxOutputTokens: Int = 1024,
+                reasoning: ReasoningEffort = .auto) throws {
         guard !model.isEmpty, model.utf8.count <= 256,
               !instructions.isEmpty, !text.isEmpty,
               instructions.utf8.count + text.utf8.count <= 32_768,
-              (16...8192).contains(maxOutputTokens) else { throw AIUtilityError.invalidRequest }
+              (16...65_536).contains(maxOutputTokens) else { throw AIUtilityError.invalidRequest }
         self.model = model; self.instructions = instructions; self.text = text
         self.maxOutputTokens = maxOutputTokens
+        self.reasoning = reasoning
     }
     public var description: String { "<GenerationRequest: redacted>" }
     public var customMirror: Mirror { Mirror(self, children: ["request": "<redacted>"]) }
@@ -118,7 +121,10 @@ public struct GenerationRequest: Sendable, CustomStringConvertible, CustomReflec
 public struct GenerationResult: Sendable, CustomStringConvertible, CustomReflectable {
     public let text: String
     public let outputTokens: Int?
-    public init(text: String, outputTokens: Int? = nil) { self.text = text; self.outputTokens = outputTokens }
+    public let usage: TokenUsage?
+    public init(text: String, outputTokens: Int? = nil, usage: TokenUsage? = nil) {
+        self.text = text; self.outputTokens = outputTokens; self.usage = usage
+    }
     public var description: String { "<GenerationResult: redacted>" }
     public var customMirror: Mirror { Mirror(self, children: ["result": "<redacted>"]) }
 }

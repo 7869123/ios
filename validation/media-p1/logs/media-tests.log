@@ -1,0 +1,127 @@
+[0/1] Planning build
+Building for debugging...
+[0/11] Write sources
+[1/12] Write swift-version-24593BA9C3E375BF.txt
+[2/12] Wrapping AST for AIUtilityMedia for debugging
+[4/17] Compiling AIUtilityMediaTests StorageTests.swift
+[5/17] Compiling AIUtilityMediaTests RoutingTests.swift
+[6/18] Compiling AIUtilityMediaTests TestSupport.swift
+[7/18] Compiling AIUtilityMediaTests QueueTests.swift
+[8/18] Compiling AIUtilityMediaTests RecoveryTests.swift
+[9/18] Emitting module AIUtilityMediaTests
+[10/19] [CI_WORKSPACE]/Packages/AIUtilityMedia/.build/x86_64-unknown-linux-gnu/debug/AIUtilityMediaPackageDiscoveredTests.derived/all-discovered-tests.swift
+[11/19] Write sources
+[12/19] Wrapping AST for AIUtilityMediaTests for debugging
+[14/22] Compiling AIUtilityMediaPackageDiscoveredTests all-discovered-tests.swift
+[15/22] Compiling AIUtilityMediaPackageDiscoveredTests AIUtilityMediaTests.swift
+[16/22] Emitting module AIUtilityMediaPackageDiscoveredTests
+[17/23] [CI_WORKSPACE]/Packages/AIUtilityMedia/.build/x86_64-unknown-linux-gnu/debug/AIUtilityMediaPackageTests.derived/runner.swift
+[18/23] Write sources
+[19/23] Wrapping AST for AIUtilityMediaPackageDiscoveredTests for debugging
+[21/25] Compiling AIUtilityMediaPackageTests runner.swift
+[22/25] Emitting module AIUtilityMediaPackageTests
+[23/26] Wrapping AST for AIUtilityMediaPackageTests for debugging
+[24/26] Write Objects.LinkFileList
+[25/26] Linking AIUtilityMediaPackageTests.xctest
+Build complete! (6.93s)
+Test Suite 'All tests' started at 2026-11-08 06:03:00.936
+Test Suite 'debug.xctest' started at 2026-11-08 06:03:00.938
+Test Suite 'debug.xctest' passed at 2026-11-08 06:03:00.938
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+Test Suite 'All tests' passed at 2026-11-08 06:03:00.938
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+◇ Test run started.
+↳ Testing Library Version: 6.0.3 (18c42c19cac3faf)
+◇ Suite QueueTests started.
+◇ Suite StorageTests started.
+◇ Suite RecoveryTests started.
+◇ Suite RoutingTests started.
+◇ Test fifoSingleSlotIncludingQueuedCancellation() started.
+◇ Test duplicatePendingCompletedAndIrrelevantOptions() started.
+◇ Test finiteRetriesStartOverAndManualRetryUsesSameID() started.
+◇ Test realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() started.
+◇ Test cancellationDoesNotReleaseSlotUntilLateTransferAcknowledges() started.
+◇ Test restartMarksRunningInterruptedAndPreservesPendingOrdinal() started.
+◇ Test transferPlansAndComponentsRedactReflection() started.
+◇ Test partialDeletionKeepsFailedOutputsAndAllowsFreshDownload() started.
+◇ Test twoSubscribersReceiveIndependentCompleteSnapshots() started.
+◇ Test activeAndQueuedTasksCannotBeDeleted() started.
+◇ Test initializationFailureCanSafelyRetrySameNamespace() started.
+◇ Test commitJournalRecoversPublishedButUncommittedOutput() started.
+◇ Test requestCooldownAndBudgetAreEnforced() started.
+◇ Test contentMismatchIsNeverMarkedCompleteOrRetried() started.
+◇ Test progressRejectsRegressionsAndWrongGenerations() started.
+◇ Test forgedOutputPathAndChangedFileAreNotAccepted() started.
+◇ Test persistedManifestHasNoOriginalLinkTitleOrCredentials() started.
+◇ Test taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() started.
+◇ Test deletionJournalRecoveryNeverResurrectsHistory() started.
+◇ Test cleanupFailureBlocksNextUntilExplicitRetry() started.
+◇ Test deletionRemovesDedupAndMissingFileIsReportedHonestly() started.
+◇ Test enqueueWriteFailurePreservesOldManifestAndDoesNotStart() started.
+◇ Test selectedItemIsRevalidatedByResolver() started.
+◇ Test deletionMetadataFailureRecoversActualDiskWithoutFalseRollback() started.
+◇ Test clearHistoryFailureRollsBackAndSuccessKeepsFilesDeletable() started.
+◇ Test queuedOptionsAreValueSnapshotsAndAllPartsCannotSilentlyDowngrade() started.
+◇ Test htmlAndUnavailableSitesDoNotBecomeMedia() started.
+◇ Test restartNeedsOriginalSensitiveLinkAndNeverPersistsIt() started.
+◇ Test resolvedAliasesAndIrrelevantPixivOptionsDoNotDownloadTwice() started.
+◇ Test unsupportedAllPartsFailsEvenWithSpecifiedVariant() started.
+◇ Test optionsDecodeMissingFieldsAndRoundTrip() started.
+◇ Test failedCompletionCommitCleansPublishedFilesAndDoesNotClaimSuccess() started.
+◇ Test finitePolicyRejectsInvalidConfiguration() started.
+◇ Test canonicalIdentityPreservesSemanticQuery() started.
+◇ Test shortLinkReroutesAfterBoundedRedirect() started.
+◇ Test selectionAndOptionsAreOrthogonalAndAssemblyUsesEffectiveOption() started.
+◇ Test unsafeDestinationsRejectedWithoutNetwork() started.
+◇ Test redirectToPrivateOrCycleIsRejected() started.
+◇ Test unavailableFilesAndValidPathsAreDifferentErrors() started.
+◇ Test headStatusRefusalAndRetryAfterAreClassified() started.
+◇ Test exactHostAndPathRouting() started.
+◇ Test statusClassificationAndRetryRules() started.
+✔ Test transferPlansAndComponentsRedactReflection() passed after 0.016 seconds.
+✔ Test restartMarksRunningInterruptedAndPreservesPendingOrdinal() passed after 0.017 seconds.
+✔ Test initializationFailureCanSafelyRetrySameNamespace() passed after 0.017 seconds.
+✔ Test commitJournalRecoversPublishedButUncommittedOutput() passed after 0.017 seconds.
+✔ Test realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() passed after 0.017 seconds.
+✔ Test forgedOutputPathAndChangedFileAreNotAccepted() passed after 0.017 seconds.
+✔ Test deletionJournalRecoveryNeverResurrectsHistory() passed after 0.017 seconds.
+✔ Test enqueueWriteFailurePreservesOldManifestAndDoesNotStart() passed after 0.017 seconds.
+✔ Test unsupportedAllPartsFailsEvenWithSpecifiedVariant() passed after 0.017 seconds.
+✔ Test optionsDecodeMissingFieldsAndRoundTrip() passed after 0.017 seconds.
+✔ Test finitePolicyRejectsInvalidConfiguration() passed after 0.017 seconds.
+✔ Test canonicalIdentityPreservesSemanticQuery() passed after 0.017 seconds.
+✔ Test unsafeDestinationsRejectedWithoutNetwork() passed after 0.017 seconds.
+✔ Test selectionAndOptionsAreOrthogonalAndAssemblyUsesEffectiveOption() passed after 0.017 seconds.
+✔ Test exactHostAndPathRouting() passed after 0.017 seconds.
+✔ Test statusClassificationAndRetryRules() passed after 0.022 seconds.
+✔ Test shortLinkReroutesAfterBoundedRedirect() passed after 0.030 seconds.
+✔ Test redirectToPrivateOrCycleIsRejected() passed after 0.031 seconds.
+✔ Test selectedItemIsRevalidatedByResolver() passed after 0.044 seconds.
+✔ Test persistedManifestHasNoOriginalLinkTitleOrCredentials() passed after 0.045 seconds.
+✔ Test twoSubscribersReceiveIndependentCompleteSnapshots() passed after 0.045 seconds.
+✔ Test deletionMetadataFailureRecoversActualDiskWithoutFalseRollback() passed after 0.045 seconds.
+✔ Test clearHistoryFailureRollsBackAndSuccessKeepsFilesDeletable() passed after 0.047 seconds.
+✔ Test activeAndQueuedTasksCannotBeDeleted() passed after 0.047 seconds.
+✔ Test contentMismatchIsNeverMarkedCompleteOrRetried() passed after 0.047 seconds.
+✔ Test progressRejectsRegressionsAndWrongGenerations() passed after 0.048 seconds.
+✔ Test duplicatePendingCompletedAndIrrelevantOptions() passed after 0.050 seconds.
+✔ Test unavailableFilesAndValidPathsAreDifferentErrors() passed after 0.051 seconds.
+✔ Test failedCompletionCommitCleansPublishedFilesAndDoesNotClaimSuccess() passed after 0.052 seconds.
+✔ Test resolvedAliasesAndIrrelevantPixivOptionsDoNotDownloadTwice() passed after 0.053 seconds.
+✔ Test htmlAndUnavailableSitesDoNotBecomeMedia() passed after 0.057 seconds.
+✔ Suite RoutingTests passed after 0.058 seconds.
+✔ Test taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() passed after 0.058 seconds.
+✔ Test restartNeedsOriginalSensitiveLinkAndNeverPersistsIt() passed after 0.058 seconds.
+✔ Test deletionRemovesDedupAndMissingFileIsReportedHonestly() passed after 0.059 seconds.
+✔ Test requestCooldownAndBudgetAreEnforced() passed after 0.059 seconds.
+✔ Test cleanupFailureBlocksNextUntilExplicitRetry() passed after 0.059 seconds.
+✔ Test cancellationDoesNotReleaseSlotUntilLateTransferAcknowledges() passed after 0.061 seconds.
+✔ Test partialDeletionKeepsFailedOutputsAndAllowsFreshDownload() passed after 0.061 seconds.
+✔ Suite StorageTests passed after 0.062 seconds.
+✔ Test fifoSingleSlotIncludingQueuedCancellation() passed after 0.062 seconds.
+✔ Test queuedOptionsAreValueSnapshotsAndAllPartsCannotSilentlyDowngrade() passed after 0.061 seconds.
+✔ Test headStatusRefusalAndRetryAfterAreClassified() passed after 0.063 seconds.
+✔ Suite RecoveryTests passed after 0.065 seconds.
+✔ Test finiteRetriesStartOverAndManualRetryUsesSameID() passed after 0.065 seconds.
+✔ Suite QueueTests passed after 0.066 seconds.
+✔ Test run with 42 tests passed after 0.066 seconds.

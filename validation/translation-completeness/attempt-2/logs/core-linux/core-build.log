@@ -1,0 +1,21 @@
+Building for debugging...
+[0/2] Write sources
+[1/2] Write swift-version-24593BA9C3E375BF.txt
+[3/15] Emitting module AIUtilityCore
+[4/19] Compiling AIUtilityCore OpenAIUsageLedger.swift
+[5/19] Compiling AIUtilityCore ProviderGateway.swift
+[6/19] Compiling AIUtilityCore ReasoningConfiguration.swift
+[7/19] Compiling AIUtilityCore ScreenshotTranslationWorkflow.swift
+[8/19] Compiling AIUtilityCore AudioRolloverBuffer.swift
+[9/19] Compiling AIUtilityCore ConfigurationCoordinator.swift
+[10/19] Compiling AIUtilityCore DeepSeekBalance.swift
+[11/19] Compiling AIUtilityCore Domain.swift
+[12/19] Compiling AIUtilityCore SubtitleTranslationSession.swift
+[13/19] Compiling AIUtilityCore TranslationDiagnostics.swift
+[14/19] Compiling AIUtilityCore TranslationEngine.swift
+[15/19] Compiling AIUtilityCore TranslationPreferences.swift
+[16/19] Compiling AIUtilityCore HTTPTransport.swift
+[17/19] Compiling AIUtilityCore LocalDataStore.swift
+[18/19] Compiling AIUtilityCore OCRService.swift
+[19/19] Compiling AIUtilityCore OfficialAPIAdapter.swift
+Build complete! (4.02s)

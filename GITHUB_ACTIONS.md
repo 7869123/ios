@@ -1,4 +1,6 @@
-# 将现有项目推送到个人私有仓库并验证 Core
+# GitHub Actions 验证与历史接入指南
+
+当前远程是 `https://github.com/7869123/ios.git`，仓库已 **Public**，无需重新建库或配置 origin。下文第 1–2 节保留历史接入说明；当前工程审查结果见 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md)。旧的 `scripts/github_actions.py` 仍要求 private，暂不适用于当前公开仓库；可用 Actions 页面或已授权 GitHub API，勿为此提供 Token 到聊天或 Git。
 
 本机不再安装或尝试配置 Windows Swift 工具链。保留现有 main 和全部提交，优先在 GitHub Actions 的 Linux 官方 Swift 6.0.3 容器运行真实编译和离线测试。
 
@@ -10,7 +12,7 @@
 
 ## 2. 在本项目目录推送
 
-当前尚无 origin。确认 URL 属于你自己的私有仓库，然后在项目终端运行，将示例 URL 换成你的真实地址：
+以下是尚未配置 origin 时的历史步骤。当前已配置，不要重复执行 `remote add`，不要重建项目：
 
 ```powershell
 git status --short --branch
@@ -39,19 +41,37 @@ GitHub 官方流程见 [推送本地仓库](https://docs.github.com/en/migration
 swift --version
 swift build --package-path Packages/AIUtilityCore
 swift test --package-path Packages/AIUtilityCore
+swift test --package-path PoCs/iOS27Capture
 ```
 
-无需配置任何仓库 API Secret。付费 API 与 Keychain 集成测试均关闭。当前普通源码 push / pull_request 还会在 Core 后运行 Apple 包验证，随后编译 SwiftUI App；仅 Markdown 或 validation 证据变更不重复构建。手动 workflow 通过 build_apple 开启 Apple/App，iOS 27 PoC 仍需显式 build_poc。默认跳过的运行时测试和 PoC 不能标成通过。
+无需配置任何仓库 API Secret。付费 API 与 Keychain 集成测试均关闭。
 
-打开仓库 **Actions → Swift validation → 对应 main 提交的运行**。如果 Actions 被禁用，先在 Settings → Actions → General 允许此仓库运行所用官方 actions；不需要增加工作流写权限。手动 Run workflow 也可以补触发，首次只选 main，两个 Apple 选项保持关闭。
+### 触发策略（2026-11-07 起）
+
+仓库已公开，标准 hosted runner 可用于验证；继续避免重复构建。此前 PR 分支 push 与 pull_request 会重复运行 macOS，现调整为：
+
+| 事件 | 运行的 job | 说明 |
+|---|---|---|
+| pull_request（每次 PR 更新） | core-linux | 仅 Linux，快速检查 |
+| push | 只在 main 上触发：core-linux → apple → app | 合并后的完整验证（PR 分支上的 push 不再重复触发） |
+| 手动 workflow_dispatch，`build_apple` | core-linux → apple → app（含截图） | **合并 PR 前必须跑一次并通过** |
+| 手动，`build_poc` | core-linux → poc-sdk（xcode-27） | 仅在 PoC 源码或其 CI 变更时需要 |
+| 手动，`publish_previews`（配合 `build_apple`） | app 末尾提交缩小的截图到 `validation/ui-preview/` | 该 job 为此拥有 `contents: write` |
+
+同一分支或引用上的新运行会自动取消尚在进行的旧运行（`concurrency`）。仅 Markdown 或 validation 证据变更不触发构建。
+
+开发节奏：批量本地开发，推送前运行 `scripts/prepush_check.sh`（语法、资源、diff 与敏感信息扫描），一批相关改动完成后再手动跑一次 `build_apple` 完整验证；失败时根据真实日志集中修复后再触发。默认跳过的运行时测试和 PoC 不能标成通过。
+
+打开仓库 **Actions → Swift validation**，核对目标分支和源 SHA。工程审查在 `codex/poc-engineering-audit` 同时勾选 build_apple/build_poc，保持 publish_previews=false，避免向 Claude 分支写入截图。不要触发或取消他人的运行。PR 与手动运行使用不同 ref，不能假定它们会互相取消。
 
 ## 4. 构建失败同样保存证据
 
-Core 步骤显式记录每个真实退出码，构建失败后仍会尝试测试；任一失败最终都让该步骤失败。上传步骤使用 `always()`，在 checkout 成功后即使构建/测试失败也会尝试保存以下四个文件：
+Core 步骤显式记录每个真实退出码，构建失败后仍会尝试测试；任一失败最终都让该步骤失败。上传步骤使用 `always()`，在 checkout 成功后即使构建/测试失败也会尝试保存以下五个文件：
 
 - swift-version.log
 - core-build.log
 - core-tests.log
+- poc-lifecycle-tests.log（可移植状态机，不是 Apple 框架运行时测试）
 - exit-codes.txt
 
 artifact 名为 `core-linux-evidence-运行ID-尝试次数`，保留 7 天；只上传这些指定日志，不上传目录通配符、.build、DerivedData、.env、整个仓库或下载缓存。没有 actions/cache，也不导出环境变量。Checkout 使用只读 contents 权限且不持久化 Git 凭据。

@@ -1,0 +1,855 @@
+{
+  "source_sha": "05508ba75f86ebbc50bf8bc65f0947f50805ed7c",
+  "run": {
+    "id": 42739095920,
+    "event": "workflow_dispatch",
+    "head_sha": "05508ba75f86ebbc50bf8bc65f0947f50805ed7c",
+    "head_branch": "codex/translation-completeness",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/7869123/ios/actions/runs/42739095920",
+    "run_attempt": 1
+  },
+  "inputs": {
+    "build_apple": true,
+    "build_poc": true,
+    "publish_previews": false,
+    "live_checks": false
+  },
+  "source_trees": {
+    "Packages/AIUtilityCore": "e1716943b22fa1dc86b7f775dc56249038336dec",
+    "Packages/AIUtilityAppleServices": "58118b2880df686e4c95d78d607e106a3a6d3648",
+    "Packages/AIUtilityMedia": "b6a647f5427d11133425f6ea2e74d56ee917c593",
+    "PoCs/iOS27Capture": "e29d8d43db5693f60b0568a5abdbd9ac3eb96a5a",
+    "Apps/AIUtility": "0bc9238514451d4b7461235bab1dae0063307102",
+    "scripts": "6396e7a1587079527f725ea8aa7bd2a8e51c76da",
+    ".github/workflows": "1aa59b59d56251b1b3d91a8f8d7c8b9f1416ca93"
+  },
+  "jobs": [
+    {
+      "id": 129575455231,
+      "name": "core-linux",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T01:54:58Z",
+          "completed_at": "2026-11-10T01:54:59Z"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T01:54:59Z",
+          "completed_at": "2026-11-10T01:55:25Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T01:55:25Z",
+          "completed_at": "2026-11-10T01:55:27Z"
+        },
+        {
+          "name": "Real compiler and offline tests with preserved exit codes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T01:55:27Z",
+          "completed_at": "2026-11-10T01:56:02Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-10T01:56:02Z",
+          "completed_at": "2026-11-10T01:56:03Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-10T01:56:03Z",
+          "completed_at": "2026-11-10T01:56:03Z"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-10T01:56:03Z",
+          "completed_at": "2026-11-10T01:56:04Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-10T01:56:04Z",
+          "completed_at": "2026-11-10T01:56:04Z"
+        }
+      ]
+    },
+    {
+      "id": 129575456781,
+      "name": "live-checks",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    },
+    {
+      "id": 129575893913,
+      "name": "apple",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T01:56:09Z",
+          "completed_at": "2026-11-10T01:56:10Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T01:56:10Z",
+          "completed_at": "2026-11-10T01:56:13Z"
+        },
+        {
+          "name": "Validate real macOS packages and both iOS SDK targets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T01:56:13Z",
+          "completed_at": "2026-11-10T01:57:44Z"
+        },
+        {
+          "name": "Validate Media on macOS and both unsigned iOS SDK targets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T01:57:44Z",
+          "completed_at": "2026-11-10T01:58:56Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-10T01:58:56Z",
+          "completed_at": "2026-11-10T01:58:57Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-10T01:58:57Z",
+          "completed_at": "2026-11-10T01:58:58Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-10T01:58:58Z",
+          "completed_at": "2026-11-10T01:58:59Z"
+        }
+      ]
+    },
+    {
+      "id": 129575894124,
+      "name": "poc-sdk",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T01:56:11Z",
+          "completed_at": "2026-11-10T01:56:13Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T01:56:13Z",
+          "completed_at": "2026-11-10T01:56:17Z"
+        },
+        {
+          "name": "Record actual runner, Xcode and SDK versions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T01:56:17Z",
+          "completed_at": "2026-11-10T01:56:29Z"
+        },
+        {
+          "name": "Require iOS 27 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T01:56:29Z",
+          "completed_at": "2026-11-10T01:56:29Z"
+        },
+        {
+          "name": "Run portable PoC lifecycle regressions (not device framework tests)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-10T01:56:29Z",
+          "completed_at": "2026-11-10T01:57:32Z"
+        },
+        {
+          "name": "Run brew install xcodegen",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-10T01:57:32Z",
+          "completed_at": "2026-11-10T01:57:40Z"
+        },
+        {
+          "name": "Generate and compile the diagnostic host with preserved exit codes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-10T01:57:40Z",
+          "completed_at": "2026-11-10T01:58:44Z"
+        },
+        {
+          "name": "Archive unsigned Release build for iphoneos",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-10T01:58:44Z",
+          "completed_at": "2026-11-10T01:59:24Z"
+        },
+        {
+          "name": "Package Payload into PoC-unsigned.ipa",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-10T01:59:24Z",
+          "completed_at": "2026-11-10T01:59:26Z"
+        },
+        {
+          "name": "Pre-install audit of the packaged app",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-10T01:59:26Z",
+          "completed_at": "2026-11-10T01:59:29Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-10T01:59:29Z",
+          "completed_at": "2026-11-10T01:59:31Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-10T01:59:31Z",
+          "completed_at": "2026-11-10T01:59:32Z"
+        },
+        {
+          "name": "Fail job if the simulator build failed",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13,
+          "started_at": "2026-11-10T01:59:32Z",
+          "completed_at": "2026-11-10T01:59:32Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-11-10T01:59:32Z",
+          "completed_at": "2026-11-10T01:59:33Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-11-10T01:59:33Z",
+          "completed_at": "2026-11-10T01:59:34Z"
+        }
+      ]
+    },
+    {
+      "id": 129576944813,
+      "name": "app",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T01:59:05Z",
+          "completed_at": "2026-11-10T01:59:07Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T01:59:07Z",
+          "completed_at": "2026-11-10T01:59:10Z"
+        },
+        {
+          "name": "Generate and compile the native SwiftUI App",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T01:59:10Z",
+          "completed_at": "2026-11-10T02:01:35Z"
+        },
+        {
+          "name": "Archive unsigned Release build of the App for iphoneos",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T02:01:35Z",
+          "completed_at": "2026-11-10T02:02:40Z"
+        },
+        {
+          "name": "Package Payload into AIUtility-unsigned.ipa (sign and install with Sideloadly)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-10T02:02:40Z",
+          "completed_at": "2026-11-10T02:02:44Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-10T02:02:44Z",
+          "completed_at": "2026-11-10T02:02:46Z"
+        },
+        {
+          "name": "Capture home review screenshots (iPad mini primary, iPhone compatibility)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-11-10T02:02:46Z",
+          "completed_at": "2026-11-10T02:02:46Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-11-10T02:02:46Z",
+          "completed_at": "2026-11-10T02:02:46Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-10T02:02:46Z",
+          "completed_at": "2026-11-10T02:02:47Z"
+        },
+        {
+          "name": "Commit downscaled previews to this branch (manual review runs only)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-11-10T02:02:47Z",
+          "completed_at": "2026-11-10T02:02:47Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-11-10T02:02:47Z",
+          "completed_at": "2026-11-10T02:02:48Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-10T02:02:48Z",
+          "completed_at": "2026-11-10T02:02:52Z"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "poc-evidence-42739095920-1",
+      "digest": "sha256:512bc1c90ef23a64ced8705f5594990a90acfc3cfa1dad52843e5c577bd53ba0",
+      "size_in_bytes": 140206,
+      "expires_at": "2026-11-17T01:59:31Z",
+      "verified_archive_sha256": "512bc1c90ef23a64ced8705f5594990a90acfc3cfa1dad52843e5c577bd53ba0",
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13729220020"
+    },
+    {
+      "name": "AIUtility-unsigned-ipa-42739095920",
+      "digest": "sha256:13be237a9b5eca6311984f04315dc6c87eee1d13075133ff90b20d1454d97339",
+      "size_in_bytes": 1776799,
+      "expires_at": "2026-11-17T02:02:45Z",
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13729145430"
+    },
+    {
+      "name": "app-evidence-42739095920-1",
+      "digest": "sha256:53f71819e5c2e32450fdae5a58fa859cb7293f5f198618d42a1b6d5e924f43d7",
+      "size_in_bytes": 65276,
+      "expires_at": "2026-11-17T02:02:46Z",
+      "verified_archive_sha256": "53f71819e5c2e32450fdae5a58fa859cb7293f5f198618d42a1b6d5e924f43d7",
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13728631583"
+    },
+    {
+      "name": "apple-evidence-42739095920-1",
+      "digest": "sha256:b97439fc1afcdedf4afef40f06f9496cb8e2291a1d690a4b8734d7f9a911c6a3",
+      "size_in_bytes": 47096,
+      "expires_at": "2026-11-17T01:58:57Z",
+      "verified_archive_sha256": "b97439fc1afcdedf4afef40f06f9496cb8e2291a1d690a4b8734d7f9a911c6a3",
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13728337881"
+    },
+    {
+      "name": "PoC-unsigned-ipa-42739095920-1",
+      "digest": "sha256:14da1e4301e2795aaad079503a8c6f4749b02855157a7e9ce604a20fed56b43a",
+      "size_in_bytes": 440811,
+      "expires_at": "2026-11-17T01:59:29Z",
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13727784803"
+    },
+    {
+      "name": "core-linux-evidence-42739095920-1",
+      "digest": "sha256:c9e49d66ee14e217fbb67c9b019d172fc1839acc72104bf13a300d9e827b23bb",
+      "size_in_bytes": 10558,
+      "expires_at": "2026-11-17T01:56:02Z",
+      "verified_archive_sha256": "c9e49d66ee14e217fbb67c9b019d172fc1839acc72104bf13a300d9e827b23bb",
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13727459492"
+    }
+  ],
+  "exit_codes": {
+    "poc": {
+      "poc_lifecycle_tests": 0,
+      "xcodegen_generate": 0,
+      "poc_simulator_build": 0,
+      "poc_device_archive": 0
+    },
+    "app": {
+      "environment": 0,
+      "generate": 0,
+      "simulator-build": 0,
+      "device-build": 0,
+      "app_device_archive": 0
+    },
+    "apple": {
+      "environment": 0,
+      "mac-core-tests": 0,
+      "mac-services-tests": 0,
+      "ios-simulator-build": 0,
+      "ios-device-build": 0,
+      "mac-media-build": 0,
+      "mac-media-tests": 0,
+      "ios-media-simulator-build": 0,
+      "ios-media-device-build": 0,
+      "ios-media-apple-simulator-build": 0,
+      "ios-media-apple-device-build": 0
+    },
+    "core-linux": {
+      "swift_version": 0,
+      "core_build": 0,
+      "core_tests": 0,
+      "poc_lifecycle_tests": 0,
+      "media_build": 0,
+      "media_tests": 0
+    }
+  },
+  "test_counts": {
+    "poc/lifecycle-tests.log": {
+      "execution_started": true,
+      "passed": 14,
+      "skipped": 0,
+      "failed": 0,
+      "aggregate_lines": [
+        "✔ Test run with 14 tests in 0 suites passed after 0.002 seconds."
+      ]
+    },
+    "apple/mac-core-tests.log": {
+      "execution_started": true,
+      "passed": 82,
+      "skipped": 1,
+      "failed": 0,
+      "aggregate_lines": [
+        "✔ Test run with 83 tests in 0 suites passed after 0.096 seconds."
+      ]
+    },
+    "apple/mac-services-tests.log": {
+      "execution_started": true,
+      "passed": 5,
+      "skipped": 1,
+      "failed": 0,
+      "aggregate_lines": [
+        "✔ Test run with 6 tests in 0 suites passed after 1.499 seconds."
+      ]
+    },
+    "apple/mac-media-tests.log": {
+      "execution_started": true,
+      "passed": 108,
+      "skipped": 5,
+      "failed": 0,
+      "aggregate_lines": [
+        "✔ Test run with 113 tests in 20 suites passed after 1.961 seconds."
+      ]
+    },
+    "core-linux/core-tests.log": {
+      "execution_started": true,
+      "passed": 82,
+      "skipped": 1,
+      "failed": 0,
+      "aggregate_lines": [
+        "✔ Test run with 83 tests passed after 0.088 seconds."
+      ]
+    },
+    "core-linux/poc-lifecycle-tests.log": {
+      "execution_started": true,
+      "passed": 14,
+      "skipped": 0,
+      "failed": 0,
+      "aggregate_lines": [
+        "✔ Test run with 14 tests passed after 0.001 seconds."
+      ]
+    },
+    "core-linux/media-tests.log": {
+      "execution_started": true,
+      "passed": 92,
+      "skipped": 4,
+      "failed": 0,
+      "aggregate_lines": [
+        "✔ Test run with 96 tests passed after 0.064 seconds."
+      ]
+    }
+  },
+  "logs": {
+    "logs/poc/environment.log": {
+      "original_bytes": 1282,
+      "original_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "stored_sha256": "875ebaa9361149854a7eafd0796901e0cf0d1ae786530b8c0c08db50e923b1df",
+      "mode": "full_normalized"
+    },
+    "logs/poc/generate.log": {
+      "original_bytes": 182,
+      "original_sha256": "4aa23c171bd50f0b90035d86aa6153f30db32922c89b0e80ed3541d55de9a70c",
+      "stored_sha256": "cb4daac793b635cc67f2aa2f95ac726e3665809a215169be7574d5d006c0e925",
+      "mode": "full_normalized"
+    },
+    "logs/poc/simulator-build.log": {
+      "original_bytes": 284050,
+      "original_sha256": "6506123d33ad37b2ef40f4a4c013cef4a2d74ba0ea4e0e1f2beec279737dfb18",
+      "stored_sha256": "1e1b8a51f901aa6dc917228021e0b49b034500497983f0aed641685bb8279e03",
+      "mode": "full_normalized"
+    },
+    "logs/poc/archive.log": {
+      "original_bytes": 217720,
+      "original_sha256": "f4e1e337b38be82a44a607c19670f7fa15c9365f2fcf891de034546c272c6abc",
+      "stored_sha256": "6dc29a062b6cb76d7578873939482ed055c717ca663597d67c3b0e0703e1d872",
+      "mode": "full_normalized"
+    },
+    "logs/poc/ipa-contents.log": {
+      "original_bytes": 923,
+      "original_sha256": "d1f5dbaa47b2da5ef523092ab5e1b18458c84353180b37640cc766ba9c0fbaad",
+      "stored_sha256": "d1f5dbaa47b2da5ef523092ab5e1b18458c84353180b37640cc766ba9c0fbaad",
+      "mode": "full_normalized"
+    },
+    "logs/poc/preinstall-audit.log": {
+      "original_bytes": 5734,
+      "original_sha256": "16888e2dbb074ff7ac3228c44584f8c98b433e4dd1d1069b5f4fe85787c64a6a",
+      "stored_sha256": "16888e2dbb074ff7ac3228c44584f8c98b433e4dd1d1069b5f4fe85787c64a6a",
+      "mode": "full_normalized"
+    },
+    "logs/poc/device-symbols.log": {
+      "original_bytes": 1254095,
+      "original_sha256": "0a4a5a94d1a66cddb286fc298485b7674fc7baecc7d0db1b54ecf5d88e6086f2",
+      "stored_sha256": "9ae79779e201a5b2f39152961f0857b9c4bad188b35a0d37ba1efa264f341069",
+      "mode": "selected_poc_symbols_first_80"
+    },
+    "logs/poc/lifecycle-tests.log": {
+      "original_bytes": 3968,
+      "original_sha256": "704165ff38fa8fe32e2efcc8267986c838a966b6255da97cee2158cce3b2d1dc",
+      "stored_sha256": "34da568ed13861fdc81ff923163fd51c4f1cdd537fe3722cb03df860f6300bf7",
+      "mode": "full_normalized"
+    },
+    "logs/poc/exit-codes.txt": {
+      "original_bytes": 85,
+      "original_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "stored_sha256": "4538752b9097cef775e820d833b1746015530eace9da1c086e281ba8299eb63b",
+      "mode": "full_normalized"
+    },
+    "logs/app/environment.log": {
+      "original_bytes": 226,
+      "original_sha256": "f978f0635d57b6516337576988e87e0fa353022e858bb742d3294c0ab2da8e32",
+      "stored_sha256": "f978f0635d57b6516337576988e87e0fa353022e858bb742d3294c0ab2da8e32",
+      "mode": "full_normalized"
+    },
+    "logs/app/generate.log": {
+      "original_bytes": 504,
+      "original_sha256": "d3f78d609db4bee00dbf3ff75b8cc37b929d1201d26c0f73d7b4b2b8571b11dd",
+      "stored_sha256": "554fc97e081419795f053f5c474eeea9b9f3e42ef9197d7f7a4206b906de7175",
+      "mode": "full_normalized"
+    },
+    "logs/app/simulator-build.log": {
+      "original_bytes": 434370,
+      "original_sha256": "9b81bdc4408fb8149d3dafbd3f64e764547a925a3b02fef82dbb2986534d1c0f",
+      "stored_sha256": "49ad6b9ea40bece1a085721d5958ad90d613af16e6c19b9443e913a2ab6df6d4",
+      "mode": "full_normalized"
+    },
+    "logs/app/device-build.log": {
+      "original_bytes": 228781,
+      "original_sha256": "de2668b0ad6203afa7b432b5d398b0ff0a663751591f4ccef0fc0a4080b9b17c",
+      "stored_sha256": "28126f610e8692e1965f55c961b4822c68c3c582d5a122ef97ef523ce0549cb9",
+      "mode": "full_normalized"
+    },
+    "logs/app/archive.log": {
+      "original_bytes": 310365,
+      "original_sha256": "8e717d1c5d5988d08e3d1f866fc71ae267d5b95a6590b04ca5065b6c9afde6d3",
+      "stored_sha256": "80bdf898bc47401e99f79b410344dbc5edda0719bef0dbe5929e019532848d09",
+      "mode": "full_normalized"
+    },
+    "logs/app/exit-codes.txt": {
+      "original_bytes": 79,
+      "original_sha256": "45b7d8c0ef38f3e6d61a1582ba87f48b47958c3cfa70e637384d85038d60c1c0",
+      "stored_sha256": "45b7d8c0ef38f3e6d61a1582ba87f48b47958c3cfa70e637384d85038d60c1c0",
+      "mode": "full_normalized"
+    },
+    "logs/app/ipa-contents.log": {
+      "original_bytes": 580,
+      "original_sha256": "f6653566087394e73c8fc40aeb1b11d6cc3df4d451ba52a969bb118fbbcc56df",
+      "stored_sha256": "f6653566087394e73c8fc40aeb1b11d6cc3df4d451ba52a969bb118fbbcc56df",
+      "mode": "full_normalized"
+    },
+    "logs/apple/mac-core-tests.log": {
+      "original_bytes": 18049,
+      "original_sha256": "3dd368d7a531973a78e1697d3088cead7e08fd68f91b9658d6aaeb2f00a4b872",
+      "stored_sha256": "fb32f6bda9cb22d321dbac53e8c3a5e73990a0d0dbfbd01a496f9cae9ed82166",
+      "mode": "full_normalized"
+    },
+    "logs/apple/ios-simulator-build.log": {
+      "original_bytes": 164731,
+      "original_sha256": "ad3645ef0152c2ecc78562f6ce4c4025662234f20895a3c1e92d9f8d0896186a",
+      "stored_sha256": "f0e31b563d5469b35851226e0b0c0a21bfa4b94960044bcf1cf8086219ba604e",
+      "mode": "full_normalized"
+    },
+    "logs/apple/mac-services-tests.log": {
+      "original_bytes": 3025,
+      "original_sha256": "a7adf6bc918551c7040042b050c2d603800a9a3188d21b0255c15797accf2a92",
+      "stored_sha256": "2fc244bf8e8d3b26d9e1da1d0ac6751d6d567b3a92818b2b66d38b2aa93a88ee",
+      "mode": "full_normalized"
+    },
+    "logs/apple/environment.log": {
+      "original_bytes": 971,
+      "original_sha256": "d339d187be917e224c106e46bf269ba8492085ab06f98e3f64127e53e0aae607",
+      "stored_sha256": "1f4361bf7d9172337df547eed5b906a4ce0d8bab3452599cb8379e2b05baafe2",
+      "mode": "full_normalized"
+    },
+    "logs/apple/ios-device-build.log": {
+      "original_bytes": 85995,
+      "original_sha256": "0e7aec0693680192109150d9956f913f9fd82f803ac6e8dc590be0ca91ff4f4a",
+      "stored_sha256": "60fcdfda84e7b3520cb691972c31474699ca9527fe0bd114fe2f554a74f4b1fd",
+      "mode": "full_normalized"
+    },
+    "logs/apple/mac-media-build.log": {
+      "original_bytes": 1109,
+      "original_sha256": "fa31a7777061966a768dd4e71425d951b8f5aabef63cdbd0aaae00fac20d40e1",
+      "stored_sha256": "fa31a7777061966a768dd4e71425d951b8f5aabef63cdbd0aaae00fac20d40e1",
+      "mode": "full_normalized"
+    },
+    "logs/apple/mac-media-tests.log": {
+      "original_bytes": 19503,
+      "original_sha256": "dfe6265fe347892748a4a57c9e4f70ed290ee59b339ee7e40afcd6784ac7a9e1",
+      "stored_sha256": "b959dfbe104b836fabbed4d0d5ec54bcd85f972aedbe593dd1253246b68defcf",
+      "mode": "full_normalized"
+    },
+    "logs/apple/ios-media-simulator-build.log": {
+      "original_bytes": 81982,
+      "original_sha256": "0ea0c25a1767597151d48ca32635f881cb1c12ce2aab565aba6d0c16078d001d",
+      "stored_sha256": "3700ec39100ee21dab090012d19770eb9c5f1d6f37173ea81c55fed51ea29ca8",
+      "mode": "full_normalized"
+    },
+    "logs/apple/ios-media-apple-simulator-build.log": {
+      "original_bytes": 76090,
+      "original_sha256": "e427cf59a77c9bd7c76044c9b36d6b7ac0381a850a061f4f96d1f1411c51ddd7",
+      "stored_sha256": "5e0ec0e00eacfd83b62c05748f885dabf0f503eb65a869f4ed7c49c3bd84a2ff",
+      "mode": "full_normalized"
+    },
+    "logs/apple/ios-media-apple-device-build.log": {
+      "original_bytes": 39956,
+      "original_sha256": "d400469fb13532ccb57d9914fa912b0530291390ab0ed49eae437e06f05dba7a",
+      "stored_sha256": "cda92cb83b59ba85261a085466f0285be8aea8e52dd89a39a93526d08bac8dd0",
+      "mode": "full_normalized"
+    },
+    "logs/apple/ios-media-device-build.log": {
+      "original_bytes": 43845,
+      "original_sha256": "008048df715ac5c71d49cdd7f5bb2f34b01c39f595078b4bd4f67a175a28e60c",
+      "stored_sha256": "f1b2d8818220ea43e732a90b660a3796269ba876aaa60cb8ffecf8afc9495828",
+      "mode": "full_normalized"
+    },
+    "logs/apple/exit-codes.txt": {
+      "original_bytes": 247,
+      "original_sha256": "354104f689836742018db898d4c0ead37cf0e49a885b1f5c254e1366d3dd99a6",
+      "stored_sha256": "354104f689836742018db898d4c0ead37cf0e49a885b1f5c254e1366d3dd99a6",
+      "mode": "full_normalized"
+    },
+    "logs/core-linux/swift-version.log": {
+      "original_bytes": 75,
+      "original_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "stored_sha256": "b0b8f2656fe883af86488be98fdaefd77793688fde6cb5521d77b437c3558928",
+      "mode": "full_normalized"
+    },
+    "logs/core-linux/core-build.log": {
+      "original_bytes": 1061,
+      "original_sha256": "0f73db90f57a31e2e9b8426afc2cfaba07257b811eeec85b25491870b4e49f2d",
+      "stored_sha256": "0f73db90f57a31e2e9b8426afc2cfaba07257b811eeec85b25491870b4e49f2d",
+      "mode": "full_normalized"
+    },
+    "logs/core-linux/core-tests.log": {
+      "original_bytes": 17355,
+      "original_sha256": "5a9892b1cab0a4d7e0b7b0df153c7bd9833c9b5de57553fc6af7b3d8c31b276f",
+      "stored_sha256": "5e15d2b5aa4737e21b0148b92383c50819dea9c5d16d14fe998813caaa69ac87",
+      "mode": "full_normalized"
+    },
+    "logs/core-linux/poc-lifecycle-tests.log": {
+      "original_bytes": 5497,
+      "original_sha256": "0f2530be7f28eddf31620cdf4637ef7b0e89eb4eb6a1db8629cb5921e15c5164",
+      "stored_sha256": "f15543a42715e13590f3d7027164a4dad77e9322bdc79d68aee1816ba31e41c1",
+      "mode": "full_normalized"
+    },
+    "logs/core-linux/media-build.log": {
+      "original_bytes": 1108,
+      "original_sha256": "7c647ade5d9225514ae4a615bd064627eec6e7d993e2cb76613c6b1746f2bc57",
+      "stored_sha256": "7c647ade5d9225514ae4a615bd064627eec6e7d993e2cb76613c6b1746f2bc57",
+      "mode": "full_normalized"
+    },
+    "logs/core-linux/media-tests.log": {
+      "original_bytes": 17722,
+      "original_sha256": "cf6be6591435bab57b3dea169599c971d495d3d79deb427d001afd44c940ed61",
+      "stored_sha256": "81afb536c1327d6514cb1fcd75e45033de5c09a35b044c0dba4a17b077faa94d",
+      "mode": "full_normalized"
+    },
+    "logs/core-linux/exit-codes.txt": {
+      "original_bytes": 92,
+      "original_sha256": "2b9175e5960eed2a18f9f308f0ddb37b18cecff6634cc672228b916c8698877e",
+      "stored_sha256": "2b9175e5960eed2a18f9f308f0ddb37b18cecff6634cc672228b916c8698877e",
+      "mode": "full_normalized"
+    }
+  },
+  "unverified": [
+    "live AI APIs/balance/usage",
+    "iOS Keychain runtime",
+    "iPad cross-app capture",
+    "Speech language packs/rollover audio delivery/recognition quality",
+    "PiP/background",
+    "signing/install/device tests"
+  ],
+  "normalization": "CI workspace/home and UUIDs replaced; LF/trailing whitespace normalized; device-symbols excerpted. Only generated retina AppIcon filename and PATH numeric tool-version @ separators are represented as [AT]. Raw/stored SHA-256 retained. Artifact IDs are canonical GitHub artifact URLs.",
+  "preinstall_audit": {
+    "passed": 13,
+    "failed": 0,
+    "scope": "unsigned PoC IPA/static device binary only"
+  },
+  "packaged_outputs": [
+    {
+      "name": "AIUtility-unsigned.ipa",
+      "sha256_reported_by_ci": "ffacfe5326afe78ec118e45b6fe3f6efb091157a1650a41756d455498379e388",
+      "artifact_downloaded_locally": false,
+      "signed": false,
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13729145430"
+    },
+    {
+      "name": "PoC-unsigned.ipa",
+      "sha256_reported_by_ci": "f564e0a4cc8b8c3dbbae135ffad0c62bda1d0279a3799122d38538685e14ad90",
+      "artifact_downloaded_locally": false,
+      "signed": false,
+      "artifact_url": "https://github.com/7869123/ios/actions/runs/42739095920/artifacts/13727784803"
+    }
+  ],
+  "warning_review": [
+    {
+      "area": "PoCSession.swift:147",
+      "issue": "AVAudioSession.InterruptionType deprecated in iOS 27",
+      "action": "recorded; notification/lifecycle migration needs a separate authorized plan"
+    },
+    {
+      "area": "SubtitlePiPProbe.swift:73,89,90,118",
+      "issue": "display-layer methods deprecated in iOS 18",
+      "action": "recorded; no unauthorized PiP changes"
+    },
+    {
+      "area": "Apps/AIUtility/Sources/LocalToolViews.swift:55,113,189; WallpaperViews.swift:223",
+      "issue": "main-actor properties referenced in Sendable closures",
+      "action": "recorded for Claude; no UI edits"
+    },
+    {
+      "area": "ProbeLifecycleTests.swift:23",
+      "issue": "unused Bool result",
+      "action": "nonfatal; test retained"
+    },
+    {
+      "area": "PoC packaging",
+      "issue": "orientation/AppIntents metadata warnings",
+      "action": "nonfatal; no new Intent or orientation changes"
+    }
+  ],
+  "evidence_export": {
+    "initial_local_exit_code": 1,
+    "reason": "UnicodeEncodeError printing JSON to Windows console",
+    "retry_local_exit_code": 0,
+    "repair": "UTF-8 Python console encoding; no CI rerun or source change",
+    "verified_log_hashes": 35
+  },
+  "authorization": "Owner approved compilation and evidence-based repairs/retries until passing; no branch merge.",
+  "dispatch_count_this_authorization": 1,
+  "log_path_normalizations": {
+    "logs/poc/archive.log": {
+      "generated_retina_icon_paths": 0,
+      "PATH_numeric_tool_versions": 1
+    },
+    "logs/app/simulator-build.log": {
+      "generated_retina_icon_paths": 2,
+      "PATH_numeric_tool_versions": 0
+    },
+    "logs/app/device-build.log": {
+      "generated_retina_icon_paths": 2,
+      "PATH_numeric_tool_versions": 0
+    },
+    "logs/app/archive.log": {
+      "generated_retina_icon_paths": 2,
+      "PATH_numeric_tool_versions": 0
+    }
+  },
+  "local_prepush_initial": {
+    "exit_code": 1,
+    "cause": "false matches on public artifact IDs, generated retina AppIcon paths and PATH tool versions",
+    "action": "canonical artifact URLs and explicit log normalization; scanner/workflow rules unchanged; final gate must pass before push"
+  }
+}

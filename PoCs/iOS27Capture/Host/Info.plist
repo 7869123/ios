@@ -9,6 +9,7 @@
 <key>CFBundleShortVersionString</key><string>0.1</string>
 <key>CFBundleVersion</key><string>1</string>
 <key>NSSpeechRecognitionUsageDescription</key><string>本地识别经系统授权采集的音频，用于验证实时字幕。</string>
+<key>NSScreenCaptureUsageDescription</key><string>经系统选择器授权后采集屏幕与其他 App 的音频，仅用于本地识别并生成字幕，不保存录屏。</string>
 <key>UIBackgroundModes</key><array><string>audio</string><string>screen-capture</string></array>
 <key>UIApplicationSceneManifest</key><dict><key>UIApplicationSupportsMultipleScenes</key><false/></dict>
 <key>UILaunchScreen</key><dict/>

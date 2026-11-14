@@ -1,0 +1,96 @@
+== Info.plist (built)
+{
+  "BuildMachineOSBuild" => "26A434"
+  "CFBundleDisplayName" => "AIUtility Probe"
+  "CFBundleExecutable" => "AIUtilityCaptureProbe"
+  "CFBundleIdentifier" => "com.aiutility.capture-probe"
+  "CFBundleName" => "AIUtilityCaptureProbe"
+  "CFBundlePackageType" => "APPL"
+  "CFBundleShortVersionString" => "0.1"
+  "CFBundleSupportedPlatforms" => [
+    0 => "iPhoneOS"
+  ]
+  "CFBundleVersion" => "1"
+  "DTCompiler" => "com.apple.compilers.llvm.clang.1_0"
+  "DTPlatformBuild" => "24A94232"
+  "DTPlatformName" => "iphoneos"
+  "DTPlatformVersion" => "27.1"
+  "DTSDKBuild" => "24A94232"
+  "DTSDKName" => "iphoneos27.1"
+  "DTXcode" => "2710"
+  "DTXcodeBuild" => "27A9275"
+  "MinimumOSVersion" => "27.0"
+  "NSScreenCaptureUsageDescription" => "经系统选择器授权后采集屏幕与其他 App 的音频，仅用于本地识别并生成字幕，不保存录屏。"
+  "NSSpeechRecognitionUsageDescription" => "本地识别经系统授权采集的音频，用于验证实时字幕。"
+  "UIApplicationSceneManifest" => {
+    "UIApplicationSupportsMultipleScenes" => false
+  }
+  "UIBackgroundModes" => [
+    0 => "audio"
+    1 => "screen-capture"
+  ]
+  "UIDeviceFamily" => [
+    0 => 1
+    1 => 2
+  ]
+  "UILaunchScreen" => {
+  }
+  "UIRequiredDeviceCapabilities" => [
+    0 => "arm64"
+  ]
+}
+== linked frameworks
+artifacts/ipa/Payload/AIUtilityCaptureProbe.app/AIUtilityCaptureProbe:
+	/System/Library/Frameworks/Foundation.framework/Foundation (compatibility version 300.0.0, current version 5027.0.69)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)
+	/System/Library/Frameworks/AVFAudio.framework/AVFAudio (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/AVFoundation.framework/AVFoundation (compatibility version 1.0.0, current version 2.0.0)
+	/System/Library/Frameworks/AVKit.framework/AVKit (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/Combine.framework/Combine (compatibility version 1.0.0, current version 3023.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (compatibility version 150.0.0, current version 5027.0.69)
+	/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics (compatibility version 64.0.0, current version 2050.0.0)
+	/System/Library/Frameworks/CoreMedia.framework/CoreMedia (compatibility version 1.0.0, current version 3350.77.1)
+	/System/Library/Frameworks/CoreVideo.framework/CoreVideo (compatibility version 1.2.0, current version 758.27.0)
+	/System/Library/Frameworks/QuartzCore.framework/QuartzCore (compatibility version 1.2.0, current version 1223.6.12)
+	/System/Library/Frameworks/ScreenCaptureKit.framework/ScreenCaptureKit (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/Speech.framework/Speech (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/SwiftUI.framework/SwiftUI (compatibility version 1.0.0, current version 8.0.85)
+	/System/Library/Frameworks/UIKit.framework/UIKit (compatibility version 1.0.0, current version 9127.0.85)
+	/usr/lib/swift/libswiftAVFoundation.dylib (compatibility version 1.0.0, current version 2450.77.1, weak)
+	/usr/lib/swift/libswiftCore.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/swift/libswiftCoreAudio.dylib (compatibility version 1.0.0, current version 482.102.0)
+	/usr/lib/swift/libswiftCoreFoundation.dylib (compatibility version 1.0.0, current version 120.100.0)
+	/usr/lib/swift/libswiftCoreImage.dylib (compatibility version 1.0.0, current version 3.0.0, weak)
+	/usr/lib/swift/libswiftCoreLocation.dylib (compatibility version 1.0.0, current version 57.0.0, weak)
+	/usr/lib/swift/libswiftCoreMIDI.dylib (compatibility version 1.0.0, current version 6.0.0, weak)
+	/usr/lib/swift/libswiftDispatch.dylib (compatibility version 1.0.0, current version 1605.0.2)
+	/usr/lib/swift/libswiftMetal.dylib (compatibility version 1.0.0, current version 382.5.3, weak)
+	/usr/lib/swift/libswiftOSLog.dylib (compatibility version 1.0.0, current version 10.0.0, weak)
+	/usr/lib/swift/libswiftObjectiveC.dylib (compatibility version 1.0.0, current version 973.1.0, weak)
+	/usr/lib/swift/libswiftQuartzCore.dylib (compatibility version 1.0.0, current version 5.0.0, weak)
+	/usr/lib/swift/libswiftSpatial.dylib (compatibility version 1.0.0, current version 1.0.0, weak)
+	/usr/lib/swift/libswiftUniformTypeIdentifiers.dylib (compatibility version 1.0.0, current version 919.0.1, weak)
+	/usr/lib/swift/libswiftXPC.dylib (compatibility version 1.0.0, current version 167.0.2, weak)
+	/usr/lib/swift/libswift_Builtin_float.dylib (compatibility version 0.0.0, current version 0.0.0, weak)
+	/usr/lib/swift/libswift_Concurrency.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/swift/libswiftos.dylib (compatibility version 1.0.0, current version 1090.0.0, weak)
+	/usr/lib/swift/libswiftsimd.dylib (compatibility version 1.0.0, current version 25.0.0, weak)
+== Xcode-generated entitlements (.xcent) for the archive
+none generated
+== embedded.mobileprovision
+absent (expected for unsigned IPA)
+== checks
+PASS  CFBundleIdentifier == com.aiutility.capture-probe
+PASS  MinimumOSVersion >= 27
+PASS  NSSpeechRecognitionUsageDescription non-empty
+PASS  NSScreenCaptureUsageDescription non-empty
+PASS  UIBackgroundModes contains audio
+PASS  UIBackgroundModes contains screen-capture
+PASS  binary links ScreenCaptureKit (capture code not compiled out)
+PASS  binary links Speech
+PASS  binary links AVKit
+FAIL  binary contains real ScreenAudioProbe
+FAIL  binary contains real PoCSession
+PASS  no NSMicrophoneUsageDescription (PoC does not use mic)
+PASS  IPA is unsigned

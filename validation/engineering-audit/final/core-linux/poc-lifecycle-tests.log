@@ -1,0 +1,80 @@
+Building for debugging...
+[0/15] Write sources
+[3/15] Write swift-version-24593BA9C3E375BF.txt
+[5/22] Compiling AIUtilityCore ConfigurationCoordinator.swift
+[6/22] Compiling AIUtilityCore Domain.swift
+[7/22] Compiling AIUtilityCore OfficialAPIAdapter.swift
+[8/22] Compiling AIUtilityCore ProviderGateway.swift
+[9/22] Emitting module AIUtilityCore
+[10/22] Compiling AIUtilityCore HTTPTransport.swift
+[11/22] Compiling AIUtilityCore OCRService.swift
+[12/23] Compiling AIUtilityCore TranslationEngine.swift
+[13/24] Wrapping AST for AIUtilityCore for debugging
+[15/29] Compiling AIUtilityCapturePoC LocalSpeechProbe.swift
+[16/29] Compiling AIUtilityCapturePoC PoCSession.swift
+[17/29] Compiling AIUtilityCapturePoC ScreenAudioProbe.swift
+[18/29] Compiling AIUtilityCapturePoC ProbeLifecycle.swift
+[19/29] Emitting module AIUtilityCapturePoC
+[20/30] Compiling AIUtilityCapturePoC SubtitlePiPProbe.swift
+[21/31] Wrapping AST for AIUtilityCapturePoC for debugging
+[23/33] Emitting module AIUtilityCapturePoCTests
+[24/33] Compiling AIUtilityCapturePoCTests ProbeLifecycleTests.swift
+/__w/ios/ios/PoCs/iOS27Capture/Tests/AIUtilityCapturePoCTests/ProbeLifecycleTests.swift:23:16: warning: expression of type 'Bool' is unused
+ 21 |     #expect(gate.begin() == nil)
+ 22 |     pause.resume()
+ 23 |     await stop.value
+    |                `- warning: expression of type 'Bool' is unused
+ 24 |     #expect(gate.phase == .idle)
+ 25 |     #expect(gate.begin() != nil)
+[25/34] /__w/ios/ios/PoCs/iOS27Capture/.build/x86_64-unknown-linux-gnu/debug/AIUtilityCapturePoCPackageDiscoveredTests.derived/all-discovered-tests.swift
+[26/34] Write sources
+[27/34] Wrapping AST for AIUtilityCapturePoCTests for debugging
+[29/37] Compiling AIUtilityCapturePoCPackageDiscoveredTests all-discovered-tests.swift
+[30/37] Compiling AIUtilityCapturePoCPackageDiscoveredTests AIUtilityCapturePoCTests.swift
+[31/37] Emitting module AIUtilityCapturePoCPackageDiscoveredTests
+[32/38] /__w/ios/ios/PoCs/iOS27Capture/.build/x86_64-unknown-linux-gnu/debug/AIUtilityCapturePoCPackageTests.derived/runner.swift
+[33/38] Write sources
+[34/38] Wrapping AST for AIUtilityCapturePoCPackageDiscoveredTests for debugging
+[36/40] Compiling AIUtilityCapturePoCPackageTests runner.swift
+[37/40] Emitting module AIUtilityCapturePoCPackageTests
+[38/41] Wrapping AST for AIUtilityCapturePoCPackageTests for debugging
+[39/41] Write Objects.LinkFileList
+[40/41] Linking AIUtilityCapturePoCPackageTests.xctest
+Build complete! (10.96s)
+Test Suite 'All tests' started at 2026-11-07 13:41:41.245
+Test Suite 'debug.xctest' started at 2026-11-07 13:41:41.247
+Test Suite 'debug.xctest' passed at 2026-11-07 13:41:41.247
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+Test Suite 'All tests' passed at 2026-11-07 13:41:41.247
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+◇ Test run started.
+↳ Testing Library Version: 6.0.3 (18c42c19cac3faf)
+◇ Test pendingStartCannotBecomeRunningAfterCancel() started.
+◇ Test duplicateStartIsRejected() started.
+◇ Test staleFailureDoesNotReleaseNewSessionResources() started.
+◇ Test oldFailureCannotStopReplacement() started.
+◇ Test failedReleaseBlocksRestartUntilExplicitStopRetry() started.
+◇ Test repeatedStopAfterCompletionDoesNotReleaseTwice() started.
+◇ Test concurrentStopFailureIsSharedWithoutImplicitRetry() started.
+◇ Test restartWaitsForActualAsyncRelease() started.
+◇ Test staleStopCompletionCannotClearReplacement() started.
+◇ Test lateMetricsAndPickerCallbacksAreRejected() started.
+◇ Test cancellingStopCallerStillFinishesResourceRelease() started.
+◇ Test stopIsIdempotentDuringAndAfterRelease() started.
+◇ Test interruptedSessionRequiresExplicitRestart() started.
+◇ Test concurrentStopsAwaitOneActualRelease() started.
+✔ Test pendingStartCannotBecomeRunningAfterCancel() passed after 0.001 seconds.
+✔ Test oldFailureCannotStopReplacement() passed after 0.001 seconds.
+✔ Test duplicateStartIsRejected() passed after 0.001 seconds.
+✔ Test lateMetricsAndPickerCallbacksAreRejected() passed after 0.001 seconds.
+✔ Test interruptedSessionRequiresExplicitRestart() passed after 0.001 seconds.
+✔ Test staleStopCompletionCannotClearReplacement() passed after 0.001 seconds.
+✔ Test stopIsIdempotentDuringAndAfterRelease() passed after 0.001 seconds.
+✔ Test restartWaitsForActualAsyncRelease() passed after 0.001 seconds.
+✔ Test repeatedStopAfterCompletionDoesNotReleaseTwice() passed after 0.001 seconds.
+✔ Test staleFailureDoesNotReleaseNewSessionResources() passed after 0.001 seconds.
+✔ Test failedReleaseBlocksRestartUntilExplicitStopRetry() passed after 0.001 seconds.
+✔ Test cancellingStopCallerStillFinishesResourceRelease() passed after 0.001 seconds.
+✔ Test concurrentStopsAwaitOneActualRelease() passed after 0.001 seconds.
+✔ Test concurrentStopFailureIsSharedWithoutImplicitRetry() passed after 0.001 seconds.
+✔ Test run with 14 tests passed after 0.001 seconds.

@@ -1,5 +1,180 @@
 # AIUtility 开发状态
 
+## 最新：完整复编译通过，真机仍未验证
+
+- 被测源 `05508ba75f86ebbc50bf8bc65f0947f50805ed7c`，[Actions 42739095920](https://github.com/7869123/ios/actions/runs/42739095920) completed / success。用户授权修复重试直至通过；本次只运行一次，未合并或读取 Claude 分支、未创建 PR。
+- Core Linux / macOS 各 **82 通过、1 live API 跳过、0 失败**；AppleServices **5 通过、1 Keychain 跳过**；Media Linux **92 通过/4 跳过**、macOS **108 通过/5 跳过**；可移植 PoC 生命周期两个宿主各 **14 通过**。26 个记录的命令退出码全为 0。
+- AppleServices、Media、MediaApple 的模拟器/真机 SDK 编译通过；Xcode 27.1 / iOS 27.1 下 PoC Swift 6 模拟器编译、iphoneos Archive、未签名 IPA、13 项预安装检查通过；App 两个 SDK 编译、Release Archive 和未签名 IPA 通过。
+- 首轮 7 处宏编译错误及后续字幕旧尾句修复已实际验证；13 项 Core 音频队列测试通过，不等同于真实 Speech/PCM 补送验证。真实 API、iOS Keychain、截图质量、ASR/跨 App 捕获、PiP/后台、签名安装与 iPad mini 6 真机仍未验证。
+- 保留警告：PoC 的音频中断/display layer 弃用接口、App UI 的 MainActor/Sendable 闭包、未使用 Bool 与元数据/方向诊断。未修改 UI、PoC 或工具来消除警告。截图发布/live-checks 关闭。
+- [完整测试/命令/退出码/Artifact/风险记录](validation/translation-completeness/attempt-2/README.md)。35 份日志与原始/归档哈希已保存；后续仅文档/证据变动不改变被测源码。下方未编译/未重跑描述均为此前阶段历史。
+
+## 最新修复：先修代码，未重跑 CI
+
+- 已逐项核对首轮日志的 7 处测试编译错误，保留 `6aa6f64` 的修复与全部旧断言。
+- 补修 Core 字幕分段：ASR 修正触及已提交前缀时，立即丢弃被推翻的未提交尾句并推进事件序号；final 同时结束该 utterance，避免静默 flush、下一轮识别或迟到回调把旧尾句送去翻译。公开签名不变；不修改 PoC 或 UI。
+- 新增 2 个同步回归测试声明，其中 1 个含两组参数；Core 当前 83 个 @Test 声明。测试尚未编译/执行，不能据此报告通过。此前生产编译成功只覆盖 `0ee791b`，不覆盖本次分段修复。
+- 本地静态检查退出 0（88 个 Swift 文件），不是 Swift 编译。没有重跑 Actions、创建 PR 或合并分支；待所有者确认后复验。[修复审查与验证边界](validation/translation-completeness/repair-review.md)。
+
+## 最新真实 CI：Core 生产源码通过，测试模块失败，修复待复验
+
+- 所有者授权编译且禁止合并；仅在 Codex 分支执行 [42647207277](https://github.com/7869123/ios/actions/runs/42647207277)，源码 `0ee791b`，整体 failure。未创建 PR 或合并分支。
+- Linux Swift 6.0.3：Core build=0；Core test=1，因新增测试宏展开编译错误，实际功能测试执行 0 项。生命周期 14 通过；Media build/test=0，92 通过/4 live 跳过/0 失败。六个退出码为 0/0/1/0/0/0。
+- Apple、App、PoC SDK 因依赖 Core 成功而跳过，live-checks 显式关闭；无本轮 macOS 测试、iOS SDK、Archive 或 IPA 证据，更无真机结论。
+- 修复 `6aa6f64` 仅拆开三份测试文件的嵌套宏、throwing 读取与 JSON 解码；@Test、#expect、#require 数量均保留，生产源码和公开接口不变。**修复尚未编译/执行，重跑需单独确认。**
+- [首轮完整证据](validation/translation-completeness/attempt-1/README.md) 含真实命令、job ID、退出码、7 份日志、artifact SHA-256。下方“没有本批 CI”的内容为此前源码阶段记录。
+
+## 最新：ASR 轮转音频缓存（用户明确授权；未编译）
+
+- 缓存源码 `2272e99`，请求 token 与锁收尾 `42a1bec`，仍在 `codex/translation-completeness`。新增 Core 的 AudioRolloverBuffer 与 13 项回归测试；PoC 仅修改 LocalSpeechProbe.swift，未改 Host UI、采集、PiP、生命周期类或正式 App。
+- 默认 5 秒 / 8 MiB PCM / 512 包三重上限，正常投递和轮转补送使用同一 FIFO。旧识别结束期间继续缓存；新请求就绪立即排空，不等待满 5 秒。只补送尚未投递的音频，不加入重叠重放。
+- PCM 深拷贝独立存放，单 worker、逐包同步边界和会话 token；停止/失败清空，旧会话无法取出新包。超限、格式变化、部分时间重叠、无效包或复制失败明确停止，不无限积压；快照只暴露数量/时长和安全状态。
+- **新增测试仅为源码，实际执行 0 项**；Core 当前 81 个 @Test 声明，Apple 6 个。Swift / Apple SDK / 真机均未验证，CI 未获授权。用户之前收到的 c9496fa CI 询问不覆盖这一新增提交。
+- 缓存可覆盖客户端轮转期间的未投递音频，不解决系统采集缺音；词语跨识别边界、Speech 消化积压的速度和内部内存仍需真机测试，不能标记为无缝识别。
+- 接口与验证细节见 [Claude 交接](TRANSLATION_CLAUDE_HANDOFF.md)、[PoC 方案](POC_TRANSLATION_PLAN.md) 和 [验证状态](validation/translation-completeness/README.md)。下方“未缓存空窗”的描述仅对应此前提交。
+
+## 本轮翻译底层增量（独立分支，真实验证待确认）
+
+- 所有者重新分配 Codex 处理底层业务/API/持久化/测试，未授权 UI 修改；随后单独授权 LocalSpeechProbe、PoCSession 两处 PoC 逻辑。分支 `codex/translation-completeness`，基线 `7ff4111`，审计 `c178776`，P0 `659de51`，API/OCR `fa81778`，获批 PoC `12ed6bf`，回归补充 `c9c572b`。未合并 PR、未写 main/Claude 分支。
+- 新源码：两套独立可编辑提示词和恢复默认、三语语言偏好/同语直返、本地自动检测接口、有限稳定分段/FIFO/去重/取消、模型推理能力与显式输出预算、真实 DeepSeek 余额接口与提醒抑制、OpenAI 实际 usage 本地账本、区域 OCR/编辑稿工作流、阶段耗时诊断和配置版本兼容。
+- PoC：三语参数、约 50 秒识别轮转、最多 2 秒排空/停止确认、Core 字幕接线；仅两处获批文件，Host UI/ScreenAudioProbe/ProbeLifecycle/SubtitlePiPProbe 不变。排空期间存在识别空窗，尚未验证是否丢字，不能称为无缝连续 ASR。
+- **本批 Swift 编译和测试执行数量仍为 0**；新增 31 个 Core 测试声明、3 个 Apple 测试声明不是通过证据。现 Core 源码总计 68 个 @Test、Apple 6 个；原测试全部保留。Windows 未安装 Swift，尚无本批 CI 运行 ID。
+- 基线 [42486839669](https://github.com/7869123/ios/actions/runs/42486839669) 的通过结果仅用于审计，不验证本批源码。触发 CI / 创建会自动跑 Linux 的 PR 前，按 AGENTS 第 5 节请求本批授权。
+- UI 页面和系统快捷入口未接线；三家真实 API、余额实查、真实用量、iOS Keychain/真实截图、多语语言包、跨 App 音频/Speech/PiP/后台、签名安装与长时实机均未验证。既有媒体实现不改、不删、不重复开发。
+- [只读审计](TRANSLATION_AUDIT.md)、[Claude 接口交接](TRANSLATION_CLAUDE_HANDOFF.md)、[PoC 获批方案与风险](POC_TRANSLATION_PLAN.md)、[本轮验证状态](validation/translation-completeness/README.md)。下方内容保留为历史，不能覆盖本节的新验证边界。
+
+## 已搁置：首次启动引导页
+
+- 用户 2026-11-08 提出（首次启动显示引导页，可「跳过」），2026-11-14 决定先不做。未写任何代码；以后需要时再重新讨论方案。
+
+## Claude Code 接手媒体模块：P2–P4 与 App 接线（2026-11-08）
+
+用户让 Claude Code 接手 Codex 的工作（Codex 分支已合入 Claude 分支）。本节为最新状态，下方各节为历史记录。
+
+| 阶段 | 内容 | 验证 |
+|---|---|---|
+| P1 | 下载队列（FIFO 单任务） | Linux 与 macOS 测试通过，两种 iOS SDK 编译通过（run 42466209488） |
+| P2 | 多图拼接、视频转 GIF、图片指纹（`AIUtilityMediaApple`） | macOS 上除“取消后不留文件”外全部通过（run 42468453922），该项已修复待复验 |
+| P3 | B站、X、Pixiv 解析器；Pixiv 动图在本机转 GIF（兼容优先：帧时长对齐 10 ms，总时长不变） | 离线样例测试；**未连接真实站点验证** |
+| P4 | SauceNAO 搜图（需 Key）；搜图 Bot 酱（无需 Key，按网页请求抓包接入，接口无公开文档） | 离线样例测试；未联网验证 |
+| App | 媒体工具箱：链接下载、三个本地工具、SauceNAO 搜图 | 待本轮编译与截图 |
+
+- 界面状态：本地工具标“可用”；站点下载与搜图标“未实测”（已实现、只做过离线测试）。只处理公开内容，不绕过登录、付费、会员或地区限制。
+- 未做：真实网络验证（需要能访问这些站点的网络和设备）、B站多 P 批量与高清（需要登录，不做）、真机验证。
+- 接口与契约细节见 MEDIA_INTERFACES.md 9a、9b、10a。
+
+## 媒体 Apple 首轮失败，修复待复验
+
+用户新增授权仅限 swift.yml 的 apple job：Media macOS build/test、两种无签名 iOS SDK 编译，
+保留触发条件和其他 job；Codex 分支允许一次 build_apple，publish_previews=false、build_poc=false。
+授权的单次运行 [42461786365](https://github.com/7869123/ios/actions/runs/42461786365)，源码 1ac37c8：
+Media macOS build=0，测试=1（9 通过、33 失败、0 跳过）；两个无签名 iOS SDK build=0。
+Linux Media 42 通过；原 macOS Core 36 通过/1 跳过，Vision 2 通过/Keychain 1 跳过。
+实际为 Xcode 26.6 / Swift 6.3.3 / iOS SDK 26.5，不是 iOS 27。App 因 apple 失败跳过，未生成截图。
+失败集中在存储初始化把 Darwin 系统目录别名误判为符号链接；已仅在 Media 修复精确系统别名和路径检查，
+保留全部原测试并新增 3 项（总数 45）。修复 99b0d86，验证 HEAD 334cfde 在
+[42463047405](https://github.com/7869123/ios/actions/runs/42463047405) Linux Media 45 全通过、0 跳过/失败，
+Core 36 通过/1 跳过、生命周期 14 通过，六个退出码均为 0。Mac/SDK 修复后尚未复验，不能沿用旧 SDK 结果。
+[失败全文、命令退出码及 17 份证据](validation/media-apple/attempt-1/README.md)。
+[修复后证据与下一步门槛](validation/media-apple/README.md)。
+一次 build_apple 授权已使用；推送后的 Linux CI 仍在已有授权范围内，macOS 重验需先询问用户。不开始 P2。
+
+## 历史：媒体 P1 首次 Linux 编译/测试通过
+
+用户已明确授权推送并触发 Linux CI，仅允许在 swift.yml 的 core-linux job 中增加媒体包 build/test，
+沿用既有日志、退出码、artifact 与失败门槛；触发条件和其他 job 保持不变，macOS 尚未授权。
+本批次工具变化见 [MEDIA_CHANGE_NOTICE.md](MEDIA_CHANGE_NOTICE.md)，已在 PR #2 发布变更通知。
+真实源码 55be755 在 [42453057517](https://github.com/7869123/ios/actions/runs/42453057517) completed/success：
+Media 42 通过/0 跳过/0 失败；Core 36 通过/1 live API 跳过；生命周期 14 通过，六个命令退出码均为 0。
+Apple、App、PoC SDK job 均 skipped，未运行 macOS。实际 checkout 是临时合并检查提交 549c5b2，
+Media/Core/PoC 树与源码 HEAD 相同，不代表合并 PR；[证据、8 份日志与原始摘要](validation/media-p1/README.md)。
+仅 Linux 类型检查/严格并发编译和离线测试有证据；真实网络下载、macOS/iOS SDK/App 接线与真机能力仍未验证。
+新包没有编译警告；原有 PoC 生命周期测试一处未使用 Bool 警告保留，未改 PoC。首次 CI 通过，无需改 Swift 源码。
+
+## 历史：媒体 P1 本地源码交付（当时未编译/执行）
+
+用户审核通过 MEDIA_INTERFACES.md 的 28c449d，并明确授权 P1；CI 需另行确认。
+已创建 [AIUtilityMedia](Packages/AIUtilityMedia/README.md)：独立 Swift 6 包、直接 HTTPS 媒体的真实 URLSession 下载、
+自动路由/短链重路由、FIFO 单活动槽、立即可见且等待资源确认的取消、有限从头重试、请求预算/超时/限流、
+选项规范化/去重、原子队列与历史清单、提交/删除恢复日志、文件归属校验、部分删除结果及完整快照订阅。
+生产仅注册直链；B站/X/Pixiv、Apple 工具、Ugoira/GIF/DASH、搜图均未宣称可用。断点续传仍属于 P1b。
+
+该本地阶段新增 42 项 Swift Testing 测试源码，执行数量为 0：本机没有可用 Swift 编译器，未安装工具链。
+本地完整预推送检查最终 PASS（退出 0），其中 13 项 Python 检查脚本回归通过、49 个仓库 Swift 文件仅做语法解析。
+首次检查退出 1 的原因是虚构 Pixiv 用户页 URL 命中个人路径规则，已改用排行榜 URL 保留路由边界测试，未放宽扫描器。
+上述本地静态检查不能代替 Swift 编译；随后 Linux 真实结果见上节，Apple SDK 与运行时功能仍未验证。
+DNS 预检不能固定 URLSession 最终连接 IP，仍有重绑定/TOCTOU 限制；系统 DNS/同步文件操作的取消只能等待返回。
+P1 不支持无 HEAD/无受支持 MIME 的服务器、不做后台传输或自动续传；敏感直链重启后需重新提供再手动重试。
+详细边界与 macOS/iOS SDK 候选验证命令见包说明；Linux Media 命令已按授权加入 core-linux。
+源码阶段未改 Core/AppleServices 公共 API、UI、PoC、scripts 或 workflow；后续仅 core-linux 的改动已获用户授权，见上节。
+
+## 历史：媒体模块 P0 接口审核（已通过）
+
+已按用户指定读取 Claude 分支 a01e814 的 TASK_MEDIA_MODULES.md，仅编写
+[MEDIA_INTERFACES.md](MEDIA_INTERFACES.md)；再按 b44ae48 的 MEDIA_INTERFACES_REVIEW.md
+第 3 节完成 R1–R5 修订：全部断点续传移至 P1b 单独审核，P1 重试从零；增加 deleteFiles 和部分失败结果；
+明确初始化失败可安全重建；P3 Ugoira 依赖 P2 默认转 GIF、原件可选保留；预留 B站全部分 P，未实现时明确拒绝。
+再按 e3526f5 审核文件第 3b 节落实 R6：MediaSelection 仅保留通用选择，站点行为拆为可 Codable 的 SiteOptions，
+两个 enqueue 重载及 prepare 显式传递选项；忽略不相关选项，仅生效选项参与去重/组装；队列冻结选项副本。
+保留自动路由、FIFO 单活动槽、去重、历史、多文件、本地工具及全部既定媒体与搜图需求。
+该文档阶段未创建 AIUtilityMedia 包、未写实现或媒体测试、未改 Core/AppleServices 公共 API、UI、PoC 或 workflow，
+没有运行媒体编译/Actions。后续用户已审核 28c449d 并授权 P1；当前状态以上方 P1 记录为准。
+
+## 最新工程集成完成验证（2026-11-08）
+
+按本轮明确授权，在 Codex 分支集成 Claude 输入 fdb42c6，保留双方历史；PR #1/#2 与 main 均不合并。
+UI/壁纸保持 Claude 原件，Core/PoC 保持已审查源码；无冲突。必要预推送误报修复及实际后续结果见
+[INTEGRATION_STATUS.md](INTEGRATION_STATUS.md)。实际新源码 83ae71c 在
+[42439552132](https://github.com/7869123/ios/actions/runs/42439552132) 四个 Job 全部 success，记录的命令均退出 0。
+Core 每平台 36 通过/1 跳过；生命周期每平台 14 通过；Vision 2 通过、Keychain 1 跳过；本地安全检测 13 项通过。
+四张 iPad mini / iPhone 原始横竖屏截图已重建并查看；大图仅保留 artifact，尺寸/摘要见验证报告。
+PoC Swift 6 Archive、未签名 IPA 和 13 项预安装检查通过，仍没有任何 iPad 真机采集/Speech/PiP 成功结论。
+本轮预推送完整 PASS，未改 Core 公共 API、Claude UI、壁纸或布局，等待 PR #2 人工审核。
+
+## 独立工程审查完成验证（2026-11-08）
+
+- 仓库已 public；main 保持 f17d20d，UI 分支 claude/ecstatic-planck-rzpvn6 保持独立，工程修复在 codex/poc-engineering-audit。
+- 只读证据与 P0/P1/P2 分级、修复范围和实际 CI 失败原因见 [ENGINEERING_REVIEW.md](ENGINEERING_REVIEW.md)。未修改 UI/资源/Core。
+- 旧 PoC 运行 42366153728 已证明 SDK 27.1 Archive、未签名 IPA、11 项预安装检查通过；下文早期“10 项”“没有 SDK/IPA”属于历史记录。
+- 最终源码 `680f3d2` 在 [42378051064](https://github.com/7869123/ios/actions/runs/42378051064) 四个 job 全部 success：Linux/macOS Core 各 36 通过、1 跳过；Linux/macOS PoC 生命周期各 14 通过；Vision 2 通过、Keychain 1 跳过。
+- PoC Swift 6 Simulator/iphoneos Archive、未签名 IPA、13/13 预安装检查通过；所有保存的命令退出码均为 0。旧 SDK 隔离错误与符号检查失败记录均保留在 [验证证据](validation/engineering-audit/README.md)。
+- 工程修复见 [PR #2](https://github.com/7869123/ios/pull/2)，目标 Claude 分支，不合并 main。验证已集成至 d7859b0；后续 UI 6b335ab 未纳入本次完整 App 验证，三点差异不修改 UI，预合并检查无冲突。
+- 编译不等于真机采集；iPad、免费签名和首次 USB 配对阻碍仍未解除。连续 ASR、非英文语言选择、现代渲染 API 迁移仍未完成；无真实付费 API 调用。
+
+## 批量开发节奏与 CI 成本（2026-11-07）
+
+- 改为批量本地开发、集中验证。PR 更新只跑 Linux Core；macOS 完整验证（Apple 包、App、截图）改为手动 `build_apple`，合并前必须通过；push 只在 main 触发完整链；同一引用的新运行取消旧运行。此前每次推送 PR 分支会触发两次 macOS 完整构建。
+- 新增 `scripts/prepush_check.sh`：Swift 语法（tree-sitter，非类型检查）、源码卫生、plist、workflow YAML 与 shell 语法、资源完整性、`git diff --check`、个人信息与密钥扫描（已推送历史只报告，HEAD 与待推送提交有发现即阻止）。
+- 本批 UI：输入框统一样式、inline 导航标题、媒体工具"规划中"样式与首页一致、壁纸预览跟随透明度设置。Core、AppleServices、iOS 27 PoC 未改动。
+- 截至本批，透明度/外观改动（72fee54 起）尚未经 Apple SDK 编译：Actions 自 2026-11-07 12:16 UTC 起无法分配 runner。
+
+## 透明度与「外观」设置（2026-11-07）
+
+- 只调整透明度，不改布局。默认：毛玻璃白色叠层 10%（原 30%），材质不透明度 25%，壁纸遮罩 18%（原 35%），首页主卡 78%（原 94%）。
+- 设置页新增「外观」：界面透明度、壁纸遮罩强度（0–100%，越高越透 / 遮罩越强），立即生效、持久化、可一键恢复默认。高透明度下通过白色描边、深色外描边、文字柔光和主卡局部阴影/渐变保证可读性；系统「降低透明度」仍强制不透明。
+- 截图改为 App 内渲染窗口，修正横屏截图的方向问题。Core、AppleServices、iOS 27 PoC 未改动。
+
+## UI 目标更正与首页原型（2026-11-07）
+
+- UI 目标更正为 **iOS 原生结构 + 原创明快蓝白青风格**，不复刻任何游戏界面、不使用游戏素材。规范见 [UIUX_SPEC.md](UIUX_SPEC.md)。
+- 新增首页工作台 `HomeView`（默认首页）、设计 token、斜角装饰、背景纹理、按压反馈；规划中功能明确标"规划中"，实时字幕标"PoC · 未经真机验证"。
+- CI `app` job 在 iPad mini 与 iPhone 模拟器截取首页竖/横屏截图（artifact `app-screenshots-*`）供审核。Core、API 服务、iOS 27 PoC 未改动。
+
+## iOS 27 PoC 安装前审查（2026-11-07）
+
+- 真机安装暂停：用户仅能远程控制 Windows 11，iPad 无法 USB 连接，无付费开发者账号。**PoC 未通过任何真机验证。**
+- xcode-27 上模拟器构建、真机 Release archive、未签名 IPA 打包与 10 项预安装审查全部通过；真机二进制确认链接 ScreenCaptureKit / Speech / AVKit。
+- 免费 Personal Team：官方资料显示本 PoC 用到的 Background Modes 对免费层级可用，ScreenCaptureKit / PiP / Speech 无需 entitlement；但 `screen-capture` 在免费签名下能否实际授权采集未确认。Windows 侧载工具首次配对需 USB（第三方资料）。
+- 完整报告与 Windows + 免费 Apple ID 安装步骤见 [INSTALL_PREFLIGHT.md](INSTALL_PREFLIGHT.md)。
+
+## iOS 27 PoC CI 修正（2026-11-07）
+
+- **原因**：`poc-sdk` 一直失败，是因为 `macos-latest` 镜像（macOS 26）最高只有 iOS 26.5 SDK，过不了 “Require iOS 27 SDK” 检查，PoC 源码从未被编译。
+- **修正**：`poc-sdk` 改为 `runs-on: xcode-27`（arm64，镜像列出 Xcode 27.0 beta 27A5228h / iphoneos27.0），并在日志中记录 `sw_vers`、`xcodebuild -version`、`xcodebuild -showsdks` 以核实实际 macOS（README 快照写 26.5.2，GitHub 公告称 macOS 27）。其余 job 仍用 `macos-latest`。首次编译结果、退出码与关键日志见对应 PR。
+- **API 边界**：`SCContentSharingPicker` 是 iOS 27 beta API；Apple 官方示例只采集屏幕画面与麦克风，没有官方示例证明能采到其他 App 的音频；`persistent-content-capture` 权限只适用于 macOS，iOS 用不到。
+- **待真机验证的风险**：音频会话 `.playback` 与 `.playAndRecord` 对后台采集的影响；`ScreenAudioProbe.start()` 失败时会重复 stop；Host 的 ASR 写死为 en-US，需改为目标语言。详见 [IOS_POC.md](IOS_POC.md)。
+- ReplayKit 对照探针暂不新增，待首次编译结果后再决定。
+
 ## 第二阶段初步 SwiftUI App 完成构建验证（2026-11-07）
 
 [最终全链路 CI 42354651780](https://github.com/7869123/ios/actions/runs/42354651780)，源码 `19d0e02`：Linux、Apple 包、SwiftUI App 全部成功。第一阶段完成记录已提交为 `6c0fdf4`，在此之后才开始 App 代码。
@@ -50,7 +225,7 @@
 
 Swift Testing 聚合输出为“37 tests passed”，含禁用项；本报告按逐项记录列为 36 实际通过 + 1 跳过。XCTest 兼容层的 0 tests 不是 Swift Testing 的运行数。完整记录及原始日志见 [验证证据](validation/github-actions/README.md) 和 [机器摘要](validation/github-actions/summary.json)。
 
-Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token 仅由系统凭据管理器保管/在内存使用。推送前对全部可达 Git 历史扫描，未发现真实密钥/私钥/个人邮箱或大文件，历史开发路径已披露。所有既定媒体工具、截图翻译、实时字幕和《Blue Archive》UI 仍在范围内；本轮没有扩展正式 UI。
+Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token 仅由系统凭据管理器保管/在内存使用。推送前对全部可达 Git 历史扫描，未发现真实密钥/私钥/个人邮箱或大文件，历史开发路径已披露。所有既定媒体工具、截图翻译、实时字幕仍在范围内；本轮没有扩展正式 UI（UI 目标已于 2026-11-07 更正为 iOS 原生结构 + 原创明快蓝白青风格，见 UIUX_SPEC.md）。
 
 以下保留各轮历史过程，旧的“未编译/0 项执行”只描述当时状态。
 
@@ -88,7 +263,7 @@ Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token �
 
 ## 第一轮记录
 
-记录日期：2026-11-07（Asia/Shanghai）。本轮交付为实际源码、自动化测试和本地 Git 提交，尚未通过 Swift 编译及设备验收。
+记录日期：2026-11-07。本轮交付为实际源码、自动化测试和本地 Git 提交，尚未通过 Swift 编译及设备验收。
 
 ## 环境检查
 
@@ -148,6 +323,6 @@ Windows 未安装 Swift；浏览器授权由用户手动完成，GitHub Token �
 - SauceNAO / 搜图 Bot 酱。
 - 统一下载任务与历史记录。
 - Discord 截图翻译、视频翻译。
-- 最终 SwiftUI 界面高保真复刻《Blue Archive（蔚蓝档案）》的布局与交互视觉；本轮没有制作正式 UI 或游戏素材。
+- 最终 SwiftUI 界面：iOS 原生结构 + 原创明快蓝白青风格（2026-11-07 更正，不再以复刻任何游戏界面为目标），见 UIUX_SPEC.md。
 
 上述媒体与搜图功能尚未实现，不计入本轮完成项；它们没有被移出后续范围。

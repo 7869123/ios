@@ -8,8 +8,8 @@
 | Keychain 运行时 | 显式启用 AIUTILITY_KEYCHAIN_TESTS，使用随机 service 与虚构 Key；随后在 iOS App 验证解锁/锁屏和实际签名上下文 | 新增/替换/读取、失败保留、退出重启、不同供应商隔离；清理测试条目 | Apple SDK 已编译，真实运行时测试未执行；CLI/macOS 与 iOS 不能互相替代 |
 | Vision iOS 运行时 | 使用真实截图、EXIF 旋转、多语种、长图和无文字样本，在 iOS 模拟器/设备运行截图页 | 识别文字、框位置、置信度、取消、资源占用及人工比对 | macOS 合成英文图/非法图测试通过；iOS 与实际截图质量未验证 |
 | SwiftUI 交互 | 模拟器覆盖 iPhone/iPad、横竖屏与分屏；验证导航、草稿、键盘、取消、配置切换、无配置/离线/预算耗尽 | 截图、操作记录、可访问性检查、失败状态 | SDK 构建独立记录；尚无 UI 运行时验收 |
-| iPad 跨 App 音频/Speech/PiP | 先取得 iOS 27 SDK，修复 IOS_POC.md 中已记录生命周期风险，在目标 iPad mini 6 / 27.2 签名安装独立 PoC | 非静音 RMS、文本对应、后台持续性、路由/中断/取消、PiP 肉眼确认 | runner 只有 iOS 26.5 SDK；没有 iOS 27 成功结论 |
-| 签名与安装 | 在用户控制的 Mac/Xcode 中生成 App 工程、选择自己的 Team 与唯一 bundle ID，连接设备并按系统要求授权 | 签名、安装、启动、权限、卸载/重装记录 | CI 仅 CODE_SIGNING_ALLOWED=NO，不含证书或可安装 IPA |
+| iPad 跨 App 音频/Speech/PiP | xcode-27 / SDK 27.1；源码 680f3d2 的 Swift 6 Archive 与 14 项生命周期回归已通过，见 ENGINEERING_REVIEW.md；待目标 iPad mini 6 / 27.2 签名安装 | 非静音 RMS、文本对应、后台持续性、路由/中断/取消、PiP 肉眼确认 | 42378051064 构建及未签名 IPA 已通过；所有真机能力未验证，模拟器占位不证明采集 |
+| 签名与安装 | 用户控制的签名环境、唯一 bundle ID、首次配对并按系统要求授权；参考 INSTALL_PREFLIGHT.md | 签名、安装、启动、权限、卸载/重装记录 | CI 只有未签名 IPA，无证书/描述文件；普通 Apple ID、无法 USB 首次配对，当前不能安装 |
 
 ## 命令准备
 

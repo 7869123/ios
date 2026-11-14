@@ -7,8 +7,10 @@ import FoundationNetworking
 public struct OfficialAPIAdapter: AIProviderAdapter {
     public let provider: ProviderID
     private let transport: any HTTPTransport
-    public init(provider: ProviderID, transport: any HTTPTransport = URLSessionHTTPTransport()) {
+    private let usageLedger: OpenAIUsageLedger?
+    public init(provider: ProviderID, transport: any HTTPTransport = URLSessionHTTPTransport(), usageLedger: OpenAIUsageLedger? = nil) {
         self.provider = provider; self.transport = transport
+        self.usageLedger = usageLedger
     }
 
     private var origin: String {
@@ -79,9 +81,16 @@ public struct OfficialAPIAdapter: AIProviderAdapter {
         throw AIUtilityError.malformedResponse
     }
 
+    public func balance(key: APIKey, timeout: TimeInterval = 15) async throws -> DeepSeekBalance {
+        guard provider == .deepSeek else { throw AIUtilityError.invalidRequest }
+        let data = try await send(path: "/user/balance", key: key, timeout: timeout)
+        do { return try JSONDecoder().decode(BalanceEnvelope.self, from: data).value() }
+        catch { throw AIUtilityError.malformedResponse }
+    }
+
     public func generate(_ request: GenerationRequest, key: APIKey,
                          timeout: TimeInterval = 30) async throws -> GenerationResult {
-        let body: [String: Any]
+        var body: [String: Any]
         let path: String
         switch provider {
         case .openAI:
@@ -100,7 +109,26 @@ public struct OfficialAPIAdapter: AIProviderAdapter {
                                  ["role": "user", "content": request.text]],
                     "max_tokens": request.maxOutputTokens, "stream": false]
         }
+        if request.reasoning != .auto {
+            guard ReasoningCapabilities.forModel(request.model, provider: provider).efforts.contains(request.reasoning) else {
+                throw AIUtilityError.invalidRequest
+            }
+            switch provider {
+            case .openAI: body["reasoning"] = ["effort": request.reasoning.rawValue]
+            case .deepSeek: body["reasoning_effort"] = request.reasoning.rawValue
+            case .anthropic:
+                body["thinking"] = ["type": "adaptive"]
+                body["output_config"] = ["effort": request.reasoning.rawValue]
+            }
+        }
         let data = try await send(path: path, key: key, timeout: timeout, body: body)
+        var actualUsage: TokenUsage?
+        if provider == .openAI {
+            // Separate tolerant usage decoding: absent/malformed accounting never breaks usable text.
+            let usage = try? JSONDecoder().decode(OpenAIUsageEnvelope.self, from: data)
+            actualUsage = usage?.usage?.validated
+            await usageLedger?.record(attempt: UUID(), model: usage?.model ?? request.model, usage: actualUsage)
+        }
         do {
             let text: String
             let tokens: Int?
@@ -143,7 +171,7 @@ public struct OfficialAPIAdapter: AIProviderAdapter {
             }
             guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw AIUtilityError.malformedResponse }
             try Task.checkCancellation()
-            return GenerationResult(text: text, outputTokens: tokens)
+            return GenerationResult(text: text, outputTokens: tokens, usage: actualUsage)
         } catch { throw error is DecodingError ? AIUtilityError.malformedResponse : AIUtilityError.sanitized(error) }
     }
 
@@ -199,7 +227,31 @@ private struct ErrorEnvelope: Decodable {
     let error: Detail
 }
 private struct ContentBlock: Decodable { let type: String; let text: String? }
-private struct Usage: Decodable { let output_tokens: Int?; let completion_tokens: Int? }
+private struct Usage: Decodable {
+    let output_tokens: Int?
+    let completion_tokens: Int?
+    private enum CodingKeys: String, CodingKey { case output_tokens, completion_tokens }
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        output_tokens = try? container.decode(Int.self, forKey: .output_tokens)
+        completion_tokens = try? container.decode(Int.self, forKey: .completion_tokens)
+    }
+}
+private struct OpenAIUsageEnvelope: Decodable {
+    struct Detail: Decodable { let reasoning_tokens: Int? }
+    struct Value: Decodable {
+        let input_tokens: Int
+        let output_tokens: Int
+        let total_tokens: Int
+        let output_tokens_details: Detail?
+        var validated: TokenUsage? {
+            try? TokenUsage(inputTokens: input_tokens, outputTokens: output_tokens, totalTokens: total_tokens,
+                            reasoningTokens: output_tokens_details?.reasoning_tokens)
+        }
+    }
+    let model: String?
+    let usage: Value?
+}
 private struct OpenAIResponse: Decodable {
     struct Output: Decodable { let type: String; let status: String?; let content: [ContentBlock]? }
     struct Failure: Decodable { let code: String? }
@@ -209,6 +261,15 @@ private struct OpenAIResponse: Decodable {
     let incomplete_details: Incomplete?
     let output: [Output]
     let usage: Usage?
+    private enum CodingKeys: String, CodingKey { case status, error, incomplete_details, output, usage }
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = try container.decode(String.self, forKey: .status)
+        error = try container.decodeIfPresent(Failure.self, forKey: .error)
+        incomplete_details = try container.decodeIfPresent(Incomplete.self, forKey: .incomplete_details)
+        output = try container.decode([Output].self, forKey: .output)
+        usage = try? container.decode(Usage.self, forKey: .usage)
+    }
 }
 private struct AnthropicResponse: Decodable {
     let content: [ContentBlock]

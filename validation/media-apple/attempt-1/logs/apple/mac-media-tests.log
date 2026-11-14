@@ -1,0 +1,149 @@
+[0/1] Planning build
+Building for debugging...
+[0/6] Write sources
+[1/6] [CI_HOME]/work/ios/ios/Packages/AIUtilityMedia/.build/arm64-apple-macosx/debug/AIUtilityMediaPackageTests.derived/runner.swift
+[2/6] Write sources
+[3/6] Write swift-version-7974D3F7F03D5E95.txt
+[5/11] Compiling AIUtilityMediaTests RoutingTests.swift
+[6/11] Compiling AIUtilityMediaTests StorageTests.swift
+[7/11] Emitting module AIUtilityMediaTests
+[8/11] Compiling AIUtilityMediaTests QueueTests.swift
+[9/11] Compiling AIUtilityMediaTests RecoveryTests.swift
+[10/12] Compiling AIUtilityMediaTests TestSupport.swift
+[11/14] Emitting module AIUtilityMediaPackageTests
+[12/14] Compiling AIUtilityMediaPackageTests runner.swift
+[12/14] Write Objects.LinkFileList
+[13/14] Linking AIUtilityMediaPackageTests
+Build complete! (8.06s)
+Test Suite 'All tests' started at 2026-11-08 08:13:34.731.
+Test Suite 'All tests' passed at 2026-11-08 08:13:34.741.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.010) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite StorageTests started.
+◇ Suite QueueTests started.
+◇ Suite RoutingTests started.
+◇ Suite RecoveryTests started.
+◇ Test restartMarksRunningInterruptedAndPreservesPendingOrdinal() started.
+◇ Test transferPlansAndComponentsRedactReflection() started.
+◇ Test commitJournalRecoversPublishedButUncommittedOutput() started.
+◇ Test clearHistoryFailureRollsBackAndSuccessKeepsFilesDeletable() started.
+◇ Test enqueueWriteFailurePreservesOldManifestAndDoesNotStart() started.
+◇ Test partialDeletionKeepsFailedOutputsAndAllowsFreshDownload() started.
+◇ Test deletionJournalRecoveryNeverResurrectsHistory() started.
+◇ Test deletionRemovesDedupAndMissingFileIsReportedHonestly() started.
+◇ Test cancellationDoesNotReleaseSlotUntilLateTransferAcknowledges() started.
+◇ Test cleanupFailureBlocksNextUntilExplicitRetry() started.
+◇ Test progressRejectsRegressionsAndWrongGenerations() started.
+◇ Test forgedOutputPathAndChangedFileAreNotAccepted() started.
+◇ Test contentMismatchIsNeverMarkedCompleteOrRetried() started.
+◇ Test requestCooldownAndBudgetAreEnforced() started.
+◇ Test duplicatePendingCompletedAndIrrelevantOptions() started.
+◇ Test realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() started.
+◇ Test activeAndQueuedTasksCannotBeDeleted() started.
+◇ Test taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() started.
+◇ Test finiteRetriesStartOverAndManualRetryUsesSameID() started.
+◇ Test initializationFailureCanSafelyRetrySameNamespace() started.
+◇ Test twoSubscribersReceiveIndependentCompleteSnapshots() started.
+◇ Test persistedManifestHasNoOriginalLinkTitleOrCredentials() started.
+◇ Test optionsDecodeMissingFieldsAndRoundTrip() started.
+◇ Test unsafeDestinationsRejectedWithoutNetwork() started.
+◇ Test exactHostAndPathRouting() started.
+◇ Test fifoSingleSlotIncludingQueuedCancellation() started.
+◇ Test htmlAndUnavailableSitesDoNotBecomeMedia() started.
+◇ Test statusClassificationAndRetryRules() started.
+◇ Test canonicalIdentityPreservesSemanticQuery() started.
+◇ Test shortLinkReroutesAfterBoundedRedirect() started.
+◇ Test redirectToPrivateOrCycleIsRejected() started.
+◇ Test unsupportedAllPartsFailsEvenWithSpecifiedVariant() started.
+◇ Test selectionAndOptionsAreOrthogonalAndAssemblyUsesEffectiveOption() started.
+✘ Test commitJournalRecoversPublishedButUncommittedOutput() recorded an issue at StorageTests.swift:122:6: Caught error: .storageUnavailable
+✘ Test restartMarksRunningInterruptedAndPreservesPendingOrdinal() recorded an issue at StorageTests.swift:107:6: Caught error: .storageUnavailable
+✘ Test clearHistoryFailureRollsBackAndSuccessKeepsFilesDeletable() recorded an issue at StorageTests.swift:25:6: Caught error: .storageUnavailable
+✘ Test enqueueWriteFailurePreservesOldManifestAndDoesNotStart() recorded an issue at StorageTests.swift:6:6: Caught error: .storageUnavailable
+✘ Test deletionJournalRecoveryNeverResurrectsHistory() recorded an issue at StorageTests.swift:137:6: Caught error: .storageUnavailable
+✘ Test partialDeletionKeepsFailedOutputsAndAllowsFreshDownload() recorded an issue at StorageTests.swift:57:6: Caught error: .storageUnavailable
+◇ Test queuedOptionsAreValueSnapshotsAndAllPartsCannotSilentlyDowngrade() started.
+◇ Test unavailableFilesAndValidPathsAreDifferentErrors() started.
+✘ Test deletionRemovesDedupAndMissingFileIsReportedHonestly() recorded an issue at StorageTests.swift:42:6: Caught error: .storageUnavailable
+✘ Test cleanupFailureBlocksNextUntilExplicitRetry() recorded an issue at QueueTests.swift:41:6: Caught error: .storageUnavailable
+✘ Test cancellationDoesNotReleaseSlotUntilLateTransferAcknowledges() recorded an issue at QueueTests.swift:23:6: Caught error: .storageUnavailable
+◇ Test deletionMetadataFailureRecoversActualDiskWithoutFalseRollback() started.
+◇ Test failedCompletionCommitCleansPublishedFilesAndDoesNotClaimSuccess() started.
+◇ Test restartNeedsOriginalSensitiveLinkAndNeverPersistsIt() started.
+✘ Test progressRejectsRegressionsAndWrongGenerations() recorded an issue at QueueTests.swift:84:6: Caught error: .storageUnavailable
+✘ Test duplicatePendingCompletedAndIrrelevantOptions() recorded an issue at QueueTests.swift:102:6: Caught error: .storageUnavailable
+✘ Test forgedOutputPathAndChangedFileAreNotAccepted() recorded an issue at StorageTests.swift:147:6: Caught error: .storageUnavailable
+✘ Test contentMismatchIsNeverMarkedCompleteOrRetried() recorded an issue at StorageTests.swift:152:6: Caught error: .storageUnavailable
+◇ Test headStatusRefusalAndRetryAfterAreClassified() started.
+◇ Test finitePolicyRejectsInvalidConfiguration() started.
+◇ Test selectedItemIsRevalidatedByResolver() started.
+◇ Test resolvedAliasesAndIrrelevantPixivOptionsDoNotDownloadTwice() started.
+✘ Test requestCooldownAndBudgetAreEnforced() recorded an issue at QueueTests.swift:129:6: Caught error: .storageUnavailable
+✘ Test realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() recorded an issue at StorageTests.swift:97:6: Caught error: .storageUnavailable
+✘ Test taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() recorded an issue at QueueTests.swift:76:6: Caught error: .storageUnavailable
+✘ Test activeAndQueuedTasksCannotBeDeleted() recorded an issue at StorageTests.swift:75:6: Caught error: .storageUnavailable
+✘ Test finiteRetriesStartOverAndManualRetryUsesSameID() recorded an issue at QueueTests.swift:61:6: Caught error: .storageUnavailable
+✘ Test initializationFailureCanSafelyRetrySameNamespace() recorded an issue at StorageTests.swift:16:6: Caught error: .storageUnavailable
+✘ Test persistedManifestHasNoOriginalLinkTitleOrCredentials() recorded an issue at StorageTests.swift:86:6: Caught error: .storageUnavailable
+✘ Test twoSubscribersReceiveIndependentCompleteSnapshots() recorded an issue at QueueTests.swift:116:6: Caught error: .storageUnavailable
+✘ Test fifoSingleSlotIncludingQueuedCancellation() recorded an issue at QueueTests.swift:6:6: Caught error: .storageUnavailable
+✘ Test htmlAndUnavailableSitesDoNotBecomeMedia() recorded an issue at RoutingTests.swift:50:6: Caught error: .storageUnavailable
+✘ Test shortLinkReroutesAfterBoundedRedirect() recorded an issue at RoutingTests.swift:34:6: Caught error: .storageUnavailable
+✘ Test redirectToPrivateOrCycleIsRejected() recorded an issue at RoutingTests.swift:42:6: Caught error: .storageUnavailable
+✔ Test transferPlansAndComponentsRedactReflection() passed after 0.015 seconds.
+✘ Test restartMarksRunningInterruptedAndPreservesPendingOrdinal() failed after 0.015 seconds with 1 issue.
+✘ Test commitJournalRecoversPublishedButUncommittedOutput() failed after 0.015 seconds with 1 issue.
+✘ Test clearHistoryFailureRollsBackAndSuccessKeepsFilesDeletable() failed after 0.015 seconds with 1 issue.
+✘ Test enqueueWriteFailurePreservesOldManifestAndDoesNotStart() failed after 0.015 seconds with 1 issue.
+✘ Test deletionJournalRecoveryNeverResurrectsHistory() failed after 0.015 seconds with 1 issue.
+✘ Test partialDeletionKeepsFailedOutputsAndAllowsFreshDownload() failed after 0.015 seconds with 1 issue.
+✘ Test deletionRemovesDedupAndMissingFileIsReportedHonestly() failed after 0.015 seconds with 1 issue.
+✘ Test cleanupFailureBlocksNextUntilExplicitRetry() failed after 0.015 seconds with 1 issue.
+✘ Test unavailableFilesAndValidPathsAreDifferentErrors() recorded an issue at RecoveryTests.swift:19:6: Caught error: .storageUnavailable
+✘ Test deletionMetadataFailureRecoversActualDiskWithoutFalseRollback() recorded an issue at RecoveryTests.swift:34:6: Caught error: .storageUnavailable
+✘ Test cancellationDoesNotReleaseSlotUntilLateTransferAcknowledges() failed after 0.016 seconds with 1 issue.
+✘ Test progressRejectsRegressionsAndWrongGenerations() failed after 0.016 seconds with 1 issue.
+✘ Test queuedOptionsAreValueSnapshotsAndAllPartsCannotSilentlyDowngrade() recorded an issue at RecoveryTests.swift:56:6: Caught error: .storageUnavailable
+✘ Test duplicatePendingCompletedAndIrrelevantOptions() failed after 0.016 seconds with 1 issue.
+✘ Test forgedOutputPathAndChangedFileAreNotAccepted() failed after 0.016 seconds with 1 issue.
+✘ Test contentMismatchIsNeverMarkedCompleteOrRetried() failed after 0.016 seconds with 1 issue.
+✘ Test failedCompletionCommitCleansPublishedFilesAndDoesNotClaimSuccess() recorded an issue at RecoveryTests.swift:6:6: Caught error: .storageUnavailable
+✘ Test restartNeedsOriginalSensitiveLinkAndNeverPersistsIt() recorded an issue at RecoveryTests.swift:73:6: Caught error: .storageUnavailable
+✘ Test headStatusRefusalAndRetryAfterAreClassified() recorded an issue at RecoveryTests.swift:88:6: Caught error: .storageUnavailable
+✘ Test requestCooldownAndBudgetAreEnforced() failed after 0.016 seconds with 1 issue.
+✘ Test realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() failed after 0.016 seconds with 1 issue.
+✘ Test taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() failed after 0.016 seconds with 1 issue.
+✘ Test activeAndQueuedTasksCannotBeDeleted() failed after 0.016 seconds with 1 issue.
+✘ Test finiteRetriesStartOverAndManualRetryUsesSameID() failed after 0.016 seconds with 1 issue.
+✘ Test initializationFailureCanSafelyRetrySameNamespace() failed after 0.016 seconds with 1 issue.
+✘ Test persistedManifestHasNoOriginalLinkTitleOrCredentials() failed after 0.016 seconds with 1 issue.
+✘ Test twoSubscribersReceiveIndependentCompleteSnapshots() failed after 0.016 seconds with 1 issue.
+✔ Test optionsDecodeMissingFieldsAndRoundTrip() passed after 0.016 seconds.
+✔ Test exactHostAndPathRouting() passed after 0.016 seconds.
+✘ Test fifoSingleSlotIncludingQueuedCancellation() failed after 0.016 seconds with 1 issue.
+✔ Test unsafeDestinationsRejectedWithoutNetwork() passed after 0.016 seconds.
+✘ Test selectedItemIsRevalidatedByResolver() recorded an issue at RecoveryTests.swift:103:6: Caught error: .storageUnavailable
+✘ Test htmlAndUnavailableSitesDoNotBecomeMedia() failed after 0.016 seconds with 1 issue.
+✔ Test canonicalIdentityPreservesSemanticQuery() passed after 0.016 seconds.
+✘ Test redirectToPrivateOrCycleIsRejected() failed after 0.016 seconds with 1 issue.
+✘ Test shortLinkReroutesAfterBoundedRedirect() failed after 0.016 seconds with 1 issue.
+✔ Test selectionAndOptionsAreOrthogonalAndAssemblyUsesEffectiveOption() passed after 0.016 seconds.
+✔ Test unsupportedAllPartsFailsEvenWithSpecifiedVariant() passed after 0.016 seconds.
+✘ Test resolvedAliasesAndIrrelevantPixivOptionsDoNotDownloadTwice() recorded an issue at RecoveryTests.swift:46:6: Caught error: .storageUnavailable
+✔ Test statusClassificationAndRetryRules() passed after 0.016 seconds.
+✘ Test unavailableFilesAndValidPathsAreDifferentErrors() failed after 0.008 seconds with 1 issue.
+✘ Test deletionMetadataFailureRecoversActualDiskWithoutFalseRollback() failed after 0.007 seconds with 1 issue.
+✘ Test queuedOptionsAreValueSnapshotsAndAllPartsCannotSilentlyDowngrade() failed after 0.009 seconds with 1 issue.
+✘ Test failedCompletionCommitCleansPublishedFilesAndDoesNotClaimSuccess() failed after 0.007 seconds with 1 issue.
+✘ Test restartNeedsOriginalSensitiveLinkAndNeverPersistsIt() failed after 0.007 seconds with 1 issue.
+✘ Test headStatusRefusalAndRetryAfterAreClassified() failed after 0.006 seconds with 1 issue.
+✘ Test selectedItemIsRevalidatedByResolver() failed after 0.006 seconds with 1 issue.
+✔ Test finitePolicyRejectsInvalidConfiguration() passed after 0.006 seconds.
+✘ Suite QueueTests failed after 0.018 seconds with 9 issues.
+✘ Suite StorageTests failed after 0.018 seconds with 13 issues.
+✘ Test resolvedAliasesAndIrrelevantPixivOptionsDoNotDownloadTwice() failed after 0.006 seconds with 1 issue.
+✘ Suite RoutingTests failed after 0.018 seconds with 3 issues.
+✘ Suite RecoveryTests failed after 0.018 seconds with 8 issues.
+✘ Test run with 42 tests in 4 suites failed after 0.018 seconds with 33 issues.

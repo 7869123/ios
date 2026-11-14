@@ -1,19 +1,43 @@
 name: Swift validation
+# Validation policy (repository public; standard hosted runners):
+# - pull_request: Linux Core only (every PR update).
+# - push: only main, full chain (post-merge verification).
+# - workflow_dispatch: build_apple = full macOS validation (required before merging a PR),
+#   build_poc = iOS 27 PoC on xcode-27, publish_previews = commit app previews,
+#   live_checks = read-only checks against the real public sites (never on push or PR).
+# A newer run on the same ref cancels the older one.
 on:
   push:
+    branches: [main]
     paths-ignore: ['**/*.md', 'validation/**']
   pull_request:
     paths-ignore: ['**/*.md', 'validation/**']
   workflow_dispatch:
     inputs:
       build_apple:
-        description: 'Also run Apple package and simulator checks (Core runs by default)'
+        description: 'Full macOS validation: Apple packages, SwiftUI App and screenshots (required before merging)'
         type: boolean
         default: false
       build_poc:
         description: 'Require an iOS 27 SDK and compile the diagnostic host (not device acceptance)'
         type: boolean
         default: false
+      publish_previews:
+        description: 'Commit downscaled app screenshots to validation/ui-preview on this branch (needs build_apple)'
+        type: boolean
+        default: false
+      screenshot_set:
+        description: 'Which screenshots to capture with publish_previews: all pages, or only the newest pages'
+        type: choice
+        options: [all, new]
+        default: all
+      live_checks:
+        description: 'Live public-site checks (Pixiv, Bilibili, X, soutubot): metadata and HEAD only, no downloads, no keys'
+        type: boolean
+        default: false
+concurrency:
+  group: swift-validation-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 env:
@@ -40,9 +64,15 @@ jobs:
           build_code=$?
           swift test --package-path Packages/AIUtilityCore > artifacts/core-linux/core-tests.log 2>&1
           test_code=$?
-          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\n' "$version_code" "$build_code" "$test_code" > artifacts/core-linux/exit-codes.txt
+          swift test --package-path PoCs/iOS27Capture > artifacts/core-linux/poc-lifecycle-tests.log 2>&1
+          lifecycle_code=$?
+          swift build --package-path Packages/AIUtilityMedia > artifacts/core-linux/media-build.log 2>&1
+          media_build_code=$?
+          swift test --package-path Packages/AIUtilityMedia > artifacts/core-linux/media-tests.log 2>&1
+          media_test_code=$?
+          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\npoc_lifecycle_tests=%s\nmedia_build=%s\nmedia_tests=%s\n' "$version_code" "$build_code" "$test_code" "$lifecycle_code" "$media_build_code" "$media_test_code" > artifacts/core-linux/exit-codes.txt
           cat artifacts/core-linux/*.log
-          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0
+          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0 && test "$lifecycle_code" -eq 0 && test "$media_build_code" -eq 0 && test "$media_test_code" -eq 0
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -51,12 +81,15 @@ jobs:
             artifacts/core-linux/swift-version.log
             artifacts/core-linux/core-build.log
             artifacts/core-linux/core-tests.log
+            artifacts/core-linux/poc-lifecycle-tests.log
+            artifacts/core-linux/media-build.log
+            artifacts/core-linux/media-tests.log
             artifacts/core-linux/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
           include-hidden-files: false
   apple:
-    if: github.event_name != 'workflow_dispatch' || inputs.build_apple || inputs.build_poc
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build_apple)
     needs: core-linux
     runs-on: macos-latest
     timeout-minutes: 20
@@ -67,6 +100,39 @@ jobs:
           persist-credentials: false
       - name: Validate real macOS packages and both iOS SDK targets
         run: bash scripts/ci_apple.sh
+      - name: Validate Media on macOS and both unsigned iOS SDK targets
+        if: always() && steps.checkout.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          media_logs="$GITHUB_WORKSPACE/artifacts/apple"
+          mkdir -p "$media_logs"
+          media_failed=0
+          record_media() {
+            local name="$1"
+            shift
+            "$@" > "$media_logs/$name.log" 2>&1
+            local code=$?
+            printf '%s=%s\n' "$name" "$code" >> "$media_logs/exit-codes.txt"
+            cat "$media_logs/$name.log"
+            if [ "$code" -ne 0 ]; then media_failed=1; fi
+          }
+          record_media mac-media-build swift build --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityMedia"
+          record_media mac-media-tests swift test --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityMedia"
+          cd "$GITHUB_WORKSPACE/Packages/AIUtilityMedia" || exit 1
+          record_media ios-media-simulator-build xcodebuild -scheme AIUtilityMedia -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-simulator-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          record_media ios-media-device-build xcodebuild -scheme AIUtilityMedia -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-device-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          record_media ios-media-apple-simulator-build xcodebuild -scheme AIUtilityMediaApple -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-simulator-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          record_media ios-media-apple-device-build xcodebuild -scheme AIUtilityMediaApple -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-device-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          exit "$media_failed"
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -77,21 +143,94 @@ jobs:
             artifacts/apple/mac-services-tests.log
             artifacts/apple/ios-simulator-build.log
             artifacts/apple/ios-device-build.log
+            artifacts/apple/mac-media-build.log
+            artifacts/apple/mac-media-tests.log
+            artifacts/apple/ios-media-simulator-build.log
+            artifacts/apple/ios-media-apple-simulator-build.log
+            artifacts/apple/ios-media-apple-device-build.log
+            artifacts/apple/ios-media-device-build.log
             artifacts/apple/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
           include-hidden-files: false
   app:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build_apple)
     needs: [core-linux, apple]
     runs-on: macos-latest
-    timeout-minutes: 20
+    permissions:
+      contents: write
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         id: checkout
         with:
           persist-credentials: false
       - name: Generate and compile the native SwiftUI App
+        id: compile
         run: bash scripts/ci_app.sh
+      - name: Archive unsigned Release build of the App for iphoneos
+        id: app_archive
+        if: steps.compile.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          xcodebuild archive -project Apps/AIUtility/AIUtility.xcodeproj -scheme AIUtility \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath artifacts/app-archive/AIUtility.xcarchive \
+            -derivedDataPath artifacts/app-archive-build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            > artifacts/app/archive.log 2>&1
+          code=$?
+          printf 'app_device_archive=%s\n' "$code" >> artifacts/app/exit-codes.txt
+          grep -E 'error:|ARCHIVE (SUCCEEDED|FAILED)' artifacts/app/archive.log | head -100
+          tail -n 20 artifacts/app/archive.log
+          exit "$code"
+      - name: Package Payload into AIUtility-unsigned.ipa (sign and install with Sideloadly)
+        if: steps.app_archive.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=artifacts/app-archive/AIUtility.xcarchive
+          shopt -s nullglob
+          apps=("$archive"/Products/Applications/*.app)
+          test "${#apps[@]}" -eq 1 || { echo "expected exactly one .app, found ${#apps[@]}"; exit 1; }
+          app="${apps[0]}"
+          {
+            echo "== app: $(basename "$app")"
+            echo "== bundle id / version"
+            plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist"
+            plutil -extract CFBundleShortVersionString raw -o - "$app/Info.plist"
+            echo "== launch screen"; plutil -extract UILaunchStoryboardName raw -o - "$app/Info.plist" || echo none
+            echo "== code signature (expected unsigned)"; codesign -dv "$app" 2>&1 || true
+            echo "== lipo"; lipo -info "$app/$(plutil -extract CFBundleExecutable raw -o - "$app/Info.plist")"
+          } 2>&1 | tee artifacts/app/ipa-contents.log
+          rm -rf artifacts/app-ipa && mkdir -p artifacts/app-ipa/Payload
+          ditto "$app" "artifacts/app-ipa/Payload/$(basename "$app")"
+          (cd artifacts/app-ipa && zip -qry AIUtility-unsigned.ipa Payload)
+          ls -la artifacts/app-ipa/AIUtility-unsigned.ipa | tee -a artifacts/app/ipa-contents.log
+          shasum -a 256 artifacts/app-ipa/AIUtility-unsigned.ipa | tee -a artifacts/app/ipa-contents.log
+      - uses: actions/upload-artifact@v4
+        if: steps.app_archive.outcome == 'success'
+        with:
+          name: AIUtility-unsigned-ipa-${{ github.run_id }}
+          path: artifacts/app-ipa/AIUtility-unsigned.ipa
+          retention-days: 7
+          if-no-files-found: error
+      - name: Capture home review screenshots (iPad mini primary, iPhone compatibility)
+        # Only when previews are published (or after a merge to main); an IPA-only run skips ~15-20 min.
+        if: github.event_name == 'push' || inputs.publish_previews
+        continue-on-error: true
+        timeout-minutes: 25
+        env:
+          SCREENSHOT_SET: ${{ inputs.screenshot_set || 'all' }}
+        run: bash scripts/app_screenshots.sh
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.checkout.outcome == 'success' && (github.event_name == 'push' || inputs.publish_previews)
+        with:
+          name: app-screenshots-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/app/screenshots/
+          retention-days: 7
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -101,25 +240,237 @@ jobs:
             artifacts/app/generate.log
             artifacts/app/simulator-build.log
             artifacts/app/device-build.log
+            artifacts/app/archive.log
+            artifacts/app/ipa-contents.log
             artifacts/app/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
           include-hidden-files: false
+      - name: Commit downscaled previews to this branch (manual review runs only)
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_previews
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Start from an empty folder so a failed capture never leaves an older preview looking current.
+          rm -rf validation/ui-preview && mkdir -p validation/ui-preview
+          printf 'run=%s\nsha=%s\n' "${{ github.run_id }}" "${{ github.sha }}" > validation/ui-preview/SOURCE.txt
+          # Publish whatever this run captured (the full set or only the newest pages).
+          names=""
+          for f in artifacts/app/screenshots/*.png; do
+            [ -e "$f" ] || continue
+            n=$(basename "$f" .png)
+            case "$n" in *-raw) continue ;; esac
+            names="$names $n"
+          done
+          for n in $names; do
+            f="artifacts/app/screenshots/$n.png"
+            if [ -f "$f" ]; then
+              sips -s format jpeg -s formatOptions 70 -Z 1200 "$f" --out "validation/ui-preview/$n.jpg" >/dev/null
+              echo "$n=in-app" >> validation/ui-preview/SOURCE.txt
+            else
+              echo "$n=missing (see screenshots.log in the app-screenshots artifact)" >> validation/ui-preview/SOURCE.txt
+            fi
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add validation/ui-preview
+          git commit -m "Update UI review previews from run ${{ github.run_id }}" || { echo "no changes"; exit 0; }
+          auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 | tr -d '\n')
+          echo "::add-mask::$auth"
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $auth" push origin "HEAD:${{ github.ref_name }}"
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux
+    # xcode-27 is arm64-only. Run 42364724953 measured macOS 27.0.1, Xcode 27.1 (27A9275), iphoneos27.1;
+    # the image README snapshot (Xcode 27.0 beta / iphoneos27.0) was stale.
+    # macos-latest still points to the macOS 26 image, whose newest SDK is iphoneos26.5.
+    runs-on: xcode-27
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        id: checkout
+        with:
+          persist-credentials: false
+      - name: Record actual runner, Xcode and SDK versions
+        shell: bash
+        run: |
+          mkdir -p artifacts/poc
+          {
+            echo "== sw_vers"; sw_vers
+            echo "== uname -m"; uname -m
+            echo "== xcode-select -p"; xcode-select -p
+            echo "== xcodebuild -version"; xcodebuild -version
+            echo "== xcodebuild -showsdks"; xcodebuild -showsdks
+            echo "== xcrun --sdk iphoneos --show-sdk-version"; xcrun --sdk iphoneos --show-sdk-version
+            for sdk in iphoneos iphonesimulator; do
+              echo "== ScreenCaptureKit in $sdk SDK"
+              ls -d "$(xcrun --sdk "$sdk" --show-sdk-path)/System/Library/Frameworks/ScreenCaptureKit.framework" 2>/dev/null || echo "absent"
+            done
+          } 2>&1 | tee artifacts/poc/environment.log
+      - name: Require iOS 27 SDK
+        shell: bash
+        run: |
+          version=$(xcrun --sdk iphoneos --show-sdk-version)
+          echo "iphoneos SDK: $version"
+          test "${version%%.*}" -ge 27
+      - name: Run portable PoC lifecycle regressions (not device framework tests)
+        run: |
+          set +e
+          swift test --package-path PoCs/iOS27Capture > artifacts/poc/lifecycle-tests.log 2>&1
+          code=$?
+          printf 'poc_lifecycle_tests=%s\n' "$code" > artifacts/poc/exit-codes.txt
+          cat artifacts/poc/lifecycle-tests.log
+          exit "$code"
+      - run: brew install xcodegen
+      - name: Generate and compile the diagnostic host with preserved exit codes
+        id: simbuild
+        shell: bash
+        working-directory: PoCs/iOS27Capture
+        run: |
+          set +e
+          xcodegen generate --spec project.yml > ../../artifacts/poc/generate.log 2>&1
+          generate_code=$?
+          xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build > ../../artifacts/poc/simulator-build.log 2>&1
+          build_code=$?
+          printf 'xcodegen_generate=%s\npoc_simulator_build=%s\n' "$generate_code" "$build_code" >> ../../artifacts/poc/exit-codes.txt
+          cat ../../artifacts/poc/generate.log
+          grep -E 'error:|warning:|BUILD (SUCCEEDED|FAILED)|\*\* ' ../../artifacts/poc/simulator-build.log | head -200
+          tail -n 40 ../../artifacts/poc/simulator-build.log
+          cat ../../artifacts/poc/exit-codes.txt
+          printf 'generate=%s\nbuild=%s\n' "$generate_code" "$build_code" >> "$GITHUB_OUTPUT"
+          # Do not stop here: the iphoneos archive is an independent compile. The job is
+          # failed by the last step if the simulator build failed.
+          test "$generate_code" -eq 0
+      - name: Archive unsigned Release build for iphoneos
+        id: archive
+        if: steps.simbuild.outputs.generate == '0'
+        shell: bash
+        working-directory: PoCs/iOS27Capture
+        run: |
+          set +e
+          xcodebuild archive -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath ../../artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive \
+            -derivedDataPath ../../artifacts/poc-archive-build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO \
+            > ../../artifacts/poc/archive.log 2>&1
+          archive_code=$?
+          printf 'poc_device_archive=%s\n' "$archive_code" >> ../../artifacts/poc/exit-codes.txt
+          grep -E 'error:|ARCHIVE (SUCCEEDED|FAILED)|\*\* ' ../../artifacts/poc/archive.log | head -200
+          tail -n 40 ../../artifacts/poc/archive.log
+          test "$archive_code" -eq 0
+      - name: Package Payload into PoC-unsigned.ipa
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=artifacts/poc-archive/AIUtilityCaptureProbe.xcarchive
+          shopt -s nullglob
+          apps=("$archive"/Products/Applications/*.app)
+          test "${#apps[@]}" -eq 1 || { echo "expected exactly one .app, found ${#apps[@]}"; exit 1; }
+          app="${apps[0]}"
+          {
+            echo "== app: $(basename "$app")"
+            echo "== Info.plist UIBackgroundModes"; plutil -extract UIBackgroundModes json -o - "$app/Info.plist" || echo none
+            echo "== code signature (expected unsigned)"; codesign -dv "$app" 2>&1 || true
+            echo "== lipo"; lipo -info "$app/$(plutil -extract CFBundleExecutable raw -o - "$app/Info.plist")"
+            echo "== all .appex in archive"; find "$archive" -name '*.appex' -print
+            echo "== .app/PlugIns"; ls -la "$app/PlugIns" 2>/dev/null || echo "no PlugIns directory (no app extensions)"
+          } 2>&1 | tee artifacts/poc/ipa-contents.log
+          # Every extension in the archive must live inside the app's PlugIns/ folder.
+          stray=$(find "$archive" -name '*.appex' -not -path "$app/PlugIns/*" -print)
+          test -z "$stray" || { echo "appex outside .app/PlugIns: $stray"; exit 1; }
+          rm -rf artifacts/ipa && mkdir -p artifacts/ipa/Payload
+          ditto "$app" "artifacts/ipa/Payload/$(basename "$app")"
+          (cd artifacts/ipa && zip -qry PoC-unsigned.ipa Payload)
+          unzip -l artifacts/ipa/PoC-unsigned.ipa | tail -n 5 | tee -a artifacts/poc/ipa-contents.log
+          shasum -a 256 artifacts/ipa/PoC-unsigned.ipa | tee -a artifacts/poc/ipa-contents.log
+      - name: Pre-install audit of the packaged app
+        shell: bash
+        run: |
+          set -euo pipefail
+          app=$(ls -d artifacts/ipa/Payload/*.app)
+          plist="$app/Info.plist"
+          exe="$app/$(plutil -extract CFBundleExecutable raw -o - "$plist")"
+          fail=0
+          check() { if eval "$2"; then echo "PASS  $1"; else echo "FAIL  $1"; fail=1; fi; }
+          {
+            echo "== Info.plist (built)"; plutil -p "$plist"
+            echo "== linked frameworks"; otool -L "$exe"
+            nm "$exe" | xcrun swift-demangle > artifacts/poc/device-symbols.log
+            echo "== Xcode-generated entitlements (.xcent) for the archive"
+            xcent=$(find artifacts/poc-archive-build -name '*.xcent' -print 2>/dev/null || true)
+            if [ -n "$xcent" ]; then for f in $xcent; do echo "-- $f"; plutil -p "$f" || cat "$f"; done; else echo "none generated"; fi
+            echo "== embedded.mobileprovision"; ls "$app/embedded.mobileprovision" 2>/dev/null || echo "absent (expected for unsigned IPA)"
+            echo "== checks"
+            check "CFBundleIdentifier == com.aiutility.capture-probe" '[ "$(plutil -extract CFBundleIdentifier raw -o - "$plist")" = com.aiutility.capture-probe ]'
+            check "MinimumOSVersion >= 27" '[ "$(plutil -extract MinimumOSVersion raw -o - "$plist" | cut -d. -f1)" -ge 27 ]'
+            check "NSSpeechRecognitionUsageDescription non-empty" '[ -n "$(plutil -extract NSSpeechRecognitionUsageDescription raw -o - "$plist")" ]'
+            check "NSScreenCaptureUsageDescription non-empty" '[ -n "$(plutil -extract NSScreenCaptureUsageDescription raw -o - "$plist")" ]'
+            check "UIBackgroundModes contains audio" 'plutil -extract UIBackgroundModes json -o - "$plist" | grep -q "\"audio\""'
+            check "UIBackgroundModes contains screen-capture" 'plutil -extract UIBackgroundModes json -o - "$plist" | grep -q "\"screen-capture\""'
+            check "binary links ScreenCaptureKit (capture code not compiled out)" 'otool -L "$exe" | grep -q ScreenCaptureKit.framework'
+            check "binary links Speech" 'otool -L "$exe" | grep -q Speech.framework'
+            check "binary links AVKit" 'otool -L "$exe" | grep -q AVKit.framework'
+            check "binary contains real ScreenAudioProbe" 'grep -q AIUtilityCapturePoC.ScreenAudioProbe artifacts/poc/device-symbols.log'
+            check "binary contains real PoCSession" 'grep -q AIUtilityCapturePoC.PoCSession artifacts/poc/device-symbols.log'
+            check "no NSMicrophoneUsageDescription (PoC does not use mic)" '! plutil -extract NSMicrophoneUsageDescription raw -o - "$plist" >/dev/null 2>&1'
+            check "IPA is unsigned" '! codesign -v "$app" >/dev/null 2>&1'
+          } > artifacts/poc/preinstall-audit.log 2>&1
+          cat artifacts/poc/preinstall-audit.log
+          test "$fail" -eq 0
+      - uses: actions/upload-artifact@v4
+        id: ipa
+        with:
+          name: PoC-unsigned-ipa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/ipa/PoC-unsigned.ipa
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.checkout.outcome == 'success'
+        with:
+          name: poc-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/poc/environment.log
+            artifacts/poc/generate.log
+            artifacts/poc/simulator-build.log
+            artifacts/poc/archive.log
+            artifacts/poc/ipa-contents.log
+            artifacts/poc/preinstall-audit.log
+            artifacts/poc/device-symbols.log
+            artifacts/poc/lifecycle-tests.log
+            artifacts/poc/exit-codes.txt
+          retention-days: 7
+          if-no-files-found: warn
+          include-hidden-files: false
+      - name: Fail job if the simulator build failed
+        if: always() && steps.simbuild.outputs.build != '0'
+        shell: bash
+        run: |
+          echo "simulator build exit code: ${{ steps.simbuild.outputs.build }}"
+          exit 1
+  live-checks:
+    # Manual only: talks to third-party sites, so it never runs on push or pull_request.
+    if: github.event_name == 'workflow_dispatch' && inputs.live_checks
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Require iOS 27 SDK
+      - name: Live public-site checks (metadata and HEAD only)
+        shell: bash
+        env:
+          AIUTILITY_LIVE_TESTS: '1'
         run: |
-          version=$(xcrun --sdk iphoneos --show-sdk-version)
-          test "${version%%.*}" -ge 27
-      - run: brew install xcodegen
-      - working-directory: PoCs/iOS27Capture
-        run: xcodegen generate --spec project.yml
-      - working-directory: PoCs/iOS27Capture
-        run: xcodebuild -project AIUtilityCaptureProbe.xcodeproj -scheme AIUtilityCaptureProbe -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ../../artifacts/poc-build CODE_SIGNING_ALLOWED=NO build
+          set +e
+          export AIUTILITY_LIVE_REPORT="$RUNNER_TEMP/live-checks.txt"
+          : > "$AIUTILITY_LIVE_REPORT"
+          swift test --package-path Packages/AIUtilityMedia --filter LiveSiteChecks > live-checks.log 2>&1
+          code=$?
+          echo "== LIVE-CHECK summary (exit $code)"
+          if [ -s "$AIUTILITY_LIVE_REPORT" ]; then cat "$AIUTILITY_LIVE_REPORT"; else echo "no LIVE-CHECK lines (build or test runner failure)"; fi
+          tail -n 40 live-checks.log
+          exit $code
