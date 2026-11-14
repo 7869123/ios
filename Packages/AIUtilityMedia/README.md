@@ -57,7 +57,7 @@ There is no empty Apple target or simulated production success.
 - Publication journals intended outputs, renames a complete directory on the same filesystem, then commits metadata.
   Recovery removes uncommitted outputs. This is not a filesystem-wide atomic transaction or a power-loss durability claim.
 - `clearHistory` drops terminal records/deduplication without deleting files. `clearHistory(keepingFiles: true)` keeps
-  rows that still own files (completed, deletion incomplete), so the UI never orphans downloads it can no longer list. Minimal UUID-to-relative-file ownership
+  terminal rows that still own files (completed, deletion incomplete, a failed re-download with earlier outputs), so the UI never orphans downloads it can no longer list. Minimal UUID-to-relative-file ownership
   remains so `deleteFiles` can remove old files without recreating history. Partial deletion returns each failure,
   removes deduplication and keeps remaining outputs deletable. The caller can compose bulk deletion.
 - File lookup/deletion checks ownership, UUID-only relative paths, symlinks, regular-file type, size and (for actual

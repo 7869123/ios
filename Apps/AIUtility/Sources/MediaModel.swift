@@ -87,10 +87,13 @@ import AIUtilityMediaApple
         lastError = nil; notice = nil
         var undeleted = 0
         if deletingFiles {
+            // Any finished row may own files (also a failed re-download that kept earlier outputs); rows without
+            // files answer notFound, which is expected here.
             for task in snapshot?.tasks ?? [] {
                 switch task.state {
-                case .completed, .deletionIncomplete:
+                case .completed, .deletionIncomplete, .failed, .cancelled, .interrupted:
                     do { undeleted += try await manager.deleteFiles(for: task.id).failed.count }
+                    catch MediaError.notFound { continue }
                     catch { lastError = error; undeleted += 1 }
                 default: continue
                 }
@@ -103,6 +106,20 @@ import AIUtilityMediaApple
     func fileURL(_ file: DownloadedFile) async -> URL? {
         guard let manager else { return nil }
         do { return try await manager.fileURL(for: file) } catch { lastError = error; return nil }
+    }
+
+    /// All files of a task for one share sheet, or nil with an explanation when any of them is unusable.
+    func exportURLs(_ files: [DownloadedFile]) async -> [URL]? {
+        lastError = nil; notice = nil
+        var urls: [URL] = []
+        for file in files {
+            guard let url = await fileURL(file) else {
+                notice = "有文件已不存在或校验失败。把原链接重新粘贴到上方点「加入队列」，可以重新下载这个任务。"
+                return nil
+            }
+            urls.append(url)
+        }
+        return urls
     }
 }
 

@@ -93,7 +93,9 @@ struct MediaTool: Identifiable {
     @ObservedObject var media: MediaModel
     @State private var link = ""
     @State private var busy = false
-    @State private var keepArchive = false
+    /// Kept across launches: the option is part of a task's identity, so re-pasting a link after a restart
+    /// must use the same setting to continue that task.
+    @AppStorage("pixivKeepUgoiraArchive") private var keepArchive = false
     @State private var shared: SharedFile?
     @State private var confirmClear = false
 
@@ -182,18 +184,16 @@ struct MediaTool: Identifiable {
                 Button(files.count > 1 ? "全部导出" : "导出") { Task { await export(files) } }
             }
             Button("删除文件", role: .destructive) { Task { await media.delete(task.id) } }
+        case .deletionIncomplete(let files):
+            if !files.isEmpty { Button("导出剩余") { Task { await export(files) } } }
+            Button("重新删除", role: .destructive) { Task { await media.delete(task.id) } }
         default:
             EmptyView()
         }
     }
 
     private func export(_ files: [DownloadedFile]) async {
-        var urls: [URL] = []
-        for file in files {
-            guard let url = await media.fileURL(file) else { return } // media.lastError explains the failure.
-            urls.append(url)
-        }
-        shared = SharedFile(urls: urls)
+        if let urls = await media.exportURLs(files) { shared = SharedFile(urls: urls) }
     }
 
     static func sourceName(_ source: MediaSource) -> String {

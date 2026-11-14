@@ -74,7 +74,9 @@ struct QueueTests {
         try await manager.shutdown()
     }
     @Test func taskDeadlineCancelsTransportAndKeepsTimeoutDistinct() async throws {
-        let h = try Harness(steps: [.cancellable], policy: .init(taskTimeout: 0.03, minimumRequestInterval: 0, maxRetries: 0, minimumFreeBytes: 0))
+        // 0.5 s (was 0.03 s): on a loaded CI runner 30 ms could expire during resolve, before the transfer started
+        // (seen once on Linux CI: downloads == 0). The transfer itself still sleeps 60 s, so only the deadline ends it.
+        let h = try Harness(steps: [.cancellable], policy: .init(taskTimeout: 0.5, minimumRequestInterval: 0, maxRetries: 0, minimumFreeBytes: 0))
         defer { try? h.cleanup() }
         let manager = try h.manager(), receipt = try await manager.enqueue(link: mediaURL)
         #expect(try await waitFor(manager, id: receipt.id) == .failed(.timeout))

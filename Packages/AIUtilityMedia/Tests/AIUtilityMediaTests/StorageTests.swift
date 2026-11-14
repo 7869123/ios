@@ -51,6 +51,16 @@ struct StorageTests {
         #expect(kept.map(\.id) == [done.id] && kept.first?.state == .completed(files: files))
         let file = try #require(files.first)
         #expect(FileManager.default.fileExists(atPath: try await manager.fileURL(for: file).path))
+        // A failed re-download of a completed task with a missing file still owns the surviving outputs.
+        try FileManager.default.removeItem(at: try await manager.fileURL(for: file))
+        await h.transport.setHeader(path: "/file.png", status: 404, headers: [:])
+        #expect(try await manager.enqueue(link: mediaURL).disposition == .retryRequired)
+        try await manager.retry(done.id)
+        #expect(try await waitFor(manager, id: done.id) == .failed(.notFound))
+        try await manager.clearHistory(keepingFiles: true)
+        #expect(try await manager.history().map(\.id) == [done.id])
+        #expect(try await manager.deleteFiles(for: done.id).alreadyMissing == files)
+        #expect(try await manager.history().isEmpty)
         try await manager.shutdown()
     }
     @Test func deletionRemovesDedupAndMissingFileIsReportedHonestly() async throws {

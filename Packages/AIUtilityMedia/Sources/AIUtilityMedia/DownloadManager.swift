@@ -228,11 +228,15 @@ public actor DownloadManager {
         return manifest.tasks.filter { $0.state.terminal }.sorted { $0.ordinal < $1.ordinal }.map(\.record)
     }
     /// Drops terminal records and their dedup aliases; never deletes files. With `keepingFiles`, rows that still own
-    /// files (completed, deletion incomplete) stay listed so their files remain exportable and deletable from the UI.
+    /// files (completed, deletion incomplete, or a failed re-download that kept earlier outputs) stay listed, so the
+    /// UI can still reach those files through the row's ID.
     public func clearHistory(keepingFiles: Bool = false) async throws(MediaError) {
         guard !Task.isCancelled else { throw .cancelled }
         var next = manifest
-        next.tasks.removeAll { $0.state.terminal && !(keepingFiles && !$0.state.files.isEmpty) }
+        let owners = next.ownership // Not read through `next` inside the closure: overlapping access.
+        next.tasks.removeAll { task in
+            task.state.terminal && !(keepingFiles && owners[task.id.rawValue.uuidString] != nil)
+        }
         try commit(next)
         let ids = Set(next.tasks.map(\.id)); inputs = inputs.filter { ids.contains($0.key) }
         broadcast()
