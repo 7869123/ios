@@ -11,6 +11,8 @@ import AIUtilityMediaApple
     @Published private(set) var snapshot: DownloadQueueSnapshot?
     @Published private(set) var startupError: MediaError?
     @Published var lastError: MediaError?
+    /// Non-error feedback for the last action (already queued or downloaded, re-paste needed, files kept).
+    @Published var notice: String?
     private var manager: DownloadManager?
     private var listener: Task<Void, Never>?
     private var starting = false
@@ -39,26 +41,63 @@ import AIUtilityMediaApple
             lastError = .invalidURL; return false
         }
         guard let manager else { lastError = startupError ?? .invalidState; return false }
+        lastError = nil; notice = nil
         let options = SiteOptions(pixiv: PixivOptions(keepUgoiraArchive: keepUgoiraArchive))
-        do { _ = try await manager.enqueue(link: url, options: options); return true }
-        catch { lastError = error; return false }
+        do {
+            let receipt = try await manager.enqueue(link: url, options: options)
+            switch receipt.disposition {
+            case .created: break
+            case .alreadyQueued: notice = "这个链接已经在队列里。"
+            case .alreadyCompleted: notice = "这个链接已经下载过，可以在下方列表里导出。"
+            case .retryRequired:
+                // Same link as a failed, cancelled or interrupted task (e.g. after a restart, when links are
+                // no longer in memory): the link is supplied again, so start that task over.
+                try await manager.retry(receipt.id)
+                notice = "已重新开始之前的同一个任务。"
+            }
+            return true
+        } catch { lastError = error; return false }
     }
 
     func cancel(_ id: DownloadID) async { _ = await manager?.cancel(id) }
 
     func retry(_ id: DownloadID) async {
         guard let manager else { return }
-        do { try await manager.retry(id) } catch { lastError = error }
+        lastError = nil; notice = nil
+        do { try await manager.retry(id) }
+        catch MediaError.notConfigured {
+            // Links are kept only in memory, never on disk; after a restart the task needs its link again.
+            notice = "App 重新打开后需要再次提供原链接：把这个任务的链接粘贴到上方，点「加入队列」即可重新下载。"
+        } catch { lastError = error }
     }
 
     func delete(_ id: DownloadID) async {
         guard let manager else { return }
-        do { _ = try await manager.deleteFiles(for: id) } catch { lastError = error }
+        lastError = nil; notice = nil
+        do {
+            let result = try await manager.deleteFiles(for: id)
+            if !result.fullyDeleted { notice = "有 \(result.failed.count) 个文件没能删除，任务已保留在列表里。" }
+        } catch { lastError = error }
     }
 
-    func clearHistory() async {
+    /// Clears failed, cancelled, interrupted and duplicate records. Tasks that own downloaded files are either
+    /// deleted together with their files, or kept in the list so the files stay exportable and deletable.
+    func clearHistory(deletingFiles: Bool) async {
         guard let manager else { return }
-        do { try await manager.clearHistory() } catch { lastError = error }
+        lastError = nil; notice = nil
+        var undeleted = 0
+        if deletingFiles {
+            for task in snapshot?.tasks ?? [] {
+                switch task.state {
+                case .completed, .deletionIncomplete:
+                    do { undeleted += try await manager.deleteFiles(for: task.id).failed.count }
+                    catch { lastError = error; undeleted += 1 }
+                default: continue
+                }
+            }
+        }
+        do { try await manager.clearHistory(keepingFiles: true) } catch { lastError = error; return }
+        if undeleted > 0 { notice = "有文件没能删除，对应任务已保留在列表里。" }
     }
 
     func fileURL(_ file: DownloadedFile) async -> URL? {
@@ -140,10 +179,12 @@ struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }
 
-/// A file URL wrapper usable with `.sheet(item:)`.
+/// File URLs usable with `.sheet(item:)`; a multi-file download is shared in one sheet.
 struct SharedFile: Identifiable {
-    let url: URL
-    var id: String { url.path }
+    let urls: [URL]
+    init(url: URL) { urls = [url] }
+    init(urls: [URL]) { self.urls = urls }
+    var id: String { urls.map(\.path).joined(separator: "|") }
 }
 
 /// Writes tool output to a fresh temporary file so it can be shared.

@@ -85,6 +85,20 @@ struct RecoveryTests {
         guard case .completed = try await waitFor(restored, id: job.id) else { Issue.record("Restored retry failed"); return }
         try await restored.shutdown()
     }
+    @Test func restoredPendingRowIsInterruptedAndRunsAfterLinkIsReentered() async throws {
+        let h = try Harness(); defer { try? h.cleanup() }
+        let manager = try h.manager(), job = try await manager.enqueue(link: mediaURL)
+        _ = try await waitFor(manager, id: job.id); try await manager.shutdown()
+        // Simulate an OS termination while the row was still waiting in the queue.
+        var disk = try h.store.load(); disk.tasks[0].state = .queued(position: 1); try h.store.save(disk)
+        let restored = try h.manager()
+        #expect(try await restored.history().first?.state == .interrupted)
+        let supplied = try await restored.enqueue(link: mediaURL)
+        #expect(supplied.id == job.id && supplied.disposition == .retryRequired)
+        try await restored.retry(job.id)
+        guard case .completed = try await waitFor(restored, id: job.id) else { Issue.record("Restored retry failed"); return }
+        try await restored.shutdown()
+    }
     @Test func headStatusRefusalAndRetryAfterAreClassified() async throws {
         let h = try Harness(policy: .init(minimumRequestInterval: 0, maxRetries: 0, minimumFreeBytes: 0))
         defer { try? h.cleanup() }

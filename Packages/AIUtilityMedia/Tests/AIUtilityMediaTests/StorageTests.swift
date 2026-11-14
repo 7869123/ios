@@ -39,6 +39,20 @@ struct StorageTests {
         #expect(try await manager.history().isEmpty)
         try await manager.shutdown()
     }
+    @Test func clearHistoryKeepingFilesKeepsOnlyRowsThatOwnFiles() async throws {
+        let h = try Harness(); defer { try? h.cleanup() }
+        let manager = try h.manager(), done = try await manager.enqueue(link: mediaURL)
+        let files = try await waitFor(manager, id: done.id).files
+        await h.transport.setHeader(path: "/missing.png", status: 404, headers: [:])
+        let failed = try await manager.enqueue(link: URL(string: "https://media.example.org/missing.png")!)
+        #expect(try await waitFor(manager, id: failed.id) == .failed(.notFound))
+        try await manager.clearHistory(keepingFiles: true)
+        let kept = try await manager.history()
+        #expect(kept.map(\.id) == [done.id] && kept.first?.state == .completed(files: files))
+        let file = try #require(files.first)
+        #expect(FileManager.default.fileExists(atPath: try await manager.fileURL(for: file).path))
+        try await manager.shutdown()
+    }
     @Test func deletionRemovesDedupAndMissingFileIsReportedHonestly() async throws {
         let h = try Harness(); defer { try? h.cleanup() }
         let manager = try h.manager(), first = try await manager.enqueue(link: mediaURL)
@@ -104,7 +118,7 @@ struct StorageTests {
         #expect(throws: (any Error).self) { _ = try repository.load() }
         #expect(try Data(contentsOf: file) == corrupt)
     }
-    @Test func restartMarksRunningInterruptedAndPreservesPendingOrdinal() throws {
+    @Test func restartMarksRunningAndPendingInterruptedAndKeepsOrdinals() throws {
         let h = try Harness(); defer { try? h.cleanup() }
         let id = DownloadID(), pendingID = DownloadID(), attempt = UUID(), date = Date()
         var value = MediaManifest(); value.nextOrdinal = 2
@@ -117,7 +131,8 @@ struct StorageTests {
         try h.store.save(value); _ = try h.manager()
         let restored = try h.store.load()
         #expect(restored.tasks[0].state == .interrupted)
-        #expect(restored.tasks[1].state == .queued(position: 1) && restored.tasks[1].ordinal == 2)
+        // The pending row has no runtime link after restart; leaving it queued would show it waiting forever.
+        #expect(restored.tasks[1].state == .interrupted && restored.tasks[1].ordinal == 2)
     }
     @Test func commitJournalRecoversPublishedButUncommittedOutput() throws {
         let h = try Harness(); defer { try? h.cleanup() }

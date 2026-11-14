@@ -64,8 +64,9 @@ public actor DownloadManager {
                 value.tasks[i].journal = nil
             }
             if !value.tasks[i].state.terminal {
-                if case .queued = value.tasks[i].state { /* Preserve pending FIFO order. */ }
-                else { value.tasks[i].state = .interrupted }
+                // Runtime links are never persisted, so no restored row (running or still pending) can run
+                // until the user re-enters its link and retries. Ordinals are kept for display order.
+                value.tasks[i].state = .interrupted
                 try env.files.cleanup(value.tasks[i].id, attempt: value.tasks[i].attemptID)
             }
         }
@@ -226,9 +227,12 @@ public actor DownloadManager {
         guard !Task.isCancelled else { throw .cancelled }
         return manifest.tasks.filter { $0.state.terminal }.sorted { $0.ordinal < $1.ordinal }.map(\.record)
     }
-    public func clearHistory() async throws(MediaError) {
+    /// Drops terminal records and their dedup aliases; never deletes files. With `keepingFiles`, rows that still own
+    /// files (completed, deletion incomplete) stay listed so their files remain exportable and deletable from the UI.
+    public func clearHistory(keepingFiles: Bool = false) async throws(MediaError) {
         guard !Task.isCancelled else { throw .cancelled }
-        var next = manifest; next.tasks.removeAll { $0.state.terminal }
+        var next = manifest
+        next.tasks.removeAll { $0.state.terminal && !(keepingFiles && !$0.state.files.isEmpty) }
         try commit(next)
         let ids = Set(next.tasks.map(\.id)); inputs = inputs.filter { ids.contains($0.key) }
         broadcast()

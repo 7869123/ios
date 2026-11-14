@@ -92,7 +92,12 @@ extension AIUtilityApp {
 
 /// A single composition root keeps the shared key coordinator and session budget alive.
 @MainActor final class AppModel: ObservableObject {
-    let services = AIUtilityServices()
+    /// Session guard (reset when the app process restarts). Every translation reserves its whole saved output cap
+    /// up front, so the token pool is sized for about 16 translations at the suggested 32768 cap instead of 2.
+    nonisolated static let sessionAttempts = 100
+    nonisolated static let sessionOutputTokens = 524_288
+    let services = AIUtilityServices(maxAttempts: AppModel.sessionAttempts,
+                                     maxReservedOutputTokens: AppModel.sessionOutputTokens)
     @Published var screenshotDraft = ""
     @Published var subtitleDraft = ""
     /// Per-provider Key status, refreshed on every cold start (see KeyHealth.swift).
@@ -154,7 +159,7 @@ enum UserFacingError {
         case .rateLimited, .overloaded: "供应商繁忙或触发限流，请稍后重试。"
         case .timeout: "请求超时；远端可能已执行，未自动重试。"
         case .cancelled: "操作已取消。"
-        case .budgetExceeded: "本次应用会话的调用预算已用尽。"
+        case .budgetExceeded: "本次应用会话的调用预算已用尽，完全退出并重新打开 App 后恢复。"
         case .configurationBusy: "该供应商已有配置验证正在进行。"
         case .storageFailure: "Keychain 当前不可访问或保存失败，原记录保持不变。"
         case .outputTruncated: "响应被截断，未作为成功结果使用。"

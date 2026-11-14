@@ -99,7 +99,8 @@ import AIUtilityCore
     }
     private func refreshBudget() async {
         let snapshot = await app.services.budget.snapshot()
-        budget = "本次会话已预留 \(snapshot.attempts) 次请求、\(snapshot.reservedOutputTokens) 输出 tokens。"
+        budget = "本次会话已预留 \(snapshot.attempts) / \(AppModel.sessionAttempts) 次请求、"
+            + "\(snapshot.reservedOutputTokens) / \(AppModel.sessionOutputTokens) 输出 tokens；完全退出并重新打开 App 后重置。"
     }
     private func perform(_ body: @escaping @MainActor () async throws -> String) {
         guard !busy else { return }

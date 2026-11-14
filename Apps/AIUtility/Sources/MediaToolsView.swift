@@ -95,6 +95,7 @@ struct MediaTool: Identifiable {
     @State private var busy = false
     @State private var keepArchive = false
     @State private var shared: SharedFile?
+    @State private var confirmClear = false
 
     var body: some View {
         WorkspacePage {
@@ -122,13 +123,23 @@ struct MediaTool: Identifiable {
                 if let error = media.lastError ?? media.startupError {
                     Label(error.userMessage, systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(UtilityTheme.danger)
                 }
+                if let notice = media.notice {
+                    Label(notice, systemImage: "info.circle").font(.footnote).foregroundStyle(UtilityTheme.inkSecondary)
+                }
             }
             UtilityCard {
                 HStack {
                     Text("任务与历史").font(.headline)
                     Spacer()
-                    Button("清空历史") { Task { await media.clearHistory() } }
+                    Button("清空历史") { confirmClear = true }
                         .font(.footnote).disabled(media.snapshot?.tasks.isEmpty ?? true)
+                        .confirmationDialog("清空历史", isPresented: $confirmClear, titleVisibility: .visible) {
+                            Button("删除已下载的文件并清空", role: .destructive) { Task { await media.clearHistory(deletingFiles: true) } }
+                            Button("只清空记录，保留已下载的文件") { Task { await media.clearHistory(deletingFiles: false) } }
+                            Button("取消", role: .cancel) {}
+                        } message: {
+                            Text("失败、已取消和已中断的记录会被移除，正在进行和排队的任务不受影响。保留的已下载任务仍可导出或单独删除。")
+                        }
                 }
                 let tasks = (media.snapshot?.tasks ?? []).sorted { $0.createdAt > $1.createdAt }
                 if tasks.isEmpty {
@@ -138,7 +149,7 @@ struct MediaTool: Identifiable {
                 }
             }
         }
-        .sheet(item: $shared) { file in ShareSheet(items: [file.url]) }
+        .sheet(item: $shared) { file in ShareSheet(items: file.urls) }
     }
 
     private func row(_ task: DownloadSnapshot) -> some View {
@@ -166,13 +177,23 @@ struct MediaTool: Identifiable {
         case .failed, .cancelled, .interrupted:
             Button("重试") { Task { await media.retry(task.id) } }
         case .completed(let files):
-            if let file = files.first {
-                Button("导出") { Task { if let url = await media.fileURL(file) { shared = SharedFile(url: url) } } }
+            if !files.isEmpty {
+                // Every file of the task (all pages/images, and a kept Ugoira archive) goes into one share sheet.
+                Button(files.count > 1 ? "全部导出" : "导出") { Task { await export(files) } }
             }
             Button("删除文件", role: .destructive) { Task { await media.delete(task.id) } }
         default:
             EmptyView()
         }
+    }
+
+    private func export(_ files: [DownloadedFile]) async {
+        var urls: [URL] = []
+        for file in files {
+            guard let url = await media.fileURL(file) else { return } // media.lastError explains the failure.
+            urls.append(url)
+        }
+        shared = SharedFile(urls: urls)
     }
 
     static func sourceName(_ source: MediaSource) -> String {

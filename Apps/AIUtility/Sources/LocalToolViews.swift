@@ -75,7 +75,7 @@ private struct ToolStatusRow: View {
                 }
             }
         }
-        .sheet(item: $shared) { ShareSheet(items: [$0.url]) }
+        .sheet(item: $shared) { ShareSheet(items: $0.urls) }
     }
 
     private func run() async {
@@ -153,7 +153,7 @@ private struct ToolStatusRow: View {
                 catch { self.error = "视频无法读取。" }
             }
         }
-        .sheet(item: $shared) { ShareSheet(items: [$0.url]) }
+        .sheet(item: $shared) { ShareSheet(items: $0.urls) }
     }
 
     private func run() async {
@@ -222,7 +222,7 @@ private struct ToolStatusRow: View {
             guard let item else { return }
             Task { input = try? await item.loadTransferable(type: Data.self); if input == nil { error = "图片无法读取。" } }
         }
-        .sheet(item: $shared) { ShareSheet(items: [$0.url]) }
+        .sheet(item: $shared) { ShareSheet(items: $0.urls) }
     }
 
     private var explanation: String {

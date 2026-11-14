@@ -44,6 +44,8 @@ extension ReasoningEffort {
                     Stepper("总输出上限 \(budget) tokens", value: $budget, in: 16...65_536, step: budget < 4096 ? 256 : 4096)
                     Text("思考过程和译文共用这个上限；切换强度不会自动加大，避免悄悄多花钱。建议值约 \(capabilities.suggestedTotalOutputTokens)，仅供参考。")
                         .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                    Text("每次翻译都会按这个上限预留会话额度：本次会话共 \(AppModel.sessionOutputTokens) tokens，按当前上限约可翻译 \(min(AppModel.sessionAttempts, AppModel.sessionOutputTokens / max(budget, 1))) 次，完全退出并重新打开 App 后重置。")
+                        .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                     if budget < capabilities.suggestedTotalOutputTokens, effort != .auto, effort != .none {
                         Text("上限低于建议值，高强度时译文可能被截断。")
                             .font(.caption).foregroundStyle(UtilityTheme.poc)
