@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 import UIKit
 import AIUtilityCore
 import AIUtilityAppleServices
@@ -100,13 +101,19 @@ extension AIUtilityApp {
                                      maxReservedOutputTokens: AppModel.sessionOutputTokens)
     @Published var screenshotDraft = ""
     @Published var subtitleDraft = ""
+    /// Page state that must survive a page being rebuilt (sidebar switch, size-class change).
+    @Published var screenshot = LoadedScreenshot()
+    @Published var translationOutput: [TranslationFeature: String] = [:]
     /// Per-provider Key status, refreshed on every cold start (see KeyHealth.swift).
     @Published var keyStatus: [ProviderID: KeyStatus] = [:]
     @Published var screenshotProvider: ProviderID {
         didSet { UserDefaults.standard.set(screenshotProvider.rawValue, forKey: "screenshotProvider") }
     }
-    /// Latest low-balance event from the DeepSeek monitor, shown once on the home page until dismissed.
-    @Published var lowBalance: LowBalanceEvent?
+    /// Latest low-balance event from the DeepSeek monitor, shown on the home page until dismissed. Persisted:
+    /// the monitor records "already notified" on disk, so an in-memory-only banner could be lost for good.
+    @Published var lowBalance: LowBalanceNotice? {
+        didSet { LowBalanceNotice.store(lowBalance) }
+    }
     private var balanceLoop: Task<Void, Never>?
     @Published var subtitleProvider: ProviderID {
         didSet { UserDefaults.standard.set(subtitleProvider.rawValue, forKey: "subtitleProvider") }
@@ -114,6 +121,7 @@ extension AIUtilityApp {
     init() {
         screenshotProvider = ProviderID(rawValue: UserDefaults.standard.string(forKey: "screenshotProvider") ?? "") ?? .openAI
         subtitleProvider = ProviderID(rawValue: UserDefaults.standard.string(forKey: "subtitleProvider") ?? "") ?? .openAI
+        lowBalance = LowBalanceNotice.stored()
         // Cold start: AppModel is created once per process, so this runs once per launch.
         Task { [weak self] in await self?.checkAllKeys() }
         Task { [weak self] in await self?.watchLowBalance() }
@@ -121,23 +129,60 @@ extension AIUtilityApp {
 
     private func watchLowBalance() async {
         guard let events = try? await services.deepSeekBalance.lowBalanceEvents() else { return }
-        for await event in events { lowBalance = event }
+        for await event in events {
+            lowBalance = LowBalanceNotice(currency: event.currency, total: event.total, threshold: event.threshold)
+        }
     }
 
-    /// Foreground only: checks the DeepSeek balance (the monitor throttles to once per 5 minutes)
-    /// while the app is active and a DeepSeek Key is usable. Stops when the app leaves the foreground.
+    private var isForeground = false
+
+    /// Foreground only: checks the DeepSeek balance (the monitor throttles to once per 5 minutes) while the app is
+    /// active, a DeepSeek Key is usable and at least one reminder threshold is set. Each query uses one request of the
+    /// session budget, so nothing is polled when no reminder is configured. Stops when the app leaves the foreground.
     func setForeground(_ active: Bool) {
+        isForeground = active
         balanceLoop?.cancel(); balanceLoop = nil
         guard active else { return }
         balanceLoop = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
-                if self.status(of: .deepSeek).isUsable {
-                    _ = try? await self.services.deepSeekBalance.checkWhileActive()
-                }
+                await self.checkBalanceIfWanted()
                 try? await Task.sleep(for: .seconds(300))
             }
         }
+    }
+
+    /// Also called right after the DeepSeek Key check finishes, so a cold start does not wait 5 minutes.
+    func checkBalanceIfWanted() async {
+        guard isForeground, status(of: .deepSeek).isUsable else { return }
+        var wanted = false
+        for currency in BalanceCurrency.allCases {
+            // `try?` flattens to Decimal?: nil means no threshold (or unreadable, which also skips polling).
+            if (try? await services.deepSeekBalance.threshold(for: currency)) != nil { wanted = true }
+        }
+        guard wanted else { return }
+        _ = try? await services.deepSeekBalance.checkWhileActive()
+    }
+}
+
+struct LoadedScreenshot {
+    var photo: PhotosPickerItem?
+    var data: Data?
+    var preview: UIImage?
+}
+
+/// App-side copy of a low-balance event, kept in UserDefaults until the user dismisses it.
+struct LowBalanceNotice: Codable, Equatable {
+    let currency: BalanceCurrency
+    let total: Decimal
+    let threshold: Decimal
+    private static let key = "deepSeekLowBalanceNotice"
+    static func stored() -> LowBalanceNotice? {
+        UserDefaults.standard.data(forKey: key).flatMap { try? JSONDecoder().decode(LowBalanceNotice.self, from: $0) }
+    }
+    static func store(_ notice: LowBalanceNotice?) {
+        if let notice, let data = try? JSONEncoder().encode(notice) { UserDefaults.standard.set(data, forKey: key) }
+        else { UserDefaults.standard.removeObject(forKey: key) }
     }
 }
 

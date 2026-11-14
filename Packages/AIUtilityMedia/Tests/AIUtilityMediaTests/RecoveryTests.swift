@@ -104,7 +104,8 @@ struct RecoveryTests {
         defer { try? h.cleanup() }
         let manager = try h.manager()
         let cases: [(Int, MediaError)] = [(401, .requiresLogin), (403, .accessRestricted(.permission)),
-            (404, .notFound), (429, .rateLimited(retryAfter: 5)), (503, .network), (206, .integrityMismatch)]
+            (404, .notFound), (429, .rateLimited(retryAfter: 5)), (503, .network), (206, .integrityMismatch),
+            (412, .rateLimited(retryAfter: 5)), (500, .network), (502, .network)]
         for (status, error) in cases {
             let path = "/status-\(status)"
             await h.transport.setHeader(path: path, status: status, headers: ["retry-after": "5"])
@@ -112,6 +113,17 @@ struct RecoveryTests {
             #expect(try await waitFor(manager, id: receipt.id) == .failed(error))
         }
         #expect(await h.transport.counts().downloads == 0)
+        try await manager.shutdown()
+    }
+    @Test func retryAfterThrottlesOnlyItsOwnOriginAndIsReportedAsThrottling() async throws {
+        let h = try Harness(); defer { try? h.cleanup() }
+        let manager = try h.manager()
+        await h.transport.setHeader(path: "/throttled.png", status: 429, headers: ["retry-after": "3600"])
+        let throttled = try await manager.enqueue(link: URL(string: "https://a.example.org/throttled.png")!)
+        // One hour is past the 30-minute task deadline: the task ends as throttled, not as a timeout.
+        #expect(try await waitFor(manager, id: throttled.id) == .failed(.rateLimited(retryAfter: 3600)))
+        let other = try await manager.enqueue(link: URL(string: "https://b.example.org/file.png")!)
+        guard case .completed = try await waitFor(manager, id: other.id) else { Issue.record("Other host was held back"); return }
         try await manager.shutdown()
     }
     @Test func selectedItemIsRevalidatedByResolver() async throws {

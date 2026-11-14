@@ -5,6 +5,7 @@ import AIUtilityCore
 /// Tiles only navigate; statuses are honest (planned features are not presented as working).
 @MainActor struct HomeView: View {
     @EnvironmentObject private var app: AppModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let open: (Workspace) -> Void
 
     private struct Tile: Identifiable {
@@ -108,8 +109,9 @@ import AIUtilityCore
                 Text(status.title).fontWeight(.semibold).foregroundStyle(status.color)
             }
             .font(.footnote)
-            .lineLimit(1)
-            .fixedSize()
+            // Accessibility text sizes: wrap inside the chip instead of running off the screen.
+            .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 1)
+            .fixedSize(horizontal: !dynamicTypeSize.isAccessibilitySize, vertical: true)
             .padding(.horizontal, 12).padding(.vertical, 8)
             .glassSurface(Capsule())
         }

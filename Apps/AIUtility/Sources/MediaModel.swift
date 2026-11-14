@@ -20,6 +20,7 @@ import AIUtilityMediaApple
     func start() async {
         guard manager == nil, !starting else { return }
         starting = true; defer { starting = false }
+        Self.removeOldTemporaryFiles()
         do {
             // Pixiv Ugoira archives become GIFs on device (frame timeline rounded to 10 ms, total kept).
             let configuration = try DownloadConfiguration(sites: [.bilibili, .x, .pixiv], assembler: UgoiraAssembler())
@@ -27,17 +28,60 @@ import AIUtilityMediaApple
             self.manager = manager
             startupError = nil
             listener = Task { [weak self] in
-                for await snapshot in await manager.updates() { self?.snapshot = snapshot }
+                for await snapshot in await manager.updates() {
+                    self?.snapshot = snapshot
+                    self?.holdBackgroundTime(active: snapshot.activeID != nil)
+                }
             }
         } catch {
             startupError = error
         }
     }
 
+    /// Downloads use foreground sessions. While one runs, ask iOS for the usual extra time after the app moves to
+    /// the background (about half a minute), so a quick switch to another app does not cut the transfer.
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+    private func holdBackgroundTime(active: Bool) {
+        if active, backgroundTask == .invalid {
+            backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "AIUtility download") { [weak self] in
+                MainActor.assumeIsolated { self?.holdBackgroundTime(active: false) }
+            }
+        } else if !active, backgroundTask != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTask); backgroundTask = .invalid
+        }
+    }
+
+    /// Picked videos and shared copies live in tmp; nothing is being shared when the media page first starts.
+    static func removeOldTemporaryFiles() {
+        let tmp = FileManager.default.temporaryDirectory
+        for name in ["AIUtilityImports", "AIUtilityExports"] {
+            try? FileManager.default.removeItem(at: tmp.appendingPathComponent(name, isDirectory: true))
+        }
+    }
+
+    /// The first web link in pasted text: share sheets often add a title ("【Title】 https://b23.tv/…"), and links
+    /// copied from an address bar may lack "https://".
+    static func link(in text: String) -> URL? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let url = URL(string: trimmed), let scheme = url.scheme?.lowercased(), scheme == "https" || scheme == "http", url.host != nil {
+            return url
+        }
+        let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        let range = NSRange(trimmed.startIndex..., in: trimmed)
+        for match in detector?.matches(in: trimmed, range: range) ?? [] {
+            guard var url = match.url else { continue }
+            if url.scheme?.lowercased() == "http" && !trimmed.lowercased().contains("http://") {
+                // A bare "b23.tv/…" is reported as http://; sites are reached over https.
+                url = URL(string: "https://" + url.absoluteString.dropFirst("http://".count)) ?? url
+            }
+            if let scheme = url.scheme?.lowercased(), scheme == "https" || scheme == "http", url.host != nil { return url }
+        }
+        return nil
+    }
+
     /// Returns true when the link was accepted into the queue.
     func enqueue(_ text: String, keepUgoiraArchive: Bool = false) async -> Bool {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let url = URL(string: trimmed), url.scheme?.lowercased() == "https" || url.scheme?.lowercased() == "http" else {
+        guard let url = Self.link(in: text) else {
             lastError = .invalidURL; return false
         }
         guard let manager else { lastError = startupError ?? .invalidState; return false }
@@ -109,17 +153,44 @@ import AIUtilityMediaApple
     }
 
     /// All files of a task for one share sheet, or nil with an explanation when any of them is unusable.
-    func exportURLs(_ files: [DownloadedFile]) async -> [URL]? {
+    /// Stored files are named by UUID; the shared copies carry the task title, so they are recognisable in Files.
+    func exportURLs(_ files: [DownloadedFile], title: String) async -> [URL]? {
         lastError = nil; notice = nil
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("AIUtilityExports", isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let base = Self.fileName(title)
         var urls: [URL] = []
-        for file in files {
+        for (index, file) in files.enumerated() {
             guard let url = await fileURL(file) else {
                 notice = "有文件已不存在或校验失败。把原链接重新粘贴到上方点「加入队列」，可以重新下载这个任务。"
                 return nil
             }
-            urls.append(url)
+            let ext = url.pathExtension
+            let name = (files.count > 1 ? "\(base) \(index + 1)" : base) + (ext.isEmpty ? "" : "." + ext)
+            let named = folder.appendingPathComponent(name)
+            // A hard link costs no space; fall back to the stored file itself if neither link nor copy works.
+            if (try? FileManager.default.linkItem(at: url, to: named)) != nil || (try? FileManager.default.copyItem(at: url, to: named)) != nil {
+                urls.append(named)
+            } else { urls.append(url) }
         }
         return urls
+    }
+
+    static func fileName(_ title: String) -> String {
+        let generic = title == DownloadSnapshot.genericTitle
+        let forbidden = CharacterSet(charactersIn: "/\\:*?\"<>|").union(.controlCharacters)
+        var scalars = String.UnicodeScalarView()
+        for scalar in title.unicodeScalars { scalars.append(forbidden.contains(scalar) ? "_" : scalar) }
+        let cleaned = String(scalars).trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = generic || cleaned.isEmpty ? "AIUtility-\(Date.now.formatted(.iso8601.year().month().day()))" : cleaned
+        return String(name.prefix(80))
+    }
+
+    func retryCleanup() async {
+        guard let manager else { return }
+        lastError = nil; notice = nil
+        do { try await manager.retryCleanup(snapshot?.activeID ?? DownloadID()) } catch { lastError = error }
     }
 }
 

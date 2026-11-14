@@ -120,13 +120,21 @@ struct MediaTool: Identifiable {
                     if busy { ProgressView() }
                 }
                 Toggle("Pixiv 动图同时保留原始帧压缩包", isOn: $keepArchive).font(.subheadline)
-                Text("B站：公开 MP4（通常 ≤720P），多 P 用 ?p= 指定一集。X：图片原图与视频。Pixiv：原图；动图在本机转成 GIF，每帧时长按 GIF 精度（10 毫秒）对齐，总时长不变。")
+                Text("B站：公开 MP4（通常 ≤720P），多 P 用 ?p= 指定一集。X：图片原图与视频。Pixiv：原图；动图在本机转成 GIF，每帧时长按 GIF 精度（10 毫秒）对齐，短于 20 毫秒的帧按 20 毫秒播放。可以直接粘贴 App 分享出来的整段文字。下载时请留在 AIUtility 里：切到其他 App 约半分钟后传输会中断，需要重试。")
                     .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 if let error = media.lastError ?? media.startupError {
                     Label(error.userMessage, systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(UtilityTheme.danger)
                 }
                 if let notice = media.notice {
                     Label(notice, systemImage: "info.circle").font(.footnote).foregroundStyle(UtilityTheme.inkSecondary)
+                }
+                if let blocking = media.snapshot?.blockingError {
+                    // The queue stops after a failed cleanup until it is retried (or the app restarts).
+                    VStack(alignment: .leading, spacing: 6) {
+                        Label("队列已暂停：\(blocking.userMessage)", systemImage: "pause.circle").font(.footnote)
+                            .foregroundStyle(UtilityTheme.danger)
+                        Button("重试清理并继续") { Task { await media.retryCleanup() } }.buttonStyle(.bordered)
+                    }
                 }
             }
             UtilityCard {
@@ -157,7 +165,7 @@ struct MediaTool: Identifiable {
     private func row(_ task: DownloadSnapshot) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(task.title).font(.subheadline.weight(.semibold)).lineLimit(2)
+                Text(Self.title(task)).font(.subheadline.weight(.semibold)).lineLimit(2)
                 Spacer()
                 Text(task.source.map(Self.sourceName) ?? "").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             }
@@ -181,19 +189,27 @@ struct MediaTool: Identifiable {
         case .completed(let files):
             if !files.isEmpty {
                 // Every file of the task (all pages/images, and a kept Ugoira archive) goes into one share sheet.
-                Button(files.count > 1 ? "全部导出" : "导出") { Task { await export(files) } }
+                Button(files.count > 1 ? "全部导出" : "导出") { Task { await export(files, title: task.title) } }
             }
             Button("删除文件", role: .destructive) { Task { await media.delete(task.id) } }
         case .deletionIncomplete(let files):
-            if !files.isEmpty { Button("导出剩余") { Task { await export(files) } } }
+            if !files.isEmpty { Button("导出剩余") { Task { await export(files, title: task.title) } } }
             Button("重新删除", role: .destructive) { Task { await media.delete(task.id) } }
         default:
             EmptyView()
         }
     }
 
-    private func export(_ files: [DownloadedFile]) async {
-        if let urls = await media.exportURLs(files) { shared = SharedFile(urls: urls) }
+    private func export(_ files: [DownloadedFile], title: String) async {
+        if let urls = await media.exportURLs(files, title: title) { shared = SharedFile(urls: urls) }
+    }
+
+    /// Real titles are known only after a link is resolved in this run (never stored on disk); until then the row
+    /// shows the source and when it was added.
+    static func title(_ task: DownloadSnapshot) -> String {
+        guard task.title == DownloadSnapshot.genericTitle else { return task.title }
+        let added = task.createdAt.formatted(date: .abbreviated, time: .shortened)
+        return "\(task.source.map(sourceName) ?? "链接") · \(added) 添加"
     }
 
     static func sourceName(_ source: MediaSource) -> String {

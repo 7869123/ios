@@ -168,8 +168,13 @@ struct StitchImageTests {
     @Test func limitsAndBadInputFailWithoutOutput() async throws {
         let png = try encoded(solidImage(width: 100, height: 100, color: red), type: "public.png")
         var limits = MediaProcessingLimits(); limits.maxPixels = 15_000
+        // A canvas over the cap is scaled down evenly instead of failing (each input is within the cap).
+        let scaled = try await stitchImages([png, png], options: StitchOptions(layout: .horizontal, limits: limits))
+        #expect(scaled.width * scaled.height <= 15_000 && scaled.width > scaled.height)
+        // A single input over the cap still fails before decoding.
+        limits.maxPixels = 5_000
         await expectMediaError(.resourceLimitExceeded) {
-            try await stitchImages([png, png], options: StitchOptions(layout: .horizontal, limits: limits))
+            try await stitchImages([png], options: StitchOptions(layout: .horizontal, limits: limits))
         }
         await expectMediaError(.unsupportedFormat) { try await stitchImages([Data("not an image".utf8)]) }
         await expectMediaError(.invalidInput) { try await stitchImages([]) }

@@ -16,10 +16,13 @@ final class GIFEncoder {
     private let output = NSMutableData()
     private let destination: CGImageDestination
     private let expectedFrames: Int
+    private let maxTotalPixels: Int
+    private var totalPixels = 0
     private(set) var delays: [Int] = []
 
-    init(frameCount: Int, loopCount: Int) throws(MediaError) {
-        guard frameCount > 0, loopCount >= 0 else { throw .invalidInput }
+    init(frameCount: Int, loopCount: Int, maxTotalPixels: Int = .max) throws(MediaError) {
+        guard frameCount > 0, loopCount >= 0, maxTotalPixels > 0 else { throw .invalidInput }
+        self.maxTotalPixels = maxTotalPixels
         guard let destination = CGImageDestinationCreateWithData(output as CFMutableData, "com.compuserve.gif" as CFString,
                                                                  frameCount, nil)
         else { throw .unsupportedFormat }
@@ -31,6 +34,10 @@ final class GIFEncoder {
     func append(_ image: CGImage, delayCentiseconds: Int) throws(MediaError) {
         guard delayCentiseconds >= 2 else { throw .unsupportedFormat }
         guard delays.count < expectedFrames else { throw .invalidState }
+        // Every added frame stays decoded in memory until finish(): stop before that exhausts memory.
+        let (sum, overflow) = totalPixels.addingReportingOverflow(image.width * image.height)
+        guard !overflow, sum <= maxTotalPixels else { throw .resourceLimitExceeded }
+        totalPixels = sum
         let seconds = Double(delayCentiseconds) / 100
         let frameProperties = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: seconds,
                                                                kCGImagePropertyGIFUnclampedDelayTime: seconds]] as CFDictionary

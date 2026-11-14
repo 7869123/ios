@@ -72,12 +72,14 @@ extension AppModel {
             }
             for await (provider, status) in group { keyStatus[provider] = status }
         }
+        await checkBalanceIfWanted()
     }
 
     /// Re-check one provider after the user saves a Key or switches a model.
     func recheckKey(_ provider: ProviderID) async {
         keyStatus[provider] = .checking
         keyStatus[provider] = await KeyHealthChecker.check(provider, services: services)
+        if provider == .deepSeek { await checkBalanceIfWanted() }
     }
 
     func status(of provider: ProviderID) -> KeyStatus { keyStatus[provider] ?? .unknown }

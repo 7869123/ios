@@ -1,4 +1,8 @@
-# AIUtilityMedia — P1 validated on Linux and macOS; P2 local tools pending Apple validation
+# AIUtilityMedia — download queue, site adapters, local tools and reverse search (P1–P4)
+
+Current state (2026-11-14): P1–P4 are implemented and wired into the App. The queue, the Bilibili / X / Pixiv
+adapters and both reverse-search providers are tested with offline samples only (shown as 未实测 in the App);
+local tools run on device. The historical notes below describe earlier validation rounds.
 
 Products: `AIUtilityMedia` (download queue, Linux-compatible) and `AIUtilityMediaApple`
 (P2: `stitchImages`, `makeGIF(fromVideo:outputDirectory:options:)`, `rewriteFingerprint`; ImageIO / AVFoundation,
@@ -28,16 +32,27 @@ let snapshots = await downloads.updates()
 // Cancelling a subscription does not cancel a download.
 ```
 
-Only direct HTTPS image/video/audio URLs are registered by default. A successful HEAD with a supported MIME type is
+Without `sites:` only direct HTTPS image/video/audio URLs are registered; the App also enables Bilibili, X and Pixiv. A successful HEAD with a supported MIME type is
 required; HTML and unsupported sites fail explicitly. GET uses a real foreground URLSessionDownloadTask with cookies,
 credentials and cache disabled. Redirects are followed manually under the same request budget. The final file's type
 signature, actual length, size limit and MIME are checked before publication; this is not full decoder validation.
 HEAD-unsupported servers, missing/unsupported MIME types, octet-stream guessing, background downloads and automatic
-resume are not supported in P1. No AI/SauceNAO credentials or paid API calls are used.
+resume are not supported. The App asks iOS for the usual short background time while a download runs; leaving the
+app for longer interrupts the transfer. No AI/SauceNAO credentials or paid API calls are used by the queue.
+
+2026-11-14 behaviour changes: Retry-After is kept per origin (site, or host for direct links) and a wait past the task
+deadline ends as `rateLimited`, not `timeout`; HTTP 412 is throttling and 500/502 are retryable network errors; an
+oversized error body keeps its status classification; images with unknown size need 64 MiB free (not the 1 GiB file
+cap); the 198.18.0.0/15 proxy fake-IP range and NAT64 addresses of public IPv4 hosts are accepted; Pixiv `/en/artworks/…`
+and `member_illust.php?illust_id=…` links are recognised; control and zero-width characters are dropped from titles;
+Bilibili also uses the player API's backup addresses and its Akamai mirrors; Bot 酱 results are sorted before the cut;
+resolved titles are shown in snapshots for the current run only (`DownloadSnapshot.genericTitle` otherwise) and never
+persisted; downloaded outputs are excluded from device backups (after a restore they are missing, not "changed").
 
 The public `MediaSelection` and `SiteOptions` are independent. Only effective source/content options participate in
 resolved deduplication. Unsupported Bilibili all-parts requests fail instead of falling back; this does not advertise
-a Bilibili downloader. Three site adapters, GIF/Ugoira/DASH assembly, Apple processing and reverse search remain P2–P4.
+a Bilibili downloader. Site adapters (P3), Ugoira-to-GIF assembly and Apple processing (P2) and reverse search (P4) are implemented; DASH
+audio/video muxing is not.
 There is no empty Apple target or simulated production success.
 
 ## Ownership and recovery

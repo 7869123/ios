@@ -37,7 +37,10 @@ enum URLSafety {
         if host == "t.co" { return .x }
         if ["x.com", "www.x.com", "twitter.com", "www.twitter.com", "mobile.twitter.com"].contains(host),
            path.split(separator: "/").contains("status") { return .x }
-        if ["pixiv.net", "www.pixiv.net"].contains(host), path.hasPrefix("/artworks/") { return .pixiv }
+        // Also /en/artworks/… (language prefix) and member_illust.php?illust_id=… (old form, SauceNAO results).
+        if ["pixiv.net", "www.pixiv.net"].contains(host),
+           (path.hasPrefix("/artworks/") || path.split(separator: "/").dropFirst().first == "artworks"
+            || path == "/member_illust.php") { return .pixiv }
         return .direct
     }
     static func publicAddress(_ text: String) -> Bool {
@@ -47,13 +50,18 @@ enum URLSafety {
             let a = n >> 24, b = (n >> 16) & 255
             return !(a == 0 || a == 10 || a == 127 || a >= 224 ||
                      (a == 100 && (64...127).contains(b)) || (a == 169 && b == 254) ||
-                     (a == 172 && (16...31).contains(b)) || (a == 192 && [0, 168].contains(b)) ||
-                     (a == 198 && (18...19).contains(b)))
+                     (a == 172 && (16...31).contains(b)) || (a == 192 && [0, 168].contains(b)))
+            // 198.18.0.0/15 is allowed: it is the benchmarking range, not a LAN, and local proxy apps answer DNS
+            // with "fake IP" addresses from it, which used to fail every download as an invalid link.
         }
         var v6 = in6_addr()
         guard text.withCString({ inet_pton(AF_INET6, $0, &v6) }) == 1 else { return false }
         let bytes = withUnsafeBytes(of: v6) { Array($0) }
-        // Only native global-unicast IPv6; reject mapped IPv4, NAT64, local and multicast ranges.
+        // NAT64 (64:ff9b::/96, IPv6-only networks): judge the embedded IPv4 address by the rules above.
+        if bytes[0..<12] == [0x00, 0x64, 0xff, 0x9b, 0, 0, 0, 0, 0, 0, 0, 0] {
+            return publicAddress(bytes[12..<16].map { String($0) }.joined(separator: "."))
+        }
+        // Otherwise only native global-unicast IPv6; reject mapped IPv4, 6to4, local and multicast ranges.
         return bytes[0] & 0xe0 == 0x20 && !(bytes[0] == 0x20 && bytes[1] == 0x02)
     }
 }

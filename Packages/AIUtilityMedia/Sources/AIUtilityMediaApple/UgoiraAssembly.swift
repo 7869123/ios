@@ -181,7 +181,7 @@ public struct UgoiraAssembler: MediaAssembler {
 
     #if canImport(ImageIO) && canImport(CoreGraphics)
     private func encode(_ frames: [UgoiraFrame], delays: [Int], archive: ZipArchive) throws(MediaError) -> Data {
-        let encoder = try GIFEncoder(frameCount: frames.count, loopCount: 0)
+        let encoder = try GIFEncoder(frameCount: frames.count, loopCount: 0, maxTotalPixels: limits.maxGIFTotalPixels)
         var size: (width: Int, height: Int)?
         for (frame, delay) in zip(frames, delays) {
             guard !Task.isCancelled else { throw .cancelled }

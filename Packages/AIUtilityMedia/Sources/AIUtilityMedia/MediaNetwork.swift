@@ -47,6 +47,8 @@ private final class SessionTransfer: NSObject, URLSessionDownloadDelegate, URLSe
     private var failure: MediaError?
     private var moved = false
     private var received: Int64 = 0
+    /// A non-2xx body grew past the error-body cap: the transfer stopped, but the status still classifies it.
+    private var statusOnly = false
 
     init(destination: URL?, context: RequestContext, limits: RequestLimits, progress: @escaping @Sendable (Int64, Int64?) -> Void) {
         self.destination = destination; self.context = context; self.limits = limits; self.progress = progress
@@ -100,10 +102,13 @@ private final class SessionTransfer: NSObject, URLSessionDownloadDelegate, URLSe
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64,
                     totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         let response = downloadTask.response as? HTTPURLResponse
-        let cap = response.map { (200...299).contains($0.statusCode) ? limits.bytes : min(limits.bytes, 16_384) } ?? limits.bytes
+        let success = response.map { (200...299).contains($0.statusCode) } ?? true
+        let cap = success ? limits.bytes : min(limits.bytes, 16_384)
         let stop = lock.withLock {
             if totalBytesWritten > cap || totalBytesExpectedToWrite > cap {
-                failure = .resourceLimitExceeded; return true
+                // An error page is never kept; its status (404, 429, 503...) is what matters, not its size.
+                if success { failure = .resourceLimitExceeded } else { statusOnly = true }
+                return true
             }
             return cancelled
         }
@@ -121,17 +126,17 @@ private final class SessionTransfer: NSObject, URLSessionDownloadDelegate, URLSe
         } catch { lock.withLock { failure = MediaError.safe(error) } }
     }
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?) {
-        let state = lock.withLock { () -> (CheckedContinuation<WireResponse, any Error>?, MediaError?, Bool) in
+        let state = lock.withLock { () -> (CheckedContinuation<WireResponse, any Error>?, MediaError?, Bool, Bool) in
             let c = continuation; continuation = nil; self.task = nil
-            return (c, cancelled ? .cancelled : failure, moved)
+            return (c, cancelled ? .cancelled : failure, moved, statusOnly)
         }
         session.finishTasksAndInvalidate()
         // didComplete is the final task message: no continuation is resumed on Task.cancel() alone.
         guard let continuation = state.0 else { return }
         if let failure = state.1 { continuation.resume(throwing: failure); return }
-        if let error { continuation.resume(throwing: MediaError.safe(error)); return }
+        if !state.3, let error { continuation.resume(throwing: MediaError.safe(error)); return }
         guard let response = task.response as? HTTPURLResponse, let url = response.url,
-              destination == nil || state.2 else { continuation.resume(throwing: MediaError.network); return }
+              destination == nil || state.2 || state.3 else { continuation.resume(throwing: MediaError.network); return }
         var headers: [String: String] = [:]
         for (key, value) in response.allHeaderFields {
             if let key = key as? String { headers[key.lowercased()] = String(describing: value) }
@@ -166,7 +171,8 @@ actor NetworkClient {
     private var last: [String: TimeInterval] = [:]
     private var count = 0
     private var deadline: TimeInterval = 0
-    private var notBefore: TimeInterval = 0
+    /// Retry-After per origin (site, or host for direct links): one throttled site must not hold back the others.
+    private var notBefore: [String: TimeInterval] = [:]
     init(policy: DownloadPolicy, transport: any MediaTransport, validator: any DestinationValidator, clock: any MediaClock) {
         self.policy = policy; self.transport = transport; self.validator = validator; self.clock = clock
     }
@@ -201,10 +207,13 @@ actor NetworkClient {
             // A conservative global cooldown also prevents signed CDN addresses resetting the source budget.
             let keys = Set(["global", origin, current.host?.lowercased() ?? ""])
             let sourceDelay = keys.compactMap { last[$0] }.map { $0 + policy.minimumRequestInterval - clock.now() }.max() ?? 0
-            let delay = max(sourceDelay, notBefore - clock.now())
+            let throttle = (notBefore[origin] ?? 0) - clock.now()
+            let delay = max(sourceDelay, throttle)
             let remaining = deadline - clock.now()
             guard remaining > max(0, delay), count < policy.maxRequestsPerTask else {
-                throw remaining <= max(0, delay) ? MediaError.timeout : MediaError.resourceLimitExceeded
+                guard remaining <= max(0, delay) else { throw MediaError.resourceLimitExceeded }
+                // Waiting out the site's Retry-After would pass the task deadline: say so, not "timeout".
+                throw throttle >= remaining ? MediaError.rateLimited(retryAfter: throttle) : MediaError.timeout
             }
             try await clock.sleep(max(0, delay)); try Task.checkCancellation()
             for key in keys { last[key] = clock.now() }; count += 1
@@ -223,7 +232,7 @@ actor NetworkClient {
                 current = target; continue
             }
             if [429, 503, 504].contains(response.status), let delay = Self.retryAfter(response.header("retry-after")) {
-                notBefore = max(notBefore, clock.now() + delay)
+                notBefore[origin] = max(notBefore[origin] ?? 0, clock.now() + delay)
             }
             try Self.validateStatus(response)
             return response
@@ -237,7 +246,9 @@ actor NetworkClient {
         case 403: throw MediaError.accessRestricted(.permission)
         case 404, 410: throw MediaError.notFound
         case 429: throw MediaError.rateLimited(retryAfter: retryAfter(response.header("retry-after")))
-        case 503, 504: throw MediaError.network
+        // Bilibili answers risk-control blocks with HTTP 412; treat it as throttling (retried with backoff).
+        case 412: throw MediaError.rateLimited(retryAfter: retryAfter(response.header("retry-after")))
+        case 500, 502, 503, 504: throw MediaError.network
         case 206: throw MediaError.integrityMismatch // P1 never requests a range.
         default: throw MediaError.unsupportedFormat
         }

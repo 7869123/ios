@@ -30,8 +30,13 @@ public struct RGBAColor: Sendable, Hashable {
 /// Upper bounds checked before any large allocation. Defaults suit an iPad-class device; callers
 /// may lower them. Exceeding one fails with `.resourceLimitExceeded` instead of truncating.
 public struct MediaProcessingLimits: Sendable, Hashable {
-    /// Total bytes of all encoded inputs (images) or of the input video file.
+    /// Total bytes of all encoded inputs (images).
     public var maxInputBytes: Int64
+    /// Size of an input video file. Frames are read at the chosen times only, so the file is never loaded whole;
+    /// the image cap (200 MB) used to reject ordinary phone videos even for a 3-second clip.
+    public var maxVideoBytes: Int64
+    /// Decoded pixels of all GIF frames together: ImageIO keeps every added frame until the GIF is finalised.
+    public var maxGIFTotalPixels: Int
     public var maxImageCount: Int
     /// Pixels of any single decoded image and of the output canvas or GIF frame.
     public var maxPixels: Int
@@ -39,9 +44,11 @@ public struct MediaProcessingLimits: Sendable, Hashable {
     public var maxGIFFrames: Int
     public var maxGIFDuration: Double
     public init(maxInputBytes: Int64 = 200 * 1024 * 1024, maxImageCount: Int = 32, maxPixels: Int = 80_000_000,
-                maxOutputBytes: Int64 = 200 * 1024 * 1024, maxGIFFrames: Int = 600, maxGIFDuration: Double = 60) {
+                maxOutputBytes: Int64 = 200 * 1024 * 1024, maxGIFFrames: Int = 600, maxGIFDuration: Double = 60,
+                maxVideoBytes: Int64 = 8 * 1024 * 1024 * 1024, maxGIFTotalPixels: Int = 150_000_000) {
         self.maxInputBytes = maxInputBytes; self.maxImageCount = maxImageCount; self.maxPixels = maxPixels
         self.maxOutputBytes = maxOutputBytes; self.maxGIFFrames = maxGIFFrames; self.maxGIFDuration = maxGIFDuration
+        self.maxVideoBytes = maxVideoBytes; self.maxGIFTotalPixels = maxGIFTotalPixels
     }
 }
 

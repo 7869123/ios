@@ -15,7 +15,7 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
     guard url.isFileURL, outputDirectory.isFileURL else { throw .invalidURL }
     let inputValues = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
     guard inputValues?.isRegularFile == true, let inputSize = inputValues?.fileSize else { throw .notFound }
-    guard Int64(inputSize) <= options.limits.maxInputBytes else { throw .resourceLimitExceeded }
+    guard Int64(inputSize) <= options.limits.maxVideoBytes else { throw .resourceLimitExceeded }
     var isDirectory: ObjCBool = false
     guard FileManager.default.fileExists(atPath: outputDirectory.path, isDirectory: &isDirectory), isDirectory.boolValue
     else { throw .storageUnavailable }
@@ -69,7 +69,11 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
 /// Encodes every planned frame in order and returns the finished GIF bytes.
 private func encodeFrames(generator: AVAssetImageGenerator, plan: [GIFTimeline.Frame], options: GIFOptions,
                           size: (width: Int, height: Int)) async throws(MediaError) -> Data {
-    let encoder = try GIFEncoder(frameCount: plan.count, loopCount: options.loopCount)
+    // Fail before decoding anything when all frames together would not fit the memory bound.
+    guard plan.count.multipliedReportingOverflow(by: pixelSize.width * pixelSize.height).partialValue
+            <= options.limits.maxGIFTotalPixels else { throw .resourceLimitExceeded }
+    let encoder = try GIFEncoder(frameCount: plan.count, loopCount: options.loopCount,
+                                 maxTotalPixels: options.limits.maxGIFTotalPixels)
     for frame in plan {
         guard !Task.isCancelled else { throw .cancelled }
         let time = CMTime(seconds: options.start + frame.offset, preferredTimescale: 600)

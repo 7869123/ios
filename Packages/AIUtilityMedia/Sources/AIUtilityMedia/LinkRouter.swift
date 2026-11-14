@@ -63,7 +63,10 @@ actor DirectMediaResolver: MediaResolver {
             let variant = try MediaVariant(id: "original", kind: format.kind, qualityLabel: "Original",
                                            estimatedBytes: response.header("content-length").flatMap(Int64.init).flatMap { $0 > 0 ? $0 : nil },
                                            fileExtension: format.ext)
-            let item = try MediaItem(id: id, title: "Media download", variants: [variant])
+            // The file name is the only title a direct link has; it stays in memory like every title.
+            let name = SiteJSON.displayTitle(response.finalURL.lastPathComponent.removingPercentEncoding)
+            let item = try MediaItem(id: id, title: name.isEmpty || name == "/" ? DownloadSnapshot.genericTitle : name,
+                                     variants: [variant])
             current = (id, response.finalURL)
             return [item]
         } catch { throw MediaError.safe(error) }

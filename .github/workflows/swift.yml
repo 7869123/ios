@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       build_apple:
-        description: 'Full macOS validation: Apple packages, SwiftUI App and screenshots (required before merging)'
+        description: 'Full macOS validation: Apple packages, SwiftUI App and unsigned IPA (required before merging); screenshots only with publish_previews'
         type: boolean
         default: false
       build_poc:
@@ -27,7 +27,7 @@ on:
         type: boolean
         default: false
       screenshot_set:
-        description: 'Which screenshots to capture with publish_previews: all pages, or only the newest pages'
+        description: 'Which screenshots to capture with publish_previews: all pages (replaces every preview), or only the newest pages (replaces just those)'
         type: choice
         options: [all, new]
         default: all
@@ -253,33 +253,46 @@ jobs:
           TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # Start from an empty folder so a failed capture never leaves an older preview looking current.
-          rm -rf validation/ui-preview && mkdir -p validation/ui-preview
-          printf 'run=%s\nsha=%s\n' "${{ github.run_id }}" "${{ github.sha }}" > validation/ui-preview/SOURCE.txt
-          # Publish whatever this run captured (the full set or only the newest pages).
-          names=""
-          for f in artifacts/app/screenshots/*.png; do
-            [ -e "$f" ] || continue
-            n=$(basename "$f" .png)
-            case "$n" in *-raw) continue ;; esac
-            names="$names $n"
-          done
-          for n in $names; do
-            f="artifacts/app/screenshots/$n.png"
+          shots=artifacts/app/screenshots
+          expected="$shots/expected.txt"
+          # Nothing captured at all (no simulator, no runtime, timeout): fail instead of committing an empty folder.
+          [ -s "$expected" ] || { echo "::error::no screenshot list; capture step did not run to completion"; exit 1; }
+          captured=0
+          while read -r n; do [ -f "$shots/$n.png" ] && captured=$((captured + 1)); done < "$expected"
+          [ "$captured" -gt 0 ] || { echo "::error::no in-app screenshots captured"; exit 1; }
+          set_name="${{ inputs.screenshot_set || 'all' }}"
+          # "all" starts from an empty folder so no older preview looks current; "new" replaces only its own pages.
+          if [ "$set_name" = "all" ]; then rm -rf validation/ui-preview; fi
+          mkdir -p validation/ui-preview
+          {
+            printf 'run=%s\nsha=%s\nset=%s\n' "${{ github.run_id }}" "${{ github.sha }}" "$set_name"
+            [ "$set_name" = "all" ] || echo "note=only the pages below are from this run; other images are from earlier runs"
+          } > validation/ui-preview/SOURCE.txt
+          while read -r n; do
+            f="$shots/$n.png"
             if [ -f "$f" ]; then
               sips -s format jpeg -s formatOptions 70 -Z 1200 "$f" --out "validation/ui-preview/$n.jpg" >/dev/null
               echo "$n=in-app" >> validation/ui-preview/SOURCE.txt
             else
+              rm -f "validation/ui-preview/$n.jpg"
               echo "$n=missing (see screenshots.log in the app-screenshots artifact)" >> validation/ui-preview/SOURCE.txt
+              echo "::warning::screenshot $n missing"
             fi
-          done
+          done < "$expected"
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add validation/ui-preview
-          git commit -m "Update UI review previews from run ${{ github.run_id }}" || { echo "no changes"; exit 0; }
+          git add -A validation/ui-preview
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "Update UI review previews from run ${{ github.run_id }}"
           auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 | tr -d '\n')
           echo "::add-mask::$auth"
-          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $auth" push origin "HEAD:${{ github.ref_name }}"
+          # The branch may have moved during the run: rebase the preview commit onto it and retry.
+          for attempt in 1 2 3; do
+            if git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $auth" push origin "HEAD:${{ github.ref_name }}"; then exit 0; fi
+            git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $auth" fetch origin "${{ github.ref_name }}"
+            git rebase FETCH_HEAD
+          done
+          echo "::error::could not push previews after 3 attempts"; exit 1
   poc-sdk:
     if: github.event_name == 'workflow_dispatch' && inputs.build_poc
     needs: core-linux

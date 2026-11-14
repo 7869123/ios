@@ -93,9 +93,10 @@ public struct SoutubotProvider: ReverseImageSearchProvider {
                                               title: SauceNAOProvider.clean(metadata?.title?.primary),
                                               author: SauceNAOProvider.clean(author),
                                               links: links, thumbnail: thumbnail))
-            if matches.count == maxResults { break }
+            if matches.count == 200 { break } // Bound the work; the response order is not guaranteed best-first.
         }
-        return matches.sorted { ($0.similarity ?? 0) > ($1.similarity ?? 0) }
+        // Sort before cutting to maxResults, so a high score late in the response is not dropped.
+        return Array(matches.sorted { ($0.similarity ?? 0) > ($1.similarity ?? 0) }.prefix(maxResults))
     }
 }
 

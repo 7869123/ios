@@ -33,15 +33,19 @@ extension ReasoningEffort {
                 Spacer()
                 Text(model).font(.caption.monospaced()).foregroundStyle(UtilityTheme.inkSecondary).lineLimit(1)
             }
-            if capabilities.efforts.count <= 1 {
-                Text("这个模型只确认支持「自动」，不会发送推理参数。")
-                    .font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
-            } else {
+            let effortChoices = capabilities.efforts.count > 1
+            if effortChoices {
                 Picker("推理强度", selection: $effort) {
                     ForEach(capabilities.efforts, id: \.self) { Text($0.title).tag($0) }
                 }
-                VStack(alignment: .leading, spacing: 4) {
-                    Stepper("总输出上限 \(budget) tokens", value: $budget, in: 16...65_536, step: budget < 4096 ? 256 : 4096)
+            } else {
+                Text("这个模型只确认支持「自动」，不会发送推理参数；仍可调整总输出上限。")
+                    .font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                    // Separate steps up and down so 4096 is not a cliff: 256 below it, 4096 above it.
+                    Stepper("总输出上限 \(budget) tokens", onIncrement: { budget = Self.step(budget, up: true) },
+                            onDecrement: { budget = Self.step(budget, up: false) })
                     Text("思考过程和译文共用这个上限；切换强度不会自动加大，避免悄悄多花钱。建议值约 \(capabilities.suggestedTotalOutputTokens)，仅供参考。")
                         .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                     Text("每次翻译都会按这个上限预留会话额度：本次会话共 \(AppModel.sessionOutputTokens) tokens，按当前上限最多约可翻译 \(min(AppModel.sessionAttempts, AppModel.sessionOutputTokens / max(budget, 1))) 次（Key 检测、余额查询和自动重试也会占用），完全退出并重新打开 App 后重置。")
@@ -50,19 +54,26 @@ extension ReasoningEffort {
                         Text("上限低于建议值，高强度时译文可能被截断。")
                             .font(.caption).foregroundStyle(UtilityTheme.poc)
                     }
-                }
+            }
+            if effortChoices {
                 Text(ReasoningCapabilities.explanation).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 Text(ReasoningCapabilities.lowExplanation).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 Text(ReasoningCapabilities.highExplanation).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
-                Button("保存推理设置") { save() }
-                    .buttonStyle(PrimaryActionStyle())
-                    .disabled(saved.map { $0.effort == effort && $0.budget == budget } ?? false)
             }
+            Button(effortChoices ? "保存推理设置" : "保存输出上限") { save() }
+                .buttonStyle(PrimaryActionStyle())
+                .disabled(saved.map { $0.effort == effort && $0.budget == budget } ?? false)
             if let message {
                 Text(message).font(.caption).foregroundStyle(failed ? UtilityTheme.danger : UtilityTheme.inkSecondary)
             }
         }
         .task(id: "\(provider.rawValue)/\(model)") { await load() }
+    }
+
+    /// 16…4096 moves in 256s (first step up from below 256 lands on 256), 4096…65536 in 4096s.
+    static func step(_ value: Int, up: Bool) -> Int {
+        if up { return value < 256 ? 256 : value < 4096 ? min(4096, value + 256) : min(65_536, value + 4096) }
+        return value > 4096 ? max(4096, value - 4096) : value > 256 ? max(256, value - 256) : 16
     }
 
     private func load() async {
@@ -131,7 +142,7 @@ extension ReasoningEffort {
                     Button("保存") { saveThreshold(currency) }.buttonStyle(.bordered)
                 }
             }
-            Text("App 在前台时最多每 5 分钟查询一次；余额低于阈值时在首页提醒一次，回到阈值以上后再次低于才会再提醒。两种币种分别设置，不做汇率换算。查询使用已保存的 DeepSeek Key，不调用模型、不产生费用。")
+            Text("设置了阈值时，App 在前台最多每 5 分钟查询一次（每次占用一次会话请求次数，不设阈值就不查询）；余额低于阈值时在首页提醒，关闭前一直保留，回到阈值以上后再次低于才会再提醒。两种币种分别设置，不做汇率换算。查询使用已保存的 DeepSeek Key，不调用模型、不产生费用。")
                 .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             if let message { Text(message).font(.caption).foregroundStyle(UtilityTheme.inkSecondary) }
             if snapshot?.alertPersistenceFailed == true {
@@ -169,11 +180,15 @@ extension ReasoningEffort {
     }
 
     private func saveThreshold(_ currency: BalanceCurrency) {
-        let text = (thresholds[currency] ?? "").trimmingCharacters(in: .whitespaces)
+        // Whole input must be a plain number ("5", "5.5"; a decimal comma is accepted). Decimal(string:) alone
+        // reads only a valid prefix, so "5,5" would silently become 5 and "12abc" 12.
+        let text = (thresholds[currency] ?? "").trimmingCharacters(in: .whitespaces).replacingOccurrences(of: ",", with: ".")
         let value: Decimal?
         if text.isEmpty { value = nil }
-        else if let parsed = Decimal(string: text, locale: Locale(identifier: "en_US_POSIX")), parsed >= 0 { value = parsed }
-        else { message = "请输入不小于 0 的数字，留空表示不提醒。"; return }
+        else if text.range(of: #"^[0-9]{1,9}(\.[0-9]{1,4})?$"#, options: .regularExpression) != nil,
+                let parsed = Decimal(string: text, locale: Locale(identifier: "en_US_POSIX")) {
+            value = parsed; thresholds[currency] = "\(parsed)"
+        } else { message = "请输入不小于 0 的数字（最多 4 位小数），留空表示不提醒。"; return }
         Task {
             do {
                 try await app.services.deepSeekBalance.setThreshold(value, for: currency)

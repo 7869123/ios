@@ -24,6 +24,10 @@ struct RoutingTests {
         #expect(URLSafety.publicAddress("8.8.8.8"))
         #expect(!URLSafety.publicAddress("100.64.0.1"))
         #expect(URLSafety.publicAddress("2001:4860:4860::8888"))
+        #expect(URLSafety.publicAddress("198.18.0.5")) // proxy fake-IP range
+        #expect(URLSafety.publicAddress("64:ff9b::808:808")) // NAT64 of 8.8.8.8
+        #expect(!URLSafety.publicAddress("64:ff9b::c0a8:101")) // NAT64 of 192.168.1.1
+        #expect(!URLSafety.publicAddress("192.168.1.1"))
     }
     @Test func canonicalIdentityPreservesSemanticQuery() throws {
         #expect(try URLSafety.canonical(URL(string: "https://EXAMPLE.org:443/file?p=2#fragment")!) == "https://example.org/file?p=2")

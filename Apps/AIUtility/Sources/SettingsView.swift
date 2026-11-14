@@ -8,6 +8,8 @@ import AIUtilityCore
     @State private var candidateKey = ""
     @State private var screenshotModel = ""
     @State private var subtitleModel = ""
+    /// Models actually bound (after verification). Reasoning cards follow these, not the text being typed.
+    @State private var savedModels: [TranslationFeature: String] = [:]
     @State private var catalogue: [AIModel] = []
     @State private var hasSavedKey = false
     @State private var busy = false
@@ -48,11 +50,14 @@ import AIUtilityCore
             }
             // Saved bindings only: reasoning settings belong to a provider + exact model ID.
             if hasSavedKey {
-                if !screenshotModel.isEmpty {
-                    ReasoningSettingsCard(provider: provider, model: screenshotModel, featureTitle: "截图翻译")
+                let savedScreenshot = savedModels[.discordScreenshot] ?? ""
+                let savedSubtitle = savedModels[.videoSubtitle] ?? ""
+                if !savedScreenshot.isEmpty {
+                    ReasoningSettingsCard(provider: provider, model: savedScreenshot,
+                                          featureTitle: savedScreenshot == savedSubtitle ? "截图与字幕翻译" : "截图翻译")
                 }
-                if !subtitleModel.isEmpty && subtitleModel != screenshotModel {
-                    ReasoningSettingsCard(provider: provider, model: subtitleModel, featureTitle: "字幕翻译")
+                if !savedSubtitle.isEmpty && savedSubtitle != savedScreenshot {
+                    ReasoningSettingsCard(provider: provider, model: savedSubtitle, featureTitle: "字幕翻译")
                 }
                 if provider == .deepSeek { DeepSeekBalanceCard() }
             }
@@ -83,12 +88,13 @@ import AIUtilityCore
     private func loadBindings() async {
         let selected = provider
         candidateKey = ""; catalogue = []
-        hasSavedKey = false; screenshotModel = ""; subtitleModel = ""
+        hasSavedKey = false; screenshotModel = ""; subtitleModel = ""; savedModels = [:]
         message = "正在读取此供应商的已保存配置…"
         do {
             let models = try await app.services.configurations.models(provider: selected)
             guard !Task.isCancelled, provider == selected else { return }
             hasSavedKey = !models.isEmpty
+            savedModels = models
             screenshotModel = models[.discordScreenshot] ?? ""
             subtitleModel = models[.videoSubtitle] ?? ""
             message = hasSavedKey ? "已读取模型绑定；切换模型会先验证。" : "尚未配置此供应商，请输入 Key 和模型。"
@@ -114,7 +120,7 @@ import AIUtilityCore
         }
     }
     private func discoverModels() {
-        let selected = provider, suppliedKey = candidateKey
+        let selected = provider, suppliedKey = Self.clean(candidateKey)
         perform {
             let result: [AIModel]
             if suppliedKey.isEmpty {
@@ -127,20 +133,25 @@ import AIUtilityCore
             return "已取得 \(result.count) 个模型。保存时仍会验证所选模型的生成能力。"
         }
     }
+    /// Pasted Keys and model IDs often carry a trailing space or newline; those are never part of the value.
+    static func clean(_ text: String) -> String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
+
     private func saveKey() {
-        let selected = provider, suppliedKey = candidateKey
-        let bindings: [TranslationFeature: String] = [.discordScreenshot: screenshotModel, .videoSubtitle: subtitleModel]
+        let selected = provider, suppliedKey = Self.clean(candidateKey)
+        let bindings: [TranslationFeature: String] = [.discordScreenshot: Self.clean(screenshotModel), .videoSubtitle: Self.clean(subtitleModel)]
+        screenshotModel = bindings[.discordScreenshot] ?? ""; subtitleModel = bindings[.videoSubtitle] ?? ""
         perform {
             try await app.services.configurations.saveKey(provider: selected, key: APIKey(suppliedKey), models: bindings)
-            candidateKey = ""; hasSavedKey = true
+            candidateKey = ""; hasSavedKey = true; savedModels = bindings
             Task { await app.recheckKey(selected) }
             return "已验证并保存共享 Key 和两个模型绑定。"
         }
     }
     private func switchModel(_ feature: TranslationFeature, model: String) {
-        let selected = provider
+        let selected = provider, model = Self.clean(model)
         perform {
             try await app.services.configurations.switchModel(provider: selected, feature: feature, model: model)
+            savedModels[feature] = model
             Task { await app.recheckKey(selected) }
             return "已验证并切换模型，继续使用已有共享 Key。"
         }
@@ -178,6 +189,9 @@ import AIUtilityCore
                               detail: "界面透明度 \(Int((appearance.panelTransparency * 100).rounded()))% · \(wallpaperTitle)")
             }
             .buttonStyle(PressableCardStyle())
+            // For test reports (DEVICE_TEST_CHECKLIST asks for the app version).
+            Text("AIUtility 版本 \(Self.version)").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                .textSelection(.enabled).legibleOnWallpaper()
         }
         .navigationDestination(item: $autoOpen) { page in
             if page == "settings-provider" {
@@ -195,6 +209,10 @@ import AIUtilityCore
             if autoOpen == nil, let page = ReviewLaunch.settingsPage { autoOpen = page }
             #endif
         }
+    }
+    static var version: String {
+        let info = Bundle.main.infoDictionary
+        return "\(info?["CFBundleShortVersionString"] as? String ?? "?")（\(info?["CFBundleVersion"] as? String ?? "?")）"
     }
     private var wallpaperTitle: String {
         switch wallpaper.mode { case .custom: "自定义壁纸"; case .bundled: "默认壁纸"; case .plain: "纯色背景" }

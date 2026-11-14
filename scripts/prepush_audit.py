@@ -105,7 +105,9 @@ def main():
                 findings.append({"path": path, "rule": rule, "object": oid,
                                  "line": haystack[:match.start()].count(b"\n") + 1,
                                  "fingerprint": hashlib.sha256(value).hexdigest()[:12]})
-    author_emails = set(git("log", "--all", "--format=%ae%n%ce").decode().splitlines())
+    # Only commits not yet on any origin branch: pushed history cannot change, and a merge made on github.com
+    # (noreply@github.com) or another agent's branch must not block every later push.
+    author_emails = set(filter(None, git("log", "HEAD", "--not", "--remotes=origin", "--format=%ae%n%ce").decode().splitlines()))
     unexpected_authors = [hashlib.sha256(email.encode()).hexdigest()[:12]
                           for email in author_emails if email not in ALLOWED_AUTHORS]
     report = {

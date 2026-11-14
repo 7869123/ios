@@ -156,6 +156,10 @@ struct PixivResolverTests {
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/artworks/123")!) == "123")
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/artworks/12a")!) == nil)
         #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/tags/123")!) == nil)
+        #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/en/artworks/123")!) == "123")
+        #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=456")!) == "456")
+        #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/member_illust.php?mode=medium")!) == nil)
+        #expect(PixivResolver.artworkID(URL(string: "https://www.pixiv.net/en/tags/123")!) == nil)
     }
 }
 

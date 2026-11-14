@@ -52,6 +52,10 @@ private func check(_ name: String, _ body: () async throws -> String) async {
         }
     } catch let refusal as LiveRefusal {
         record("LIVE-CHECK \(name): unavailable - \(refusal.text)")
+    } catch let error as URLError {
+        // Transport failures (the search upload uses URLSession directly) mean the site was not reachable from
+        // this runner, not that its format changed.
+        record("LIVE-CHECK \(name): unavailable - network \(error.code.rawValue)")
     } catch {
         record("LIVE-CHECK \(name): FORMAT - \(type(of: error))")
         Issue.record("\(name): \(type(of: error))")

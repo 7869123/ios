@@ -152,6 +152,9 @@ struct WallpaperSlot {
 
     func update(layout: WallpaperLayout, scrim: Double) {
         let keys = Keys(editing)
+        // A fresh install has no stored mode for the bundled default; without one, `load` treats the next launch as
+        // first launch again and ignores the saved layout and scrim.
+        if defaults.string(forKey: keys.mode) == nil, let mode = slots[editing]?.mode { setMode(mode) }
         let clamped = min(Self.scrimRange.upperBound, max(Self.scrimRange.lowerBound, scrim))
         slots[editing]?.layout = layout
         slots[editing]?.scrim = clamped

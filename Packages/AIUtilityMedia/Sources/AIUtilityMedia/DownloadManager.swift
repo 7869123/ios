@@ -32,6 +32,8 @@ public actor DownloadManager {
     private let env: MediaEnvironment
     private var manifest: MediaManifest
     private var inputs: [DownloadID: RuntimeInput] = [:]
+    /// Display titles from resolution, memory-only like the links themselves (the manifest never stores titles).
+    private var titles: [DownloadID: String] = [:]
     private var observers: [UUID: AsyncStream<DownloadQueueSnapshot>.Continuation] = [:]
     private var worker: Task<Void, Never>?
     private var active: (id: DownloadID, attempt: UUID)?
@@ -239,6 +241,7 @@ public actor DownloadManager {
         }
         try commit(next)
         let ids = Set(next.tasks.map(\.id)); inputs = inputs.filter { ids.contains($0.key) }
+        titles = titles.filter { ids.contains($0.key) }
         broadcast()
     }
     public func deleteFiles(for id: DownloadID) async throws(MediaError) -> DeleteResult {
@@ -296,7 +299,7 @@ public actor DownloadManager {
         let tasks = manifest.tasks.sorted { $0.ordinal < $1.ordinal }.map { task -> DownloadSnapshot in
             var task = task
             if case .queued = task.state { position += 1; task.state = .queued(position: position) }
-            return task.snapshot(revision: manifest.revision)
+            return task.snapshot(revision: manifest.revision, title: titles[task.id])
         }
         return DownloadQueueSnapshot(revision: manifest.revision, tasks: tasks, activeID: active?.id, blockingError: blockingError)
     }
@@ -344,7 +347,11 @@ public actor DownloadManager {
                 try env.files.cleanup(id, attempt: attempt)
                 guard !Task.isCancelled, retry < env.policy.maxRetries,
                       let delay = Self.retryDelay(failure, retry: retry) else { throw failure }
-                guard env.clock.now() + delay < deadline else { throw MediaError.timeout }
+                guard env.clock.now() + delay < deadline else {
+                    // A Retry-After longer than the time left is reported as throttling, not as a timeout.
+                    if case .rateLimited = failure { throw failure }
+                    throw MediaError.timeout
+                }
                 try setState(id, attempt, .waitingToRetry(attempt: retry + 1, delay: delay))
                 try await env.clock.sleep(delay); try Task.checkCancellation()
                 guard let index = manifest.tasks.firstIndex(where: { $0.id == id }), isCurrent(id, attempt) else { throw MediaError.cancelled }
@@ -391,6 +398,10 @@ public actor DownloadManager {
             }
             plans.append(plan)
         }
+        if let first = chosen.first?.0.title {
+            titles[id] = chosen.count > 1 ? "\(first)（\(chosen.count) 项）" : first
+            broadcast()
+        }
         let identity = StableDigest.hex(plans.map { Self.selectionKey(.variant(itemID: $0.itemID, variantID: $0.variant.id)) + Self.optionKey($0.effectiveOptions) }.joined(separator: "|"))
         guard let index = manifest.tasks.firstIndex(where: { $0.id == id }), isCurrent(id, attempt) else { throw MediaError.cancelled }
         var next = manifest
@@ -423,7 +434,7 @@ public actor DownloadManager {
             var archives: [(url: URL, size: Int64)] = []
             for component in plan.components {
                 try Task.checkCancellation()
-                try env.files.checkSpace(env.policy.minimumFreeBytes + min(plan.variant.estimatedBytes ?? env.policy.maxFileBytes, env.policy.maxFileBytes))
+                try env.files.checkSpace(env.policy.minimumFreeBytes + Self.expectedBytes(plan.variant, policy: env.policy))
                 try setState(id, attempt, .running(DownloadProgress(attemptID: attempt, phase: .transfer, bytesWritten: written, totalBytes: nil)))
                 let part = staging.appendingPathComponent(UUID().uuidString + ".part")
                 let base = written
@@ -476,6 +487,16 @@ public actor DownloadManager {
         let retained = next.ownership[id.rawValue.uuidString]?.files ?? []
         next.ownership[id.rawValue.uuidString] = Ownership(files: retained + files, deleting: false)
         try commit(next); broadcast(); inputs.removeValue(forKey: id); release(id)
+    }
+    /// Space to require before a transfer. Sites rarely state image sizes; assuming the 1 GiB file cap for every
+    /// picture made X/Pixiv images fail with "storage full" on devices with about 1.1 GB free. Unknown images and
+    /// Ugoira archives assume 64 MiB; the transfer limit still stops anything larger, and a full disk still fails.
+    static func expectedBytes(_ variant: MediaVariant, policy: DownloadPolicy) -> Int64 {
+        if let estimate = variant.estimatedBytes { return min(max(0, estimate), policy.maxFileBytes) }
+        switch variant.kind {
+        case .image, .ugoira: return min(67_108_864, policy.maxFileBytes)
+        case .video, .audio: return policy.maxFileBytes
+        }
     }
     /// Downloaded archives (Ugoira frames) are checked as ZIP files before assembly.
     static let archiveVariant = try! MediaVariant(id: "archive", kind: .ugoira, qualityLabel: "Archive", fileExtension: "zip")

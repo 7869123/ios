@@ -130,7 +130,8 @@ public struct SauceNAOProvider: ReverseImageSearchProvider {
         return matches.sorted { ($0.similarity ?? 0) > ($1.similarity ?? 0) }
     }
 
-    static func validKey(_ key: String) -> Bool {
+    /// Format check also used by the App before saving a key.
+    public static func validKey(_ key: String) -> Bool {
         !key.isEmpty && key.count <= 128 && key.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber) }
     }
 

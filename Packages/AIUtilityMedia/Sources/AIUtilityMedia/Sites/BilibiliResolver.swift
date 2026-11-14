@@ -53,7 +53,7 @@ actor BilibiliResolver: MediaResolver {
         let pages: [Part]
     }
     struct PlayURL: Decodable, Sendable {
-        struct Segment: Decodable, Sendable { let url: String; let size: Int64? }
+        struct Segment: Decodable, Sendable { let url: String; let size: Int64?; let backup_url: [String]? }
         let durl: [Segment]?
         let is_preview: Int?
     }
@@ -92,11 +92,10 @@ actor BilibiliResolver: MediaResolver {
         guard part.cid > 0 else { throw .parsingChanged }
         let itemID = try MediaItemID(source: .bilibili, value: "\(data.bvid)-p\(part.page)")
         let variant = try MediaVariant(id: "mp4", kind: .video, qualityLabel: "MP4", fileExtension: "mp4")
-        var title = (data.title ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        var title = SiteJSON.displayTitle(data.title)
         if title.isEmpty { title = data.bvid }
-        if data.pages.count > 1, let name = part.part?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty {
-            title += " · P\(part.page) " + name
-        }
+        let name = SiteJSON.displayTitle(part.part)
+        if data.pages.count > 1, !name.isEmpty { title += " · P\(part.page) " + name }
         if title.utf8.count > 480 { title = String(title.prefix(120)) }
         parts[itemID] = (data.bvid, part.cid)
         return [try MediaItem(id: itemID, title: title, variants: [variant])]
@@ -115,7 +114,12 @@ actor BilibiliResolver: MediaResolver {
         guard let segments = data.durl, !segments.isEmpty else { throw .parsingChanged }
         // Several segments would need joining; not supported rather than delivering a partial video.
         guard segments.count == 1 else { throw .unsupportedFormat }
-        let media = try SiteJSON.url(segments[0].url, hosts: Self.isVideoHost)
+        // Some networks (e.g. outside mainland China) get a primary address on a host outside the list;
+        // the player API also lists backups, used when the primary one is not acceptable.
+        let candidates = [segments[0].url] + (segments[0].backup_url ?? [])
+        guard let media = candidates.lazy.compactMap({ try? SiteJSON.url($0, hosts: Self.isVideoHost) }).first else {
+            throw .parsingChanged
+        }
         let sized = try MediaVariant(id: variant.id, kind: .video, qualityLabel: variant.qualityLabel,
                                      estimatedBytes: segments[0].size.flatMap { $0 > 0 ? $0 : nil }, fileExtension: "mp4")
         // The plan carries the size the player API reported, for the free-space check.
@@ -125,5 +129,7 @@ actor BilibiliResolver: MediaResolver {
 
     static func isVideoHost(_ host: String) -> Bool {
         host.hasSuffix(".bilivideo.com") || host.hasSuffix(".bilivideo.cn") || host.hasSuffix(".hdslb.com")
+            // Bilibili's own overseas mirrors on Akamai (upos-…-mirrorakam.akamaized.net), not every Akamai customer.
+            || (host.hasSuffix("-mirrorakam.akamaized.net") && host.hasPrefix("upos-"))
     }
 }

@@ -224,7 +224,7 @@ public enum DownloadState: Sendable, Equatable {
 | 公共类型 | 字段及契约（均为 Sendable 值） |
 |---|---|
 | DownloadProgress | attemptID、phase、bytesWritten、totalBytes?、fraction?；整数非负，已知比例在 0...1，不使用 NaN/Infinity |
-| DownloadSnapshot | id、source?、安全展示标题、state、attemptID、状态序号 revision、创建/更新时间、已确定时的生效选项摘要；不含临时请求或凭据，不相关选项不改变状态 |
+| DownloadSnapshot | id、source?、安全展示标题、state、attemptID、状态序号 revision、创建/更新时间、已确定时的生效选项摘要；不含临时请求或凭据，不相关选项不改变状态。标题在本次运行解析后为站点标题（直链为文件名，多项时注明项数），只在内存中；未解析或重启后为 `DownloadSnapshot.genericTitle`（2026-11-14 新增公开常量） |
 | DownloadQueueSnapshot | revision、按实际顺序排列的 tasks、activeID?、blockingError?；每次是完整快照，不是单一进度事件 |
 | DownloadedFile | 文件 ID、安全 fileName、沙盒相对位置、实际字节、媒体种类、可选 fileIdentity（实际下载的 inode 校验值）；Codable/Hashable。文件 URL 按需解析，不持久化绝对主目录 |
 | DownloadRecord | id、安全来源身份/展示信息、最终状态、attempt 摘要、生效选项摘要、输出引用及时间；Codable，不能含任何链接、Cookie、授权头或 resumeData |
@@ -364,6 +364,10 @@ DownloadPolicy 是 Sendable 不可变配置，建议初值：单活动槽 1（�
 
 - 仅对明确瞬态网络错误、超时及允许的暂时性 HTTP 状态有限重试；建议状态为 429/503/504。
   退避 1、2 秒起并有封顶；Retry-After 与来源间隔取更保守值，超过总时限则停止并报告，不绕过限流。
+  2026-11-14 起：Retry-After 按来源记录（站点，直链按主机），不再挡住其他站点；等待会超过总时限时以 `rateLimited` 结束而不是 `timeout`。
+  HTTP 412（B站风控）按 `rateLimited`，500/502 按 `network`（可重试）；错误响应体超过 16 KB 时仍按状态码分类。
+  大小未知的图片 / Ugoira 归档下载前要求 64 MiB + 最低剩余空间（此前按 1 GiB 文件上限要求），iOS 用可清理空间计算。
+  DNS 预检放行 198.18.0.0/15（代理 fake-IP）和内嵌公网 IPv4 的 NAT64 地址。下载输出目录不进入设备备份。
 - 权限/登录/地区/会员/DRM、解析失效、格式不支持、完整性错误、磁盘不足和用户取消不自动重试。
   手动 retry 也不承诺能解决这些限制。按来源计请求预算；直链按目标主机，CDN 跳转不重置原站点预算。
 - 重定向每跳重新验证 HTTPS、目标和跳数，禁止循环/降级；跨 origin 丢弃授权头、Cookie 等敏感字段。
@@ -452,6 +456,10 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
 - `stripMetadata` 使用 `CGImageDestinationCopyImageSource` 做容器级无损复制，仅保留显示所需方向；写出后再检查，
   仍有可识别元数据即返回 `unsupportedFormat`。`reencode` / `subtlePixelNoise` 解码时已应用方向，输出不带源元数据。
 - 默认限额：输入 200 MB、32 张、单图/画布 8000 万像素、输出 200 MB、GIF 600 帧 / 60 s。
+  2026-11-14 起：`MediaProcessingLimits` 新增 `maxVideoBytes`（视频文件，默认 8 GB；视频只按时间点取帧，不整体读入）
+  和 `maxGIFTotalPixels`（所有 GIF 帧解码像素之和，默认 1.5 亿，ImageIO 在 finalize 前保留每一帧），初始化参数有默认值，
+  原调用不变。拼接画布超过 `maxPixels` 时整体等比缩小而不再失败（单张输入超限仍失败）。`reencode` 对 PNG/JPEG 保持格式，
+  其他格式（HEIC 等）默认输出 JPEG；`reencode` / `subtlePixelNoise` 遇到多帧图片返回 `unsupportedFormat`。
 - 统一任务展示：本地工具是一次性 async 调用，由 UI 直接持有 Task 并可取消，不进入下载队列，也不新增第二条并发队列。
 
 ### 9b. P3 站点解析实现（Claude Code）
@@ -467,7 +475,10 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
   帧时长（用户选定“兼容优先”）：GIF 只有 10 ms 精度，每帧结束时间按真实累计时间四舍五入到 10 ms，单帧误差 ≤ 5 ms、总时长不变；
   少于 20 ms 的帧取 GIF 最小 20 ms（会略微拉长总时长）。ZIP 读取支持存储与 deflate，校验大小与 CRC-32，不支持加密/ZIP64。
 - B站：`/x/web-interface/view` 取分 P，`?p=N` 指定，否则第 1 P；`/x/player/playurl?fnval=1&platform=html5` 取匿名可得的单文件 MP4（通常 ≤720p），
-  无需音视频合并。预览/付费 → `accessRestricted(.payment)`，地区 → `.region`，多段 → `unsupportedFormat`，CDN 主机限 `*.bilivideo.com/.cn`、`*.hdslb.com`。全部分 P 仍不支持。
+  无需音视频合并。预览/付费 → `accessRestricted(.payment)`，地区 → `.region`，多段 → `unsupportedFormat`，CDN 主机限 `*.bilivideo.com/.cn`、`*.hdslb.com`
+  和 B站自己的 Akamai 镜像 `upos-*-mirrorakam.akamaized.net`；主地址不合格时依次尝试 `backup_url`（2026-11-14）。全部分 P 仍不支持。
+- 2026-11-14：标题中的控制/格式字符（零宽连接符、零宽空格、BOM、方向标记）被去掉，换行和制表符变成空格，不再整条失败为 `invalidInput`。
+  Pixiv 也识别 `/<语言>/artworks/<id>` 和 `member_illust.php?illust_id=<id>`。
 - X：网页嵌入使用的 `cdn.syndication.twimg.com/tweet-result` 公开端点（未确认其长期稳定性）。`token` 按 JS `((id/1e15)*π).toString(36)` 去掉 0 和点计算，
   JS 移植版与 V8 在 20 万个随机 ID 上一致。墓碑（受保护、年龄限制、已删除）→ `accessRestricted(.permission)`；图片取 `name=orig`，视频列出渐进式 MP4 码率。
 - 测试：`PixivResolverTests`、`BilibiliResolverTests`、`XResolverTests` 均为虚构的离线样例；真实联网测试尚未编写，需要在可访问这些站点的网络里另行验证。
@@ -487,6 +498,7 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
 
 - `ReverseImageSearchProvider.search(image:) -> [ReverseSearchMatch]`；`SauceNAOProvider(credentials:minimumSimilarity:maxResults:)`。
 - Key 来自 `SearchCredentialSource.sauceNAOKey()`（App 用独立的 Keychain 项实现），缺失或格式不合法 → `notConfigured`，此时不发请求。
+  格式检查 `SauceNAOProvider.validKey(_:)` 自 2026-11-14 起公开，App 保存前先用它校验。App 上传前把图片转成最长边 2048 的 JPEG（不带 EXIF）。
   Key 按 SauceNAO 要求放在查询参数里，请求只在内存中构建，不记录、不进历史。
 - 上传前检查：非空、≤ 15 MB、文件头为 JPEG/PNG/GIF/WebP。临时会话不带 Cookie/缓存/凭据，不跟随重定向，响应上限 1 MB。
 - 相似度低于阈值（默认 50）的结果丢弃，按相似度降序；链接只保留 http/https，最多 5 个。`similarity` 是 SauceNAO 的百分比，不当作通用概率。
@@ -495,6 +507,7 @@ SauceNAO Key 只通过单独的 Keychain-backed 凭据边界按需取入内存�
   `POST https://soutubot.moe/api/search`，multipart 字段 `file`、`factor`（1.2，严格模式 1.4）、`metadata_mode=display`、`top_k`；
   无 Cookie、Key 或签名。该接口没有公开文档，任何意外响应为 `parsingChanged`；`similarity` 为站点自身分数（非百分比）。
   结果取每条命中的第一个来源：标题、作者/画师、来源名、最多 5 个 http(s) 链接、https 缩略图。429 → `rateLimited`，413 → `resourceLimitExceeded`。
+  2026-11-14 起先按分数排序再截取 `maxResults`（此前先截取再排序，后面的高分结果可能被丢掉）。
 
 ## 11. 测试与 Claude 接线要求（P1 修复后 Linux 45 项通过）
 

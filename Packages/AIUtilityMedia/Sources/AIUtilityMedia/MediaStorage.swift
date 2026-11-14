@@ -14,8 +14,8 @@ struct StoredTask: Codable, Sendable {
     let createdAt: Date
     var updatedAt: Date
     var journal: [DownloadedFile]?
-    func snapshot(revision: UInt64) -> DownloadSnapshot {
-        DownloadSnapshot(id: id, source: source, title: "Media download", state: state, attemptID: attemptID,
+    func snapshot(revision: UInt64, title: String?) -> DownloadSnapshot {
+        DownloadSnapshot(id: id, source: source, title: title ?? DownloadSnapshot.genericTitle, state: state, attemptID: attemptID,
                          revision: revision, createdAt: createdAt, updatedAt: updatedAt, effectiveOptions: effectiveOptions)
     }
     var record: DownloadRecord {
@@ -126,6 +126,15 @@ struct SandboxFiles: MediaFiles {
         if FileManager.default.fileExists(atPath: path.path) { try FileManager.default.removeItem(at: path) }
     }
     func checkSpace(_ required: Int64) throws {
+        #if os(iOS)
+        // What the system can free for a user-requested download (purgeable space included); the raw free size
+        // undercounts on iOS.
+        if let important = try? root.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            .volumeAvailableCapacityForImportantUsage, important > 0 {
+            guard important >= required else { throw MediaError.storageFull }
+            return
+        }
+        #endif
         let attributes = try FileManager.default.attributesOfFileSystem(forPath: root.path)
         guard let free = attributes[.systemFreeSize] as? NSNumber, free.int64Value >= required else { throw MediaError.storageFull }
     }
@@ -147,7 +156,18 @@ struct SandboxFiles: MediaFiles {
         let target = try checked(first).deletingLastPathComponent()
         try Self.noLinks(staging); try Self.noLinks(target)
         try FileManager.default.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+        Self.excludeFromBackup(root.appendingPathComponent("outputs", isDirectory: true))
         try FileManager.default.moveItem(at: staging, to: target)
+    }
+    /// Downloads can be fetched again. A restored backup or a new device would recreate the files with new inode
+    /// numbers, which file identity checks treat as replaced (no export, no delete); left out of backups, they are
+    /// simply missing after a restore, which the queue reports and a re-pasted link downloads again.
+    static func excludeFromBackup(_ directory: URL) {
+        #if canImport(Darwin)
+        var url = directory, values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? url.setResourceValues(values)
+        #endif
     }
     private func checked(_ file: DownloadedFile) throws -> URL {
         let parts = file.relativePath.split(separator: "/", omittingEmptySubsequences: false)

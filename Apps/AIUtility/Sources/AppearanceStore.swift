@@ -94,7 +94,7 @@ struct GlassStyle: Equatable, Sendable {
             }
             percentSlider(
                 title: "界面透明度",
-                caption: "卡片、按钮和面板的透明程度。数值越高，壁纸透过面板越明显。",
+                caption: "卡片、按钮和面板的透明程度。数值越高，壁纸透过面板越明显。工具页和设置页为保证文字清晰最多按 75% 显示，超过 75% 只影响首页。",
                 value: Binding(get: { appearance.panelTransparency }, set: { appearance.setPanelTransparency($0) })
             )
             percentSlider(
@@ -116,8 +116,9 @@ struct GlassStyle: Equatable, Sendable {
             Text("默认：跟随系统，界面透明度 \(Int(AppearanceStore.defaultPanelTransparency * 100))%，壁纸遮罩 \(Int(WallpaperStore.defaultScrim * 100))%。调整立即生效并自动保存。")
                 .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
         }
-        // The scrim slider edits the wallpaper that is showing now.
+        // The scrim slider edits the wallpaper that is showing now, also after the display mode changes here.
         .onAppear { wallpaper.editing = WallpaperScheme(colorScheme) }
+        .onChange(of: colorScheme) { _, scheme in wallpaper.editing = WallpaperScheme(scheme) }
     }
 
     private func percentSlider(title: String, caption: String, value: Binding<Double>) -> some View {

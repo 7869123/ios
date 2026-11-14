@@ -20,8 +20,15 @@ actor PixivResolver: MediaResolver {
     static func artworkID(_ url: URL) -> String? {
         guard URLSafety.source(url) == .pixiv else { return nil }
         let parts = url.path.split(separator: "/")
-        guard parts.count == 2, parts[0] == "artworks" else { return nil }
-        return SiteJSON.digits(parts[1], maxLength: 12)
+        if parts == ["member_illust.php"] {
+            let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "illust_id" }?.value
+            return id.flatMap { SiteJSON.digits(Substring($0), maxLength: 12) }
+        }
+        // "/artworks/123" or a language prefix such as "/en/artworks/123".
+        let tail = parts.count == 3 && (2...5).contains(parts[0].count) && parts[0].allSatisfy({ $0.isLetter || $0 == "-" })
+            ? Array(parts.dropFirst()) : Array(parts)
+        guard tail.count == 2, tail[0] == "artworks" else { return nil }
+        return SiteJSON.digits(tail[1], maxLength: 12)
     }
 
     /// `body` is read leniently: error responses carry an empty array or object there.
@@ -134,8 +141,7 @@ actor PixivResolver: MediaResolver {
     static func isImageHost(_ host: String) -> Bool { host == "i.pximg.net" }
     static func positive(_ value: Int) -> Int? { value > 0 && value <= 100_000 ? value : nil }
     static func title(_ text: String?, id: String) -> String {
-        let trimmed = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        let base = trimmed.isEmpty ? "Pixiv \(id)" : trimmed
-        return String(base.utf8.count <= 400 ? base : String(base.prefix(120)))
+        let cleaned = SiteJSON.displayTitle(text)
+        return cleaned.isEmpty ? "Pixiv \(id)" : cleaned
     }
 }

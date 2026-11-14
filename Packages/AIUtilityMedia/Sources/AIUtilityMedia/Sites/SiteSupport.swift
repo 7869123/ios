@@ -30,6 +30,19 @@ enum SiteJSON {
         return MediaVariant.extensions.contains(normalised) ? normalised : fallback
     }
 
+    /// Site titles may contain zero-width joiners (emoji sequences), zero-width spaces, BOMs, direction marks, tabs or
+    /// newlines; MediaItem rejects control/format characters, which used to fail the whole download as "invalid
+    /// input". Line breaks and tabs become spaces, other control/format scalars are dropped, length is bounded.
+    static func displayTitle(_ text: String?) -> String {
+        var scalars = String.UnicodeScalarView()
+        for scalar in (text ?? "").unicodeScalars {
+            if scalar == "\n" || scalar == "\r" || scalar == "\t" { scalars.append(" ") }
+            else if !CharacterSet.controlCharacters.contains(scalar) { scalars.append(scalar) }
+        }
+        let cleaned = String(scalars).trimmingCharacters(in: .whitespacesAndNewlines)
+        return cleaned.utf8.count <= 400 ? cleaned : String(cleaned.prefix(120))
+    }
+
     static func digits(_ text: Substring, maxLength: Int = 20) -> String? {
         guard !text.isEmpty, text.count <= maxLength, text.allSatisfy({ $0.isASCII && $0.isNumber }) else { return nil }
         return String(text)

@@ -42,6 +42,8 @@ swift --version
 swift build --package-path Packages/AIUtilityCore
 swift test --package-path Packages/AIUtilityCore
 swift test --package-path PoCs/iOS27Capture
+swift build --package-path Packages/AIUtilityMedia
+swift test --package-path Packages/AIUtilityMedia
 ```
 
 无需配置任何仓库 API Secret。付费 API 与 Keychain 集成测试均关闭。
@@ -54,9 +56,10 @@ swift test --package-path PoCs/iOS27Capture
 |---|---|---|
 | pull_request（每次 PR 更新） | core-linux | 仅 Linux，快速检查 |
 | push | 只在 main 上触发：core-linux → apple → app | 合并后的完整验证（PR 分支上的 push 不再重复触发） |
-| 手动 workflow_dispatch，`build_apple` | core-linux → apple → app（含截图） | **合并 PR 前必须跑一次并通过** |
+| 手动 workflow_dispatch，`build_apple` | core-linux → apple → app（编译、Archive、未签名 IPA；不截图） | **合并 PR 前必须跑一次并通过** |
 | 手动，`build_poc` | core-linux → poc-sdk（xcode-27） | 仅在 PoC 源码或其 CI 变更时需要 |
-| 手动，`publish_previews`（配合 `build_apple`） | app 末尾提交缩小的截图到 `validation/ui-preview/` | 该 job 为此拥有 `contents: write` |
+| 手动，`publish_previews`（配合 `build_apple`） | app 末尾截图并提交缩小的图到 `validation/ui-preview/`；`screenshot_set=all` 替换全部预览（包括最新页面），`new` 只替换最新几页、保留其余 | 该 job 为此拥有 `contents: write`；一张都没截到时步骤失败、不提交；缺失的页面写进 SOURCE.txt 并给出警告 |
+| 手动，`live_checks` | live-checks（macOS） | 只读访问真实公开站点（元数据和 HEAD，不下载、不用 Key）；站点拒绝本机房地址记为 unavailable，不算通过 |
 
 同一分支或引用上的新运行会自动取消尚在进行的旧运行（`concurrency`）。仅 Markdown 或 validation 证据变更不触发构建。
 
@@ -66,12 +69,14 @@ swift test --package-path PoCs/iOS27Capture
 
 ## 4. 构建失败同样保存证据
 
-Core 步骤显式记录每个真实退出码，构建失败后仍会尝试测试；任一失败最终都让该步骤失败。上传步骤使用 `always()`，在 checkout 成功后即使构建/测试失败也会尝试保存以下五个文件：
+Core 步骤显式记录每个真实退出码，构建失败后仍会尝试测试；任一失败最终都让该步骤失败。上传步骤使用 `always()`，在 checkout 成功后即使构建/测试失败也会尝试保存以下七个文件：
 
 - swift-version.log
 - core-build.log
 - core-tests.log
 - poc-lifecycle-tests.log（可移植状态机，不是 Apple 框架运行时测试）
+- media-build.log
+- media-tests.log
 - exit-codes.txt
 
 artifact 名为 `core-linux-evidence-运行ID-尝试次数`，保留 7 天；只上传这些指定日志，不上传目录通配符、.build、DerivedData、.env、整个仓库或下载缓存。没有 actions/cache，也不导出环境变量。Checkout 使用只读 contents 权限且不持久化 Git 凭据。

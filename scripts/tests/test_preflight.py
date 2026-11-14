@@ -48,6 +48,18 @@ class PersonalInfoTests(unittest.TestCase):
         url = "https://github.com/7869123/ios/actions/runs/42378051064/artifacts/" + phone()
         self.assertTrue(scan_text("REPORT.md", url + " contact=" + phone()))
 
+    def test_more_home_folder_forms_are_detected(self):
+        # Fake names only, assembled at run time so this file itself stays clean.
+        home, users = "/" + "home/", "C:" + "\\\\" + "Users" + "\\\\"
+        for text in (home + "example.person", home + "exampleuser done", "path=" + users + "x"):
+            self.assertTrue(any(rule == "user_path" for _, rule in scan_text("NOTES.md", text)), text)
+        self.assertEqual(scan_text("NOTES.md", "/" + "home/runner/work"), [])
+
+    def test_team_id_and_search_key_next_to_their_names(self):
+        self.assertTrue(scan_text("project.yml", "DEVELOPMENT_" + "TEAM: ABCDE12345"))
+        self.assertTrue(scan_text("NOTES.md", "api_" + "key=" + "0" * 40))
+        self.assertEqual(scan_text("NOTES.md", "api_key=fixture"), [])
+
     def test_public_runner_does_not_hide_other_user_paths(self):
         public = "/Users/" + "runner/work/repo"
         private = "/Users/" + "fixture/Documents"

@@ -27,8 +27,16 @@ public func stitchImages(_ images: [Data], options: StitchOptions = .init()) asy
         guard !Task.isCancelled else { throw .cancelled }
         sources.append(try ImageIOSupport.open(data, limits: options.limits))
     }
-    let geometry = try StitchGeometry.layout(sizes: sources.map { (width: $0.width, height: $0.height) },
+    var geometry = try StitchGeometry.layout(sizes: sources.map { (width: $0.width, height: $0.height) },
                                              layout: options.layout, spacing: options.spacing)
+    // A few full-size phone photos already exceed the canvas cap; scale everything down evenly instead of failing.
+    let area = Double(geometry.width) * Double(geometry.height)
+    if area > Double(options.limits.maxPixels) {
+        let scale = (Double(options.limits.maxPixels) / area).squareRoot() * 0.995
+        geometry = try StitchGeometry.layout(
+            sizes: sources.map { (width: max(1, Int(Double($0.width) * scale)), height: max(1, Int(Double($0.height) * scale))) },
+            layout: options.layout, spacing: Int(Double(options.spacing) * scale))
+    }
     try ImageIOSupport.checkPixels(width: geometry.width, height: geometry.height, limits: options.limits)
     let context = try ImageIOSupport.context(width: geometry.width, height: geometry.height, background: options.background)
     for (source, frame) in zip(sources, geometry.frames) {
@@ -62,12 +70,15 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions) async
         guard let check = CGImageSourceCreateWithData(output as CFData, nil),
               !MetadataInspector.hasRemovableMetadata(check) else { throw .unsupportedFormat }
     case .reencode:
-        let format = options.format ?? ImageOutputFormat(typeIdentifier: source.typeIdentifier) ?? .png
+        guard CGImageSourceGetCount(source.cgSource) == 1 else { throw .unsupportedFormat } // Would keep 1 frame only.
+        // PNG and JPEG keep their format; other photos (HEIC, WebP...) become JPEG, not a PNG many times larger.
+        let format = options.format ?? ImageOutputFormat(typeIdentifier: source.typeIdentifier) ?? .jpeg
         let decoded = try ImageIOSupport.orientedImage(source)
         output = try ImageIOSupport.encode(decoded, type: format.typeIdentifier,
                                            quality: format == .jpeg ? options.jpegQuality : nil)
         outputType = format.typeIdentifier
     case .subtlePixelNoise:
+        guard CGImageSourceGetCount(source.cgSource) == 1 else { throw .unsupportedFormat }
         let format = options.format ?? .png
         let decoded = try ImageIOSupport.orientedImage(source)
         let noisy = try PixelNoise.apply(to: decoded, seed: options.noiseSeed)

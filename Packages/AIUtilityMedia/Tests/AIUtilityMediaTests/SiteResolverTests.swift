@@ -17,4 +17,11 @@ struct SiteRegistrationTests {
             _ = try await h.env.router.resolve(URL(string: "https://www.pixiv.net/artworks/100000001")!)
         }
     }
+    @Test func titlesDropControlAndFormatCharactersInsteadOfFailing() throws {
+        #expect(SiteJSON.displayTitle("a\u{200B}b\u{200D}c\td\n") == "abc d")
+        #expect(SiteJSON.displayTitle(nil).isEmpty)
+        let cleaned = SiteJSON.displayTitle("\u{FEFF}Fixture \u{1F9DC}\u{200D}\u{2640}\u{FE0F} title")
+        _ = try MediaItem(id: MediaItemID(source: .pixiv, value: "1"), title: cleaned,
+                          variants: [MediaVariant(id: "original", kind: .image, qualityLabel: "Original", fileExtension: "png")])
+    }
 }

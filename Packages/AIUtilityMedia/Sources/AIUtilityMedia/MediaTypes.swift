@@ -252,6 +252,9 @@ public enum DownloadState: Codable, Sendable, Equatable {
     }
 }
 public struct DownloadSnapshot: Codable, Sendable, Equatable, Identifiable {
+    /// Shown until a task's link has been resolved in this run. Real titles are memory-only (never on disk), so
+    /// after a restart finished tasks show this again.
+    public static let genericTitle = "Media download"
     public let id: DownloadID
     public let source: MediaSource?
     public let title: String

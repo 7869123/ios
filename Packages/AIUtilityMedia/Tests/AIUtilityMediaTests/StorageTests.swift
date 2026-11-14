@@ -116,6 +116,8 @@ struct StorageTests {
         let data = try JSONEncoder().encode(h.store.load()), text = String(decoding: data, as: UTF8.self)
         #expect(!text.contains("fixture-secret") && !text.contains("https:") && !text.contains("private-fragment"))
         #expect(!text.contains("Authorization") && !text.contains("Cookie"))
+        // The resolved title is shown in this run but, like the link, never written to the manifest.
+        #expect(await queueSnapshot(manager).tasks.first?.title == "file.png" && !text.contains("file.png"))
         try await manager.shutdown()
     }
     @Test func realDiskManifestPersistsAndFailedDecodeDoesNotOverwrite() throws {

@@ -2,7 +2,9 @@
 # Capture review screenshots of the home page and of each Media Tools page on an iPad mini simulator
 # (primary) and an iPhone simulator (compatibility check). Uses the Debug simulator build produced
 # by ci_app.sh. Media pages are opened with the DEBUG-only `-AIUtilityPage <page>` launch argument and
-# dark shots use `-AIUtilityAppearance dark`. SCREENSHOT_SET=new captures only the newest pages.
+# dark shots use `-AIUtilityAppearance dark`. SCREENSHOT_SET=new captures only the newest pages; "all" captures
+# every page (including the newest). Each expected name is listed in expected.txt and every capture that fell
+# back to the raw framebuffer in missing.txt; the script exits 1 if anything is missing.
 set -u
 root="$(cd "$(dirname "$0")/.." && pwd)"
 out="$root/artifacts/app/screenshots"
@@ -35,6 +37,7 @@ for pat in pats:
 capture() {
   local udid="$1" orient="$2"; shift 2
   local name="$label-$orient${page:+-$page}${scheme:+-$scheme}"
+  echo "$name" >> "$out/expected.txt"
   local extra=()
   [ -n "$page" ] && extra=(-AIUtilityPage "$page")
   [ -n "$scheme" ] && extra+=(-AIUtilityAppearance "$scheme")
@@ -53,7 +56,8 @@ capture() {
     cp "$data/Documents/$name.png" "$out/$name.png"
     echo "$name: in-app capture, $(cat "$data/Documents/$name.txt" 2>/dev/null)"
   else
-    xcrun simctl io "$udid" screenshot "$out/$name-raw.png"
+    xcrun simctl io "$udid" screenshot "$out/$name-raw.png" || true
+    echo "$name" >> "$out/missing.txt"
     echo "$name: in-app capture missing; saved raw simctl framebuffer as $name-raw.png (not rotated)"
   fi
   echo "$name: $(sips -g pixelWidth -g pixelHeight "$out/$name"*.png | awk '/pixel/{printf "%s=%s ", $1, $2}')"
@@ -68,13 +72,14 @@ shoot() {
   xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 || true
   xcrun simctl install "$udid" "$app" || return 1
   page=""; scheme=""
+  # The pages added most recently (translation settings, provider page, provider cards, region OCR):
+  # part of every set, and the whole of SCREENSHOT_SET=new.
+  for page in settings-translation settings-provider settings-cards screenshot-region; do
+    capture "$udid" portrait
+    if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
+  done
+  page=""
   if [ "${SCREENSHOT_SET:-all}" = "new" ]; then
-    # Only the pages added most recently (translation settings, provider page, provider cards, region OCR).
-    for page in settings-translation settings-provider settings-cards screenshot-region; do
-      capture "$udid" portrait
-      if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
-    done
-    page=""
     xcrun simctl shutdown "$udid" || true
     xcrun simctl delete "$udid" || true
     return 0
@@ -99,8 +104,10 @@ shoot() {
 failed=0
 page=""
 scheme=""
+: > "$out/expected.txt"; : > "$out/missing.txt"
 # iPad mini 6 and iPad mini (A17 Pro) share the 744x1133 pt screen.
 shoot ipad-mini "$(pick_type 'iPad mini \(A17 Pro\)' 'iPad mini \(6th generation\)' '^iPad mini')" || failed=1
 shoot iphone "$(pick_type '^iPhone 17$' '^iPhone 16$' '^iPhone 15$' '^iPhone [0-9]+$')" || failed=1
 ls -la "$out"
+if [ -s "$out/missing.txt" ]; then echo "missing in-app captures:"; cat "$out/missing.txt"; failed=1; fi
 exit "$failed"

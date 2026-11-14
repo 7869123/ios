@@ -2,19 +2,30 @@ import SwiftUI
 import PhotosUI
 import UIKit
 import AIUtilityCore
+import AIUtilityAppleServices
 
 @MainActor struct ScreenshotView: View {
     @EnvironmentObject private var app: AppModel
     @State private var photo: PhotosPickerItem?
-    @State private var imageData: Data?
-    @State private var preview: UIImage?
+    /// The loaded screenshot lives in AppModel, so it survives the page being rebuilt (iPad sidebar switches,
+    /// Split View width changes). `loadedPhoto` keeps a restarted `.task(id:)` from re-running OCR over edited text.
+    private var loadedPhoto: PhotosPickerItem? {
+        get { app.screenshot.photo } nonmutating set { app.screenshot.photo = newValue }
+    }
+    private var imageData: Data? {
+        get { app.screenshot.data } nonmutating set { app.screenshot.data = newValue }
+    }
+    private var preview: UIImage? {
+        get { app.screenshot.preview } nonmutating set { app.screenshot.preview = newValue }
+    }
     /// Selection in the displayed image, normalised 0…1 with a top-left origin.
     @State private var region = CGRect(x: 0.05, y: 0.05, width: 0.9, height: 0.9)
     @State private var useRegion = false
     @State private var recognizing = false
     @State private var translating = false
     @State private var operation: Task<Void, Never>?
-    @State private var ocrStatus = "选择截图后在设备本地识别，可框选只识别一部分，识别结果可编辑。"
+    @State private var ocrStatus = "选择截图后在设备本地识别，可框选只识别一部分，识别结果可编辑。识别语言跟随下方的源语言。"
+    @State private var source: SourceLanguage?
     var body: some View {
         WorkspacePage {
             PageHeader(title: "读懂每一张截图", subtitle: "Discord 对话与图片文字 · 本地 OCR")
@@ -46,14 +57,15 @@ import AIUtilityCore
             TranslationPanel(feature: .discordScreenshot, input: $app.screenshotDraft, translating: $translating, inputLocked: recognizing)
         }
         .task(id: photo) {
-            guard let photo else { return }
+            guard let photo, photo != loadedPhoto else { return }
             do {
                 guard let data = try await photo.loadTransferable(type: Data.self), let image = UIImage(data: data) else {
                     throw AIUtilityError.invalidRequest
                 }
-                imageData = data; preview = image
+                try Task.checkCancellation()
+                imageData = data; preview = image; loadedPhoto = photo
                 region = CGRect(x: 0.05, y: 0.05, width: 0.9, height: 0.9)
-                ocrStatus = "已载入截图。点「识别」后才会在本机识别文字。"
+                ocrStatus = "已载入截图，正在本机识别文字…"
                 recognize()
             } catch { if !Task.isCancelled { ocrStatus = "截图无法读取。" } }
         }
@@ -70,6 +82,20 @@ import AIUtilityCore
         #endif
     }
 
+    /// Local OCR failures in words that fit an on-device step (the shared texts describe provider requests).
+    static func ocrMessage(_ error: any Error, source: SourceLanguage?) -> String {
+        switch AIUtilityError.sanitized(error) {
+        case .invalidRequest where source?.language == nil:
+            "源语言为「自动检测」时，本机识别目前无法进行（底层一次最多识别 3 种语言，已记录待修复）。请在下方语言里选一个具体的源语言再识别。"
+        case .invalidRequest:
+            "这张图无法在本机识别：图片太大（超过 16384 像素边长或 4000 万像素）或格式不支持。长图可以框选一部分再识别。"
+        case .unsupportedPlatform: "这台设备的本机识别不支持所选语言。"
+        case .timeout: "本机识别超时，可以缩小框选范围后再试。"
+        case .configurationBusy: "上一次识别或翻译还没结束，请稍候再试。"
+        default: UserFacingError.text(error)
+        }
+    }
+
     private func recognize() {
         guard let data = imageData else { return }
         let box = useRegion ? region : nil
@@ -83,14 +109,15 @@ import AIUtilityCore
                     try OCRRegion(x: max(0, $0.minX), y: max(0, 1 - $0.maxY), width: min($0.width, 1 - max(0, $0.minX)),
                                   height: min($0.height, 1 - max(0, 1 - $0.maxY)))
                 }
+                source = languages.source
                 let draft = try await app.services.screenshots.recognize(imageData: data, source: languages.source, region: ocrRegion)
                 try Task.checkCancellation()
                 app.screenshotDraft = draft.text
                 let seconds = Double(draft.recognitionDuration.components.attoseconds) / 1e18 + Double(draft.recognitionDuration.components.seconds)
-                ocrStatus = draft.lines.isEmpty ? "未识别到文字，可调整框选范围或手动输入。"
-                    : "已识别 \(draft.lines.count) 行，用时 \(String(format: "%.1f", seconds)) 秒。只有点击翻译才会发送文字。"
+                ocrStatus = draft.lines.isEmpty ? "未识别到文字，可调整框选范围、换源语言或手动输入。"
+                    : "按「\(languages.source.title)」识别 \(draft.lines.count) 行，用时 \(String(format: "%.1f", seconds)) 秒。只有点击翻译才会发送文字。"
             } catch {
-                if !Task.isCancelled { ocrStatus = UserFacingError.text(error) }
+                if !Task.isCancelled { ocrStatus = Self.ocrMessage(error, source: source) }
             }
         }
     }
@@ -203,7 +230,10 @@ import AIUtilityCore
     @Binding var translating: Bool
     var inputLocked = false
     @State private var languages = TranslationLanguages()
-    @State private var output = ""
+    /// Kept in AppModel per feature so a rebuilt page still shows the last result.
+    private var output: String {
+        get { app.translationOutput[feature] ?? "" } nonmutating set { app.translationOutput[feature] = newValue }
+    }
     @State private var status = "在设置中验证 Key 和模型后即可使用。"
     @State private var operation: Task<Void, Never>?
     private var provider: Binding<ProviderID> {
@@ -240,6 +270,22 @@ import AIUtilityCore
         }
         .onDisappear { operation?.cancel() }
     }
+    static func timeout(for provider: ProviderID, feature: TranslationFeature, services: AIUtilityServices) async -> TimeInterval {
+        guard let model = try? await services.configurations.models(provider: provider)[feature],
+              let settings = try? await services.preferences.reasoningSettings(provider: provider, model: model) else { return 30 }
+        return min(180, max(30, 30 + Double(settings.totalOutputTokens) / 200))
+    }
+
+    /// Errors raised locally before any request, worded for this panel; everything else uses the shared texts.
+    static func message(_ error: any Error) -> String {
+        switch AIUtilityError.sanitized(error) {
+        case .invalidRequest: "原文太长（上限约 24 KB，约 8000 个汉字），或自动检测无法确定语言（例如繁体中文、太短的文字）。可以分段翻译，或手动选择源语言。"
+        case .configurationBusy: "上一次翻译还没结束，请稍候再试。"
+        case .outputTruncated: "译文超过了「总输出上限」被截断，未作为结果使用。可以在 设置 → AI 供应商与模型 调大上限，或分段翻译。"
+        default: UserFacingError.text(error)
+        }
+    }
+
     private func translate() {
         let text = input, selected = languages, selectedProvider = provider.wrappedValue, feature = feature
         translating = true
@@ -248,13 +294,17 @@ import AIUtilityCore
         operation = Task {
             defer { translating = false; operation = nil }
             do {
+                // A larger saved output cap (and reasoning) takes longer: the fixed 30 s default would time out
+                // non-streaming requests that are still running and billed. Allow up to 180 s for large caps.
+                let timeout = await Self.timeout(for: selectedProvider, feature: feature, services: app.services)
+                status = "正在请求所选模型…（最长等待 \(Int(timeout)) 秒）"
                 // Typed overload: the pair shown above, which is also the saved per-feature preference.
-                let result = try await app.services.translation.translate(text, provider: selectedProvider,
-                    feature: feature, languages: selected)
+                let result = try await app.services.translation.translateMeasured(text, provider: selectedProvider,
+                    feature: feature, languages: selected, timeout: timeout)
                 try Task.checkCancellation()
-                output = result
-                status = "已收到译文。"
-            } catch { status = UserFacingError.text(error) }
+                output = result.text
+                status = result.requestedAPI ? "已收到译文。" : "检测到原文已经是目标语言，没有调用模型，原样显示。"
+            } catch { status = Self.message(error) }
         }
     }
 }

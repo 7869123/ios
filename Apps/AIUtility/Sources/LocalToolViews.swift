@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import UniformTypeIdentifiers
+import ImageIO
 import AIUtilityMedia
 import AIUtilityMediaApple
 
@@ -53,6 +54,7 @@ private struct ToolStatusRow: View {
             UtilityCard {
                 // Titles are computed here: PhotosPicker's label closure is not main-actor isolated.
                 let pickTitle = picks.isEmpty ? "选择图片（最多 32 张）" : "已选 \(picks.count) 张，重新选择"
+                Text("拼出的图超过 8000 万像素时会自动等比缩小。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 PhotosPicker(selection: $picks, maxSelectionCount: 32, selectionBehavior: .ordered, matching: .images) {
                     Label(pickTitle, systemImage: "photo.on.rectangle")
                 }
@@ -88,7 +90,8 @@ private struct ToolStatusRow: View {
         }
         let layout: StitchLayout = switch mode { case .vertical: .vertical; case .horizontal: .horizontal; case .grid: .grid(columns: columns) }
         let options = StitchOptions(layout: layout, spacing: Int(spacing), background: whiteBackground ? .white : .clear)
-        do { result = try await stitchImages(images, options: options) } catch { self.error = error.userMessage }
+        do { result = try await stitchImages(images, options: options) }
+        catch { self.error = error == .resourceLimitExceeded ? "有单张图片超过 8000 万像素，或图片总大小超过 200 MB。" : error.userMessage }
     }
 }
 
@@ -106,6 +109,10 @@ private struct ToolStatusRow: View {
     @State private var error: String?
     @State private var shared: SharedFile?
     @State private var task: Task<Void, Never>?
+    @State private var loadingVideo = false
+    @State private var loader: Task<Void, Never>?
+    /// GIFs are capped at 600 frames: the longest clip depends on the frame rate.
+    private var maxDuration: Double { min(60, (600.0 / Double(fps) * 2).rounded(.down) / 2) }
 
     var body: some View {
         WorkspacePage {
@@ -116,7 +123,8 @@ private struct ToolStatusRow: View {
                     Label(pickTitle, systemImage: "film")
                 }
                 Stepper("开始 \(start, specifier: "%.1f") 秒", value: $start, in: 0...600, step: 0.5)
-                Stepper("时长 \(duration, specifier: "%.1f") 秒", value: $duration, in: 0.5...60, step: 0.5)
+                Stepper("时长 \(duration, specifier: "%.1f") 秒", value: $duration, in: 0.5...maxDuration, step: 0.5)
+                if loadingVideo { ProgressView("正在读取视频…") }
                 LabeledContent("帧率") {
                     Picker("帧率", selection: $fps) { ForEach([5, 10, 15, 20, 25], id: \.self) { Text("\($0) fps").tag($0) } }
                         .labelsHidden()
@@ -125,10 +133,11 @@ private struct ToolStatusRow: View {
                     Picker("最大宽度", selection: $width) { ForEach([240, 320, 480, 640], id: \.self) { Text("\($0) 像素").tag($0) } }
                         .labelsHidden()
                 }
-                Text("小于最大宽度的视频不会被放大；GIF 不含声音。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                Text("小于最大宽度的视频不会被放大；GIF 不含声音。最多 600 帧，所以 \(fps) fps 时最长 \(maxDuration, specifier: "%.1f") 秒。")
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 HStack {
                     Button { task = Task { await run() } } label: { Label("开始转换", systemImage: "film.stack") }
-                        .buttonStyle(PrimaryActionStyle()).disabled(video == nil || running)
+                        .buttonStyle(PrimaryActionStyle()).disabled(video == nil || running || loadingVideo)
                     if running { Button("取消", role: .cancel) { task?.cancel() } }
                 }
                 ToolStatusRow(running: running, error: error)
@@ -146,13 +155,22 @@ private struct ToolStatusRow: View {
             }
         }
         .onChange(of: pick) { _, item in
-            video = nil; result = nil; error = nil
+            // The previous copy is no longer needed; a newer pick replaces any load still running.
+            loader?.cancel()
+            if let old = video?.url { try? FileManager.default.removeItem(at: old) }
+            video = nil; result = nil; error = nil; loadingVideo = false
             guard let item else { return }
-            Task {
-                do { video = try await item.loadTransferable(type: PickedVideo.self) }
-                catch { self.error = "视频无法读取。" }
+            loadingVideo = true
+            loader = Task {
+                defer { if !Task.isCancelled { loadingVideo = false } }
+                do {
+                    let loaded = try await item.loadTransferable(type: PickedVideo.self)
+                    if Task.isCancelled { if let url = loaded?.url { try? FileManager.default.removeItem(at: url) }; return }
+                    video = loaded
+                } catch { if !Task.isCancelled { self.error = "视频无法读取。" } }
             }
         }
+        .onChange(of: fps) { _, _ in duration = min(duration, maxDuration) }
         .sheet(item: $shared) { ShareSheet(items: $0.urls) }
     }
 
@@ -164,7 +182,13 @@ private struct ToolStatusRow: View {
         try? FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         let options = GIFOptions(start: start, duration: duration, fps: fps, maxWidth: width)
         do { result = try await makeGIF(fromVideo: video.url, outputDirectory: output, options: options) }
-        catch { self.error = error == .invalidInput ? "片段超出视频长度。" : error.userMessage }
+        catch {
+            self.error = switch error {
+            case .invalidInput: "片段超出视频长度。"
+            case .resourceLimitExceeded: "超出限制：视频文件超过 8 GB，或帧数 × 画面太大。请缩短时长、降低帧率或最大宽度。"
+            default: error.userMessage
+            }
+        }
     }
 }
 
@@ -183,6 +207,7 @@ private struct ToolStatusRow: View {
     @State private var running = false
     @State private var error: String?
     @State private var shared: SharedFile?
+    @State private var loader: Task<Void, Never>?
 
     var body: some View {
         WorkspacePage {
@@ -205,7 +230,7 @@ private struct ToolStatusRow: View {
                 UtilityCard {
                     Label(result.bytesChanged ? "文件字节已改变" : "文件字节没有变化（原图已经是规范格式）",
                           systemImage: result.bytesChanged ? "checkmark.circle" : "equal.circle")
-                    Label(result.metadataRemoved ? "已移除可识别的元数据（位置、设备、时间等）" : "原图没有可移除的识别信息",
+                    Label(result.metadataRemoved ? "已移除可识别的元数据（位置、设备、时间等）" : "原图中没有检测到常见的识别信息（位置、设备、时间等）",
                           systemImage: "location.slash")
                     Text("\(ByteCountFormatter.string(fromByteCount: Int64(result.data.count), countStyle: .file)) · \(result.typeIdentifier)")
                         .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
@@ -218,9 +243,16 @@ private struct ToolStatusRow: View {
             }
         }
         .onChange(of: pick) { _, item in
-            input = nil; result = nil; error = nil
+            loader?.cancel()
+            input = nil; result = nil; error = nil; running = false
             guard let item else { return }
-            Task { input = try? await item.loadTransferable(type: Data.self); if input == nil { error = "图片无法读取。" } }
+            running = true
+            loader = Task {
+                let data = try? await item.loadTransferable(type: Data.self)
+                guard !Task.isCancelled else { return }
+                running = false
+                input = data; if data == nil { error = "图片无法读取。" }
+            }
         }
         .sheet(item: $shared) { ShareSheet(items: $0.urls) }
     }
@@ -228,8 +260,8 @@ private struct ToolStatusRow: View {
     private var explanation: String {
         switch method {
         case .strip: "不重新压缩像素，只去掉位置、设备、时间等信息；部分格式不支持无损处理会提示失败。"
-        case .reencode: "解码后重新编码，会去掉元数据，JPEG 可能有极轻微画质变化。"
-        case .noise: "约八分之一的像素在一个颜色通道上 ±1，肉眼几乎看不出。"
+        case .reencode: "解码后重新编码，会去掉元数据。PNG、JPEG 保持原格式，其他照片（如 HEIC）输出 JPEG；JPEG 可能有极轻微画质变化。动图不支持。"
+        case .noise: "约八分之一的像素在一个颜色通道上 ±1，肉眼几乎看不出；结果为 8 位 sRGB 的 PNG（无损保存扰动，文件可能比原图大）。动图不支持。"
         }
     }
 
@@ -242,7 +274,11 @@ private struct ToolStatusRow: View {
         case .reencode: FingerprintOptions(method: .reencode)
         case .noise: FingerprintOptions(method: .subtlePixelNoise, allowPixelChanges: allowPixels, noiseSeed: UInt64.random(in: 1...UInt64.max))
         }
-        do { result = try await rewriteFingerprint(input, options: options) } catch { self.error = error.userMessage }
+        do { result = try await rewriteFingerprint(input, options: options) }
+        catch {
+            self.error = error == .unsupportedFormat && method != .strip
+                ? "这张图无法处理：动图（多帧）只能用「去除元数据」，或格式不支持。" : error.userMessage
+        }
     }
 }
 
@@ -305,7 +341,9 @@ private struct ToolStatusRow: View {
             SecureField("在 saucenao.com 账号页获取的 API Key", text: $keyDraft).utilityField()
             Button("保存 Key") {
                 let key = keyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
-                if SauceNAOKeychain.save(key) { hasKey = true; keyDraft = "" } else { error = "Key 保存失败。" }
+                // Same format check the search uses; saving a key it would refuse only looked successful.
+                guard SauceNAOProvider.validKey(key) else { error = "Key 格式不对：应为 saucenao.com 账号页上的一串字母和数字。"; return }
+                if SauceNAOKeychain.save(key) { hasKey = true; keyDraft = ""; error = nil } else { error = "Key 保存失败。" }
             }
             .disabled(keyDraft.trimmingCharacters(in: .whitespaces).isEmpty)
         }
@@ -314,7 +352,14 @@ private struct ToolStatusRow: View {
 
     private func result(_ match: ReverseSearchMatch) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack {
+            HStack(alignment: .top) {
+                if let thumbnail = match.thumbnail {
+                    AsyncImage(url: thumbnail) { image in image.resizable().scaledToFill() } placeholder: {
+                        Color.secondary.opacity(0.15)
+                    }
+                    .frame(width: 56, height: 56).clipShape(RoundedRectangle(cornerRadius: 6))
+                    .accessibilityHidden(true)
+                }
                 Text(match.title ?? match.indexName).font(.subheadline.weight(.semibold)).lineLimit(2)
                 Spacer()
                 if let similarity = match.similarity {
@@ -338,7 +383,12 @@ private struct ToolStatusRow: View {
     private func search(_ item: PhotosPickerItem) async {
         running = true; error = nil; matches = nil
         defer { running = false; pick = nil }
-        guard let data = try? await item.loadTransferable(type: Data.self) else { error = "图片无法读取。"; return }
+        guard let original = try? await item.loadTransferable(type: Data.self) else { error = "图片无法读取。"; return }
+        // Upload a re-encoded JPEG: HEIC photos are accepted, large ones fit the services' size limits, and EXIF
+        // (location, device) is not sent along with the picture.
+        guard let data = await Task.detached(priority: .userInitiated, operation: { searchUpload(original) }).value else {
+            error = "这张图片无法转换为可上传的格式。"; return
+        }
         let provider: any ReverseImageSearchProvider = switch source {
         case .soutubot: SoutubotProvider(strict: strict)
         case .sauceNAO: SauceNAOProvider(credentials: SauceNAOKeychain())
@@ -346,4 +396,17 @@ private struct ToolStatusRow: View {
         do { matches = try await provider.search(image: data) }
         catch { self.error = error.userMessage }
     }
+}
+
+/// Oriented JPEG for reverse search, long edge at most 2048 px, no metadata copied.
+func searchUpload(_ data: Data) -> Data? {
+    guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+    let options = [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceCreateThumbnailWithTransform: true,
+                   kCGImageSourceThumbnailMaxPixelSize: 2048] as CFDictionary
+    guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else { return nil }
+    let output = NSMutableData()
+    guard let destination = CGImageDestinationCreateWithData(output as CFMutableData, "public.jpeg" as CFString, 1, nil) else { return nil }
+    CGImageDestinationAddImage(destination, image, [kCGImageDestinationLossyCompressionQuality: 0.9] as CFDictionary)
+    guard CGImageDestinationFinalize(destination), output.length > 0 else { return nil }
+    return output as Data
 }

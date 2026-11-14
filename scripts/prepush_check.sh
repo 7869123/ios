@@ -44,18 +44,31 @@ for image in list(Path("Apps").rglob("*.jpg")) + list(Path("Apps").rglob("*.png"
     head = image.read_bytes()[:8]
     if not (head.startswith(b"\xff\xd8\xff") or head.startswith(b"\x89PNG")): bad.append(f"{image}: not a valid JPEG/PNG")
     if image.stat().st_size > 2 * 1024 * 1024: bad.append(f"{image}: larger than 2 MB")
+import re
+checked = 0
 for swift in Path("Apps").rglob("*.swift"):
-    for res in __import__("re").findall(r'forResource: "([^"]+)", withExtension: "([^"]+)"', swift.read_text()):
-        if not list(Path("Apps").rglob(f"{res[0]}.{res[1]}")): bad.append(f"{swift}: bundled resource {res[0]}.{res[1]} not found")
-print("\n".join(bad) if bad else "resources ok"); sys.exit(1 if bad else 0)
+    for line in swift.read_text().splitlines():
+        # Bundle.main.url(forResource: <name or a ternary of names>, withExtension: "<ext>")
+        call = re.search(r'forResource:(.*?),\s*withExtension:\s*"([^"]+)"', line)
+        if call:
+            for name in re.findall(r'"([^"]+)"', call.group(1)):
+                checked += 1
+                if not list(Path("Apps").rglob(f"{name}.{call.group(2)}")): bad.append(f"{swift}: bundled resource {name}.{call.group(2)} not found")
+        for name in re.findall(r'UIImage\(named: "([^"]+)"\)|Image\("([^"]+)"\)', line):
+            name = next(n for n in name if n)
+            checked += 1
+            if not (list(Path("Apps").rglob(f"{name}.imageset")) or list(Path("Apps").rglob(f"{name}.*"))):
+                bad.append(f"{swift}: image {name} not found")
+if checked == 0: bad.append("no bundled resource references found; the resource check matched nothing")
+print("\n".join(bad) if bad else f"resources ok ({checked} references checked)"); sys.exit(1 if bad else 0)
 PY
 
 step "4/6 git diff --check ($base..HEAD and working tree)"
 run git diff --check "$base" HEAD
 run git diff --check
 
-step "5/6 Personal-info scan of the current tree (must be empty)"
-run "$PY" scripts/check_personal_info.py
+step "5/6 Personal-info scan: current tree, plus blobs, messages and names of the commits to push (must be empty)"
+run env PREPUSH_BASE="$base" "$PY" scripts/check_personal_info.py
 
 step "5b Commit timezone of commits to push (must be +0000, public repository)"
 # Commits already on any origin branch are public already; only newly published ones must be UTC.

@@ -197,7 +197,7 @@ struct WallpaperDraft: Identifiable {
             if let message { Text(message).font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary) }
         }
         .onChange(of: photoItem) { _, item in
-            guard let item else { return }
+            guard let item, !loading else { return }
             Task { await loadPhoto(item) }
         }
         .fileImporter(isPresented: $importingFile, allowedContentTypes: [.image]) { result in
@@ -248,7 +248,9 @@ struct WallpaperDraft: Identifiable {
     }
 
     private func loadPhoto(_ item: PhotosPickerItem) async {
-        defer { photoItem = nil }
+        // Show progress while Photos delivers the original (it may download from iCloud first).
+        loading = true; message = nil
+        defer { photoItem = nil; loading = false }
         do {
             guard let data = try await item.loadTransferable(type: Data.self) else { message = "无法读取所选照片。"; return }
             await prepare(data)
@@ -259,9 +261,15 @@ struct WallpaperDraft: Identifiable {
 
     private func loadFile(_ result: Result<URL, any Error>) async {
         guard case .success(let url) = result else { message = "未选择文件。"; return }
-        let scoped = url.startAccessingSecurityScopedResource()
-        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-        guard let data = try? Data(contentsOf: url) else { message = "无法读取所选文件。"; return }
+        loading = true; message = nil
+        // Read off the main thread: a large or cloud-backed file would otherwise freeze the UI.
+        let data = await Task.detached(priority: .userInitiated) { () -> Data? in
+            let scoped = url.startAccessingSecurityScopedResource()
+            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+            return try? Data(contentsOf: url)
+        }.value
+        loading = false
+        guard let data else { message = "无法读取所选文件。"; return }
         await prepare(data)
     }
 
