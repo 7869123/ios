@@ -70,7 +70,7 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
 private func encodeFrames(generator: AVAssetImageGenerator, plan: [GIFTimeline.Frame], options: GIFOptions,
                           size: (width: Int, height: Int)) async throws(MediaError) -> Data {
     // Fail before decoding anything when all frames together would not fit the memory bound.
-    guard plan.count.multipliedReportingOverflow(by: pixelSize.width * pixelSize.height).partialValue
+    guard plan.count.multipliedReportingOverflow(by: size.width * size.height).partialValue
             <= options.limits.maxGIFTotalPixels else { throw .resourceLimitExceeded }
     let encoder = try GIFEncoder(frameCount: plan.count, loopCount: options.loopCount,
                                  maxTotalPixels: options.limits.maxGIFTotalPixels)
