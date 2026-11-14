@@ -1,6 +1,9 @@
 # AIUtility 开发状态
 
-## 最新（Claude，2026-11-14）：代码检查的中低问题第二批修复，待 build_apple 验证
+## 最新（Claude，2026-11-14）：代码检查的中低问题第二批修复，build_apple 通过
+
+- 被测源 `3eec906`，[Actions 43601437461](https://github.com/7869123/ios/actions/runs/43601437461) completed / success：core-linux、apple、app 全部通过。macOS 上 Core 84 项、AppleServices 6 项、Media 117 项测试通过；App 两个 SDK 编译、Release Archive 与未签名 IPA（artifact `AIUtility-unsigned-ipa-43601437461`，保留 7 天）成功，App 源码 0 条编译警告。
+- 第一次运行 [43600865117](https://github.com/7869123/ios/actions/runs/43600865117)（源 `0679581`）在 `VideoGIF.swift:73` 编译失败（变量名写错），`3eec906` 修正后通过。未截图（未勾选 publish_previews），未真机验证。
 
 所有者授权「该编译编译、该修复修复」。本批修 Claude 负责范围（App、媒体包、CI 脚本、文档）内复核成立的中等和轻微问题；Core / AppleServices（Codex）与 PoC 未改，见下方「待 Codex 或所有者决定」。均未真机验证。
 
@@ -13,7 +16,7 @@
 
 待 Codex 或所有者决定（未改）：截图「自动检测」时 Core 传 4 种语言而 OCR 最多 3 种（App 已给出明确提示）；会话请求次数（100 次）由余额查询、Key 检测共用；没有删除供应商 Key 的底层接口；自动检测遇到繁体中文 / 低置信度只抛通用错误；字幕分段卡住、「bearer + 单词」被当成凭据等 Core 问题；PoC 的 4 条存疑；AGENTS.md 第 8 行写有时区、扫描脚本未加 UTC 偏移规则（加上会让该文件扫描失败，需所有者决定是否保留这一行）。
 
-## 最新（Claude，2026-11-14）：代码检查后修复 4 个严重问题，待 CI 验证
+## Claude，2026-11-14：代码检查后修复 4 个严重问题（已由上方 43601437461 一并验证）
 
 - 全仓库静态检查 112 条、复核后 94 条成立；本批只修归 Claude 的严重问题，其余待所有者决定。均未编译、未真机验证。
 - 相册：主 App `Info.plist` 补 `NSPhotoLibraryAddUsageDescription`，分享面板可「存储图像 / 视频」。
