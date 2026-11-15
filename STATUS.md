@@ -1,6 +1,8 @@
 # AIUtility 开发状态
 
-## 最新（Claude，2026-11-15）：PoC 5 条问题修复，Core / AppleServices 改由 Claude 暂管，待 build_apple + build_poc 验证
+## 最新（Claude，2026-11-15）：PoC 5 条问题修复，Core / AppleServices 改由 Claude 暂管，build_apple + build_poc 通过
+
+- 被测源 `bffe59a`，[Actions 43662402719](https://github.com/7869123/ios/actions/runs/43662402719) completed / success：core-linux、apple、poc-sdk、app 全部通过。macOS Core 89 项、AppleServices 10 项、Media 117 项、PoC 生命周期 14 项测试通过；PoC 在 iOS 27 SDK 上模拟器编译、iphoneos Archive 与未签名 IPA 成功；App 未签名 IPA `AIUtility-unsigned-ipa-43662402719`。PoC 的 display layer 弃用警告为原有警告。
 
 所有者授权修改 PoC 这 5 条，并决定 Core / AppleServices 暂由 Claude 维护（AGENTS.md 已更新）。均未真机验证。
 
