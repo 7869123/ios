@@ -90,13 +90,25 @@ private func textImage(width: Int, height: Int, lines: [(String, CGFloat)], size
     return data as Data
 }
 
-@Test(.timeLimit(.minutes(1)))
+// Opt-in like the Keychain test: with Japanese and Korean, Vision may first fetch language assets, which stalled the
+// macOS CI job (runs 43656688931 and 43658752270, no output for ~19 minutes). The language-count guard itself is
+// covered by visionLanguageLimitAllowsEveryAppLanguage below; real multi-language OCR is a device check.
+@Test(.enabled(if: ProcessInfo.processInfo.environment["AIUTILITY_VISION_LANGUAGE_TESTS"] == "1"), .timeLimit(.minutes(1)))
 func visionAcceptsEverySupportedLanguageForAutomaticSource() async throws {
     // "Automatic" passes all four app languages; the old limit of three rejected it before reading the image.
     let languages = SupportedLanguage.allCases.map(\.visionLanguageIdentifier)
     let result = try await VisionOCRService().recognize(imageData: try textImage(width: 1200, height: 240, lines: [("HELLO AIUTILITY", 80)]),
                                                         languages: languages, region: nil)
     #expect(result.text.uppercased().contains("HELLO"))
+}
+
+@Test func visionLanguageLimitAllowsEveryAppLanguage() async {
+    // Five languages are still refused locally, before the image is read (so no Vision work runs here).
+    await #expect(throws: AIUtilityError.invalidRequest) {
+        try await VisionOCRService().recognize(imageData: Data("not an image".utf8),
+                                               languages: ["en-US", "ja-JP", "zh-Hans", "ko-KR", "fr-FR"], region: nil)
+    }
+    #expect(VisionOCRService.maxLanguages >= SupportedLanguage.allCases.count)
 }
 
 @Test func oversizedImagesAreScaledWithinVisionLimitsInsteadOfRefused() {

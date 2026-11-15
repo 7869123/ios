@@ -17,9 +17,29 @@ record() {
   if [ "$code" -ne 0 ]; then aiutility_failed=1; fi
 }
 
+# Like record, but stops a command that runs longer than $2 seconds so its log is still printed (a stalled test
+# otherwise ran into the job timeout with no output at all).
+record_limited() {
+  local name="$1" seconds="$2"
+  shift 2
+  "$@" > "$aiutility_logs/$name.log" 2>&1 &
+  local pid=$!
+  ( sleep "$seconds"; if kill -0 "$pid" 2>/dev/null; then
+      echo "WATCHDOG: $name still running after ${seconds}s; stopping it" >> "$aiutility_logs/$name.log"
+      pkill -TERM -P "$pid" 2>/dev/null; kill -TERM "$pid" 2>/dev/null; sleep 5
+      pkill -KILL -f 'swiftpm-testing-helper|xctest' 2>/dev/null; kill -KILL "$pid" 2>/dev/null
+    fi ) &
+  local dog=$!
+  wait "$pid"; local code=$?
+  kill "$dog" 2>/dev/null; wait "$dog" 2>/dev/null
+  printf '%s=%s\n' "$name" "$code" >> "$aiutility_logs/exit-codes.txt"
+  cat "$aiutility_logs/$name.log"
+  if [ "$code" -ne 0 ]; then aiutility_failed=1; fi
+}
+
 record environment bash -c 'sw_vers && xcodebuild -version && swift --version && xcodebuild -showsdks'
-record mac-core-tests swift test --package-path "$aiutility_root/Packages/AIUtilityCore"
-record mac-services-tests swift test --package-path "$aiutility_root/Packages/AIUtilityAppleServices"
+record_limited mac-core-tests 600 swift test --package-path "$aiutility_root/Packages/AIUtilityCore"
+record_limited mac-services-tests 600 swift test --package-path "$aiutility_root/Packages/AIUtilityAppleServices"
 cd "$aiutility_root/Packages/AIUtilityAppleServices" || exit 1
 record ios-simulator-build xcodebuild -scheme AIUtilityAppleServices -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' -derivedDataPath "$aiutility_root/artifacts/apple-simulator-build" \

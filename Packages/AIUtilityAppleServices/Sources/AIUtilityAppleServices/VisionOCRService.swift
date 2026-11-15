@@ -21,6 +21,8 @@ private final class VisionCancellation: @unchecked Sendable {
 
 public struct VisionOCRService: RegionOCRService {
     public init() {}
+    /// "Automatic" passes every app language; four since Korean was added (the old limit of three always failed).
+    static let maxLanguages = max(4, SupportedLanguage.allCases.count)
     /// Scale (≤ 1) that brings an image within 16 384 px per side and 40 MP.
     static func downscale(width: Int, height: Int) -> Double {
         min(1, 16_384 / Double(max(width, height)), (40_000_000 / (Double(width) * Double(height))).squareRoot())
@@ -32,7 +34,7 @@ public struct VisionOCRService: RegionOCRService {
         guard !imageData.isEmpty, imageData.count <= 32_000_000 else { throw AIUtilityError.invalidRequest }
         // Up to every supported language: "automatic" passes all of them (four since Korean was added; the old
         // limit of three made automatic OCR always fail).
-        guard !languages.isEmpty, languages.count <= max(4, SupportedLanguage.allCases.count) else { throw AIUtilityError.invalidRequest }
+        guard !languages.isEmpty, languages.count <= Self.maxLanguages else { throw AIUtilityError.invalidRequest }
         let cancellation = VisionCancellation()
         let worker = Task.detached(priority: .userInitiated) { () throws -> OCRResult in
             try Task.checkCancellation()
