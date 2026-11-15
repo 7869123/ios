@@ -16,6 +16,7 @@ import AIUtilityCore
     @State private var message = "每家供应商保存一个 Key，两种翻译独立选择模型。"
     @State private var budget = ""
     @State private var operation: Task<Void, Never>?
+    @State private var confirmRemove = false
     var body: some View {
         WorkspacePage {
             PageHeader(title: "AI 供应商与模型", subtitle: "Keychain 存储 · 模型验证后提交")
@@ -45,6 +46,16 @@ import AIUtilityCore
                 }
                 Text("保存或切换将进行真实模型调用，可能收费。验证失败时保留原 Key 和绑定。切换模型无需重新输入 Key。")
                     .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                if hasSavedKey {
+                    Button("删除此供应商的 Key", role: .destructive) { confirmRemove = true }
+                        .disabled(busy)
+                        .confirmationDialog("删除 \(provider.title) 的 Key？", isPresented: $confirmRemove, titleVisibility: .visible) {
+                            Button("删除 Key 和两个模型绑定", role: .destructive) { removeKey() }
+                            Button("取消", role: .cancel) {}
+                        } message: {
+                            Text("只删除本机钥匙串里的记录，不会调用供应商，也不会让这个 Key 在供应商那里失效。")
+                        }
+                }
                 if busy { HStack { ProgressView(); Button("取消验证", role: .cancel) { operation?.cancel() } } }
                 Text(message).font(.subheadline).textSelection(.enabled)
             }
@@ -145,6 +156,15 @@ import AIUtilityCore
             candidateKey = ""; hasSavedKey = true; savedModels = bindings
             Task { await app.recheckKey(selected) }
             return "已验证并保存共享 Key 和两个模型绑定。"
+        }
+    }
+    private func removeKey() {
+        let selected = provider
+        perform {
+            try await app.services.configurations.removeKey(provider: selected)
+            hasSavedKey = false; savedModels = [:]; screenshotModel = ""; subtitleModel = ""; catalogue = []
+            Task { await app.recheckKey(selected) }
+            return "已删除 \(selected.title) 的 Key 和模型绑定。"
         }
     }
     private func switchModel(_ feature: TranslationFeature, model: String) {

@@ -32,6 +32,16 @@ func keychainReplacesSingleProviderRecordAtomically() throws {
     let korean = try await detector.detect("오늘은 날씨가 정말 좋아서 친구들과 함께 공원에 가서 산책을 하고 맛있는 음식을 먹었습니다.")
     #expect(korean == .korean)
 }
+
+@Test func appleTextDetectionHandlesShortTextAndRefusesTraditionalChinese() async throws {
+    let detector = AppleTextLanguageDetector()
+    // Constrained to the app's languages, a short sentence is no longer rejected as uncertain.
+    #expect(try await detector.detect("Thanks, see you tomorrow at the station!") == .english)
+    // Traditional Chinese is recognised as such, not silently treated as Simplified.
+    await #expect(throws: AIUtilityError.invalidRequest) {
+        try await detector.detect("這是一個用來檢查繁體中文的測試句子，我們會在這裡寫下許多繁體字。")
+    }
+}
 #endif
 
 #if canImport(Vision) && canImport(CoreGraphics)
@@ -58,6 +68,40 @@ import UniformTypeIdentifiers
     let result = try await VisionOCRService().recognize(imageData: data as Data, languages: ["en-US"])
     #expect(result.text.uppercased().contains("HELLO"))
     #expect(result.lines.allSatisfy { $0.box.width > 0 && $0.confidence > 0 })
+}
+
+/// White PNG with black Helvetica text drawn at the given baseline points.
+private func textImage(width: Int, height: Int, lines: [(String, CGFloat)], size: CGFloat = 80) throws -> Data {
+    let context = try #require(CGContext(data: nil, width: width, height: height, bitsPerComponent: 8,
+        bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    context.setFillColor(CGColor(gray: 1, alpha: 1)); context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+    let attributes: [NSAttributedString.Key: Any] = [NSAttributedString.Key(kCTFontAttributeName as String): CTFontCreateWithName("Helvetica" as CFString, size, nil),
+        NSAttributedString.Key(kCTForegroundColorAttributeName as String): CGColor(gray: 0, alpha: 1)]
+    for (text, y) in lines {
+        context.textPosition = CGPoint(x: 40, y: y)
+        CTLineDraw(CTLineCreateWithAttributedString(NSAttributedString(string: text, attributes: attributes)), context)
+    }
+    let image = try #require(context.makeImage())
+    let data = NSMutableData()
+    let destination = try #require(CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil))
+    CGImageDestinationAddImage(destination, image, nil)
+    #expect(CGImageDestinationFinalize(destination))
+    return data as Data
+}
+
+@Test func visionAcceptsEverySupportedLanguageForAutomaticSource() async throws {
+    // "Automatic" passes all four app languages; the old limit of three rejected it before reading the image.
+    let languages = SupportedLanguage.allCases.map(\.visionLanguageIdentifier)
+    let result = try await VisionOCRService().recognize(imageData: try textImage(width: 1200, height: 240, lines: [("HELLO AIUTILITY", 80)]),
+                                                        languages: languages, region: nil)
+    #expect(result.text.uppercased().contains("HELLO"))
+}
+
+@Test func visionScalesDownAnImageTallerThanItsLimit() async throws {
+    // 17 000 px tall (over 16 384): recognised on a scaled copy instead of being refused.
+    let data = try textImage(width: 1200, height: 17_000, lines: [("HELLO AIUTILITY", 16_500)], size: 120)
+    let result = try await VisionOCRService().recognize(imageData: data, languages: ["en-US"])
+    #expect(result.text.uppercased().contains("HELLO"))
 }
 
 @Test func visionRejectsInvalidImageLocally() async {

@@ -115,3 +115,19 @@ func invalidKeyRollsBackAllBindings(_ provider: ProviderID) async throws {
     try await coordinator.saveKey(provider: .openAI, key: APIKey("test-key"), models: [.videoSubtitle: "same", .discordScreenshot: "same"])
     #expect(await transport.requests.count == 1)
 }
+
+@Test func removingAKeyDeletesBindingsWithoutNetworkAndBumpsTheRevision() async throws {
+    let store = TestCredentialStore()
+    try store.replace(provider: .openAI, configuration: ProviderConfiguration(key: try APIKey("sk-test-remove"),
+                                                                              models: [.videoSubtitle: "fixture-model"]))
+    let transport = ScriptedTransport([])
+    let coordinator = ConfigurationCoordinator(store: store, gateway: gateway(.openAI, transport))
+    let before = await coordinator.bindingRevision(provider: .openAI)
+    try await coordinator.removeKey(provider: .openAI)
+    #expect(try await coordinator.models(provider: .openAI).isEmpty)
+    #expect(await coordinator.bindingRevision(provider: .openAI) == before + 1)
+    #expect(await transport.requests.isEmpty)
+    try await coordinator.removeKey(provider: .openAI) // Removing again is not an error.
+    store.failWrites()
+    await #expect(throws: AIUtilityError.storageFailure) { try await coordinator.removeKey(provider: .openAI) }
+}

@@ -102,11 +102,15 @@ struct SubtitleSegmenter: Sendable {
             let end = min(stableCount, consumed + policy.maxSegmentCharacters)
             let candidate = characters[consumed..<end]
             let boundary: Int
-            if let punctuation = candidate.lastIndex(where: { ".!?。！？\n".contains($0) }) {
+            let windowFull = end - consumed == policy.maxSegmentCharacters
+            if let punctuation = candidate.lastIndex(where: { ".!?。！？\n".contains($0) }),
+               final || punctuation + 1 - consumed >= 12 {
                 boundary = punctuation + 1
-                if !final && boundary - consumed < 12 { break }
-            } else if final || end - consumed == policy.maxSegmentCharacters { boundary = end }
-            else { break }
+            } else if final || windowFull {
+                // A full window whose only sentence end is too early to stand alone: cut at the window instead of
+                // waiting forever (previously this stalled until silence or a final result).
+                boundary = end
+            } else { break }
             let text = String(characters[consumed..<boundary]).trimmingCharacters(in: .whitespacesAndNewlines)
             consumed = boundary
             if !text.isEmpty { output.append(text) }

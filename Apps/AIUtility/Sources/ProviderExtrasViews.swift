@@ -48,7 +48,7 @@ extension ReasoningEffort {
                             onDecrement: { budget = Self.step(budget, up: false) })
                     Text("思考过程和译文共用这个上限；切换强度不会自动加大，避免悄悄多花钱。建议值约 \(capabilities.suggestedTotalOutputTokens)，仅供参考。")
                         .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
-                    Text("每次翻译都会按这个上限预留会话额度：本次会话共 \(AppModel.sessionOutputTokens) tokens，按当前上限最多约可翻译 \(min(AppModel.sessionAttempts, AppModel.sessionOutputTokens / max(budget, 1))) 次（Key 检测、余额查询和自动重试也会占用），完全退出并重新打开 App 后重置。")
+                    Text("每次翻译都会按这个上限预留会话额度：本次会话共 \(AppModel.sessionOutputTokens) tokens，按当前上限最多约可翻译 \(min(AppModel.sessionAttempts, AppModel.sessionOutputTokens / max(budget, 1))) 次（Key 检测、模型目录和自动重试也会占用），完全退出并重新打开 App 后重置。")
                         .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                     if budget < capabilities.suggestedTotalOutputTokens, effort != .auto, effort != .none {
                         Text("上限低于建议值，高强度时译文可能被截断。")
@@ -142,7 +142,7 @@ extension ReasoningEffort {
                     Button("保存") { saveThreshold(currency) }.buttonStyle(.bordered)
                 }
             }
-            Text("设置了阈值时，App 在前台最多每 5 分钟查询一次（每次占用一次会话请求次数，不设阈值就不查询）；余额低于阈值时在首页提醒，关闭前一直保留，回到阈值以上后再次低于才会再提醒。两种币种分别设置，不做汇率换算。查询使用已保存的 DeepSeek Key，不调用模型、不产生费用。")
+            Text("设置了阈值时，App 在前台最多每 5 分钟查询一次（不设阈值就不查询，也不占用翻译的会话请求次数）；余额低于阈值时在首页提醒，关闭前一直保留，回到阈值以上后再次低于才会再提醒。两种币种分别设置，不做汇率换算。查询使用已保存的 DeepSeek Key，不调用模型、不产生费用。")
                 .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
             if let message { Text(message).font(.caption).foregroundStyle(UtilityTheme.inkSecondary) }
             if snapshot?.alertPersistenceFailed == true {

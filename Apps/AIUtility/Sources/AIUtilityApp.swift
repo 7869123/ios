@@ -137,8 +137,8 @@ extension AIUtilityApp {
     private var isForeground = false
 
     /// Foreground only: checks the DeepSeek balance (the monitor throttles to once per 5 minutes) while the app is
-    /// active, a DeepSeek Key is usable and at least one reminder threshold is set. Each query uses one request of the
-    /// session budget, so nothing is polled when no reminder is configured. Stops when the app leaves the foreground.
+    /// active, a DeepSeek Key is usable and at least one reminder threshold is set (queries have their own counter in
+    /// AIUtilityServices, separate from translation). Stops when the app leaves the foreground.
     func setForeground(_ active: Bool) {
         isForeground = active
         balanceLoop?.cancel(); balanceLoop = nil

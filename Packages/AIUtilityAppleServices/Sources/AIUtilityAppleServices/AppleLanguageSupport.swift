@@ -10,6 +10,9 @@ public struct AppleTextLanguageDetector: TextLanguageDetector {
         guard !Task.isCancelled else { throw AIUtilityError.cancelled }
         guard !text.isEmpty, text.utf8.count <= 24_576 else { throw AIUtilityError.invalidRequest }
         let recognizer = NLLanguageRecognizer()
+        // Only weigh the languages the app can translate (plus Traditional Chinese, so it is not mistaken for
+        // Simplified): short text is no longer spread over dozens of unrelated languages and rejected as uncertain.
+        recognizer.languageConstraints = [.simplifiedChinese, .traditionalChinese, .english, .japanese, .korean]
         recognizer.processString(text)
         let hypotheses = recognizer.languageHypotheses(withMaximum: 3)
         guard let language = recognizer.dominantLanguage, (hypotheses[language] ?? 0) >= 0.6 else {

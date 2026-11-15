@@ -80,6 +80,11 @@ final class TestCredentialStore: CredentialStore, @unchecked Sendable {
         if failing { throw AIUtilityError.storageFailure }
         records[provider] = configuration
     }
+    func remove(provider: ProviderID) throws {
+        lock.lock(); defer { lock.unlock() }
+        if failing { throw AIUtilityError.storageFailure }
+        records[provider] = nil
+    }
 }
 
 func response(_ json: String, status: Int = 200, headers: [String: String] = [:]) -> ScriptedTransport.Step {

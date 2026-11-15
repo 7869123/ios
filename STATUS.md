@@ -1,6 +1,16 @@
 # AIUtility 开发状态
 
-## 最新（Claude，2026-11-14）：代码检查的中低问题第二批修复，build_apple 通过
+## 最新（Claude，2026-11-15）：代修 Codex 范围的 Core / AppleServices 问题，待 build_apple 验证
+
+所有者授权「帮 Codex 修完」。只在 Claude 分支修改，未读取或合并 Codex 分支；PoC 未改（需单独授权）。详见 [交接文档末节](TRANSLATION_CLAUDE_HANDOFF.md)。
+
+- 截图「自动检测」时本机 OCR 可以运行（OCR 接受 4 种语言）；超长截图 / 拼图按比例缩小后识别，不再拒绝。
+- 文字自动检测只在 App 支持的语言中判断，短句更可靠；繁体中文仍明确拒绝。
+- 新增删除供应商 Key（Core `removeKey`，设置页按钮带确认）；Key 首尾空白自动去掉。
+- 「bearer + 普通单词」不再被当成凭据；字幕分段不再卡住；DeepSeek 余额查询不再占用翻译的会话请求次数。
+- 新增 8 项测试，原有测试未删除或放宽。真机仍未验证。
+
+## Claude，2026-11-14：代码检查的中低问题第二批修复，build_apple 通过
 
 - 被测源 `3eec906`，[Actions 43601437461](https://github.com/7869123/ios/actions/runs/43601437461) completed / success：core-linux、apple、app 全部通过。macOS 上 Core 84 项、AppleServices 6 项、Media 117 项测试通过；App 两个 SDK 编译、Release Archive 与未签名 IPA（artifact `AIUtility-unsigned-ipa-43601437461`，保留 7 天）成功，App 源码 0 条编译警告。
 - 第一次运行 [43600865117](https://github.com/7869123/ios/actions/runs/43600865117)（源 `0679581`）在 `VideoGIF.swift:73` 编译失败（变量名写错），`3eec906` 修正后通过。未截图（未勾选 publish_previews），未真机验证。

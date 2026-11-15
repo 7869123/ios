@@ -21,7 +21,10 @@ struct RedactedText: Sendable {
             replacements[marker] = secret
         }
         key.withValue { replace($0) }
-        var patterns = [#"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]+"#, #"\bsk-[A-Za-z0-9_-]{8,}"#]
+        // A bearer token is at least 16 token characters including a digit; ordinary English such as
+        // "bearer instruments" or "Bearer bonds" stays readable and translatable.
+        var patterns = [#"(?i)\bBearer\s+(?=[A-Za-z0-9._~+/=-]{16,})(?=[A-Za-z._~+/=-]*[0-9])[A-Za-z0-9._~+/=-]+"#,
+                        #"\bsk-[A-Za-z0-9_-]{8,}"#]
         if policy.redactEmails { patterns.append(#"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+"#) }
         for pattern in patterns {
             guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }

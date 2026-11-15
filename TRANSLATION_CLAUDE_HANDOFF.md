@@ -52,7 +52,7 @@ let result = try await services.translation.translate(
 
 - `.videoSubtitle` / `.discordScreenshot` 分开保存、恢复；模板支持 `{{sourceLanguage}}` / `{{targetLanguage}}`，无占位符时仍追加明确语言参数。默认指令忠实保留语义、语气、称呼；不续写/总结/解释，不随意删减成人或敏感表达，无法准确翻译片段可用「■■」，只输出译文。
 - 提示词随正常生成请求发送，不增加预热调用。OCR/ASR 文本只在 user/input 字段；固定指令声明它是待译数据。分层不保证模型绝不会受提示注入影响。
-- `SupportedLanguage` 为 zh-CN / en / ja；`SourceLanguage.automatic` 只在 `translation.supportsAutomaticTextDetection` 为 true 时开放。Apple 使用真实 NaturalLanguage、限制到支持语言且拒绝低置信度；Speech 自动语言选择没有实现。
+- `SupportedLanguage` 为 zh-CN / en / ja / ko（韩语后加）；`SourceLanguage.automatic` 只在 `translation.supportsAutomaticTextDetection` 为 true 时开放。Apple 使用真实 NaturalLanguage、限制到支持语言且拒绝低置信度；Speech 自动语言选择没有实现。
 - 同语直接返回原文，不读取凭据、不预留 API 预算。手动源语言可离线走此路径；自动检测需要本地检测器成功。
 - 新的 typed overload 省略 `languages` 时自动读取该功能偏好；可传 `languages` 作本次覆盖，不改变模型绑定。
 - 旧 `translate(_:targetLanguage:provider:feature:...)` 入口仍可调用，常见中英日目标名称映射到 typed 路径；其他历史目标名称继续保留。旧 UI 的目标语言参数会覆盖已保存目标，**Claude 应迁移到 typed overload 并绑定语言偏好**。App 内已有 `TranslationLanguage` 不需被重写；新 Core 类型特意用了不同名称避免冲突。
@@ -180,6 +180,19 @@ bash scripts/ci_app.sh
 
 现有 workflow 已包含 Core/Media/生命周期和 AppleServices 测试、双 SDK 构建、App Archive/未签名 IPA；本批无工具变化。首次 42647207277 在测试模块编译阶段失败；用户随后批准相同输入的修复/重验直至通过，42739095920 已全部通过。build_apple=true、build_poc=true、publish_previews=false、live_checks=false；不运行真实 AI API、真实私密媒体测试，不上传缓存或敏感用户输入。不因本次成功自动合并或继续新一批 CI。
 
-## Claude 的第一项接线任务
+## Claude 的第一项接线任务（已完成）
 
-待所有者审核底层分支并允许集成、且真实 CI 通过后，在现有设置页按 `.videoSubtitle` / `.discordScreenshot` 读取/保存/恢复 prompt 与 languages，将 TranslationPanel 的调用迁移到 typed overload。使用本页接口与固定文案设计正式 UI，不新增临时页面。不要直接拉取/合并本分支，先等所有者决定。
+设置页已按 `.videoSubtitle` / `.discordScreenshot` 读取/保存/恢复 prompt 与 languages，TranslationPanel 使用 typed `translateMeasured`（2026-11-14）。
+
+## 2026-11-15 Claude 代修（所有者授权「帮 Codex 修完」）
+
+代码检查中归 Core / AppleServices 的问题由 Claude 在 Claude 分支上修复，未读取或修改 Codex 分支：
+
+- `VisionOCRService` 接受最多 4 种语言（「自动检测」传全部 4 种，原上限 3 导致必然失败）；超过 16 384 像素边长或 4000 万像素的图按比例缩小后识别，不再拒绝。
+- `AppleTextLanguageDetector` 设置 `languageConstraints`（简中、繁中、英、日、韩）：短句不再因置信度分散被拒；繁体中文仍明确拒绝（不当作简体）。
+- `ConfigurationCoordinator.removeKey(provider:)` 新增：删除共享 Key 与两个绑定，不联网，增加绑定 revision；编辑中返回 configurationBusy。`CredentialStore` 新增 `remove(provider:)` 要求（扩展默认实现抛 unsupportedPlatform，Keychain 与测试存储已实现）。
+- `APIKey` 去掉首尾空白和换行；内部空白与控制字符仍拒绝。
+- 脱敏：Bearer 只匹配至少 16 个字符且含数字的令牌，普通英文「bearer + 单词」不再被替换。
+- `SubtitleSegmenter`：窗口已满而唯一的句末标点太靠前时在窗口处切分，不再一直等到静默或 final。
+- `AIUtilityServices`：DeepSeek 余额查询使用独立计数（600 次 / 0 token），不再占用翻译的 100 次会话请求。翻译预算语义未改（失败不返还、成功也不结算）；App 把每次启动的输出预留调到 524 288。
+- 新增测试：Bearer 与普通英文、Key 去空白、删除 Key、分段不卡住、OCR 四种语言、超高图缩小、短句与繁中检测。原有测试未删除或放宽。

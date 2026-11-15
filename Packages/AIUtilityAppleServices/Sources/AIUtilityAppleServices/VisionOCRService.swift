@@ -26,7 +26,9 @@ public struct VisionOCRService: RegionOCRService {
     }
     public func recognize(imageData: Data, languages: [String], region: OCRRegion?) async throws -> OCRResult {
         guard !imageData.isEmpty, imageData.count <= 32_000_000 else { throw AIUtilityError.invalidRequest }
-        guard !languages.isEmpty, languages.count <= 3 else { throw AIUtilityError.invalidRequest }
+        // Up to every supported language: "automatic" passes all of them (four since Korean was added; the old
+        // limit of three made automatic OCR always fail).
+        guard !languages.isEmpty, languages.count <= max(4, SupportedLanguage.allCases.count) else { throw AIUtilityError.invalidRequest }
         let cancellation = VisionCancellation()
         let worker = Task.detached(priority: .userInitiated) { () throws -> OCRResult in
             try Task.checkCancellation()
@@ -34,8 +36,17 @@ public struct VisionOCRService: RegionOCRService {
                   let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
                   let width = properties[kCGImagePropertyPixelWidth] as? Int,
                   let height = properties[kCGImagePropertyPixelHeight] as? Int,
-                  width > 0, height > 0, width <= 16_384, height <= 16_384,
-                  width * height <= 40_000_000 else { throw AIUtilityError.invalidRequest }
+                  width > 0, height > 0 else { throw AIUtilityError.invalidRequest }
+            // Long screenshots and stitched images can exceed Vision's comfortable size: recognise an oriented copy
+            // scaled to at most 16 384 px per side and 40 MP instead of refusing. Normalised regions still apply.
+            let scale = min(1, 16_384 / Double(max(width, height)), (40_000_000 / (Double(width) * Double(height))).squareRoot())
+            var scaled: CGImage?
+            if scale < 1 {
+                let options = [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceCreateThumbnailWithTransform: true,
+                               kCGImageSourceThumbnailMaxPixelSize: max(1, Int(Double(max(width, height)) * scale * 0.999))] as CFDictionary
+                guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else { throw AIUtilityError.invalidRequest }
+                scaled = image
+            }
             let request = VNRecognizeTextRequest()
             request.recognitionLevel = .accurate
             request.usesLanguageCorrection = true
@@ -45,7 +56,8 @@ public struct VisionOCRService: RegionOCRService {
             request.automaticallyDetectsLanguage = languages.count > 1
             if let region { request.regionOfInterest = CGRect(x: region.x, y: region.y, width: region.width, height: region.height) }
             cancellation.install(request)
-            let handler = VNImageRequestHandler(data: imageData, options: [:])
+            let handler = scaled.map { VNImageRequestHandler(cgImage: $0, orientation: .up, options: [:]) }
+                ?? VNImageRequestHandler(data: imageData, options: [:])
             do { try handler.perform([request]) }
             catch {
                 if Task.isCancelled { throw AIUtilityError.cancelled }

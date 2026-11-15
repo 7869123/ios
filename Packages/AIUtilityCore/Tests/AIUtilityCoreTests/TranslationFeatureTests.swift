@@ -219,3 +219,12 @@ private actor SubtitleTestGate {
     let instructions = try #require(body?["instructions"] as? String)
     #expect(instructions.contains(SupportedLanguage.korean.instructionName))
 }
+
+@Test func earlySentenceEndInAFullWindowDoesNotStallTheSegmenter() throws {
+    var reducer = SubtitleSegmenter(policy: SubtitlePolicy(maxSegmentCharacters: 16, maxTranscriptCharacters: 512))
+    let id = UUID(), text = "Hi. " + String(repeating: "a", count: 24)
+    #expect(try reducer.ingest(SpeechTranscript(utteranceID: id, sequence: 1, text: text, isFinal: false, timestamp: 1)).isEmpty)
+    // Same hypothesis again: now stable. The only "." is 3 characters in, the 16-character window is full.
+    let segments = try reducer.ingest(SpeechTranscript(utteranceID: id, sequence: 2, text: text, isFinal: false, timestamp: 2))
+    #expect(segments == ["Hi. " + String(repeating: "a", count: 12)])
+}

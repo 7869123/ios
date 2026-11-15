@@ -86,9 +86,9 @@ import AIUtilityAppleServices
     static func ocrMessage(_ error: any Error, source: SourceLanguage?) -> String {
         switch AIUtilityError.sanitized(error) {
         case .invalidRequest where source?.language == nil:
-            "源语言为「自动检测」时，本机识别目前无法进行（底层一次最多识别 3 种语言，已记录待修复）。请在下方语言里选一个具体的源语言再识别。"
+            "这张图没能在本机识别（源语言为「自动检测」）。可以在下方语言里选一个具体的源语言，或框选文字区域后再试。"
         case .invalidRequest:
-            "这张图无法在本机识别：图片太大（超过 16384 像素边长或 4000 万像素）或格式不支持。长图可以框选一部分再识别。"
+            "这张图无法在本机识别：格式不支持或文件超过 32 MB。"
         case .unsupportedPlatform: "这台设备的本机识别不支持所选语言。"
         case .timeout: "本机识别超时，可以缩小框选范围后再试。"
         case .configurationBusy: "上一次识别或翻译还没结束，请稍候再试。"

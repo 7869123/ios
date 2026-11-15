@@ -32,7 +32,10 @@ public struct AIUtilityServices: Sendable {
         self.budget = budget
         self.preferences = preferences
         self.openAIUsage = usage
-        self.deepSeekBalance = DeepSeekBalanceMonitor(configurations: configurations, budget: budget, store: store)
+        // Balance queries are free (no model call) and throttled to once per 5 minutes in the foreground; their own
+        // counter keeps them from using up the translation budget's 100 requests during a long session.
+        self.deepSeekBalance = DeepSeekBalanceMonitor(configurations: configurations,
+                                                      budget: CallBudget(maxAttempts: 600, maxReservedOutputTokens: 0), store: store)
         self.screenshots = ScreenshotTranslationWorkflow(ocr: VisionOCRService(), translation: translation)
     }
 }

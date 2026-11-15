@@ -75,6 +75,18 @@ public actor ConfigurationCoordinator {
         bindings[feature] = model
         try commit(provider, configuration: ProviderConfiguration(key: old.key, models: bindings))
     }
+    /// Deletes the saved shared key and both model bindings. No network call. Fails busy while the same provider is
+    /// being validated; a translation already running keeps the snapshot it started with.
+    public func removeKey(provider: ProviderID) throws {
+        guard editing.insert(provider).inserted else { throw AIUtilityError.configurationBusy }
+        defer { editing.remove(provider) }
+        guard !Task.isCancelled else { throw AIUtilityError.cancelled }
+        do { try store.remove(provider: provider) }
+        catch let error as AIUtilityError where error == .unsupportedPlatform { throw error }
+        catch { throw AIUtilityError.storageFailure }
+        revisions[provider, default: 0] &+= 1
+        revisionObservers.values.forEach { $0.yield(revisions) }
+    }
     private func validate(provider: ProviderID, key: APIKey, model: String, timeout: TimeInterval) async throws {
         let efforts = ReasoningCapabilities.forModel(model, provider: provider).efforts
         let effort: ReasoningEffort = efforts.contains(.none) ? .none : (efforts.contains(.low) ? .low : .auto)

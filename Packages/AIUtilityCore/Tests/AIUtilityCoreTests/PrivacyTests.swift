@@ -58,3 +58,20 @@ import Testing
     #expect(successes == 2)
     #expect(await budget.snapshot() == BudgetSnapshot(attempts: 2, reservedOutputTokens: 128))
 }
+
+@Test func bearerTokensAreRedactedButOrdinaryWordsAreNot() throws {
+    let key = try APIKey("test-key")
+    let token = RedactedText("Authorization: Bearer abcdEFGH1234.ijklMNOP-5678", key: key, policy: PrivacyPolicy())
+    #expect(!token.text.contains("abcdEFGH1234"))
+    for prose in ["The bearer instruments were sold.", "Bearer bonds pay the holder.", "the bearer of good news",
+                  "a bearer internationalization."] {
+        #expect(RedactedText(prose, key: key, policy: PrivacyPolicy()).text == prose)
+    }
+}
+
+@Test func pastedKeyWhitespaceIsTrimmedButInnerControlCharactersAreRejected() throws {
+    let trimmed = try APIKey("  sk-test-trimmed-key\n")
+    #expect(trimmed.withValue { $0 } == "sk-test-trimmed-key")
+    #expect(throws: AIUtilityError.invalidCredential) { try APIKey(" \n ") }
+    #expect(throws: AIUtilityError.invalidCredential) { try APIKey("sk-test key") }
+}

@@ -14,6 +14,9 @@ public struct APIKey: Codable, Sendable, CustomStringConvertible, CustomDebugStr
     private let value: String
 
     public init(_ value: String) throws {
+        // Pasted keys often carry a leading/trailing space or newline, which is never part of a key. Characters inside
+        // the key are still checked, so header injection ("key\r\nX: y") remains rejected.
+        let value = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty, value.utf8.count <= 4096,
               value.unicodeScalars.allSatisfy({ (33...126).contains($0.value) })
         else { throw AIUtilityError.invalidCredential }
@@ -141,4 +144,11 @@ public protocol AIProviderAdapter: Sendable {
 public protocol CredentialStore: Sendable {
     func load(provider: ProviderID) throws -> ProviderConfiguration?
     func replace(provider: ProviderID, configuration: ProviderConfiguration) throws
+    /// Deletes the provider's key and bindings; deleting a missing record succeeds.
+    func remove(provider: ProviderID) throws
+}
+
+public extension CredentialStore {
+    /// Stores that cannot delete (none in production) fail rather than pretend.
+    func remove(provider: ProviderID) throws { throw AIUtilityError.unsupportedPlatform }
 }
