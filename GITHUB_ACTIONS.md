@@ -59,6 +59,7 @@ swift test --package-path Packages/AIUtilityMedia
 | 手动 workflow_dispatch，`build_apple` | core-linux → apple → app（编译、Archive、未签名 IPA；不截图） | **合并 PR 前必须跑一次并通过** |
 | 手动，`build_poc` | core-linux → poc-sdk（xcode-27） | 仅在 PoC 源码或其 CI 变更时需要 |
 | 手动，`publish_previews`（配合 `build_apple`） | app 末尾截图并提交缩小的图到 `validation/ui-preview/`；`screenshot_set=all` 替换全部预览（包括最新页面），`new` 只替换最新几页、保留其余 | 该 job 为此拥有 `contents: write`；一张都没截到时步骤失败、不提交；缺失的页面写进 SOURCE.txt 并给出警告 |
+| 手动，`diagnostics` | diagnostics（macOS，`scripts/ci_diagnostics.sh`） | 真机前诊断：Vision 语言组合、超高图、带方向图片的框选、PNG 文本块、HEIC、GIF 内存、Keychain。每项单独进程、限时，卡住时附 `sample` 调用栈；只输出 DIAG 结论，不因结论失败 |
 | 手动，`live_checks` | live-checks（macOS） | 只读访问真实公开站点（元数据和 HEAD，不下载、不用 Key）；站点拒绝本机房地址记为 unavailable，不算通过 |
 
 同一分支或引用上的新运行会自动取消尚在进行的旧运行（`concurrency`）。仅 Markdown 或 validation 证据变更不触发构建。

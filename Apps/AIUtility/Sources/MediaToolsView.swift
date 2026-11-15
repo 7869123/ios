@@ -187,9 +187,17 @@ struct MediaTool: Identifiable {
         case .failed, .cancelled, .interrupted:
             Button("重试") { Task { await media.retry(task.id) } }
         case .completed(let files):
-            if !files.isEmpty {
-                // Every file of the task (all pages/images, and a kept Ugoira archive) goes into one share sheet.
-                Button(files.count > 1 ? "全部导出" : "导出") { Task { await export(files, title: task.title) } }
+            // Pictures and videos share in one sheet (all pages / images). A kept Ugoira zip gets its own button: mixed
+            // with a GIF, the share sheet may drop "Save Image", since a zip cannot go to Photos.
+            let media = files.filter { !$0.fileName.lowercased().hasSuffix(".zip") }
+            let archives = files.filter { $0.fileName.lowercased().hasSuffix(".zip") }
+            if !media.isEmpty {
+                Button(archives.isEmpty ? (media.count > 1 ? "全部导出" : "导出") : "导出 GIF") {
+                    Task { await export(media, title: task.title) }
+                }
+            }
+            if !archives.isEmpty {
+                Button("导出压缩包") { Task { await export(archives, title: task.title) } }
             }
             Button("删除文件", role: .destructive) { Task { await media.delete(task.id) } }
         case .deletionIncomplete(let files):

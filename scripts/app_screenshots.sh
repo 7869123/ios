@@ -36,7 +36,7 @@ for pat in pats:
 # and copy Documents/<name>.png out of the sandbox. Falls back to the raw simctl framebuffer.
 capture() {
   local udid="$1" orient="$2"; shift 2
-  local name="$label-$orient${page:+-$page}${scheme:+-$scheme}"
+  local name="$label-$orient${page:+-$page}${scheme:+-$scheme}${textsize:+-$textsize}"
   echo "$name" >> "$out/expected.txt"
   local extra=()
   [ -n "$page" ] && extra=(-AIUtilityPage "$page")
@@ -98,12 +98,22 @@ shoot() {
     if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
   done
   page=""; scheme=""
+  # Largest accessibility text size (Dynamic Type): home chips, provider page, downloads.
+  if xcrun simctl ui "$udid" content_size accessibility-extra-extra-extra-large; then
+    textsize="xxxl"
+    for page in "" settings-provider downloads; do capture "$udid" portrait; done
+    textsize=""; page=""
+    xcrun simctl ui "$udid" content_size large || true
+  else
+    echo "$label: could not set the text size; large-text shots skipped"
+  fi
   xcrun simctl shutdown "$udid" || true
   xcrun simctl delete "$udid" || true
 }
 failed=0
 page=""
 scheme=""
+textsize=""
 : > "$out/expected.txt"; : > "$out/missing.txt"
 # iPad mini 6 and iPad mini (A17 Pro) share the 744x1133 pt screen.
 shoot ipad-mini "$(pick_type 'iPad mini \(A17 Pro\)' 'iPad mini \(6th generation\)' '^iPad mini')" || failed=1

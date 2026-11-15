@@ -116,7 +116,8 @@ public enum FingerprintMethod: Sendable, Hashable {
 
 public struct FingerprintOptions: Sendable, Hashable {
     public var method: FingerprintMethod
-    /// nil keeps the input's format when it can be written (PNG/JPEG), otherwise PNG.
+    /// nil keeps the input's format when it can be written (PNG/JPEG); other formats (HEIC...) become JPEG for
+    /// `.reencode` and PNG for `.subtlePixelNoise` (lossless, so the noise survives).
     /// Ignored by `.stripMetadata`, which always keeps the container format.
     public var format: ImageOutputFormat?
     public var jpegQuality: Double

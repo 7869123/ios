@@ -1,5 +1,9 @@
 # AIUtility 开发状态
 
+## 最新（Claude，2026-11-15）：真机前诊断批次，待运行
+
+所有者要求在真机测试前尽量弄清不确定项。新增 workflow 输入 `diagnostics`（`scripts/ci_diagnostics.sh`）：Vision 语言组合逐一测（找出此前卡住的原因）、超高图片识别、带 EXIF 方向的图片框选、PNG 自定义文本块能否检测与去除、HEIC 去除元数据与重新编码、最大 GIF 的峰值内存、macOS 上的 Keychain 测试。截图增加 iPhone 超大字号三页；打包检查确认 App 带相册写入说明。动图的 GIF 与 zip 改为分开导出（不再依赖分享面板对混合类型的处理）。
+
 ## 分工（2026-11-15）
 
 所有者决定整个仓库（Core、AppleServices、Media、App、PoC、CI、文档）此后只由 Claude Code 维护，Codex 不再参与。原 Codex 分支已全部合入 `claude/ecstatic-planck-rzpvn6`；AGENTS.md / CLAUDE.md 已更新。

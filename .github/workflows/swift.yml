@@ -35,6 +35,10 @@ on:
         description: 'Live public-site checks (Pixiv, Bilibili, X, soutubot): metadata and HEAD only, no downloads, no keys'
         type: boolean
         default: false
+      diagnostics:
+        description: 'Pre-device diagnostics on macOS (Vision languages, oriented regions, PNG text, HEIC, GIF memory, Keychain)'
+        type: boolean
+        default: false
 concurrency:
   group: swift-validation-${{ github.ref }}
   cancel-in-progress: true
@@ -201,6 +205,10 @@ jobs:
             plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist"
             plutil -extract CFBundleShortVersionString raw -o - "$app/Info.plist"
             echo "== launch screen"; plutil -extract UILaunchStoryboardName raw -o - "$app/Info.plist" || echo none
+            # Saving to Photos from the share sheet needs this purpose string in the built app.
+            echo "== photo library add usage"
+            plutil -extract NSPhotoLibraryAddUsageDescription raw -o - "$app/Info.plist" \
+              || { echo "missing NSPhotoLibraryAddUsageDescription"; exit 1; }
             echo "== code signature (expected unsigned)"; codesign -dv "$app" 2>&1 || true
             echo "== lipo"; lipo -info "$app/$(plutil -extract CFBundleExecutable raw -o - "$app/Info.plist")"
           } 2>&1 | tee artifacts/app/ipa-contents.log
@@ -487,3 +495,24 @@ jobs:
           if [ -s "$AIUTILITY_LIVE_REPORT" ]; then cat "$AIUTILITY_LIVE_REPORT"; else echo "no LIVE-CHECK lines (build or test runner failure)"; fi
           tail -n 40 live-checks.log
           exit $code
+  diagnostics:
+    # Manual only: measurements that would otherwise wait for a device (Vision language matrix, oriented
+    # regions, PNG text chunks, HEIC, GIF memory, Keychain). Reports DIAG lines; does not fail on an outcome.
+    if: github.event_name == 'workflow_dispatch' && inputs.diagnostics
+    runs-on: macos-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        id: checkout
+        with:
+          persist-credentials: false
+      - name: Pre-device diagnostics (each case isolated, time-limited and sampled if stuck)
+        shell: bash
+        run: bash scripts/ci_diagnostics.sh
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.checkout.outcome == 'success'
+        with:
+          name: diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/diagnostics/
+          retention-days: 7
+          if-no-files-found: warn
