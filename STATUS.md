@@ -1,5 +1,9 @@
 # AIUtility 开发状态
 
+## 分工（2026-11-15）
+
+所有者决定整个仓库（Core、AppleServices、Media、App、PoC、CI、文档）此后只由 Claude Code 维护，Codex 不再参与。原 Codex 分支已全部合入 `claude/ecstatic-planck-rzpvn6`；AGENTS.md / CLAUDE.md 已更新。
+
 ## 最新（Claude，2026-11-15）：PoC 5 条问题修复，Core / AppleServices 改由 Claude 暂管，build_apple + build_poc 通过
 
 - 被测源 `bffe59a`，[Actions 43662402719](https://github.com/7869123/ios/actions/runs/43662402719) completed / success：core-linux、apple、poc-sdk、app 全部通过。macOS Core 89 项、AppleServices 10 项、Media 117 项、PoC 生命周期 14 项测试通过；PoC 在 iOS 27 SDK 上模拟器编译、iphoneos Archive 与未签名 IPA 成功；App 未签名 IPA `AIUtility-unsigned-ipa-43662402719`。PoC 的 display layer 弃用警告为原有警告。

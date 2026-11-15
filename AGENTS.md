@@ -1,6 +1,8 @@
-# AIUtility 协作规则（Claude Code 与 Codex 共用）
+# AIUtility 开发规则
 
-本文件对所有在本仓库工作的 AI 代理生效。Codex 读取 `AGENTS.md`；Claude Code 读取 `CLAUDE.md`，后者直接引用本文件，所以两边规则始终一致。规则冲突时以仓库所有者（用户）在对话中的最新指示为准。
+本文件对在本仓库工作的 AI 代理生效。Claude Code 读取 `CLAUDE.md`，后者直接引用本文件。规则冲突时以仓库所有者（用户）在对话中的最新指示为准。
+
+2026-11-15 起，所有者决定整个仓库只由 Claude Code 开发和维护，Codex 不再参与。
 
 ## 1. 沟通
 
@@ -14,22 +16,13 @@
 | 代理 | 工作分支 |
 |---|---|
 | Claude Code | `claude/ecstatic-planck-rzpvn6`（PR #1） |
-| Codex | `codex/translation-completeness`（2026-11-10 起：仓库所有者把翻译底层重新分配给 Codex；该分支截至 `a6010e3` 的提交已经用户批准合入 Claude 分支。旧分支 `codex/poc-engineering-audit` 已于 2026-11-08 合入，不再使用） |
 
-- 只在自己的分支上工作。**不读取、不合并、不修改、不推送**另一方的分支，也不把对方的提交拉进自己的分支。禁止执行 `git merge origin/<对方分支>`、`git pull origin <对方分支>`、`git cherry-pick <对方提交>` 等操作。例外：读取本文件这类用户明确指定的单个文件。
+- 只在这个分支上工作。原 Codex 分支 `codex/translation-completeness`（末端 `a6010e3`）和 `codex/poc-engineering-audit`（末端 `85da47b`）都已完整合入本分支，不再使用；不在其上推送，删除与否由所有者决定。
 - **不合并到 main，不 force push，不改写已推送的历史**。以上操作必须先得到用户明确授权。
-- 需要对方的改动（例如 App 接入新的后端接口）时，先向用户说明需要合并或调整什么，等用户决定。
 
-## 2b. 变更通知
+## 2b. 改动记录
 
-每次推送后，在汇报里附一份给另一方的「变更通知」，至少包含：
-
-1. 提交 SHA 与改动的文件或目录；
-2. **接口变化**：公开类型、方法签名、参数、错误类型、默认值或行为语义的新增、修改、删除（例如 `AIUtilityServices`、`MEDIA_INTERFACES.md` 中的契约）。没有变化也要写"无接口变化"；
-3. **工具变化**：`scripts/`、`.github/workflows/`、预推送检查规则、构建或测试命令、依赖的工具或版本的变化，以及对方需要做什么（例如重新运行检查、更新本地工具）。没有变化也要写"无工具变化"；
-4. 对方是否需要同步、集成或调整，以及原因。
-
-变更通知只描述改动，不代表对方可以合并或拉取分支；集成仍需用户授权。
+不再需要给另一方的变更通知。公开接口（例如 `AIUtilityServices`、`MEDIA_INTERFACES.md` 中的契约）或工具（`scripts/`、`.github/workflows/`、构建与测试命令）发生变化时，写进提交说明，并同步更新对应文档（`TRANSLATION_CLAUDE_HANDOFF.md`、`MEDIA_INTERFACES.md`、`GITHUB_ACTIONS.md`、`STATUS.md`）。
 
 ## 3. 动手前检查
 
@@ -38,18 +31,20 @@
 1. `git fetch`，检查**自己的分支**和 `main` 在远端是否有新提交。
 2. 有新提交：`git pull --ff-only` 后再改，不覆盖别人的改动。
 3. 出现冲突：停下来向用户报告冲突位置，不自行决定保留哪边。
-4. 自己的分支上出现不属于自己（也不是 CI bot）的提交：先报告，不擅自合并或回退。
+4. 分支上出现不是自己（也不是 CI bot）的提交：先报告，不擅自合并或回退。
 
 ## 4. 职责范围
 
-| 范围 | 负责方 |
-|---|---|
-| `Packages/AIUtilityCore`、`Packages/AIUtilityAppleServices`（翻译、配置、OCR 等底层） | **暂由 Claude Code 维护**（2026-11-15 起，所有者因 Codex 额度用尽决定；Codex 恢复后是否交回由所有者决定）。原负责方 Codex |
-| `Packages/AIUtilityMedia`（下载队列、站点解析、本地工具、搜图） | Claude Code（P2–P4 由 Claude 实现并维护） |
-| `Apps/AIUtility`（SwiftUI 界面）、`.github/workflows`、`scripts`、UI 相关文档 | Claude Code |
-| `PoCs/iOS27Capture`（iOS 27 采集 PoC） | 未经用户授权，双方都不修改（用户已单独授权 Codex 修改 `LocalSpeechProbe`、`PoCSession` 两个逻辑文件；2026-11-15 授权 Claude 修复代码检查发现的 5 条 PoC 问题） |
+全部由 Claude Code 负责（2026-11-15 起）：
 
-- 后端对 App 暴露的接口（`AIUtilityServices` 及其方法、参数、错误类型）发生变化时，在提交说明和汇报里写清楚变化，方便另一方接线。
+| 范围 | 内容 |
+|---|---|
+| `Packages/AIUtilityCore`、`Packages/AIUtilityAppleServices` | 翻译、配置、OCR 等底层（原由 Codex 开发） |
+| `Packages/AIUtilityMedia` | 下载队列、站点解析、本地工具、搜图 |
+| `Apps/AIUtility` | SwiftUI 界面 |
+| `PoCs/iOS27Capture` | iOS 27 采集 PoC（真机能力未验证，修改时保持「技术诊断 · 未验收」的定位） |
+| `.github/workflows`、`scripts`、文档 | CI、检查脚本与全部文档 |
+
 - 不做与当前需求无关的重构。
 
 ## 5. CI（GitHub Actions）
@@ -64,7 +59,7 @@
 
 - 不得提交：本地路径（Windows 用户目录、macOS 或 Linux 用户主目录下的路径）、本机用户名或电脑名、时区或地点信息、个人邮箱、手机号、API Key、Token、证书、描述文件、设备 UDID、开发团队 ID。
 - 提交时间使用 UTC，避免在公开仓库暴露所在时区：每次提交都在命令前加 `TZ=UTC`（例如 `TZ=UTC git commit -m "..."`），或在当前终端先执行 `export TZ=UTC`。用 `git log -1 --format=%ad --date=format:%z` 检查，结果应为 `+0000`。
-- 提交作者身份：Claude Code 使用 `git config user.name "Claude"`，`git config user.email "noreply@anthropic.com"`（GitHub 显示为 Verified）；其他代理使用占位身份 `AIUtility Development <aiutility@localhost>`。`scripts/prepush_audit.py` 只允许占位身份、Claude 和 CI bot 的 noreply 地址。
+- 提交作者身份：`git config user.name "Claude"`，`git config user.email "noreply@anthropic.com"`（GitHub 显示为 Verified）。历史提交里的占位身份 `AIUtility Development <aiutility@localhost>` 来自原 Codex，`scripts/prepush_audit.py` 仍允许它、Claude 和 CI bot 的 noreply 地址。
 - 测试只能用明显的假数据（如 `person@example.com`、`sk-test-...`）。
 - 仓库现在是公开的，提交前务必通过 `scripts/prepush_check.sh` 的敏感信息扫描。
 
