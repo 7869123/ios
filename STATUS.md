@@ -1,6 +1,12 @@
 # AIUtility 开发状态
 
-## 最新（Claude，2026-11-15）：真机前诊断结果与修复，待 build_apple 验证
+## 最新（Claude，2026-11-15）：真机前诊断结果与修复，全部通过
+
+- 最终被测源 `cc2a764`，[Actions 43673166431](https://github.com/7869123/ios/actions/runs/43673166431) completed / success：core-linux、apple、app、diagnostics 全部通过；macOS Core 89、AppleServices 20（Vision 依次执行，四语与超高图测试恢复默认运行，4 秒完成）、Media 125 项测试通过；46 张预览（含 iPhone / iPad 超大字号各 3 张）已提交到 `validation/ui-preview/`（63826ee），无缺失；打包检查确认 App 带相册写入说明。
+- 复测诊断：PNG 文本块在「去除元数据」和「重新编码」后都不再保留且如实报告；最大 GIF 自动缩为 385×216，峰值内存 0.6 GB（原 1.56 GB）。
+- 中间两次失败：43671848044 的 app 任务因变量重名编译失败；43672610901 的 apple 任务中 `cleanImageReportsNothingRemoved` 失败（把 ImageIO 自己的 eXIf / XMP 块当成了文本），均已修正。
+- 超大字号下界面可读、不溢出；「OpenAI」「DeepSeek」这类英文名在胶囊里会被断成两行（外观问题，未改）。
+
 
 诊断运行 [43671848044](https://github.com/7869123/ios/actions/runs/43671848044)（diagnostics 任务通过；同次 app 任务因一处变量重名编译失败，已修正）：
 
