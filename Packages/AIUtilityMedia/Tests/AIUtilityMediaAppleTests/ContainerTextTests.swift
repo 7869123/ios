@@ -23,10 +23,12 @@ struct ContainerTextTests {
     @Test func pngTextAndTimeChunksAreFoundAndRemovedOthersKept() throws {
         let ihdr = chunk("IHDR", Array(repeating: 1, count: 13)), idat = chunk("IDAT", [1, 2, 3])
         let text = chunk("tEXt", Array("parameters".utf8) + [0] + Array("fixture prompt".utf8))
-        let png = Data(signature + ihdr + text + chunk("tIME", [0, 0, 0, 0, 0, 0, 0]) + idat + chunk("IEND", []))
+        // ImageIO's own eXIf and XMP iTXt chunks stay (orientation lives there; their fields are checked elsewhere).
+        let exif = chunk("eXIf", [0x4D, 0x4D, 0, 0x2A]), xmp = chunk("iTXt", Array("XML:com.adobe.xmp".utf8) + [0, 0, 0, 0, 0] + Array("<x/>".utf8))
+        let png = Data(signature + ihdr + exif + xmp + text + chunk("tIME", [0, 0, 0, 0, 0, 0, 0]) + idat + chunk("IEND", []))
         #expect(ContainerText.hasText(png))
         let stripped = try #require(ContainerText.removingText(png))
-        #expect(stripped == Data(signature + ihdr + idat + chunk("IEND", [])))
+        #expect(stripped == Data(signature + ihdr + exif + xmp + idat + chunk("IEND", [])))
         #expect(!ContainerText.hasText(stripped))
     }
     @Test func jpegCommentsAreRemovedAndScanDataKept() throws {

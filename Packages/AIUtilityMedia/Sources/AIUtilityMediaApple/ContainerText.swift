@@ -5,12 +5,23 @@ import Foundation
 /// checked; anything malformed is left to ImageIO (nil / false).
 enum ContainerText {
     private static let pngSignature: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
-    /// Textual and time chunks; none affects how the pixels are decoded.
-    static let pngTextChunks: Set<String> = ["tEXt", "zTXt", "iTXt", "eXIf", "tIME"]
+    /// Free-text and time chunks; none affects how the pixels are decoded. Not eXIf, and not the iTXt that holds XMP:
+    /// ImageIO writes both itself (orientation, pixel size) and already reports and filters their identifying fields;
+    /// removing them would drop the orientation.
+    static let pngTextChunks: Set<String> = ["tEXt", "zTXt", "iTXt", "tIME"]
+    private static let xmpKeyword = Array("XML:com.adobe.xmp".utf8) + [0]
+
+    private static func isFreeText(_ chunk: Chunk, in bytes: [UInt8]) -> Bool {
+        guard pngTextChunks.contains(chunk.type) else { return false }
+        guard chunk.type == "iTXt" else { return true }
+        let body = chunk.range.lowerBound + 8
+        return !(body + xmpKeyword.count <= chunk.range.upperBound && Array(bytes[body..<body + xmpKeyword.count]) == xmpKeyword)
+    }
 
     static func hasText(_ data: Data) -> Bool {
-        if let chunks = pngChunks([UInt8](data)) { return chunks.contains { pngTextChunks.contains($0.type) } }
-        if let segments = jpegSegments([UInt8](data)) { return segments.contains { $0.marker == 0xFE } }
+        let bytes = [UInt8](data)
+        if let chunks = pngChunks(bytes) { return chunks.contains { isFreeText($0, in: bytes) } }
+        if let segments = jpegSegments(bytes) { return segments.contains { $0.marker == 0xFE } }
         return false
     }
 
@@ -19,7 +30,7 @@ enum ContainerText {
         let bytes = [UInt8](data)
         if let chunks = pngChunks(bytes) {
             var output = pngSignature
-            for chunk in chunks where !pngTextChunks.contains(chunk.type) { output += bytes[chunk.range] }
+            for chunk in chunks where !isFreeText(chunk, in: bytes) { output += bytes[chunk.range] }
             return Data(output)
         }
         if let segments = jpegSegments(bytes) {
