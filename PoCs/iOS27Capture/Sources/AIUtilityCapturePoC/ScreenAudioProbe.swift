@@ -74,6 +74,10 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
     private var pickerRegistered = false
     private var starting = false
     private var startTask: Task<Void, Never>?
+    /// True only between a successful startCapture and a stop (ours or the system's). stopCapture on a stream that
+    /// never started or that the system already stopped returns an error, which used to leave the probe stuck in
+    /// releaseFailed with no way to restart.
+    private var captureRunning = false
     var isStopped: Bool { lifecycle.phase == .idle }
     var onTermination: (() async -> Void)?
     public init(speech: LocalSpeechProbe) { self.speech = speech; super.init() }
@@ -124,6 +128,7 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
             try stream.addStreamOutput(output, type: .screen, sampleHandlerQueue: queue)
             try stream.addStreamOutput(output, type: .audio, sampleHandlerQueue: queue)
             try await stream.startCapture()
+            captureRunning = true
             // stop() owns this stream and waits for this task before stopping it exactly once.
             guard lifecycle.accepts(session), !Task.isCancelled else { return }
             lifecycle.didStart(session)
@@ -150,8 +155,8 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         startTask = nil
         pendingStart?.cancel()
         await pendingStart?.value
-        if let stoppingStream {
-            do { try await stoppingStream.stopCapture() }
+        if let stoppingStream, captureRunning {
+            do { try await stoppingStream.stopCapture(); captureRunning = false }
             catch {
                 // Keep ownership and block a replacement stream until an explicit stop retry succeeds.
                 state = "stopCapture 返回错误；禁止重新开始，请再次停止或结束 App，勿认定系统已释放"
@@ -164,8 +169,10 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         state = "已停止；无真机结论"
         return true
     }
-    fileprivate func terminate(session: UInt64, source: ObjectIdentifier?, message: String) async {
+    fileprivate func terminate(session: UInt64, source: ObjectIdentifier?, message: String,
+                               streamAlreadyStopped: Bool = false) async {
         guard lifecycle.accepts(session), source == nil || source == stream.map(ObjectIdentifier.init) else { return }
+        if streamAlreadyStopped { captureRunning = false }
         let notify = onTermination
         await stop()
         // stop() keeps restart blocked until release finishes. No stale callback may stop a newer session.
@@ -197,13 +204,14 @@ private final class CaptureOutput: NSObject, SCStreamOutput, @unchecked Sendable
         terminate(stream: nil, message: "系统选择器启动失败")
     }
     nonisolated func stream(_ stream: SCStream, didStopWithError error: Error) {
-        terminate(stream: stream, message: "系统终止采集；需人工检查中断原因")
+        terminate(stream: stream, message: "系统终止采集；需人工检查中断原因", streamAlreadyStopped: true)
     }
-    nonisolated private func terminate(stream: SCStream?, message: String) {
+    nonisolated private func terminate(stream: SCStream?, message: String, streamAlreadyStopped: Bool = false) {
         let identity = stream.map(ObjectIdentifier.init)
         Task { @MainActor [weak self] in
             guard let self else { return }
-            await self.owner?.terminate(session: self.session, source: identity, message: message)
+            await self.owner?.terminate(session: self.session, source: identity, message: message,
+                                        streamAlreadyStopped: streamAlreadyStopped)
         }
     }
 }

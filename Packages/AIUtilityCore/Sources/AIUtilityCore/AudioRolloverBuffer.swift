@@ -60,6 +60,9 @@ public struct AudioRolloverBuffer<Payload: Sendable>: Sendable, CustomStringConv
     private var peakBytes = 0
     private var sourceGap: TimeInterval = 0
     private let tolerance: TimeInterval = 0.000_001
+    /// Capture timestamps jitter by a few samples; a start up to 2 ms before the previous end is timing noise, not
+    /// repeated speech (1 µs was less than one 48 kHz sample and ended whole sessions). Larger overlaps still fail.
+    private let jitter: TimeInterval = 0.002
 
     public init(policy: AudioRolloverPolicy = AudioRolloverPolicy()) { self.policy = policy }
     public var description: String { "<AudioRolloverBuffer: audio redacted>" }
@@ -108,7 +111,7 @@ public struct AudioRolloverBuffer<Payload: Sendable>: Sendable, CustomStringConv
         let end = presentationTime + duration
         if let lastEnd {
             if end <= lastEnd + tolerance { duplicates += 1; return .duplicate }
-            guard presentationTime >= lastEnd - tolerance else {
+            guard presentationTime >= lastEnd - jitter else {
                 reject(.overlappingTime, session: session); throw AudioBufferFailure.overlappingTime
             }
         }

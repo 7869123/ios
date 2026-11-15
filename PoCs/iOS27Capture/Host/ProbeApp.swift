@@ -44,7 +44,8 @@ import AIUtilityCapturePoC
             Button("停止") { Task { await session.stop() } }
         }
         .padding()
-        .onChange(of: speech.caption) { _, text in pip.caption = text }
+        // Raw transcript only until translations arrive; afterwards PoCSession owns the PiP caption.
+        .onChange(of: speech.caption) { _, text in if !session.showsTranslation { pip.caption = text } }
     }
 }
 

@@ -1,6 +1,16 @@
 # AIUtility 开发状态
 
-## 最新（Claude，2026-11-15）：代修 Codex 范围的 Core / AppleServices 问题，build_apple 通过
+## 最新（Claude，2026-11-15）：PoC 5 条问题修复，Core / AppleServices 改由 Claude 暂管，待 build_apple + build_poc 验证
+
+所有者授权修改 PoC 这 5 条，并决定 Core / AppleServices 暂由 Claude 维护（AGENTS.md 已更新）。均未真机验证。
+
+- ScreenAudioProbe：只在 startCapture 成功、且系统没有自行停止时才调用 stopCapture；启动失败或系统终止后不再卡在「释放失败」。
+- SubtitlePiPProbe：显示字幕的最新部分（原先只画前 400 个字，说话十几秒后画面不再更新）；帧缓冲带 IOSurface 属性。
+- 宿主 App：收到第一段译文后，不再用原文转写覆盖画中画里的译文。
+- LocalSpeechProbe：语音授权在非主线程隔离的函数里请求，避免 Swift 6 运行时隔离检查崩溃（原问题未确认）。
+- Core AudioRolloverBuffer：时间戳回退 2 毫秒以内视为抖动，不再终止整个会话；更大的重叠仍然拒绝。新增 1 项测试。
+
+## Claude，2026-11-15：代修 Codex 范围的 Core / AppleServices 问题，build_apple 通过
 
 - 被测源 `ed0028e`，[Actions 43660804729](https://github.com/7869123/ios/actions/runs/43660804729) completed / success：core-linux、apple、app 全部通过；macOS Core 88 项、AppleServices 10 项通过（Keychain 与四语 Vision 实测按设计跳过），App 源码 0 条警告，Release Archive 与未签名 IPA（`AIUtility-unsigned-ipa-43660804729`）成功。
 - 前两次 [43656688931](https://github.com/7869123/ios/actions/runs/43656688931)、[43658752270](https://github.com/7869123/ios/actions/runs/43658752270) 在 macOS AppleServices 测试处无输出卡住约 19 分钟后被取消；把真实四语 Vision 识别测试改为按需开启（`AIUTILITY_VISION_LANGUAGE_TESTS=1`）后通过，说明卡住来自该测试（推测 Vision 首次使用日语/韩语时要准备语言资源，未确认）。真机上「自动检测」的首次识别可能较慢，超过 20 秒会显示「本机识别超时」，需真机确认。`ci_apple.sh` 现在会在包测试超过 10 分钟时停止并打印日志。

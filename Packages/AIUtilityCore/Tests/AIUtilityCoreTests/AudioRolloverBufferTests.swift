@@ -223,3 +223,14 @@ private final class AudioTestPayload: Sendable {
     try buffer.enqueue(session: session, byteCount: 4, presentationTime: 2, duration: 0.25, formatID: 1) { "next" }
     #expect(buffer.snapshot().sourceGapSeconds > 1.74)
 }
+
+@Test func timestampJitterOfAFewSamplesIsNotTreatedAsOverlap() throws {
+    var buffer = AudioRolloverBuffer<Int>()
+    let session = buffer.start()
+    try append(1, to: &buffer, session: session, time: 0, duration: 0.5)
+    // Starts 0.5 ms before the previous end (about 24 samples at 48 kHz): accepted.
+    try append(2, to: &buffer, session: session, time: 0.4995, duration: 0.5)
+    #expect(buffer.snapshot().failure == nil && buffer.snapshot().queuedPackets == 2)
+    // 10 ms of overlap is still real overlap.
+    #expect(throws: AudioBufferFailure.overlappingTime) { try append(3, to: &buffer, session: session, time: 0.989, duration: 0.5) }
+}

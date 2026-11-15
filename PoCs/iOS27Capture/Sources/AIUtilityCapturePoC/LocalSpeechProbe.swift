@@ -129,6 +129,13 @@ final class SpeechAudioSink: @unchecked Sendable {
 
 @available(iOS 27.0, *)
 @MainActor public final class LocalSpeechProbe: ObservableObject {
+    /// Nonisolated so the system's callback closure is not main-actor isolated: Speech calls it on a background
+    /// queue, which in Swift 6 mode could trip a runtime isolation check if the closure were formed on the main actor.
+    nonisolated private static func requestSpeechAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { @Sendable status in continuation.resume(returning: status) }
+        }
+    }
     @Published public private(set) var caption = "等待系统音频"
     @Published public private(set) var state = "未验证"
     let sink = SpeechAudioSink()
@@ -166,9 +173,7 @@ final class SpeechAudioSink: @unchecked Sendable {
         try Task.checkCancellation()
         guard self.revision == revision else { throw CancellationError() }
         guard stopped else { throw ProbeError.speechUnavailable }
-        let authorization = await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { continuation.resume(returning: $0) }
-        }
+        let authorization = await Self.requestSpeechAuthorization()
         try Task.checkCancellation()
         guard self.revision == revision else { throw CancellationError() }
         guard authorization == .authorized,

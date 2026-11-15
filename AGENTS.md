@@ -44,10 +44,10 @@
 
 | 范围 | 负责方 |
 |---|---|
-| `Packages/AIUtilityCore`、`Packages/AIUtilityAppleServices`（翻译、配置、OCR 等底层） | Codex |
+| `Packages/AIUtilityCore`、`Packages/AIUtilityAppleServices`（翻译、配置、OCR 等底层） | **暂由 Claude Code 维护**（2026-11-15 起，所有者因 Codex 额度用尽决定；Codex 恢复后是否交回由所有者决定）。原负责方 Codex |
 | `Packages/AIUtilityMedia`（下载队列、站点解析、本地工具、搜图） | Claude Code（P2–P4 由 Claude 实现并维护） |
 | `Apps/AIUtility`（SwiftUI 界面）、`.github/workflows`、`scripts`、UI 相关文档 | Claude Code |
-| `PoCs/iOS27Capture`（iOS 27 采集 PoC） | 未经用户授权，双方都不修改（用户已单独授权 Codex 修改 `LocalSpeechProbe`、`PoCSession` 两个逻辑文件） |
+| `PoCs/iOS27Capture`（iOS 27 采集 PoC） | 未经用户授权，双方都不修改（用户已单独授权 Codex 修改 `LocalSpeechProbe`、`PoCSession` 两个逻辑文件；2026-11-15 授权 Claude 修复代码检查发现的 5 条 PoC 问题） |
 
 - 后端对 App 暴露的接口（`AIUtilityServices` 及其方法、参数、错误类型）发生变化时，在提交说明和汇报里写清楚变化，方便另一方接线。
 - 不做与当前需求无关的重构。

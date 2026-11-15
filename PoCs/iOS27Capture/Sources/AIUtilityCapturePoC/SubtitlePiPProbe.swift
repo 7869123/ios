@@ -90,7 +90,9 @@ private final class PlaybackState: @unchecked Sendable {
         guard displayLayer.isReadyForMoreMediaData else { return }
         let width = 960, height = 240
         var pixelBuffer: CVPixelBuffer?
-        let attributes = [kCVPixelBufferCGImageCompatibilityKey: true, kCVPixelBufferCGBitmapContextCompatibilityKey: true] as CFDictionary
+        // IOSurface backing: AVSampleBufferDisplayLayer / PiP may show nothing for buffers without it.
+        let attributes = [kCVPixelBufferCGImageCompatibilityKey: true, kCVPixelBufferCGBitmapContextCompatibilityKey: true,
+                          kCVPixelBufferIOSurfacePropertiesKey: [String: Any]()] as CFDictionary
         guard CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, attributes, &pixelBuffer) == kCVReturnSuccess,
               let pixelBuffer else { throw ProbeError.frameCreationFailed }
         CVPixelBufferLockBaseAddress(pixelBuffer, [])
@@ -103,7 +105,9 @@ private final class PlaybackState: @unchecked Sendable {
         context.translateBy(x: 0, y: CGFloat(height)); context.scaleBy(x: 1, y: -1)
         UIGraphicsPushContext(context)
         let paragraph = NSMutableParagraphStyle(); paragraph.alignment = .center
-        (String(caption.prefix(400)) as NSString).draw(in: CGRect(x: 24, y: 24, width: CGFloat(width - 48), height: CGFloat(height - 48)),
+        // The newest words matter for live captions: draw the end of the text (it used to freeze on the first 400
+        // characters after a dozen seconds of speech). About three lines fit at this size.
+        (String(caption.suffix(90)) as NSString).draw(in: CGRect(x: 24, y: 24, width: CGFloat(width - 48), height: CGFloat(height - 48)),
             withAttributes: [.font: UIFont.systemFont(ofSize: 34), .foregroundColor: UIColor.white, .paragraphStyle: paragraph])
         UIGraphicsPopContext()
         var description: CMVideoFormatDescription?

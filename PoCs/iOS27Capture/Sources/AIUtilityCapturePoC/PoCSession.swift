@@ -10,6 +10,9 @@ import AIUtilityCore
     public let pip = SubtitlePiPProbe()
     public let capture: ScreenAudioProbe
     @Published public private(set) var translationState = "未启用 API 翻译"
+    /// True once a translated segment reached the PiP caption in this session; the host then stops mirroring the
+    /// raw transcript there, which used to overwrite the translation.
+    @Published public private(set) var showsTranslation = false
     private var translationTask: Task<Void, Never>?
     private var inputTask: Task<Void, Never>?
     private enum Input: Sendable { case transcript(SpeechTranscript), tick(TimeInterval) }
@@ -40,6 +43,7 @@ import AIUtilityCore
     }
     public func start() async throws {
         guard let session = lifecycle.begin() else { throw ProbeError.operationInProgress }
+        showsTranslation = false
         do {
             try Task.checkCancellation()
             try await prepareTranslation(session: session)
@@ -100,7 +104,7 @@ import AIUtilityCore
                 guard let self, self.lifecycle.accepts(session), self.revision == revision, !Task.isCancelled else { return }
                 switch event {
                 case .translated(let current, _, let text, _, _) where current == handle:
-                    self.pip.caption = text
+                    self.pip.caption = text; self.showsTranslation = true
                     self.translationState = "已收到分段译文；需真机核验顺序和延迟"
                 case .failed(let current, _, let error) where current == handle:
                     self.translationState = "翻译失败：" + error.description
