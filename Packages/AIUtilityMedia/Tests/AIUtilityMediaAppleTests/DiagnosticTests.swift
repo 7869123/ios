@@ -11,7 +11,15 @@ import AIUtilityMedia
 // assert a guess, so an unknown platform behaviour shows up as data. Off by default: AIUTILITY_DIAGNOSTICS=1.
 private let diagnostics = ProcessInfo.processInfo.environment["AIUTILITY_DIAGNOSTICS"] == "1"
 
-private func report(_ line: String) { print("DIAG " + line) }
+/// Appends one "DIAG" line to the file named by AIUTILITY_DIAG_REPORT (the diagnostics script prints it);
+/// test sources do not log to stdout (scripts/check_repository.py).
+private func report(_ line: String) {
+    guard let path = ProcessInfo.processInfo.environment["AIUTILITY_DIAG_REPORT"], !path.isEmpty else { return }
+    let data = Data(("DIAG " + line + "\n").utf8), url = URL(fileURLWithPath: path)
+    if let handle = try? FileHandle(forWritingTo: url) {
+        _ = try? handle.seekToEnd(); try? handle.write(contentsOf: data); try? handle.close()
+    } else { try? data.write(to: url) }
+}
 
 private func peakResidentMB() -> Double {
     var usage = rusage()

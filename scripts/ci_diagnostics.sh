@@ -23,7 +23,8 @@ done
 run_case() {
   local pkg="$1" filter="$2" limit="$3"; shift 3
   local log="$out/$filter.log"
-  env "$@" swift test --skip-build --package-path "$root/Packages/$pkg" --filter "$filter" > "$log" 2>&1 &
+  local report="$out/$filter.diag"; : > "$report"
+  env AIUTILITY_DIAG_REPORT="$report" "$@" swift test --skip-build --package-path "$root/Packages/$pkg" --filter "$filter" > "$log" 2>&1 &
   local pid=$! waited=0
   while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt "$limit" ]; do sleep 2; waited=$((waited + 2)); done
   if kill -0 "$pid" 2>/dev/null; then
@@ -38,7 +39,8 @@ run_case() {
   fi
   wait "$pid" 2>/dev/null; local code=$?
   echo "== $filter (exit $code, ${waited}s)" | tee -a "$summary"
-  grep -h "DIAG\|✘\|recorded an issue" "$log" | tee -a "$summary"
+  cat "$report" | tee -a "$summary"
+  grep -h "DIAG\|✘\|recorded an issue\|passed after\|skipped" "$log" | tee -a "$summary"
 }
 
 # Vision language matrix (one process each, so a stall shows exactly which combination stalls).

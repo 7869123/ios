@@ -13,7 +13,15 @@ import AIUtilityCore
 // in its own `swift test --filter` process by scripts/ci_diagnostics.sh with a watchdog, so one stall cannot hide
 // the others, and the results are "DIAG" lines rather than assertions about unknown platform behaviour.
 private let diagnostics = ProcessInfo.processInfo.environment["AIUTILITY_DIAGNOSTICS"] == "1"
-private func report(_ line: String) { print("DIAG " + line) }
+/// Appends one "DIAG" line to the file named by AIUTILITY_DIAG_REPORT (the diagnostics script prints it);
+/// test sources do not log to stdout (scripts/check_repository.py).
+private func report(_ line: String) {
+    guard let path = ProcessInfo.processInfo.environment["AIUTILITY_DIAG_REPORT"], !path.isEmpty else { return }
+    let data = Data(("DIAG " + line + "\n").utf8), url = URL(fileURLWithPath: path)
+    if let handle = try? FileHandle(forWritingTo: url) {
+        _ = try? handle.seekToEnd(); try? handle.write(contentsOf: data); try? handle.close()
+    } else { try? data.write(to: url) }
+}
 
 private func pngWithText(width: Int, height: Int, lines: [(String, CGFloat)], size: CGFloat = 80) throws -> CGImage {
     let context = try #require(CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
