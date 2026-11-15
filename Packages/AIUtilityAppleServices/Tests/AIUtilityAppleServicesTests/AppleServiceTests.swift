@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 import AIUtilityCore
-import AIUtilityAppleServices
+@testable import AIUtilityAppleServices
 
 #if canImport(Security)
 @Test(.enabled(if: ProcessInfo.processInfo.environment["AIUTILITY_KEYCHAIN_TESTS"] == "1"))
@@ -33,7 +33,8 @@ func keychainReplacesSingleProviderRecordAtomically() throws {
     #expect(korean == .korean)
 }
 
-@Test func appleTextDetectionHandlesShortTextAndRefusesTraditionalChinese() async throws {
+@Test(.timeLimit(.minutes(1)))
+func appleTextDetectionHandlesShortTextAndRefusesTraditionalChinese() async throws {
     let detector = AppleTextLanguageDetector()
     // Constrained to the app's languages, a short sentence is no longer rejected as uncertain.
     #expect(try await detector.detect("Thanks, see you tomorrow at the station!") == .english)
@@ -89,7 +90,8 @@ private func textImage(width: Int, height: Int, lines: [(String, CGFloat)], size
     return data as Data
 }
 
-@Test func visionAcceptsEverySupportedLanguageForAutomaticSource() async throws {
+@Test(.timeLimit(.minutes(1)))
+func visionAcceptsEverySupportedLanguageForAutomaticSource() async throws {
     // "Automatic" passes all four app languages; the old limit of three rejected it before reading the image.
     let languages = SupportedLanguage.allCases.map(\.visionLanguageIdentifier)
     let result = try await VisionOCRService().recognize(imageData: try textImage(width: 1200, height: 240, lines: [("HELLO AIUTILITY", 80)]),
@@ -97,11 +99,14 @@ private func textImage(width: Int, height: Int, lines: [(String, CGFloat)], size
     #expect(result.text.uppercased().contains("HELLO"))
 }
 
-@Test func visionScalesDownAnImageTallerThanItsLimit() async throws {
-    // 17 000 px tall (over 16 384): recognised on a scaled copy instead of being refused.
-    let data = try textImage(width: 1200, height: 17_000, lines: [("HELLO AIUTILITY", 16_500)], size: 120)
-    let result = try await VisionOCRService().recognize(imageData: data, languages: ["en-US"])
-    #expect(result.text.uppercased().contains("HELLO"))
+@Test func oversizedImagesAreScaledWithinVisionLimitsInsteadOfRefused() {
+    // Pure geometry: running Vision on a 16 384 px image takes far too long on CI runners (a first attempt hung
+    // the job). The scaled path itself is the same request on a CGImage.
+    #expect(VisionOCRService.downscale(width: 1200, height: 800) == 1)
+    let tall = VisionOCRService.downscale(width: 1200, height: 17_000)
+    #expect(tall < 1 && Double(17_000) * tall <= 16_384 && Double(1200 * 17_000) * tall * tall <= 40_000_000)
+    let wide = VisionOCRService.downscale(width: 9_000, height: 9_000)
+    #expect(Double(9_000) * Double(9_000) * wide * wide <= 40_000_000.5)
 }
 
 @Test func visionRejectsInvalidImageLocally() async {

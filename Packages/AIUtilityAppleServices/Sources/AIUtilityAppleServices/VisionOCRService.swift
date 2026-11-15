@@ -21,6 +21,10 @@ private final class VisionCancellation: @unchecked Sendable {
 
 public struct VisionOCRService: RegionOCRService {
     public init() {}
+    /// Scale (≤ 1) that brings an image within 16 384 px per side and 40 MP.
+    static func downscale(width: Int, height: Int) -> Double {
+        min(1, 16_384 / Double(max(width, height)), (40_000_000 / (Double(width) * Double(height))).squareRoot())
+    }
     public func recognize(imageData: Data, languages: [String] = ["en-US", "ja-JP", "zh-Hans"]) async throws -> OCRResult {
         try await recognize(imageData: imageData, languages: languages, region: nil)
     }
@@ -39,7 +43,7 @@ public struct VisionOCRService: RegionOCRService {
                   width > 0, height > 0 else { throw AIUtilityError.invalidRequest }
             // Long screenshots and stitched images can exceed Vision's comfortable size: recognise an oriented copy
             // scaled to at most 16 384 px per side and 40 MP instead of refusing. Normalised regions still apply.
-            let scale = min(1, 16_384 / Double(max(width, height)), (40_000_000 / (Double(width) * Double(height))).squareRoot())
+            let scale = Self.downscale(width: width, height: height)
             var scaled: CGImage?
             if scale < 1 {
                 let options = [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceCreateThumbnailWithTransform: true,
