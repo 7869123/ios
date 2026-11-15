@@ -189,11 +189,11 @@ struct MediaTool: Identifiable {
         case .completed(let files):
             // Pictures and videos share in one sheet (all pages / images). A kept Ugoira zip gets its own button: mixed
             // with a GIF, the share sheet may drop "Save Image", since a zip cannot go to Photos.
-            let media = files.filter { !$0.fileName.lowercased().hasSuffix(".zip") }
+            let pictures = files.filter { !$0.fileName.lowercased().hasSuffix(".zip") }
             let archives = files.filter { $0.fileName.lowercased().hasSuffix(".zip") }
-            if !media.isEmpty {
-                Button(archives.isEmpty ? (media.count > 1 ? "全部导出" : "导出") : "导出 GIF") {
-                    Task { await export(media, title: task.title) }
+            if !pictures.isEmpty {
+                Button(archives.isEmpty ? (pictures.count > 1 ? "全部导出" : "导出") : "导出 GIF") {
+                    Task { await export(pictures, title: task.title) }
                 }
             }
             if !archives.isEmpty {

@@ -108,6 +108,13 @@ struct StitchGeometryTests {
         #expect(first == (0..<4).map { _ in b.next() })
         #expect(first != (0..<4).map { _ in c.next() })
     }
+    @Test func gifFramesAreScaledEvenlyToFitTheMemoryBound() {
+        let fitted = GIFBudget.frameSize((640, 360), frames: 600, maxTotalPixels: 50_000_000)
+        #expect(fitted.width * fitted.height * 600 <= 50_000_000)
+        #expect(abs(Double(fitted.width) / Double(fitted.height) - 640.0 / 360.0) < 0.02)
+        let small = GIFBudget.frameSize((320, 180), frames: 100, maxTotalPixels: 50_000_000)
+        #expect(small.width == 320 && small.height == 180)
+    }
 }
 
 #if !canImport(ImageIO)

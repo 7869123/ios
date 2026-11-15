@@ -188,7 +188,10 @@ public struct UgoiraAssembler: MediaAssembler {
             let bytes = try archive.extract(frame.file, maxBytes: Int(min(limits.maxInputBytes, Int64(Int.max))))
             let source = try ImageIOSupport.open(bytes, limits: limits)
             let image = try ImageIOSupport.orientedImage(source)
-            if size == nil { size = (image.width, image.height) }
+            // The whole animation must fit the GIF memory bound: large or long Ugoira are scaled down evenly.
+            if size == nil {
+                size = GIFBudget.frameSize((image.width, image.height), frames: frames.count, maxTotalPixels: limits.maxGIFTotalPixels)
+            }
             try encoder.append(try fitted(image, to: size!), delayCentiseconds: delay)
         }
         return try encoder.finish()

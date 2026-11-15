@@ -457,8 +457,10 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
   仍有可识别元数据即返回 `unsupportedFormat`。`reencode` / `subtlePixelNoise` 解码时已应用方向，输出不带源元数据。
 - 默认限额：输入 200 MB、32 张、单图/画布 8000 万像素、输出 200 MB、GIF 600 帧 / 60 s。
   2026-11-14 起：`MediaProcessingLimits` 新增 `maxVideoBytes`（视频文件，默认 8 GB；视频只按时间点取帧，不整体读入）
-  和 `maxGIFTotalPixels`（所有 GIF 帧解码像素之和，默认 1.5 亿，ImageIO 在 finalize 前保留每一帧），初始化参数有默认值，
-  原调用不变。拼接画布超过 `maxPixels` 时整体等比缩小而不再失败（单张输入超限仍失败）。`reencode` 对 PNG/JPEG 保持格式，
+  和 `maxGIFTotalPixels`（所有 GIF 帧解码像素之和，ImageIO 在 finalize 前保留每一帧），初始化参数有默认值，
+  原调用不变。`maxGIFTotalPixels` 默认 5000 万：诊断运行 43671848044 实测 599 帧 640×360（1.38 亿像素）峰值内存 1.56 GB，
+  约每像素 11 字节；超出时视频转 GIF 与 Pixiv 动图都整体等比缩小，不再失败。`stripMetadata` 另外删除 PNG 的
+  tEXt / zTXt / iTXt / eXIf / tIME 块和 JPEG 的 COM 段（ImageIO 既不报告也不去掉它们；同一次诊断确认 PNG 文本块原样保留）。拼接画布超过 `maxPixels` 时整体等比缩小而不再失败（单张输入超限仍失败）。`reencode` 对 PNG/JPEG 保持格式，
   其他格式（HEIC 等）默认输出 JPEG；`reencode` / `subtlePixelNoise` 遇到多帧图片返回 `unsupportedFormat`。
 - 统一任务展示：本地工具是一次性 async 调用，由 UI 直接持有 Task 并可取消，不进入下载队列，也不新增第二条并发队列。
 

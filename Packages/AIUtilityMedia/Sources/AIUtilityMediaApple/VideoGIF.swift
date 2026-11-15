@@ -22,7 +22,7 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
 
     let asset = AVURLAsset(url: url)
     let clipEnd = options.start + options.duration
-    let pixelSize: (width: Int, height: Int)
+    let sourceSize: (width: Int, height: Int)
     do {
         let duration = try await asset.load(.duration).seconds
         guard duration.isFinite, clipEnd <= duration + 0.001 else { throw MediaError.invalidInput }
@@ -32,15 +32,17 @@ public func makeGIF(fromVideo url: URL, outputDirectory: URL, options: GIFOption
         let width = Double(abs(oriented.width)), height = Double(abs(oriented.height))
         guard width >= 1, height >= 1 else { throw MediaError.unsupportedFormat }
         let scale = min(1, Double(options.maxWidth) / width)
-        pixelSize = (max(1, Int((width * scale).rounded())), max(1, Int((height * scale).rounded())))
+        sourceSize = (max(1, Int((width * scale).rounded())), max(1, Int((height * scale).rounded())))
     } catch let error as MediaError {
         throw error
     } catch {
         throw Task.isCancelled ? .cancelled : .unsupportedFormat
     }
-    try ImageIOSupport.checkPixels(width: pixelSize.width, height: pixelSize.height, limits: options.limits)
+    try ImageIOSupport.checkPixels(width: sourceSize.width, height: sourceSize.height, limits: options.limits)
 
     let plan = GIFTimeline.plan(duration: options.duration, fps: options.fps)
+    // Long, wide clips are scaled down evenly to fit the memory bound instead of failing (GIFResult reports the size).
+    let pixelSize = GIFBudget.frameSize(sourceSize, frames: plan.count, maxTotalPixels: options.limits.maxGIFTotalPixels)
     let generator = AVAssetImageGenerator(asset: asset)
     generator.appliesPreferredTrackTransform = true
     generator.requestedTimeToleranceBefore = .zero

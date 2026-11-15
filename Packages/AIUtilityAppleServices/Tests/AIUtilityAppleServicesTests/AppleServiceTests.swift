@@ -51,6 +51,10 @@ import CoreText
 import ImageIO
 import UniformTypeIdentifiers
 
+/// Vision requests run one at a time here, as in the app (one recognition at a time). With the new tests running in
+/// parallel, two build_apple runs (43656688931, 43658752270) stalled; diagnostics run 43671848044 then showed every
+/// language combination finishing in about a second when run alone.
+@Suite(.serialized) struct VisionOCRTests {
 @Test func visionRecognizesGeneratedLocalImage() async throws {
     let space = CGColorSpaceCreateDeviceRGB()
     let context = try #require(CGContext(data: nil, width: 1200, height: 240, bitsPerComponent: 8,
@@ -90,10 +94,7 @@ private func textImage(width: Int, height: Int, lines: [(String, CGFloat)], size
     return data as Data
 }
 
-// Opt-in like the Keychain test: with Japanese and Korean, Vision may first fetch language assets, which stalled the
-// macOS CI job (runs 43656688931 and 43658752270, no output for ~19 minutes). The language-count guard itself is
-// covered by visionLanguageLimitAllowsEveryAppLanguage below; real multi-language OCR is a device check.
-@Test(.enabled(if: ProcessInfo.processInfo.environment["AIUTILITY_VISION_LANGUAGE_TESTS"] == "1"), .timeLimit(.minutes(1)))
+@Test(.timeLimit(.minutes(1)))
 func visionAcceptsEverySupportedLanguageForAutomaticSource() async throws {
     // "Automatic" passes all four app languages; the old limit of three rejected it before reading the image.
     let languages = SupportedLanguage.allCases.map(\.visionLanguageIdentifier)
@@ -119,6 +120,14 @@ func visionAcceptsEverySupportedLanguageForAutomaticSource() async throws {
     #expect(tall < 1 && Double(17_000) * tall <= 16_384 && Double(1200 * 17_000) * tall * tall <= 40_000_000)
     let wide = VisionOCRService.downscale(width: 9_000, height: 9_000)
     #expect(Double(9_000) * Double(9_000) * wide * wide <= 40_000_000.5)
+}
+
+@Test(.timeLimit(.minutes(1)))
+func visionRecognisesAScaledCopyOfAnImageTallerThanItsLimit() async throws {
+    // 17 000 px tall: diagnostics run 43671848044 measured 0.9 s for this case on a CI runner.
+    let data = try textImage(width: 1200, height: 17_000, lines: [("HELLO AIUTILITY", 16_500)], size: 120)
+    let result = try await VisionOCRService().recognize(imageData: data, languages: ["en-US"])
+    #expect(result.text.uppercased().contains("HELLO"))
 }
 
 @Test func visionRejectsInvalidImageLocally() async {
@@ -155,5 +164,6 @@ func visionAcceptsEverySupportedLanguageForAutomaticSource() async throws {
         return try await VisionOCRService().recognize(imageData: Data([1]), languages: ["en-US"])
     }
     await #expect(throws: AIUtilityError.cancelled) { try await task.value }
+}
 }
 #endif

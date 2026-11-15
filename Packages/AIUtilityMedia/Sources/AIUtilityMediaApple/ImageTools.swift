@@ -59,16 +59,18 @@ public func stitchImages(_ images: [Data], options: StitchOptions = .init()) asy
 public func rewriteFingerprint(_ image: Data, options: FingerprintOptions) async throws(MediaError) -> FingerprintResult {
     try ProcessingValidation.check(options, inputBytes: image.count)
     let source = try ImageIOSupport.open(image, limits: options.limits)
-    let hadMetadata = MetadataInspector.hasRemovableMetadata(source.cgSource)
+    let hadMetadata = MetadataInspector.hasRemovableMetadata(source.cgSource) || ContainerText.hasText(image)
     let output: Data
     let outputType: String
     switch options.method {
     case .stripMetadata:
-        output = try ImageIOSupport.losslessStrip(source)
+        // ImageIO's lossless copy keeps PNG text chunks and JPEG comments (where generators store prompts): drop them too.
+        let copied = try ImageIOSupport.losslessStrip(source)
+        output = ContainerText.removingText(copied) ?? copied
         outputType = source.typeIdentifier
         // Never report a strip that left identifying metadata behind.
         guard let check = CGImageSourceCreateWithData(output as CFData, nil),
-              !MetadataInspector.hasRemovableMetadata(check) else { throw .unsupportedFormat }
+              !MetadataInspector.hasRemovableMetadata(check), !ContainerText.hasText(output) else { throw .unsupportedFormat }
     case .reencode:
         guard CGImageSourceGetCount(source.cgSource) == 1 else { throw .unsupportedFormat } // Would keep 1 frame only.
         // PNG and JPEG keep their format; other photos (HEIC, WebP...) become JPEG, not a PNG many times larger.
@@ -88,7 +90,8 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions) async
     }
     guard !Task.isCancelled else { throw .cancelled }
     guard !output.isEmpty, Int64(output.count) <= options.limits.maxOutputBytes else { throw .resourceLimitExceeded }
-    let stillHasMetadata = CGImageSourceCreateWithData(output as CFData, nil).map(MetadataInspector.hasRemovableMetadata) ?? true
+    let stillHasMetadata = (CGImageSourceCreateWithData(output as CFData, nil).map(MetadataInspector.hasRemovableMetadata) ?? true)
+        || ContainerText.hasText(output)
     return FingerprintResult(data: output, typeIdentifier: outputType, bytesChanged: output != image,
                              metadataRemoved: hadMetadata && !stillHasMetadata)
 }

@@ -36,6 +36,8 @@ public struct MediaProcessingLimits: Sendable, Hashable {
     /// the image cap (200 MB) used to reject ordinary phone videos even for a 3-second clip.
     public var maxVideoBytes: Int64
     /// Decoded pixels of all GIF frames together: ImageIO keeps every added frame until the GIF is finalised.
+    /// Measured on macOS (diagnostics run 43671848044): 599 frames of 640x360 (138 M pixels) peaked at 1.56 GB,
+    /// about 11 bytes per pixel. 50 M pixels keeps a GIF near 0.6 GB on a 4 GB iPad; larger ones are scaled down.
     public var maxGIFTotalPixels: Int
     public var maxImageCount: Int
     /// Pixels of any single decoded image and of the output canvas or GIF frame.
@@ -45,7 +47,7 @@ public struct MediaProcessingLimits: Sendable, Hashable {
     public var maxGIFDuration: Double
     public init(maxInputBytes: Int64 = 200 * 1024 * 1024, maxImageCount: Int = 32, maxPixels: Int = 80_000_000,
                 maxOutputBytes: Int64 = 200 * 1024 * 1024, maxGIFFrames: Int = 600, maxGIFDuration: Double = 60,
-                maxVideoBytes: Int64 = 8 * 1024 * 1024 * 1024, maxGIFTotalPixels: Int = 150_000_000) {
+                maxVideoBytes: Int64 = 8 * 1024 * 1024 * 1024, maxGIFTotalPixels: Int = 50_000_000) {
         self.maxInputBytes = maxInputBytes; self.maxImageCount = maxImageCount; self.maxPixels = maxPixels
         self.maxOutputBytes = maxOutputBytes; self.maxGIFFrames = maxGIFFrames; self.maxGIFDuration = maxGIFDuration
         self.maxVideoBytes = maxVideoBytes; self.maxGIFTotalPixels = maxGIFTotalPixels
@@ -265,5 +267,15 @@ enum StitchGeometry {
             }
             return Layout(width: width.partialValue - spacing, height: height.partialValue - spacing, frames: frames)
         }
+    }
+}
+
+/// Output frame size for a GIF of `frames` frames within `maxTotalPixels` decoded pixels, keeping the aspect ratio.
+enum GIFBudget {
+    static func frameSize(_ size: (width: Int, height: Int), frames: Int, maxTotalPixels: Int) -> (width: Int, height: Int) {
+        let total = Double(size.width) * Double(size.height) * Double(max(1, frames))
+        guard total > Double(maxTotalPixels), maxTotalPixels > 0 else { return size }
+        let scale = (Double(maxTotalPixels) / total).squareRoot()
+        return (max(1, Int(Double(size.width) * scale)), max(1, Int(Double(size.height) * scale)))
     }
 }

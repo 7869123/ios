@@ -133,7 +133,7 @@ private struct ToolStatusRow: View {
                     Picker("最大宽度", selection: $width) { ForEach([240, 320, 480, 640], id: \.self) { Text("\($0) 像素").tag($0) } }
                         .labelsHidden()
                 }
-                Text("小于最大宽度的视频不会被放大；GIF 不含声音。最多 600 帧，所以 \(fps) fps 时最长 \(maxDuration, specifier: "%.1f") 秒。")
+                Text("小于最大宽度的视频不会被放大；GIF 不含声音。最多 600 帧，所以 \(fps) fps 时最长 \(maxDuration, specifier: "%.1f") 秒；帧数多、画面大时会自动缩小尺寸，避免内存不足。")
                     .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 HStack {
                     Button { task = Task { await run() } } label: { Label("开始转换", systemImage: "film.stack") }
