@@ -163,6 +163,8 @@ private final class FakeCAICT: CAICTTransport, @unchecked Sendable {
 
     var released: [String] { lock.lock(); defer { lock.unlock() }; return releasedKeys }
     var asked: [String] { lock.lock(); defer { lock.unlock() }; return sessionRequests }
+    /// UUID-like session key (letters, digits and dashes, as the grant parser requires).
+    static func key(for host: String) -> String { "0f8e2a6c-" + host.replacingOccurrences(of: ".", with: "-") }
     // NSLock may not be taken directly in async functions (Swift 6); these synchronous helpers do it.
     private func noteSession(_ host: String) { lock.lock(); sessionRequests.append(host); lock.unlock() }
     private func noteRelease(_ key: String) { lock.lock(); releasedKeys.append(key); lock.unlock() }
@@ -196,7 +198,7 @@ private final class FakeCAICT: CAICTTransport, @unchecked Sendable {
         if text.hasPrefix("GET /speed/dovalid?") {
             noteSession(host)
             #expect(text.contains("&time=1700000000&"))
-            return HTTPWire.Response(status: 200, body: Data((host == grantingHost ? "1-key-" + host : "-1-").utf8))
+            return HTTPWire.Response(status: 200, body: Data((host == grantingHost ? "1-" + Self.key(for: host) : "-1-").utf8))
         }
         if text.hasPrefix("POST /speed/dovalid?key=") {
             let key = String(text.dropFirst("POST /speed/dovalid?key=".count).prefix { $0 != " " })
@@ -230,7 +232,7 @@ struct CAICTEngineTests {
         for await update in stream.stream where phases.last != update.phase { phases.append(update.phase) }
 
         #expect(fake.asked == ["198.51.100.10", "198.51.100.11"])
-        #expect(fake.released == ["key-198.51.100.11"])
+        #expect(fake.released == [FakeCAICT.key(for: "198.51.100.11")])
         #expect(outcome.node.name == "乙电信")
         #expect(outcome.location.city == "示例市")
         #expect((outcome.result.downloadMbps ?? 0) > 1)
@@ -264,7 +266,7 @@ struct CAICTEngineTests {
         try await Task.sleep(nanoseconds: 300_000_000)
         task.cancel()
         await #expect(throws: NetworkToolError.cancelled) { try await task.value }
-        #expect(fake.released == ["key-198.51.100.11"])
+        #expect(fake.released == [FakeCAICT.key(for: "198.51.100.11")])
     }
 
     @Test(.timeLimit(.minutes(1))) func noGrantingNode() async {
