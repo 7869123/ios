@@ -83,9 +83,17 @@ struct LiveNetworkChecks {
             return String(format: "%.1f Mbps, server timing %@", SpeedStatistics.megabitsPerSecond(bytes: sample.bytes, seconds: sample.transferSeconds) ?? 0,
                           sample.latencySeconds == nil ? "missing" : "present")
         }
+        await check("speed-upload-1MB") {
+            let sample = try await transport.upload(bytes: 1_000_000)
+            return sample.bytes == 1_000_000 && sample.transferSeconds > 0
+                ? String(format: "%.3f s (%.1f Mbps)", sample.transferSeconds,
+                         SpeedStatistics.megabitsPerSecond(bytes: sample.bytes, seconds: sample.transferSeconds) ?? 0) : nil
+        }
         await check("speed-upload-100KB") {
             let sample = try await transport.upload(bytes: 100_000)
-            return sample.bytes == 100_000 && sample.transferSeconds >= 0 ? String(format: "%.3f s", sample.transferSeconds) : nil
+            return sample.bytes == 100_000 && sample.transferSeconds >= 0
+                ? String(format: "%.3f s (%.1f Mbps)", sample.transferSeconds,
+                         SpeedStatistics.megabitsPerSecond(bytes: sample.bytes, seconds: sample.transferSeconds) ?? 0) : nil
         }
     }
 

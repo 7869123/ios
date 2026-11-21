@@ -137,8 +137,11 @@ public final class CloudflareSpeedTransport: NSObject, SpeedTransport, URLSessio
             seconds = m.flatMap { m in m.responseStartDate.flatMap { s in m.responseEndDate.map { $0.timeIntervalSince(s) } } } ?? 0
         case .upload:
             bytes = state.sent
-            // Body sent: request start to request end; the server's own time is not network time.
-            seconds = m.flatMap { m in m.requestStartDate.flatMap { s in m.requestEndDate.map { $0.timeIntervalSince(s) } } } ?? 0
+            // requestEnd only marks the body handed to the socket buffer, which makes small uploads look far too
+            // fast (live check: 100 KB in 1 ms). The server's own duration covers receiving the body; the longer
+            // of the two is used.
+            let written = m.flatMap { m in m.requestStartDate.flatMap { s in m.requestEndDate.map { $0.timeIntervalSince(s) } } } ?? 0
+            seconds = max(written, server)
         }
         state.continuation.resume(returning: TransferSample(bytes: bytes, transferSeconds: seconds, latencySeconds: latency))
     }
