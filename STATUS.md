@@ -1,5 +1,12 @@
 # AIUtility 开发状态
 
+## 最新（Claude，2026-11-21）：网络测速、泄漏检测、新图标与名称（未编译）
+
+- 新包 `Packages/AIUtilityNetwork` 与页面「工具箱 → 网络」：Cloudflare 测速（延迟、抖动、下载、上传、负载下的延迟、节点与出口 IP，带流量上限）；IP / DNS / WebRTC 泄漏检测（HTTPS 出口、STUN、WKWebView 里的 WebRTC、Akamai DNS 诊断、VPN / 代理识别，规则见 NETWORK_TOOLS.md）。信通院测速等抓包后接入，界面标「规划中」、不发请求。
+- 「媒体工具」改名「工具箱」；App 显示名改为「serina的工具箱」；图标、启动画面换成所有者提供的图（ASSETS_LICENSE.md 待所有者确认作者与授权）。
+- CI：core-linux 与 apple 增加网络包的编译和测试，apple 另做 iOS 模拟器 / 真机 SDK 编译；`live_checks` 增加 `LiveNetworkChecks`；截图增加 speed、leak 两页。
+- 本容器没有 Swift 工具链，**这一批还没有编译过**，等手动 `build_apple` 验证；真机测试项见 DEVICE_TEST_CHECKLIST.md 第 11A、11B 节。
+
 ## 最新（Claude，2026-11-15）：真机前诊断结果与修复，全部通过
 
 - 最终被测源 `cc2a764`，[Actions 43673166431](https://github.com/7869123/ios/actions/runs/43673166431) completed / success：core-linux、apple、app、diagnostics 全部通过；macOS Core 89、AppleServices 20（Vision 依次执行，四语与超高图测试恢复默认运行，4 秒完成）、Media 125 项测试通过；46 张预览（含 iPhone / iPad 超大字号各 3 张）已提交到 `validation/ui-preview/`（63826ee），无缺失；打包检查确认 App 带相册写入说明。

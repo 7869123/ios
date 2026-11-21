@@ -26,7 +26,8 @@
 | 工作台 | `HomeView`（**本轮新增原型**） | 可预览 | 默认首页；功能入口 + 状态 |
 | 截图翻译 | `ScreenshotView` | 已有 | Discord 等截图 OCR + 翻译 |
 | 字幕翻译 | `SubtitleView` | 已有 | 字幕文本翻译 |
-| 媒体工具 | `MediaToolsView` | 已接入 | 本地工具（拼接、GIF、指纹）标「可用」；B站 / X / Pixiv 下载与搜图已实现、只做过离线测试，标「未实测」 |
+| 工具箱（2026-11-21 由「媒体工具」改名） | `MediaToolsView` | 已接入 | 分区：下载、本地工具、搜图、网络。本地工具（拼接、GIF、指纹）标「可用」；B站 / X / Pixiv 下载、搜图、网络测速与泄漏检测已实现、未在真机验证，标「未实测」；信通院测速标「规划中」 |
+| 工具箱 → 网络测速 / 泄漏检测 | `SpeedTestView` / `LeakTestView`（`NetworkToolViews.swift`） | 已接入，未实测 | 指标用 `MetricCell` 网格；IP 默认打码，「显示完整 IP」开关；离开页面即停止；说明见 NETWORK_TOOLS.md |
 | 设置 | `SettingsView`（入口）→ `ProviderSettingsView` / `AppearanceSettingsView` | 已有，2026-11-08 拆分 | AI 供应商、Key 状态、模型绑定、预算；外观与壁纸 |
 | （字幕页"实时字幕"模式）实时字幕 · PiP | `SubtitleView` + `LiveCaptionInfoSheet` | 仅状态说明 | PoC 在 `PoCs/iOS27Capture`，未接入 App，未经真机验证 |
 
@@ -157,7 +158,7 @@ iPad mini 6 上的预期列数（扣除边距和间距后计算）：
 |---|---|
 | 输入框 | 翻译原文编辑器、API Key、模型 ID 输入框统一使用 `utilityField()`：白色 72% 底 + ink 14% 细边框，圆角 10；系统「降低透明度」时为不透明白底。无论界面透明度多高，可输入区域都清晰可见 |
 | 导航标题 | 子页面使用 inline 系统标题，避免 iPad 上系统大标题和 `PageHeader` 重复；首页不显示系统标题 |
-| 功能状态 | 首页与媒体工具用同一套 `StatusChip`：本地工具「可用」，站点下载与搜图「未实测」（会真实联网），实时字幕等 PoC「规划中」；规划中的功能不发起任何请求 |
+| 功能状态 | 首页与工具箱用同一套 `StatusChip`：本地工具「可用」，站点下载与搜图「未实测」（会真实联网），实时字幕等 PoC「规划中」；规划中的功能不发起任何请求 |
 | 壁纸预览 | 预览中的示意卡片按当前界面透明度（`GlassStyle`）绘制，与实际页面一致 |
 
 ## 5c. 减少遮挡与字幕入口合并（2026-11-08 批次）

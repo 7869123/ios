@@ -86,8 +86,8 @@ shoot() {
   fi
   capture "$udid" portrait
   capture "$udid" landscape -AIUtilityPreviewLandscape
-  # Media Tools pages: iPad in both orientations, iPhone in portrait.
-  for page in downloads stitch gif fingerprint search; do
+  # Toolbox pages (media and network): iPad in both orientations, iPhone in portrait.
+  for page in downloads stitch gif fingerprint search speed leak; do
     capture "$udid" portrait
     if [ "$label" = "ipad-mini" ]; then capture "$udid" landscape -AIUtilityPreviewLandscape; fi
   done

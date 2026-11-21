@@ -1,10 +1,10 @@
 import SwiftUI
 import AIUtilityMedia
 
-/// Media hub. Statuses are honest: local tools run on device; site downloads and reverse search are
-/// implemented but only tested against offline samples, so they are marked 未实测.
+/// Toolbox hub (media and network tools). Statuses are honest: local tools run on device; site downloads,
+/// reverse search and the network tools are implemented but not yet checked on a device, so they are marked 未实测.
 struct MediaTool: Identifiable {
-    enum Page: String, Hashable, CaseIterable { case downloads, stitch, gif, fingerprint, search }
+    enum Page: String, Hashable, CaseIterable { case downloads, stitch, gif, fingerprint, search, speed, leak }
     let id: String
     let title: String
     let icon: String
@@ -24,6 +24,13 @@ struct MediaTool: Identifiable {
         .init(id: "search", title: "反向搜图", icon: "magnifyingglass", detail: "搜图 Bot 酱（无需 Key）或 SauceNAO（需自备 Key）",
               status: .untested, page: .search),
     ]
+    static let network: [MediaTool] = [
+        .init(id: "speed", title: "网络测速", icon: "speedometer", detail: "Cloudflare：延迟、抖动、下载、上传；信通院规划中",
+              status: .untested, page: .speed),
+        .init(id: "leak", title: "泄漏检测", icon: "shield.lefthalf.filled", detail: "出口 IP、DNS、WebRTC 是否绕过 VPN / 代理",
+              status: .untested, page: .leak),
+    ]
+    static var all: [MediaTool] { downloads + local + search + network }
 }
 
 @MainActor struct MediaToolsView: View {
@@ -34,17 +41,18 @@ struct MediaTool: Identifiable {
 
     var body: some View {
         WorkspacePage {
-            PageHeader(title: "媒体工具箱", subtitle: "下载、图片处理与搜图")
+            PageHeader(title: "工具箱", subtitle: "下载、图片处理、搜图与网络检测")
             section("下载", MediaTool.downloads)
             section("本地工具", MediaTool.local)
             section("搜图", MediaTool.search)
-            Text("“未实测”表示功能已实现，但只用离线样例测试过，还没有连接真实站点验证。只处理公开内容，不绕过登录、付费或地区限制。")
+            section("网络", MediaTool.network)
+            Text("“未实测”表示功能已实现，但只用离线样例测试过，还没有连接真实站点或在真机上验证。只处理公开内容，不绕过登录、付费或地区限制。网络工具只在点「开始」后联系第三方服务。")
                 .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 .legibleOnWallpaper()
         }
         .task { await media.start() }
         .navigationDestination(item: $autoOpen) { page in
-            if let tool = (MediaTool.downloads + MediaTool.local + MediaTool.search).first(where: { $0.page == page }) {
+            if let tool = MediaTool.all.first(where: { $0.page == page }) {
                 destination(tool)
             }
         }
@@ -80,6 +88,8 @@ struct MediaTool: Identifiable {
             case .gif: GIFToolView()
             case .fingerprint: FingerprintToolView()
             case .search: SearchToolView()
+            case .speed: SpeedTestView()
+            case .leak: LeakTestView()
             }
         }
         .navigationTitle(tool.title)
@@ -253,7 +263,7 @@ struct MediaTool: Identifiable {
 }
 
 #if DEBUG
-/// CI review screenshots only: `-AIUtilityPage <downloads|stitch|gif|fingerprint|search>`.
+/// CI review screenshots only: `-AIUtilityPage <downloads|stitch|gif|fingerprint|search|speed|leak>`.
 enum ReviewLaunch {
     /// Raw value of `-AIUtilityPage`: a media tool page, or settings-translation / settings-provider / settings-cards /
     /// screenshot-region for the translation pages.

@@ -262,7 +262,7 @@ struct StatusChip: View {
     let subtitle: String
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("AIUTILITY / WORKSPACE").font(.caption.monospaced().weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
+            Text("SERINA / TOOLBOX").font(.caption.monospaced().weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             Text(title).font(.largeTitle.bold()).foregroundStyle(UtilityTheme.ink)
             Text(subtitle).font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
         }

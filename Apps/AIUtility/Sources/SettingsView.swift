@@ -210,7 +210,7 @@ import AIUtilityCore
             }
             .buttonStyle(PressableCardStyle())
             // For test reports (DEVICE_TEST_CHECKLIST asks for the app version).
-            Text("AIUtility 版本 \(Self.version)").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+            Text("serina的工具箱 版本 \(Self.version)").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 .textSelection(.enabled).legibleOnWallpaper()
         }
         .navigationDestination(item: $autoOpen) { page in

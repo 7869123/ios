@@ -6,7 +6,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Launch: blurred, darkened backdrop fills the screen; the full artwork sits on top, never cropped.-->
+        <!--Launch: soft blurred backdrop of the same artwork fills the screen (lavender, matching its edges); the full artwork sits on top, never cropped.-->
         <scene sceneID="Lch-Sc-001">
             <objects>
                 <viewController id="Lch-VC-001" sceneMemberID="viewController">
@@ -21,7 +21,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0.157" green="0.165" blue="0.306" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.886" green="0.875" blue="0.992" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="Lch-Bg-001" firstAttribute="top" secondItem="Lch-Vw-001" secondAttribute="top" id="Lch-Ct-001"/>
                             <constraint firstItem="Lch-Bg-001" firstAttribute="bottom" secondItem="Lch-Vw-001" secondAttribute="bottom" id="Lch-Ct-002"/>
@@ -40,7 +40,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LaunchArt" width="1086" height="1448"/>
-        <image name="LaunchBackdrop" width="271" height="362"/>
+        <image name="LaunchArt" width="852" height="1846"/>
+        <image name="LaunchBackdrop" width="213" height="461"/>
     </resources>
 </document>

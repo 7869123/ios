@@ -32,7 +32,7 @@ on:
         options: [all, new]
         default: all
       live_checks:
-        description: 'Live public-site checks (Pixiv, Bilibili, X, soutubot): metadata and HEAD only, no downloads, no keys'
+        description: 'Live checks: public sites (Pixiv, Bilibili, X, soutubot; metadata and HEAD only) and network tool services (Cloudflare, ip.sb, IPIP, STUN, Akamai DNS; about 1.2 MB)'
         type: boolean
         default: false
       diagnostics:
@@ -74,9 +74,13 @@ jobs:
           media_build_code=$?
           swift test --package-path Packages/AIUtilityMedia > artifacts/core-linux/media-tests.log 2>&1
           media_test_code=$?
-          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\npoc_lifecycle_tests=%s\nmedia_build=%s\nmedia_tests=%s\n' "$version_code" "$build_code" "$test_code" "$lifecycle_code" "$media_build_code" "$media_test_code" > artifacts/core-linux/exit-codes.txt
+          swift build --package-path Packages/AIUtilityNetwork > artifacts/core-linux/network-build.log 2>&1
+          network_build_code=$?
+          swift test --package-path Packages/AIUtilityNetwork > artifacts/core-linux/network-tests.log 2>&1
+          network_test_code=$?
+          printf 'swift_version=%s\ncore_build=%s\ncore_tests=%s\npoc_lifecycle_tests=%s\nmedia_build=%s\nmedia_tests=%s\nnetwork_build=%s\nnetwork_tests=%s\n' "$version_code" "$build_code" "$test_code" "$lifecycle_code" "$media_build_code" "$media_test_code" "$network_build_code" "$network_test_code" > artifacts/core-linux/exit-codes.txt
           cat artifacts/core-linux/*.log
-          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0 && test "$lifecycle_code" -eq 0 && test "$media_build_code" -eq 0 && test "$media_test_code" -eq 0
+          test "$version_code" -eq 0 && test "$build_code" -eq 0 && test "$test_code" -eq 0 && test "$lifecycle_code" -eq 0 && test "$media_build_code" -eq 0 && test "$media_test_code" -eq 0 && test "$network_build_code" -eq 0 && test "$network_test_code" -eq 0
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
         with:
@@ -88,6 +92,8 @@ jobs:
             artifacts/core-linux/poc-lifecycle-tests.log
             artifacts/core-linux/media-build.log
             artifacts/core-linux/media-tests.log
+            artifacts/core-linux/network-build.log
+            artifacts/core-linux/network-tests.log
             artifacts/core-linux/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
@@ -104,7 +110,7 @@ jobs:
           persist-credentials: false
       - name: Validate real macOS packages and both iOS SDK targets
         run: bash scripts/ci_apple.sh
-      - name: Validate Media on macOS and both unsigned iOS SDK targets
+      - name: Validate Media and Network on macOS and both unsigned iOS SDK targets
         if: always() && steps.checkout.outcome == 'success'
         shell: bash
         run: |
@@ -136,6 +142,16 @@ jobs:
           record_media ios-media-apple-device-build xcodebuild -scheme AIUtilityMediaApple -sdk iphoneos \
             -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/media-device-build" \
             CODE_SIGNING_ALLOWED=NO build
+          cd "$GITHUB_WORKSPACE" || exit 1
+          record_media mac-network-build swift build --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityNetwork"
+          record_media mac-network-tests swift test --package-path "$GITHUB_WORKSPACE/Packages/AIUtilityNetwork"
+          cd "$GITHUB_WORKSPACE/Packages/AIUtilityNetwork" || exit 1
+          record_media ios-network-simulator-build xcodebuild -scheme AIUtilityNetwork -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/network-simulator-build" \
+            CODE_SIGNING_ALLOWED=NO build
+          record_media ios-network-device-build xcodebuild -scheme AIUtilityNetwork -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath "$GITHUB_WORKSPACE/artifacts/network-device-build" \
+            CODE_SIGNING_ALLOWED=NO build
           exit "$media_failed"
       - uses: actions/upload-artifact@v4
         if: always() && steps.checkout.outcome == 'success'
@@ -153,6 +169,10 @@ jobs:
             artifacts/apple/ios-media-apple-simulator-build.log
             artifacts/apple/ios-media-apple-device-build.log
             artifacts/apple/ios-media-device-build.log
+            artifacts/apple/mac-network-build.log
+            artifacts/apple/mac-network-tests.log
+            artifacts/apple/ios-network-simulator-build.log
+            artifacts/apple/ios-network-device-build.log
             artifacts/apple/exit-codes.txt
           retention-days: 7
           if-no-files-found: error
@@ -481,7 +501,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Live public-site checks (metadata and HEAD only)
+      - name: Live public-site and network-service checks (metadata, HEAD and small transfers only)
         shell: bash
         env:
           AIUTILITY_LIVE_TESTS: '1'
@@ -491,9 +511,13 @@ jobs:
           : > "$AIUTILITY_LIVE_REPORT"
           swift test --package-path Packages/AIUtilityMedia --filter LiveSiteChecks > live-checks.log 2>&1
           code=$?
+          swift test --package-path Packages/AIUtilityNetwork --filter LiveNetworkChecks > live-network-checks.log 2>&1
+          network_code=$?
+          if [ "$code" -eq 0 ]; then code=$network_code; fi
           echo "== LIVE-CHECK summary (exit $code)"
           if [ -s "$AIUTILITY_LIVE_REPORT" ]; then cat "$AIUTILITY_LIVE_REPORT"; else echo "no LIVE-CHECK lines (build or test runner failure)"; fi
           tail -n 40 live-checks.log
+          tail -n 40 live-network-checks.log
           exit $code
   diagnostics:
     # Manual only: measurements that would otherwise wait for a device (Vision language matrix, oriented

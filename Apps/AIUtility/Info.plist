@@ -2,13 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 <key>CFBundleDevelopmentRegion</key><string>zh-Hans</string>
-<key>CFBundleDisplayName</key><string>AIUtility</string>
+<key>CFBundleDisplayName</key><string>serina的工具箱</string>
 <key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
 <key>CFBundleName</key><string>$(PRODUCT_NAME)</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
 <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
+<key>NSLocalNetworkUsageDescription</key><string>泄漏检测里的 WebRTC 检查会列出本机网络地址，用来确认网页能看到哪些地址。</string>
 <key>NSPhotoLibraryAddUsageDescription</key><string>把下载或处理好的图片、GIF 和视频存到「照片」。</string>
 <key>UILaunchStoryboardName</key><string>LaunchScreen</string>
 <key>UIApplicationSceneManifest</key><dict><key>UIApplicationSupportsMultipleScenes</key><true/></dict>

@@ -5,7 +5,7 @@ enum Workspace: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .home: "工作台"; case .screenshot: "截图翻译"; case .subtitles: "字幕翻译"; case .media: "媒体工具"; case .settings: "设置"
+        case .home: "工作台"; case .screenshot: "截图翻译"; case .subtitles: "字幕翻译"; case .media: "工具箱"; case .settings: "设置"
         }
     }
     var icon: String {
@@ -43,7 +43,7 @@ enum Workspace: String, CaseIterable, Identifiable {
                 }
                 .scrollContentBackground(.hidden)
                 .background { SidebarBackdrop() }
-                .navigationTitle("AIUtility")
+                .navigationTitle("serina的工具箱")
                 .safeAreaInset(edge: .bottom) {
                     HStack(spacing: 8) {
                         SlantBar().fill(UtilityTheme.brandGradient).frame(width: 18, height: 5)
@@ -65,7 +65,7 @@ enum Workspace: String, CaseIterable, Identifiable {
             }
         }
     }
-    /// Review screenshots only (DEBUG): `-AIUtilityPage <media tool page>` starts on Media Tools.
+    /// Review screenshots only (DEBUG): `-AIUtilityPage <media tool page>` starts on the toolbox.
     private static var launchWorkspace: Workspace {
         #if DEBUG
         if ReviewLaunch.mediaPage != nil { return .media }
