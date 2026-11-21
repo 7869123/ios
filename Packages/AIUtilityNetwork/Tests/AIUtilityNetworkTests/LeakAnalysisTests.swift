@@ -114,3 +114,13 @@ struct LeakAnalysisTests {
         #expect(findings.allSatisfy { $0.severity != .warning })
     }
 }
+
+@Suite("Review samples")
+struct ReviewSampleTests {
+    @Test func leakSampleShowsEverySeverity() {
+        let findings = LeakAnalysis.findings(NetworkReviewSamples.leak)
+        #expect(findings.first?.severity == .warning)
+        #expect(Set(findings.map(\.severity)) == [.ok, .info, .warning])
+        #expect(NetworkReviewSamples.leak.webRTC?.count == 2)
+    }
+}

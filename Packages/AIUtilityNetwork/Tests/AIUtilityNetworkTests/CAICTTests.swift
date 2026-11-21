@@ -163,6 +163,9 @@ private final class FakeCAICT: CAICTTransport, @unchecked Sendable {
 
     var released: [String] { lock.lock(); defer { lock.unlock() }; return releasedKeys }
     var asked: [String] { lock.lock(); defer { lock.unlock() }; return sessionRequests }
+    // NSLock may not be taken directly in async functions (Swift 6); these synchronous helpers do it.
+    private func noteSession(_ host: String) { lock.lock(); sessionRequests.append(host); lock.unlock() }
+    private func noteRelease(_ key: String) { lock.lock(); releasedKeys.append(key); lock.unlock() }
 
     func fetch(_ url: URL, userAgent: String) async throws -> Data {
         #expect(userAgent.contains("CnSpeedtest"))
@@ -191,13 +194,13 @@ private final class FakeCAICT: CAICTTransport, @unchecked Sendable {
     func exchange(host: String, port: UInt16, request: Data) async throws -> HTTPWire.Response {
         let text = String(decoding: request, as: UTF8.self)
         if text.hasPrefix("GET /speed/dovalid?") {
-            lock.lock(); sessionRequests.append(host); lock.unlock()
+            noteSession(host)
             #expect(text.contains("&time=1700000000&"))
             return HTTPWire.Response(status: 200, body: Data((host == grantingHost ? "1-key-" + host : "-1-").utf8))
         }
         if text.hasPrefix("POST /speed/dovalid?key=") {
             let key = String(text.dropFirst("POST /speed/dovalid?key=".count).prefix { $0 != " " })
-            lock.lock(); releasedKeys.append(key); lock.unlock()
+            noteRelease(key)
             return HTTPWire.Response(status: 200, body: Data(("1-" + key).utf8))
         }
         return HTTPWire.Response(status: 404, body: Data())

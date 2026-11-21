@@ -263,7 +263,8 @@ struct MediaTool: Identifiable {
 }
 
 #if DEBUG
-/// CI review screenshots only: `-AIUtilityPage <downloads|stitch|gif|fingerprint|search|speed|leak>`.
+/// CI review screenshots only: `-AIUtilityPage <downloads|stitch|gif|fingerprint|search|speed|leak>`; the network
+/// pages also take `speed-sample`, `speed-caict` and `leak-sample` to show made-up results.
 enum ReviewLaunch {
     /// Raw value of `-AIUtilityPage`: a media tool page, or settings-translation / settings-provider / settings-cards /
     /// screenshot-region for the translation pages.
@@ -272,7 +273,14 @@ enum ReviewLaunch {
         guard let index = args.firstIndex(of: "-AIUtilityPage"), index + 1 < args.count else { return nil }
         return args[index + 1]
     }
-    static var mediaPage: MediaTool.Page? { page.flatMap(MediaTool.Page.init(rawValue:)) }
+    static var mediaPage: MediaTool.Page? {
+        page.flatMap { $0.split(separator: "-").first.map(String.init) }.flatMap(MediaTool.Page.init(rawValue:))
+    }
+    /// The part after the tool page name, e.g. "sample" in `speed-sample`.
+    static var sample: String? {
+        guard mediaPage != nil, let page, let dash = page.firstIndex(of: "-") else { return nil }
+        return String(page[page.index(after: dash)...])
+    }
     static var settingsPage: String? { page.flatMap { $0.hasPrefix("settings-") ? $0 : nil } }
     static var screenshotRegion: Bool { page == "screenshot-region" }
 }

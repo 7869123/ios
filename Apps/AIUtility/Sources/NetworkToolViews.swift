@@ -146,6 +146,21 @@ enum SpeedProvider: String, CaseIterable, Identifiable {
     }
 
     func cancel() { task?.cancel() }
+
+    #if DEBUG
+    /// Review screenshots only: made-up results (documentation addresses).
+    func showSample(_ provider: SpeedProvider) {
+        guard task == nil else { return }
+        self.provider = provider
+        if provider == .caict {
+            caict = NetworkReviewSamples.caict
+            result = NetworkReviewSamples.caict.result
+        } else {
+            node = NetworkReviewSamples.cloudflareNode
+            result = NetworkReviewSamples.cloudflareResult
+        }
+    }
+    #endif
 }
 
 @MainActor struct SpeedTestView: View {
@@ -202,6 +217,14 @@ enum SpeedProvider: String, CaseIterable, Identifiable {
         }
         // Leaving the page stops the test, so it never keeps using data in the background.
         .onDisappear { model.cancel() }
+        .onAppear {
+            #if DEBUG
+            if model.result == nil, let sample = ReviewLaunch.sample {
+                provider = sample == "caict" ? .caict : .cloudflare
+                model.showSample(provider)
+            }
+            #endif
+        }
     }
 
     private static let cloudflareNote = "连接 speed.cloudflare.com，点「开始测速」后才发起。请求由小到大，下载和上传合计达到上限就不再发起新请求，网速很快时结果可能偏低。用蜂窝网络时会消耗相应流量。"
@@ -397,6 +420,15 @@ enum SpeedProvider: String, CaseIterable, Identifiable {
 
     func cancel() { task?.cancel() }
 
+    #if DEBUG
+    /// Review screenshots only: made-up observations (documentation addresses).
+    func showSample() {
+        guard task == nil else { return }
+        observations = NetworkReviewSamples.leak
+        findings = LeakAnalysis.findings(NetworkReviewSamples.leak)
+    }
+    #endif
+
     /// Every address that appears in the results, for masking.
     var addresses: Set<String> {
         guard let o = observations else { return [] }
@@ -441,6 +473,11 @@ enum SpeedProvider: String, CaseIterable, Identifiable {
             if let o = model.observations { detailsCard(o) }
         }
         .onDisappear { model.cancel() }
+        .onAppear {
+            #if DEBUG
+            if model.observations == nil, ReviewLaunch.sample != nil { model.showSample() }
+            #endif
+        }
     }
 
     private func text(_ value: String) -> String {
