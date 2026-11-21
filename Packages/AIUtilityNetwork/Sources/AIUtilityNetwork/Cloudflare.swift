@@ -64,6 +64,8 @@ public final class CloudflareSpeedTransport: NSObject, SpeedTransport, URLSessio
     }
     private let lock = NSLock()
     private var pending: [Int: Pending] = [:]
+    /// Shortest unloaded round trip seen so far (latency probes run before the transfers).
+    private var bestLatency: TimeInterval?
     /// Set once in init (a lazy property would not be thread-safe here).
     private var session: URLSession!
 
@@ -126,9 +128,15 @@ public final class CloudflareSpeedTransport: NSObject, SpeedTransport, URLSessio
         let server = Cloudflare.serverSeconds(fromServerTiming: http.value(forHTTPHeaderField: "Server-Timing")) ?? 0
         let m = state.metrics
         var latency: TimeInterval?
+        var responseWait: TimeInterval?
         if let start = m?.requestStartDate, let first = m?.responseStartDate {
-            latency = max(0, first.timeIntervalSince(start) - server)
+            responseWait = max(0, first.timeIntervalSince(start) - server)
+            latency = responseWait
         }
+        if state.direction == .download, state.received == 0, let latency {
+            lock.withLock { bestLatency = min(bestLatency ?? latency, latency) }
+        }
+        let roundTrip = lock.withLock { bestLatency } ?? 0
         let seconds: TimeInterval
         let bytes: Int64
         switch state.direction {
@@ -137,11 +145,11 @@ public final class CloudflareSpeedTransport: NSObject, SpeedTransport, URLSessio
             seconds = m.flatMap { m in m.responseStartDate.flatMap { s in m.responseEndDate.map { $0.timeIntervalSince(s) } } } ?? 0
         case .upload:
             bytes = state.sent
-            // requestEnd only marks the body handed to the socket buffer, which makes small uploads look far too
-            // fast (live check: 100 KB in 1 ms). The server's own duration covers receiving the body; the longer
-            // of the two is used.
+            // requestEnd only marks the body handed to the socket buffer, so small uploads look far too fast (live
+            // check: 100 KB in under 1 ms), and the server's timing for uploads is about 0. The node answers only
+            // after reading the whole body: time to the response, less one unloaded round trip, is the transfer.
             let written = m.flatMap { m in m.requestStartDate.flatMap { s in m.requestEndDate.map { $0.timeIntervalSince(s) } } } ?? 0
-            seconds = max(written, server)
+            seconds = max(written, (responseWait ?? 0) - roundTrip)
         }
         state.continuation.resume(returning: TransferSample(bytes: bytes, transferSeconds: seconds, latencySeconds: latency))
     }
