@@ -1,11 +1,14 @@
 # AIUtility 开发状态
 
-## 最新（Claude，2026-11-21）：网络测速、泄漏检测、新图标与名称（未编译）
+## 最新（Claude，2026-11-21）：网络测速、泄漏检测、新图标与名称，build_apple + live_checks 通过
 
 - 新包 `Packages/AIUtilityNetwork` 与页面「工具箱 → 网络」：Cloudflare 测速（延迟、抖动、下载、上传、负载下的延迟、节点与出口 IP，带流量上限）；IP / DNS / WebRTC 泄漏检测（HTTPS 出口、STUN、WKWebView 里的 WebRTC、Akamai DNS 诊断、VPN / 代理识别，规则见 NETWORK_TOOLS.md）。信通院测速按所有者整理的非官方接口说明接入（控制面定位、节点表、签名会话、TCP 直连节点测下载 / 上传、结束必释放会话；并发数与延迟方式为推断，上传值可能偏低），细节见 NETWORK_TOOLS.md。
 - 「媒体工具」改名「工具箱」；App 显示名改为「serina的工具箱」；图标、启动画面换成所有者提供的图（所有者确认为原创或有权使用，已写入 ASSETS_LICENSE.md）。
 - CI：core-linux 与 apple 增加网络包的编译和测试，apple 另做 iOS 模拟器 / 真机 SDK 编译；`live_checks` 增加 `LiveNetworkChecks`；截图增加 speed、leak 两页。
-- 本容器没有 Swift 工具链，**这一批还没有编译过**，等手动 `build_apple` 验证；真机测试项见 DEVICE_TEST_CHECKLIST.md 第 11A、11B 节。
+- 验证：[Actions 44914960833](https://github.com/7869123/ios/actions/runs/44914960833)（源 `0a72693`）全部通过：core-linux（网络包 58 项测试）、apple（含网络包 macOS 测试与 iOS 模拟器 / 真机 SDK 编译）、app（编译、Release 归档、未签名 IPA、62 张预览提交于 `866bd74`）、live-checks。
+- 联网格式检查：Cloudflare trace / 下载 / 上传、ip.sb、IPIP、两个 STUN、三条 Akamai DNS TXT、信通院控制面（定位 + 节点表，在美国机房也返回 1 个节点）全部 ok；IPv6 在 CI 机房不可用（unavailable，属预期）。
+- 修复过程：44912642837（测试里 async 中用 NSLock）、44913267516（假节点会话 key 含点号被解析器拒绝）、44913942459（App 泄漏检测 catch 未收窄类型）；另根据联网检查修正 Cloudflare 上传计时（requestEnd 只代表写入缓冲区，Cloudflare 对上传的服务器计时约为 0，改为「响应等待 − 最短空载往返」）。
+- 截图中的测速、泄漏结果是 DEBUG 示例数据（`NetworkReviewSamples`，文档保留地址），不是真实测量；真机测试项见 DEVICE_TEST_CHECKLIST.md 第 11A、11B 节。
 
 ## 最新（Claude，2026-11-15）：真机前诊断结果与修复，全部通过
 
