@@ -411,7 +411,9 @@ enum SpeedProvider: String, CaseIterable, Identifiable {
                 observations = result
                 findings = LeakAnalysis.findings(result)
             } catch {
-                message = error == .cancelled ? "已停止。" : "检测失败：" + error.userMessage
+                // The body passes a closure, so the catch is not narrowed to NetworkToolError here.
+                let failure = (error as? NetworkToolError) ?? .network
+                message = failure == .cancelled ? "已停止。" : "检测失败：" + failure.userMessage
             }
             running = false
             task = nil
