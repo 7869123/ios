@@ -6,7 +6,7 @@ iOS / iPadOS 17+，Swift 6。依赖已经通过 Apple SDK 验证的 AIUtilityCor
 - 截图页通过系统 PhotosPicker 获取选定图片，调用真实 VisionOCRService；可编辑识别文字，再主动调用翻译引擎。不默认上传原图。
 - 字幕页接入 videoSubtitle 模型绑定，当前只接受字幕文本；没有假装可跨 App 采集或转写音频。
 - 设置页读取已有模型绑定，候选 Key 只在 SecureField 内存中；可获取官方目录、验证并原子保存 Key/两个绑定，或复用已有 Key 独立验证切换模型。验证可能收费，按钮旁明确提示。
-- 工具箱页（原「媒体工具」）：本地工具（拼接、GIF、指纹）可用；B站 / X / Pixiv 下载、反向搜图、网络测速（Cloudflare）和 IP / DNS / WebRTC 泄漏检测已接入、未在真机验证，标「未实测」；信通院测速规划中（见 NETWORK_TOOLS.md）。
+- 工具箱页（原「媒体工具」）：本地工具（拼接、GIF、指纹）可用；B站 / X / Pixiv 下载、反向搜图、网络测速（Cloudflare；信通院走非官方接口）和 IP / DNS / WebRTC 泄漏检测已接入、未在真机验证，标「未实测」（见 NETWORK_TOOLS.md）。
 - App 显示名「serina的工具箱」，图标与启动画面由所有者提供（2026-11-21）。
 - iOS 原生结构 + 原创明快蓝白青风格（token、组件与验收见 [UIUX_SPEC.md](../../UIUX_SPEC.md)）；仅用 SF Symbols，未使用任何游戏素材。首页工作台原型由 CI 在 iPad mini / iPhone 模拟器截图供审核。
 

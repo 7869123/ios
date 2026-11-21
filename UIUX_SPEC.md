@@ -26,7 +26,7 @@
 | 工作台 | `HomeView`（**本轮新增原型**） | 可预览 | 默认首页；功能入口 + 状态 |
 | 截图翻译 | `ScreenshotView` | 已有 | Discord 等截图 OCR + 翻译 |
 | 字幕翻译 | `SubtitleView` | 已有 | 字幕文本翻译 |
-| 工具箱（2026-11-21 由「媒体工具」改名） | `MediaToolsView` | 已接入 | 分区：下载、本地工具、搜图、网络。本地工具（拼接、GIF、指纹）标「可用」；B站 / X / Pixiv 下载、搜图、网络测速与泄漏检测已实现、未在真机验证，标「未实测」；信通院测速标「规划中」 |
+| 工具箱（2026-11-21 由「媒体工具」改名） | `MediaToolsView` | 已接入 | 分区：下载、本地工具、搜图、网络。本地工具（拼接、GIF、指纹）标「可用」；B站 / X / Pixiv 下载、搜图、网络测速（Cloudflare、信通院）与泄漏检测已实现、未在真机验证，标「未实测」 |
 | 工具箱 → 网络测速 / 泄漏检测 | `SpeedTestView` / `LeakTestView`（`NetworkToolViews.swift`） | 已接入，未实测 | 指标用 `MetricCell` 网格；IP 默认打码，「显示完整 IP」开关；离开页面即停止；说明见 NETWORK_TOOLS.md |
 | 设置 | `SettingsView`（入口）→ `ProviderSettingsView` / `AppearanceSettingsView` | 已有，2026-11-08 拆分 | AI 供应商、Key 状态、模型绑定、预算；外观与壁纸 |
 | （字幕页"实时字幕"模式）实时字幕 · PiP | `SubtitleView` + `LiveCaptionInfoSheet` | 仅状态说明 | PoC 在 `PoCs/iOS27Capture`，未接入 App，未经真机验证 |

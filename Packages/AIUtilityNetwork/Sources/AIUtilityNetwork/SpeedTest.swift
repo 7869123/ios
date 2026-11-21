@@ -60,7 +60,8 @@ public struct SpeedTestPlan: Sendable {
 }
 
 public struct SpeedTestProgress: Sendable, Equatable {
-    public enum Phase: String, Sendable { case latency, download, upload, finished }
+    /// `preparing`: finding a server and opening a session (China Academy of ICT only).
+    public enum Phase: String, Sendable { case preparing, latency, download, upload, finished }
     public let phase: Phase
     /// Current estimate for the running direction, Mbps.
     public let currentMbps: Double?

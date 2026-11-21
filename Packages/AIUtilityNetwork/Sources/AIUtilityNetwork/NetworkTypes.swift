@@ -12,6 +12,8 @@ public enum NetworkToolError: Error, Sendable, Equatable {
     case unsupportedPlatform
     /// The provider is not available yet (for example China Academy of ICT, pending its request format).
     case notConfigured
+    /// No test node answered or granted a session (all busy, refused, or none listed for this network).
+    case noServer
 
     static func classify(_ error: any Error) -> NetworkToolError {
         if let error = error as? NetworkToolError { return error }

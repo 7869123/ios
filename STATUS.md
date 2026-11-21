@@ -2,7 +2,7 @@
 
 ## 最新（Claude，2026-11-21）：网络测速、泄漏检测、新图标与名称（未编译）
 
-- 新包 `Packages/AIUtilityNetwork` 与页面「工具箱 → 网络」：Cloudflare 测速（延迟、抖动、下载、上传、负载下的延迟、节点与出口 IP，带流量上限）；IP / DNS / WebRTC 泄漏检测（HTTPS 出口、STUN、WKWebView 里的 WebRTC、Akamai DNS 诊断、VPN / 代理识别，规则见 NETWORK_TOOLS.md）。信通院测速等抓包后接入，界面标「规划中」、不发请求。
+- 新包 `Packages/AIUtilityNetwork` 与页面「工具箱 → 网络」：Cloudflare 测速（延迟、抖动、下载、上传、负载下的延迟、节点与出口 IP，带流量上限）；IP / DNS / WebRTC 泄漏检测（HTTPS 出口、STUN、WKWebView 里的 WebRTC、Akamai DNS 诊断、VPN / 代理识别，规则见 NETWORK_TOOLS.md）。信通院测速按所有者整理的非官方接口说明接入（控制面定位、节点表、签名会话、TCP 直连节点测下载 / 上传、结束必释放会话；并发数与延迟方式为推断，上传值可能偏低），细节见 NETWORK_TOOLS.md。
 - 「媒体工具」改名「工具箱」；App 显示名改为「serina的工具箱」；图标、启动画面换成所有者提供的图（所有者确认为原创或有权使用，已写入 ASSETS_LICENSE.md）。
 - CI：core-linux 与 apple 增加网络包的编译和测试，apple 另做 iOS 模拟器 / 真机 SDK 编译；`live_checks` 增加 `LiveNetworkChecks`；截图增加 speed、leak 两页。
 - 本容器没有 Swift 工具链，**这一批还没有编译过**，等手动 `build_apple` 验证；真机测试项见 DEVICE_TEST_CHECKLIST.md 第 11A、11B 节。

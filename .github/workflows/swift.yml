@@ -32,7 +32,7 @@ on:
         options: [all, new]
         default: all
       live_checks:
-        description: 'Live checks: public sites (Pixiv, Bilibili, X, soutubot; metadata and HEAD only) and network tool services (Cloudflare, ip.sb, IPIP, STUN, Akamai DNS; about 1.2 MB)'
+        description: 'Live checks: public sites (Pixiv, Bilibili, X, soutubot; metadata and HEAD only) and network tool services (Cloudflare, ip.sb, IPIP, STUN, Akamai DNS, CAICT control plane; about 1.2 MB)'
         type: boolean
         default: false
       diagnostics:

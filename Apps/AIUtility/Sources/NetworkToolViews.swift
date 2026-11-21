@@ -2,7 +2,8 @@ import SwiftUI
 import WebKit
 import AIUtilityNetwork
 
-// Network tools: speed test (Cloudflare; China Academy of ICT planned) and IP / DNS / WebRTC leak check.
+// Network tools: speed test (Cloudflare, or China Academy of ICT through its unofficial interface) and IP / DNS /
+// WebRTC leak check.
 // Both only contact third-party services after the user taps start, and both are marked 未实测 until they
 // have been run on a device.
 
@@ -16,6 +17,7 @@ extension NetworkToolError {
         case .httpStatus(let code): "服务返回 HTTP \(code)。"
         case .unsupportedPlatform: "这台设备不支持。"
         case .notConfigured: "还没有接入。"
+        case .noServer: "没有可用的测速节点（节点忙、拒绝，或当前网络没有分配到节点）。"
         }
     }
 }
@@ -70,30 +72,45 @@ private struct MetricCell: View {
 
 // MARK: - Speed test
 
+enum SpeedProvider: String, CaseIterable, Identifiable {
+    case cloudflare, caict
+    var id: String { rawValue }
+    var title: String { self == .cloudflare ? "Cloudflare" : "信通院" }
+}
+
 @MainActor @Observable final class SpeedTestModel {
+    /// The CAICT session interface rate-limits; consecutive tests closer than this are refused there.
+    static let caictInterval: TimeInterval = 30
+
     private(set) var running = false
     private(set) var progress: SpeedTestProgress?
     private(set) var result: SpeedTestResult?
+    private(set) var provider: SpeedProvider = .cloudflare
     /// Cloudflare's view of this connection: colo (data centre), egress address, country.
     private(set) var node: EgressObservation?
+    /// CAICT: the node used and where the control server placed this connection.
+    private(set) var caict: CAICTOutcome?
     private(set) var message: String?
     @ObservationIgnored private var task: Task<Void, Never>?
+    @ObservationIgnored private var lastCAICTStart: Date?
 
-    func start(maxBytes: Int64) {
+    func start(_ provider: SpeedProvider, maxBytes: Int64) {
         guard task == nil else { return }
-        running = true; progress = nil; result = nil; node = nil; message = nil
-        let transport = CloudflareSpeedTransport()
-        let engine = SpeedTestEngine(transport: transport, plan: SpeedTestPlan(maxTotalBytes: maxBytes))
+        if provider == .caict, let last = lastCAICTStart, Date().timeIntervalSince(last) < Self.caictInterval {
+            let wait = Int((Self.caictInterval - Date().timeIntervalSince(last)).rounded(.up))
+            message = "信通院接口限制测速频率，请 \(wait) 秒后再测。"
+            return
+        }
+        running = true; progress = nil; result = nil; node = nil; caict = nil; message = nil
+        self.provider = provider
+        if provider == .caict { lastCAICTStart = Date() }
         let (stream, continuation) = AsyncStream.makeStream(of: SpeedTestProgress.self, bufferingPolicy: .bufferingNewest(1))
         task = Task {
             let updates = Task { for await update in stream { self.progress = update } }
-            node = try? await EgressLookup(fetch: EgressLookup.urlSessionFetch).observe(.cloudflareDefault)
-            do {
-                result = try await engine.run { update in _ = continuation.yield(update) }
-            } catch {
-                message = error == .cancelled ? "已停止，没有结果。" : "测速失败：" + error.userMessage
+            switch provider {
+            case .cloudflare: await runCloudflare(maxBytes: maxBytes, continuation: continuation)
+            case .caict: await runCAICT(maxBytes: maxBytes, continuation: continuation)
             }
-            transport.invalidate()
             continuation.finish()
             await updates.value
             running = false
@@ -101,16 +118,38 @@ private struct MetricCell: View {
         }
     }
 
+    private func runCloudflare(maxBytes: Int64, continuation: AsyncStream<SpeedTestProgress>.Continuation) async {
+        let transport = CloudflareSpeedTransport()
+        let engine = SpeedTestEngine(transport: transport, plan: SpeedTestPlan(maxTotalBytes: maxBytes))
+        node = try? await EgressLookup(fetch: EgressLookup.urlSessionFetch).observe(.cloudflareDefault)
+        do {
+            result = try await engine.run { update in _ = continuation.yield(update) }
+        } catch {
+            message = Self.failure(error)
+        }
+        transport.invalidate()
+    }
+
+    private func runCAICT(maxBytes: Int64, continuation: AsyncStream<SpeedTestProgress>.Continuation) async {
+        let engine = CAICTSpeedTest(transport: NetworkCAICTTransport(), plan: CAICTPlan(maxTotalBytes: maxBytes))
+        do {
+            let outcome = try await engine.run { update in _ = continuation.yield(update) }
+            caict = outcome
+            result = outcome.result
+        } catch {
+            message = Self.failure(error)
+        }
+    }
+
+    private static func failure(_ error: NetworkToolError) -> String {
+        error == .cancelled ? "已停止，没有结果。" : "测速失败：" + error.userMessage
+    }
+
     func cancel() { task?.cancel() }
 }
 
 @MainActor struct SpeedTestView: View {
-    enum Provider: String, CaseIterable, Identifiable {
-        case cloudflare, caict
-        var id: String { rawValue }
-        var title: String { self == .cloudflare ? "Cloudflare" : "信通院" }
-    }
-    /// Data caps offered; the test stops starting new requests once the next one would cross the cap.
+    /// Data caps offered; the test stops once the next request (Cloudflare) or the running total (CAICT) would cross it.
     struct Cap: Hashable {
         let title: String
         let bytes: Int
@@ -119,7 +158,7 @@ private struct MetricCell: View {
                        Cap(title: "1 GB", bytes: 1_000_000_000)]
 
     @State private var model = SpeedTestModel()
-    @State private var provider: Provider = .cloudflare
+    @State private var provider: SpeedProvider = .cloudflare
     @AppStorage("speedTestDataCap") private var cap = 300_000_000
     @State private var showIP = false
 
@@ -127,37 +166,31 @@ private struct MetricCell: View {
         WorkspacePage {
             PageHeader(title: "网络测速", subtitle: "延迟、抖动、下载、上传与负载下的延迟")
             UtilityCard {
-                HStack { Text("测速服务").font(.headline); Spacer(); StatusChip(status: provider == .cloudflare ? .untested : .planned) }
+                HStack { Text("测速服务").font(.headline); Spacer(); StatusChip(status: .untested) }
                 Picker("测速服务", selection: $provider) {
-                    ForEach(Provider.allCases) { Text($0.title).tag($0) }
+                    ForEach(SpeedProvider.allCases) { Text($0.title).tag($0) }
                 }
                 .pickerStyle(.segmented)
                 .disabled(model.running)
-                if provider == .caict {
-                    Text("规划中：信通院测速还没有接入。确认官方测速所用的接口之后再接入，在那之前不会发出任何请求。")
-                        .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
-                } else {
-                    HStack {
-                        Text("流量上限").font(.subheadline)
-                        Spacer()
-                        Picker("流量上限", selection: $cap) {
-                            ForEach(Self.caps, id: \.self) { Text($0.title).tag($0.bytes) }
-                        }
-                        .pickerStyle(.menu)
-                        .disabled(model.running)
+                HStack {
+                    Text("流量上限").font(.subheadline)
+                    Spacer()
+                    Picker("流量上限", selection: $cap) {
+                        ForEach(Self.caps, id: \.self) { Text($0.title).tag($0.bytes) }
                     }
-                    Text("连接 speed.cloudflare.com，点「开始测速」后才发起。下载和上传合计达到上限就不再发起新请求，网速很快时结果可能偏低。用蜂窝网络时会消耗相应流量。")
-                        .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                    .pickerStyle(.menu)
+                    .disabled(model.running)
                 }
+                Text(provider == .cloudflare ? Self.cloudflareNote : Self.caictNote)
+                    .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 HStack(spacing: 12) {
                     if model.running {
                         Button { model.cancel() } label: { Label("停止", systemImage: "stop.circle.fill") }
                             .buttonStyle(PrimaryActionStyle())
                         ProgressView()
                     } else {
-                        Button { model.start(maxBytes: Int64(cap)) } label: { Label("开始测速", systemImage: "play.circle.fill") }
+                        Button { model.start(provider, maxBytes: Int64(cap)) } label: { Label("开始测速", systemImage: "play.circle.fill") }
                             .buttonStyle(PrimaryActionStyle())
-                            .disabled(provider != .cloudflare)
                     }
                 }
                 if model.running, let progress = model.progress { progressRow(progress) }
@@ -171,8 +204,12 @@ private struct MetricCell: View {
         .onDisappear { model.cancel() }
     }
 
+    private static let cloudflareNote = "连接 speed.cloudflare.com，点「开始测速」后才发起。请求由小到大，下载和上传合计达到上限就不再发起新请求，网速很快时结果可能偏低。用蜂窝网络时会消耗相应流量。"
+    private static let caictNote = "连接信通院「全球网测」的控制服务器（dlcv2.cnspeedtest.cn）和它分配的测速节点（节点用明文 HTTP）。这是非官方接口：按开源实现还原，请求以官方安卓客户端的身份和一个每次随机生成的设备号发出，随时可能失效。按时间测：下载 8 条连接约 10 秒、上传 4 条连接约 8 秒，快速网络下用量大，达到上限提前结束；两次测速至少间隔 30 秒。需要中国大陆网络，开着 VPN / 代理时可能找不到节点。上传结果可能偏低（未与官方 App 核对）。"
+
     private func progressRow(_ progress: SpeedTestProgress) -> some View {
         let phase: String = switch progress.phase {
+        case .preparing: "查找测速节点"
         case .latency: "测量空载延迟"
         case .download: "测量下载"
         case .upload: "测量上传"
@@ -194,9 +231,16 @@ private struct MetricCell: View {
         return "Cloudflare " + colo + country
     }
 
+    private static func place(_ parts: [String]) -> String {
+        let text = parts.filter { !$0.isEmpty }.joined(separator: " ")
+        return text.isEmpty ? "" : "（" + text + "）"
+    }
+
+    private func ip(_ value: String) -> String { showIP ? value : AddressMask.mask(value) }
+
     private func resultCard(_ result: SpeedTestResult) -> some View {
         UtilityCard {
-            HStack { Text("结果").font(.headline); Spacer(); StatusChip(status: .untested) }
+            HStack { Text("结果 · " + model.provider.title).font(.headline); Spacer(); StatusChip(status: .untested) }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 12)], alignment: .leading, spacing: 14) {
                 MetricCell(title: "下载", value: megabits(result.downloadMbps), unit: "Mbps")
                 MetricCell(title: "上传", value: megabits(result.uploadMbps), unit: "Mbps")
@@ -208,19 +252,37 @@ private struct MetricCell: View {
             if let node = model.node {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(Self.nodeText(node))
-                    Text("出口 IP " + (showIP ? node.ip : AddressMask.mask(node.ip)))
+                    Text("出口 IP " + ip(node.ip)).textSelection(.enabled)
+                }
+                .font(.footnote).foregroundStyle(UtilityTheme.ink)
+                Toggle("显示完整 IP", isOn: $showIP).font(.footnote)
+            }
+            if let caict = model.caict {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("信通院节点 " + (caict.node.name.isEmpty ? caict.node.id : caict.node.name)
+                         + Self.place([caict.node.province, caict.node.city]))
+                    Text("峰值 下载 " + megabits(caict.downloadPeakMbps) + " · 上传 " + megabits(caict.uploadPeakMbps) + " Mbps")
+                    Text("出口 " + ip(caict.location.ip) + Self.place([caict.location.province, caict.location.city, caict.location.isp]))
                         .textSelection(.enabled)
                 }
                 .font(.footnote).foregroundStyle(UtilityTheme.ink)
                 Toggle("显示完整 IP", isOn: $showIP).font(.footnote)
             }
-            Text("用量 " + ByteCountFormatter.string(fromByteCount: result.bytesUsed, countStyle: .file)
-                 + " · 下载 \(result.downloadSamples) 次、上传 \(result.uploadSamples) 次计时请求"
-                 + (result.stoppedByDataCap ? " · 达到流量上限，较大的测试没有进行" : ""))
-                .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
-            Text("带宽取各次请求速度的第 90 百分位；延迟取中位数，抖动是相邻两次延迟之差的平均值。负载下的延迟在传输进行时每 0.4 秒测一次。")
+            Text(usageText(result)).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+            Text(model.provider == .cloudflare
+                 ? "带宽取各次请求速度的第 90 百分位；延迟取中位数，抖动是相邻两次延迟之差的平均值。负载下的延迟在传输进行时每 0.4 秒测一次。"
+                 : "带宽取预热 2 秒之后各 0.5 秒区间的平均值，峰值是最快的一个区间；延迟是到节点的 TCP 握手时间（中位数），负载下的延迟在传输进行时每 0.5 秒测一次。")
                 .font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
         }
+    }
+
+    private func usageText(_ result: SpeedTestResult) -> String {
+        let used = "用量 " + ByteCountFormatter.string(fromByteCount: result.bytesUsed, countStyle: .file)
+        let counts = model.provider == .cloudflare
+            ? " · 下载 \(result.downloadSamples) 次、上传 \(result.uploadSamples) 次计时请求"
+            : " · 下载 \(result.downloadSamples) 个、上传 \(result.uploadSamples) 个计时区间"
+        let capped = result.stoppedByDataCap ? " · 达到流量上限，测试提前结束" : ""
+        return used + counts + capped
     }
 }
 

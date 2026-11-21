@@ -4,7 +4,8 @@ import Testing
 
 // Live checks against the real services the network tools use. Off by default; run only when
 // AIUTILITY_LIVE_TESTS=1 (manual `live_checks` workflow input). Small requests only: trace pages, a 1 MB
-// download and a 100 KB upload to speed.cloudflare.com, one STUN binding per server, three DNS TXT lookups.
+// download and a 100 KB upload to speed.cloudflare.com, one STUN binding per server, three DNS TXT lookups,
+// and the China Academy of ICT control plane (location and node list only: no session key, no transfer).
 //
 // Each check appends `LIVE-CHECK <name>: <outcome>` to AIUTILITY_LIVE_REPORT:
 // - ok: the answer matched what the parser expects (addresses are not written to the report);
@@ -85,6 +86,25 @@ struct LiveNetworkChecks {
         await check("speed-upload-100KB") {
             let sample = try await transport.upload(bytes: 100_000)
             return sample.bytes == 100_000 && sample.transferSeconds >= 0 ? String(format: "%.3f s", sample.transferSeconds) : nil
+        }
+    }
+
+    @Test func caictControlPlane() async {
+        let transport = NetworkCAICTTransport()
+        let server = CAICT.controlServers[0]
+        var located: CAICTLocation?
+        await check("caict-location") {
+            let text = String(decoding: try await transport.fetch(CAICT.locationURL(server: server), userAgent: CAICT.controlUserAgent), as: UTF8.self)
+            located = CAICT.location(text)
+            return located.map { "family \(family($0.ip)), province \($0.province.isEmpty ? "empty" : "present"), isp \($0.isp.isEmpty ? "empty" : "present")" }
+        }
+        guard let located, let url = CAICT.nodeListURL(server: server, location: located) else { return }
+        await check("caict-nodes") {
+            let data = try await transport.fetch(url, userAgent: CAICT.controlUserAgent)
+            // Outside China the list can be empty; an empty JSON array is a valid answer.
+            let text = String(decoding: data.prefix(64), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+            let nodes = CAICT.nodes(data)
+            return nodes.isEmpty && !text.hasPrefix("[") ? nil : "\(nodes.count) nodes"
         }
     }
 

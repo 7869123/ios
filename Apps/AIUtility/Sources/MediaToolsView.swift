@@ -25,7 +25,7 @@ struct MediaTool: Identifiable {
               status: .untested, page: .search),
     ]
     static let network: [MediaTool] = [
-        .init(id: "speed", title: "网络测速", icon: "speedometer", detail: "Cloudflare：延迟、抖动、下载、上传；信通院规划中",
+        .init(id: "speed", title: "网络测速", icon: "speedometer", detail: "Cloudflare 或信通院：延迟、抖动、下载、上传",
               status: .untested, page: .speed),
         .init(id: "leak", title: "泄漏检测", icon: "shield.lefthalf.filled", detail: "出口 IP、DNS、WebRTC 是否绕过 VPN / 代理",
               status: .untested, page: .leak),

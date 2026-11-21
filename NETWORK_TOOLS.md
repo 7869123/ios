@@ -1,6 +1,6 @@
 # 网络工具：测速与泄漏检测
 
-2026-11-21 新增。代码在 `Packages/AIUtilityNetwork`（纯逻辑在 Linux 编译和测试；URLSession 计时、UDP、DNS-SD 只在 Apple 平台），界面在 `Apps/AIUtility/Sources/NetworkToolViews.swift`，入口在「工具箱 → 网络」。两个功能都标「未实测」：没有在真机上跑过，联网格式检查（`live_checks`）也还没有跑。
+2026-11-21 新增（信通院测速同日接入）。代码在 `Packages/AIUtilityNetwork`（纯逻辑在 Linux 编译和测试；URLSession 计时、UDP、DNS-SD 只在 Apple 平台），界面在 `Apps/AIUtility/Sources/NetworkToolViews.swift`，入口在「工具箱 → 网络」。两个功能都标「未实测」：没有在真机上跑过，联网格式检查（`live_checks`）也还没有跑。
 
 两个功能都只在用户点「开始」后才联网，离开页面时自动停止。
 
@@ -20,18 +20,32 @@
 
 这套步骤参考 Cloudflare 自己的测速引擎，但不是它的代码，数值可能和 speed.cloudflare.com 网页版有差别。
 
-### 信通院（规划中，未接入）
+### 信通院（已接入，未实测；非官方接口）
 
-信通院没有公开的测速接口，官方测速在「全球网测」「泰尔网测」App 里。所有者决定先抓包、再按实际请求接入。接入前界面上选「信通院」只显示「规划中」，不发出任何请求（`NetworkToolError.notConfigured` 预留）。
+2026-11-21 按所有者整理的接口说明接入。来源：两份开源还原实现（MiaM1ku/taierspeedtest、Canary233/luci-app-cnspeedtest），所有者用自建客户端逐条请求真实服务器核对过；**没有对官方 App 抓包**。接口没有文档和兼容承诺，随时可能变。
 
-抓包时需要的信息：
+| 步骤 | 做法 | 依据 |
+|---|---|---|
+| 出口定位 | `GET https://dlcv2.cnspeedtest.cn:8443/dataServer/getIpLocSP.php`，返回 `IP\|["中国","省","市","","运营商"]\|…`；失败时依次试 `dlc.duoweisoft.com:8096`、`dlcv2.duoweisoft.com:8088`（明文 HTTP） | 实测 |
+| 节点表 | `GET …/dataServer/mobilematch_many.php?ip=…&network=4&province=…&city=…&wifioper=…&mobileoperid=…&ipv6=0&model=Android&pkg=com.cnspeedtest.globalspeed`，JSON 数组（`hostip`、`port` 为字符串） | 实测 |
+| 选节点 | 对每个节点做一次 TCP 握手，按快慢排序，依次申请会话（最多 4 个）；`-1-` 先当作坏节点、换下一个 | 实测（有节点恒返回 `-1-`） |
+| 会话 | `GET http://节点:端口/speed/dovalid?key=&flag=true&bandwidth=200&model=Android&imei=…&time=…&app=globalspeed&token=…&pkg=…`，返回 `1-<uuid>`；签名 `md5(md5("model=Android&imei=" + imei) + md5("stime=" + time + "&band=200&rand=12345555"))`；时间取 `dlc.duoweisoft.com:8096/dataServer/time.php`，取不到用本机时间 | 实测 |
+| 设备号 | 每次测速随机生成 15 位数字（`35` 开头、Luhn 校验位），不发送本机任何标识 | 服务端只校验格式 |
+| 延迟 | 到节点端口的 TCP 握手时间，8 次取中位数；抖动同 Cloudflare 的算法 | **推断**（没有协议依据） |
+| 下载 | 8 条连接各发 `GET /speed/File(1G).dl?r=<unix 秒>&key=<uuid>`，节点发完 1 GB 断开就重连；约 10 秒 | URL 实测；并发数**推断** |
+| 上传 | 4 条连接各发 `POST /speed/doAnalsLoad.do`（`Key` 头带 uuid，multipart 固定 boundary `00content0boundary00`，声明 `Content-Length: 900000000`），然后持续发送随机数据；约 8 秒 | **部分实测**：跑通，但整理时只测到很低的上传值，可能偏低 |
+| 结果 | 每 0.5 秒取一次区间速度，去掉前 2 秒预热后取平均；另给出峰值区间 | — |
+| 释放 | `POST http://节点:端口/speed/dovalid?key=<uuid>`；拿到会话后无论成功、失败还是点「停止」都会释放 | 实测 |
 
-1. 测速开始前获取服务器列表的请求：完整 URL、方法、请求头（去掉 Token、Cookie、设备号）、响应 JSON 的结构（可以把 IP、ID 换成假值）。
-2. 延迟（ping）测试：用的是 HTTP、TCP 还是 ICMP；HTTP 的话给 URL。
-3. 下载测试：URL 的样子（有没有大小参数）、并发连接数、单个文件多大。
-4. 上传测试：URL、方法、Content-Type、单次上传多大。
-5. 是否需要登录或签名参数（如 `sign=`、`token=`、时间戳），签名怎么生成（如果看得出来）。
-6. App 若启用证书固定（Charles / Proxyman 显示握手失败），抓不到明文时告诉我，我们再换方式。
+实现要点：
+
+- 节点是 IP 地址加端口的明文 HTTP，URLSession（App Transport Security）会拦截，所以数据面用 Network.framework 的 TCP 连接手写 HTTP（`NetworkCAICTTransport`、`HTTPWire`），不需要在 Info.plist 放宽 ATS。HTTPS 控制服务器仍用 URLSession。
+- 请求头按接口要求以官方安卓客户端的身份发出（`User-Agent`、`pkg`）。
+- 流量上限对两边都生效：下载最多用上限的 75%，上传用剩下的；达到就提前结束并在结果里注明。
+- 同一出口 IP 要跑完整个会话：测速中切换网络或代理出口会让节点返回 403。
+- `dovalid` 有频率限制：App 内两次信通院测速至少间隔 30 秒。
+- MD5 用纯 Swift 实现（Linux 没有 CryptoKit），用 RFC 1321 向量和 Python `hashlib` 交叉核对；签名向量也来自 `hashlib`。
+- 连续 3 次连接失败的线程不再重连，避免对拒绝的节点反复请求。
 
 ## 2. 泄漏检测（已实现，未实测）
 
@@ -67,7 +81,7 @@
 
 | 层级 | 内容 | 状态 |
 |---|---|---|
-| Linux（core-linux） | 统计、测速引擎（假传输：逐级停止、流量上限、过短请求、进度、取消、错误分类）、trace / Server-Timing / ip.sb / IPIP / TXT 解析、STUN（RFC 5769 IPv4 / IPv6 向量）、ICE 候选、VPN 接口分类、泄漏规则 | 待 CI |
+| Linux（core-linux） | 统计、测速引擎（假传输：逐级停止、流量上限、过短请求、进度、取消、错误分类）、trace / Server-Timing / ip.sb / IPIP / TXT 解析、STUN（RFC 5769 IPv4 / IPv6 向量）、ICE 候选、VPN 接口分类、泄漏规则；信通院：MD5、签名、设备号、定位 / 节点表 / 会话回复解析、请求报文、HTTP 报文解析（含 chunked），以及假节点上的完整流程（选第一个能给会话的最快节点、正常结束 / 流量上限 / 停止都释放 key、没有可用节点） | 待 CI |
 | macOS（apple） | 同上测试 + 模拟器 / 真机 SDK 编译 | 待 CI |
-| 联网格式（`live_checks`） | `LiveNetworkChecks`：三条 trace、ip.sb、IPIP、1 MB 下载 / 100 KB 上传、两个 STUN、三条 DNS TXT；报告只写地址族和节点，不写地址 | 未跑 |
+| 联网格式（`live_checks`） | `LiveNetworkChecks`：三条 trace、ip.sb、IPIP、1 MB 下载 / 100 KB 上传、两个 STUN、三条 DNS TXT、信通院出口定位与节点列表（CI 机房在国外，节点表可能为空）；报告只写地址族和数量，不写地址 | 未跑 |
 | 真机 | 见 DEVICE_TEST_CHECKLIST.md 第 11A、11B 节 | 未验证 |
