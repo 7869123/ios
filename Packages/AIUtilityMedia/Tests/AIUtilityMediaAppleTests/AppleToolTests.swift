@@ -32,6 +32,23 @@ private func splitImage(width: Int, height: Int) throws -> CGImage {
     return try #require(context.makeImage())
 }
 
+/// Deterministic pseudo-random opaque pixels (a linear congruential generator, no system randomness).
+private func noiseImage(width: Int, height: Int) throws -> CGImage {
+    let context = try #require(CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                         space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                         bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    let pixels = try #require(context.data).bindMemory(to: UInt8.self, capacity: width * height * 4)
+    var state: UInt32 = 12_345
+    for index in 0..<(width * height) {
+        for channel in 0..<3 {
+            state = state &* 1_103_515_245 &+ 12_345
+            pixels[index * 4 + channel] = UInt8(truncatingIfNeeded: state >> 16)
+        }
+        pixels[index * 4 + 3] = 255
+    }
+    return try #require(context.makeImage())
+}
+
 private func encoded(_ image: CGImage, type: String, properties: [CFString: Any] = [:]) throws -> Data {
     let output = NSMutableData()
     let destination = try #require(CGImageDestinationCreateWithData(output as CFMutableData, type as CFString, 1, nil))
@@ -179,6 +196,25 @@ struct StitchImageTests {
         await expectMediaError(.unsupportedFormat) { try await stitchImages([Data("not an image".utf8)]) }
         await expectMediaError(.invalidInput) { try await stitchImages([]) }
         await expectMediaError(.invalidInput) { try await stitchImages([png], options: StitchOptions(layout: .grid(columns: 0))) }
+    }
+
+    @Test func outputOverTheByteCapIsShrunkInsteadOfFailing() async throws {
+        // Noise barely compresses, like photos saved as PNG: 200 x 200 encodes to well over 40 KB.
+        let noisy = try encoded(noiseImage(width: 200, height: 200), type: "public.png")
+        var limits = MediaProcessingLimits(); limits.maxOutputBytes = 40_000
+        let unshrunk = try await stitchImages([noisy, noisy], options: StitchOptions(layout: .horizontal))
+        #expect(unshrunk.data.count > 40_000 && unshrunk.width == 400)
+        let result = try await stitchImages([noisy, noisy], options: StitchOptions(layout: .horizontal, limits: limits))
+        #expect(result.data.count <= 40_000)
+        #expect(result.width < 400 && result.width > result.height)
+        let source = try #require(CGImageSourceCreateWithData(result.data as CFData, nil))
+        let decoded = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
+        #expect(decoded.width == result.width && decoded.height == result.height)
+        // A cap no image can meet still fails after a bounded number of attempts.
+        limits.maxOutputBytes = 10
+        await expectMediaError(.resourceLimitExceeded) {
+            try await stitchImages([noisy], options: StitchOptions(layout: .horizontal, limits: limits))
+        }
     }
 
     @Test func cancellationReturnsNoResult() async throws {

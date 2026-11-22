@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import UIKit
+import ImageIO
 import AIUtilityCore
 import AIUtilityAppleServices
 
@@ -88,7 +89,7 @@ import AIUtilityAppleServices
         case .invalidRequest where source?.language == nil:
             "这张图没能在本机识别（源语言为「自动检测」）。可以在下方语言里选一个具体的源语言，或框选文字区域后再试。"
         case .invalidRequest:
-            "这张图无法在本机识别：格式不支持或文件超过 32 MB。"
+            "这张图无法在本机识别：格式不支持，或图片无法解码。"
         case .unsupportedPlatform: "这台设备的本机识别不支持所选语言。"
         case .timeout: "本机识别超时，可以缩小框选范围后再试。"
         case .configurationBusy: "上一次识别或翻译还没结束，请稍候再试。"
@@ -110,12 +111,25 @@ import AIUtilityAppleServices
                                   height: min($0.height, 1 - max(0, 1 - $0.maxY)))
                 }
                 source = languages.source
-                let draft = try await app.services.screenshots.recognize(imageData: data, source: languages.source, region: ocrRegion)
+                // On-device recognition takes at most 32 MB (large stitched PNGs exceed it): recognise a smaller
+                // oriented JPEG copy instead. Regions are normalised, so the selection still applies.
+                let shrunk = data.count > recognitionByteLimit
+                var input = data
+                if shrunk {
+                    ocrStatus = "图片超过 32 MB，正在缩小后识别…"
+                    guard let copy = await Task.detached(priority: .userInitiated, operation: { recognitionCopy(data) }).value else {
+                        if !Task.isCancelled { ocrStatus = "这张图超过 32 MB，缩小后仍无法在本机识别。" }; return
+                    }
+                    try Task.checkCancellation()
+                    input = copy
+                }
+                let draft = try await app.services.screenshots.recognize(imageData: input, source: languages.source, region: ocrRegion)
                 try Task.checkCancellation()
                 app.screenshotDraft = draft.text
                 let seconds = Double(draft.recognitionDuration.components.attoseconds) / 1e18 + Double(draft.recognitionDuration.components.seconds)
-                ocrStatus = draft.lines.isEmpty ? "未识别到文字，可调整框选范围、换源语言或手动输入。"
-                    : "按「\(languages.source.title)」识别 \(draft.lines.count) 行，用时 \(String(format: "%.1f", seconds)) 秒。只有点击翻译才会发送文字。"
+                let note = shrunk ? "（图片超过 32 MB，已缩小后识别）" : ""
+                ocrStatus = draft.lines.isEmpty ? "未识别到文字\(note)，可调整框选范围、换源语言或手动输入。"
+                    : "按「\(languages.source.title)」识别 \(draft.lines.count) 行，用时 \(String(format: "%.1f", seconds)) 秒\(note)。只有点击翻译才会发送文字。"
             } catch {
                 if !Task.isCancelled { ocrStatus = Self.ocrMessage(error, source: source) }
             }
@@ -307,4 +321,26 @@ import AIUtilityAppleServices
             } catch { status = Self.message(error) }
         }
     }
+}
+
+/// Byte cap of on-device recognition (`VisionOCRService`).
+let recognitionByteLimit = 32_000_000
+
+/// Oriented JPEG copy within 16 384 px per side and 40 MP (what recognition scales to anyway), for files over
+/// the recognition byte cap. Nil when the image cannot be decoded or the copy is still too large.
+func recognitionCopy(_ data: Data) -> Data? {
+    guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
+          let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+          let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.doubleValue,
+          let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.doubleValue,
+          width > 0, height > 0 else { return nil }
+    let scale = min(1, 16_384 / max(width, height), (40_000_000 / (width * height)).squareRoot())
+    let options = [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceCreateThumbnailWithTransform: true,
+                   kCGImageSourceThumbnailMaxPixelSize: max(1, Int(max(width, height) * scale))] as CFDictionary
+    guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else { return nil }
+    let output = NSMutableData()
+    guard let destination = CGImageDestinationCreateWithData(output as CFMutableData, "public.jpeg" as CFString, 1, nil) else { return nil }
+    CGImageDestinationAddImage(destination, image, [kCGImageDestinationLossyCompressionQuality: 0.9] as CFDictionary)
+    guard CGImageDestinationFinalize(destination), output.length > 0, output.length <= recognitionByteLimit else { return nil }
+    return output as Data
 }

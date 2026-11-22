@@ -461,7 +461,7 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions)
   原调用不变。`maxGIFTotalPixels` 默认 5000 万：诊断运行 43671848044 实测 599 帧 640×360（1.38 亿像素）峰值内存 1.56 GB，
   约每像素 11 字节；超出时视频转 GIF 与 Pixiv 动图都整体等比缩小，不再失败。`stripMetadata` 另外删除 PNG 的
   tEXt / zTXt / tIME 块、非 XMP 的 iTXt 块和 JPEG 的 COM 段（ImageIO 既不报告也不去掉它们；同一次诊断确认 PNG 文本块原样保留）。
-  ImageIO 自己写的 eXIf 与 XMP iTXt 保留（方向存在其中，可识别字段由 ImageIO 属性检查）。拼接画布超过 `maxPixels` 时整体等比缩小而不再失败（单张输入超限仍失败）。`reencode` 对 PNG/JPEG 保持格式，
+  ImageIO 自己写的 eXIf 与 XMP iTXt 保留（方向存在其中，可识别字段由 ImageIO 属性检查）。拼接画布超过 `maxPixels` 时整体等比缩小而不再失败（单张输入超限仍失败）。2026-11-22 起：拼接结果编码后超过 `maxOutputBytes`（相机照片存成 PNG 压缩率低，8000 万像素也可能超过 200 MB）时，把成品画布再整体等比缩小后重新编码，最多 3 次，仍超出才返回 `resourceLimitExceeded`；`ImageResult` 的宽高是实际输出尺寸。`reencode` 对 PNG/JPEG 保持格式，
   其他格式（HEIC 等）默认输出 JPEG；`reencode` / `subtlePixelNoise` 遇到多帧图片返回 `unsupportedFormat`。
 - 统一任务展示：本地工具是一次性 async 调用，由 UI 直接持有 Task 并可取消，不进入下载队列，也不新增第二条并发队列。
 

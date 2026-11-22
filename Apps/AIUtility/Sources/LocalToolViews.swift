@@ -47,6 +47,7 @@ private struct ToolStatusRow: View {
     @State private var running = false
     @State private var error: String?
     @State private var shared: SharedFile?
+    @State private var task: Task<Void, Never>?
 
     var body: some View {
         WorkspacePage {
@@ -54,15 +55,16 @@ private struct ToolStatusRow: View {
             UtilityCard {
                 // Titles are computed here: PhotosPicker's label closure is not main-actor isolated.
                 let pickTitle = picks.isEmpty ? "选择图片（最多 32 张）" : "已选 \(picks.count) 张，重新选择"
-                Text("拼出的图超过 8000 万像素时会自动等比缩小。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                Text("拼出的图超过 8000 万像素，或 PNG 文件超过 200 MB 时，会自动等比缩小。").font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
+                // Locked while stitching: the result must belong to the images shown as selected.
                 PhotosPicker(selection: $picks, maxSelectionCount: 32, selectionBehavior: .ordered, matching: .images) {
                     Label(pickTitle, systemImage: "photo.on.rectangle")
-                }
+                }.disabled(running)
                 Picker("排列", selection: $mode) { ForEach(Mode.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.segmented)
                 if mode == .grid { Stepper("每行 \(columns) 张", value: $columns, in: 1...8) }
                 HStack { Text("间距 \(Int(spacing)) 像素"); Slider(value: $spacing, in: 0...64, step: 2) }
                 Toggle("白色背景（关闭为透明）", isOn: $whiteBackground)
-                Button { Task { await run() } } label: { Label("开始拼接", systemImage: "rectangle.split.1x2") }
+                Button { task = Task { await run() } } label: { Label("开始拼接", systemImage: "rectangle.split.1x2") }
                     .buttonStyle(PrimaryActionStyle()).disabled(picks.count < 1 || running)
                 ToolStatusRow(running: running, error: error)
             }
@@ -78,6 +80,8 @@ private struct ToolStatusRow: View {
             }
         }
         .sheet(item: $shared) { ShareSheet(items: $0.urls) }
+        // Leaving the page (or a layout switch rebuilding it) stops the work instead of finishing it unseen.
+        .onDisappear { task?.cancel() }
     }
 
     private func run() async {
@@ -86,6 +90,7 @@ private struct ToolStatusRow: View {
         var images: [Data] = []
         for item in picks {
             guard let data = try? await item.loadTransferable(type: Data.self) else { error = "有图片无法读取。"; return }
+            guard !Task.isCancelled else { error = MediaError.cancelled.userMessage; return }
             images.append(data)
         }
         let layout: StitchLayout = switch mode { case .vertical: .vertical; case .horizontal: .horizontal; case .grid: .grid(columns: columns) }
@@ -121,7 +126,7 @@ private struct ToolStatusRow: View {
                 let pickTitle = video == nil ? "选择视频" : "已选择视频，重新选择"
                 PhotosPicker(selection: $pick, matching: .videos) {
                     Label(pickTitle, systemImage: "film")
-                }
+                }.disabled(running)
                 Stepper("开始 \(start, specifier: "%.1f") 秒", value: $start, in: 0...600, step: 0.5)
                 Stepper("时长 \(duration, specifier: "%.1f") 秒", value: $duration, in: 0.5...maxDuration, step: 0.5)
                 if loadingVideo { ProgressView("正在读取视频…") }
@@ -172,6 +177,7 @@ private struct ToolStatusRow: View {
         }
         .onChange(of: fps) { _, _ in duration = min(duration, maxDuration) }
         .sheet(item: $shared) { ShareSheet(items: $0.urls) }
+        .onDisappear { task?.cancel() }
     }
 
     private func run() async {
@@ -208,6 +214,8 @@ private struct ToolStatusRow: View {
     @State private var error: String?
     @State private var shared: SharedFile?
     @State private var loader: Task<Void, Never>?
+    @State private var loading = false
+    @State private var work: Task<Void, Never>?
 
     var body: some View {
         WorkspacePage {
@@ -216,14 +224,14 @@ private struct ToolStatusRow: View {
                 let pickTitle = input == nil ? "选择图片" : "已选择图片，重新选择"
                 PhotosPicker(selection: $pick, matching: .images) {
                     Label(pickTitle, systemImage: "photo")
-                }
+                }.disabled(running)
                 Picker("方式", selection: $method) { ForEach(Method.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.segmented)
                 Text(explanation).font(.caption).foregroundStyle(UtilityTheme.inkSecondary)
                 if method == .noise { Toggle("我知道这会轻微改变像素", isOn: $allowPixels) }
-                Button { Task { await run() } } label: { Label("生成新文件", systemImage: "touchid") }
+                Button { work = Task { await run() } } label: { Label("生成新文件", systemImage: "touchid") }
                     .buttonStyle(PrimaryActionStyle())
-                    .disabled(input == nil || running || (method == .noise && !allowPixels))
-                ToolStatusRow(running: running, error: error)
+                    .disabled(input == nil || running || loading || (method == .noise && !allowPixels))
+                ToolStatusRow(running: running || loading, error: error)
                 Text("不保证任何网站的去重判断一定会改变。").font(.caption2).foregroundStyle(UtilityTheme.inkSecondary)
             }
             if let result {
@@ -243,18 +251,21 @@ private struct ToolStatusRow: View {
             }
         }
         .onChange(of: pick) { _, item in
+            // Loading and generating are tracked apart: a newer pick replaces a load, but the picker stays
+            // locked while a file is generated so a result never appears under a different image.
             loader?.cancel()
-            input = nil; result = nil; error = nil; running = false
+            input = nil; result = nil; error = nil; loading = false
             guard let item else { return }
-            running = true
+            loading = true
             loader = Task {
                 let data = try? await item.loadTransferable(type: Data.self)
                 guard !Task.isCancelled else { return }
-                running = false
+                loading = false
                 input = data; if data == nil { error = "图片无法读取。" }
             }
         }
         .sheet(item: $shared) { ShareSheet(items: $0.urls) }
+        .onDisappear { work?.cancel() }
     }
 
     private var explanation: String {
@@ -297,6 +308,7 @@ private struct ToolStatusRow: View {
     @State private var matches: [ReverseSearchMatch]?
     @State private var running = false
     @State private var error: String?
+    @State private var searchTask: Task<Void, Never>?
 
     var body: some View {
         WorkspacePage {
@@ -325,9 +337,10 @@ private struct ToolStatusRow: View {
         }
         .onChange(of: pick) { _, item in
             guard let item else { return }
-            Task { await search(item) }
+            searchTask = Task { await search(item) }
         }
         .onChange(of: source) { _, _ in matches = nil; error = nil }
+        .onDisappear { searchTask?.cancel() }
     }
 
     @ViewBuilder private var sauceNAOKey: some View {

@@ -46,12 +46,27 @@ public func stitchImages(_ images: [Data], options: StitchOptions = .init()) asy
         context.draw(image, in: CGRect(x: frame.x, y: geometry.height - frame.y - frame.height,
                                        width: frame.width, height: frame.height))
     }
-    guard let canvas = context.makeImage() else { throw .resourceLimitExceeded }
-    let data = try ImageIOSupport.encode(canvas, type: options.format.typeIdentifier,
-                                         quality: options.format == .jpeg ? options.jpegQuality : nil)
+    guard var image = context.makeImage() else { throw .resourceLimitExceeded }
+    let quality = options.format == .jpeg ? options.jpegQuality : nil
+    var data = try ImageIOSupport.encode(image, type: options.format.typeIdentifier, quality: quality)
+    // Photos compress poorly as PNG: a canvas within the pixel cap can still encode past the output cap.
+    // Shrink the finished canvas evenly (file size follows pixel count) instead of failing.
+    var attempts = 0
+    while Int64(data.count) > options.limits.maxOutputBytes, attempts < 3 {
+        guard !Task.isCancelled else { throw .cancelled }
+        attempts += 1
+        let scale = (Double(options.limits.maxOutputBytes) / Double(data.count)).squareRoot() * 0.9
+        let width = max(1, Int(Double(image.width) * scale)), height = max(1, Int(Double(image.height) * scale))
+        data = Data()
+        let smaller = try ImageIOSupport.context(width: width, height: height, background: nil)
+        smaller.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        guard let next = smaller.makeImage() else { throw .resourceLimitExceeded }
+        image = next
+        data = try ImageIOSupport.encode(image, type: options.format.typeIdentifier, quality: quality)
+    }
     guard !Task.isCancelled else { throw .cancelled }
     guard Int64(data.count) <= options.limits.maxOutputBytes else { throw .resourceLimitExceeded }
-    return ImageResult(data: data, format: options.format, width: geometry.width, height: geometry.height)
+    return ImageResult(data: data, format: options.format, width: image.width, height: image.height)
 }
 
 /// Produces new image bytes; the input `Data` is a value and is never changed. Results report honestly
