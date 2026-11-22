@@ -1,6 +1,6 @@
 # 网络工具：测速与泄漏检测
 
-2026-11-21 新增（信通院测速同日接入）。代码在 `Packages/AIUtilityNetwork`（纯逻辑在 Linux 编译和测试；URLSession 计时、UDP、DNS-SD 只在 Apple 平台），界面在 `Apps/AIUtility/Sources/NetworkToolViews.swift`，入口在「工具箱 → 网络」。两个功能都标「未实测」：没有在真机上跑过，联网格式检查（`live_checks`）也还没有跑。
+2026-11-21 新增（信通院测速同日接入）。代码在 `Packages/AIUtilityNetwork`（纯逻辑在 Linux 编译和测试；URLSession 计时、UDP、DNS-SD 只在 Apple 平台），界面在 `Apps/AIUtility/Sources/NetworkToolViews.swift`，入口在「工具箱 → 网络」。两个功能都标「未实测」：没有在真机上跑过。联网格式检查（`live_checks`）已在 CI 通过，只说明各服务的接口格式没变（见第 3 节）。
 
 两个功能都只在用户点「开始」后才联网，离开页面时自动停止。
 
@@ -81,7 +81,7 @@
 
 | 层级 | 内容 | 状态 |
 |---|---|---|
-| Linux（core-linux） | 统计、测速引擎（假传输：逐级停止、流量上限、过短请求、进度、取消、错误分类）、trace / Server-Timing / ip.sb / IPIP / TXT 解析、STUN（RFC 5769 IPv4 / IPv6 向量）、ICE 候选、VPN 接口分类、泄漏规则；信通院：MD5、签名、设备号、定位 / 节点表 / 会话回复解析、请求报文、HTTP 报文解析（含 chunked），以及假节点上的完整流程（选第一个能给会话的最快节点、正常结束 / 流量上限 / 停止都释放 key、没有可用节点） | 待 CI |
-| macOS（apple） | 同上测试 + 模拟器 / 真机 SDK 编译 | 待 CI |
-| 联网格式（`live_checks`） | `LiveNetworkChecks`：三条 trace、ip.sb、IPIP、1 MB 下载 / 100 KB 上传、两个 STUN、三条 DNS TXT、信通院出口定位与节点列表（CI 机房在国外，节点表可能为空）；报告只写地址族和数量，不写地址 | 未跑 |
+| Linux（core-linux） | 统计、测速引擎（假传输：逐级停止、流量上限、过短请求、进度、取消、错误分类）、trace / Server-Timing / ip.sb / IPIP / TXT 解析、STUN（RFC 5769 IPv4 / IPv6 向量）、ICE 候选、VPN 接口分类、泄漏规则；信通院：MD5、签名、设备号、定位 / 节点表 / 会话回复解析、请求报文、HTTP 报文解析（含 chunked），以及假节点上的完整流程（选第一个能给会话的最快节点、正常结束 / 流量上限 / 停止都释放 key、没有可用节点） | 通过（58 项，[Actions 44914960833](https://github.com/7869123/ios/actions/runs/44914960833)） |
+| macOS（apple） | 同上测试 + 模拟器 / 真机 SDK 编译 | 通过（同一次运行） |
+| 联网格式（`live_checks`） | `LiveNetworkChecks`：三条 trace、ip.sb、IPIP、1 MB 下载 / 100 KB 上传、两个 STUN、三条 DNS TXT、信通院出口定位与节点列表（CI 机房在国外，节点表可能为空）；报告只写地址族和数量，不写地址 | 通过（同一次运行；IPv6 在 CI 机房不可用，属预期；信通院节点表返回 1 个节点） |
 | 真机 | 见 DEVICE_TEST_CHECKLIST.md 第 11A、11B 节 | 未验证 |
