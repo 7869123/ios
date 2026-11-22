@@ -1,5 +1,5 @@
-run=44914960833
-sha=0a7269321c32d0544e29813b6947fabe0b1ab440
+run=44983456656
+sha=7ac2a158edadc90d2a5203c8dd5a19e93cdd771d
 set=all
 ipad-mini-portrait-settings-translation=in-app
 ipad-mini-landscape-settings-translation=in-app
