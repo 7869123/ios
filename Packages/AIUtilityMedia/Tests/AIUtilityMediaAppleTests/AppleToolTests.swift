@@ -227,6 +227,21 @@ struct StitchImageTests {
     }
 }
 
+struct FingerprintCancellationTests {
+    @Test func cancelledRewriteReturnsNoResultForEveryMethod() async throws {
+        let png = try encoded(solidImage(width: 8, height: 8, color: red), type: "public.png")
+        let methods: [FingerprintOptions] = [FingerprintOptions(method: .stripMetadata), FingerprintOptions(method: .reencode),
+                                             FingerprintOptions(method: .subtlePixelNoise, allowPixelChanges: true, noiseSeed: 7)]
+        for options in methods {
+            let task = Task { () async throws -> FingerprintResult in
+                withUnsafeCurrentTask { $0?.cancel() }
+                return try await rewriteFingerprint(png, options: options)
+            }
+            await expectMediaError(.cancelled) { try await task.value }
+        }
+    }
+}
+
 // MARK: - Fingerprint
 
 struct FingerprintTests {

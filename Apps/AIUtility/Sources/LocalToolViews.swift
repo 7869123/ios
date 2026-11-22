@@ -79,8 +79,10 @@ private struct ToolStatusRow: View {
                 }
             }
         }
+        // A new selection clears the previous result, as the other tools do.
+        .onChange(of: picks) { _, _ in result = nil; error = nil }
         .sheet(item: $shared) { ShareSheet(items: $0.urls) }
-        // Leaving the page (or a layout switch rebuilding it) stops the work instead of finishing it unseen.
+        // Leaving the page (or a layout switch rebuilding it) stops the work at its next checkpoint.
         .onDisappear { task?.cancel() }
     }
 
@@ -89,8 +91,9 @@ private struct ToolStatusRow: View {
         defer { running = false }
         var images: [Data] = []
         for item in picks {
-            guard let data = try? await item.loadTransferable(type: Data.self) else { error = "有图片无法读取。"; return }
-            guard !Task.isCancelled else { error = MediaError.cancelled.userMessage; return }
+            guard let data = try? await item.loadTransferable(type: Data.self), !Task.isCancelled else {
+                error = Task.isCancelled ? MediaError.cancelled.userMessage : "有图片无法读取。"; return
+            }
             images.append(data)
         }
         let layout: StitchLayout = switch mode { case .vertical: .vertical; case .horizontal: .horizontal; case .grid: .grid(columns: columns) }
@@ -396,7 +399,9 @@ private struct ToolStatusRow: View {
     private func search(_ item: PhotosPickerItem) async {
         running = true; error = nil; matches = nil
         defer { running = false; pick = nil }
-        guard let original = try? await item.loadTransferable(type: Data.self) else { error = "图片无法读取。"; return }
+        guard let original = try? await item.loadTransferable(type: Data.self), !Task.isCancelled else {
+            error = Task.isCancelled ? MediaError.cancelled.userMessage : "图片无法读取。"; return
+        }
         // Upload a re-encoded JPEG: HEIC photos are accepted, large ones fit the services' size limits, and EXIF
         // (location, device) is not sent along with the picture.
         guard let data = await Task.detached(priority: .userInitiated, operation: { searchUpload(original) }).value else {

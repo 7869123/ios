@@ -26,7 +26,7 @@
 | 工作台 | `HomeView`（**本轮新增原型**） | 可预览 | 默认首页；功能入口 + 状态 |
 | 截图翻译 | `ScreenshotView` | 已有 | Discord 等截图 OCR + 翻译 |
 | 字幕翻译 | `SubtitleView` | 已有 | 字幕文本翻译 |
-| 工具箱（2026-11-21 由「媒体工具」改名） | `MediaToolsView` | 已接入 | 分区：下载、本地工具、搜图、网络。本地工具（拼接、GIF、指纹）标「可用」；B站 / X / Pixiv 下载、搜图、网络测速（Cloudflare、信通院）与泄漏检测已实现、未在真机验证，标「未实测」 |
+| 工具箱（2026-11-21 由「媒体工具」改名） | `MediaToolsView` | 已接入 | 分区：下载、本地工具、搜图、网络。本地工具（拼接、GIF、指纹）标「可用」，处理中锁定选择按钮，离开页面即取消（在下一个检查点停止）；B站 / X / Pixiv 下载、搜图、网络测速（Cloudflare、信通院）与泄漏检测已实现、未在真机验证，标「未实测」 |
 | 工具箱 → 网络测速 / 泄漏检测 | `SpeedTestView` / `LeakTestView`（`NetworkToolViews.swift`） | 已接入，未实测 | 指标用 `MetricCell` 网格；IP 默认打码，「显示完整 IP」开关；离开页面即停止；说明见 NETWORK_TOOLS.md |
 | 设置 | `SettingsView`（入口）→ `ProviderSettingsView` / `AppearanceSettingsView` | 已有，2026-11-08 拆分 | AI 供应商、Key 状态、模型绑定、预算；外观与壁纸 |
 | （字幕页"实时字幕"模式）实时字幕 · PiP | `SubtitleView` + `LiveCaptionInfoSheet` | 仅状态说明 | PoC 在 `PoCs/iOS27Capture`，未接入 App，未经真机验证 |
@@ -242,4 +242,4 @@ iPad mini 6 上的预期列数（扣除边距和间距后计算）：
   固定说明文案来自 ReasoningCapabilities；选 DeepSeek 时显示余额卡片（手动刷新、CNY/USD 低余额阈值）；选 OpenAI 时显示本 App 实际收到的用量（本次 / 本机累计）。
 - App 在前台且 DeepSeek Key 可用时每 5 分钟查一次余额（离开前台停止），低于阈值时首页出现一次可关闭的提醒条。
 - 截图翻译：选图后可开启「只识别框选区域」，拖动方框 / 右下角圆点；方框为左上角原点，调用前换算为 Vision 左下角原点（y = 1 − top − height）。
-  识别走 ScreenshotTranslationWorkflow，可取消；源语言用截图翻译的语言偏好。
+  识别走 ScreenshotTranslationWorkflow，可取消；源语言用截图翻译的语言偏好。超过 32 MB 的图先在本机缩成 4000 万像素以内的 JPEG 再识别，状态行注明。

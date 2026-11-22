@@ -52,7 +52,7 @@ public func stitchImages(_ images: [Data], options: StitchOptions = .init()) asy
     // Photos compress poorly as PNG: a canvas within the pixel cap can still encode past the output cap.
     // Shrink the finished canvas evenly (file size follows pixel count) instead of failing.
     var attempts = 0
-    while Int64(data.count) > options.limits.maxOutputBytes, attempts < 3 {
+    while Int64(data.count) > options.limits.maxOutputBytes, options.limits.maxOutputBytes > 0, attempts < 3 {
         guard !Task.isCancelled else { throw .cancelled }
         attempts += 1
         let scale = (Double(options.limits.maxOutputBytes) / Double(data.count)).squareRoot() * 0.9
@@ -74,6 +74,7 @@ public func stitchImages(_ images: [Data], options: StitchOptions = .init()) asy
 public func rewriteFingerprint(_ image: Data, options: FingerprintOptions) async throws(MediaError) -> FingerprintResult {
     try ProcessingValidation.check(options, inputBytes: image.count)
     let source = try ImageIOSupport.open(image, limits: options.limits)
+    guard !Task.isCancelled else { throw .cancelled }
     let hadMetadata = MetadataInspector.hasRemovableMetadata(source.cgSource) || ContainerText.hasText(image)
     let output: Data
     let outputType: String
@@ -91,6 +92,8 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions) async
         // PNG and JPEG keep their format; other photos (HEIC, WebP...) become JPEG, not a PNG many times larger.
         let format = options.format ?? ImageOutputFormat(typeIdentifier: source.typeIdentifier) ?? .jpeg
         let decoded = try ImageIOSupport.orientedImage(source)
+        // Decoding and encoding cannot be interrupted; stop between them when cancelled.
+        guard !Task.isCancelled else { throw .cancelled }
         output = try ImageIOSupport.encode(decoded, type: format.typeIdentifier,
                                            quality: format == .jpeg ? options.jpegQuality : nil)
         outputType = format.typeIdentifier
@@ -99,6 +102,7 @@ public func rewriteFingerprint(_ image: Data, options: FingerprintOptions) async
         let format = options.format ?? .png
         let decoded = try ImageIOSupport.orientedImage(source)
         let noisy = try PixelNoise.apply(to: decoded, seed: options.noiseSeed)
+        guard !Task.isCancelled else { throw .cancelled }
         output = try ImageIOSupport.encode(noisy, type: format.typeIdentifier,
                                            quality: format == .jpeg ? options.jpegQuality : nil)
         outputType = format.typeIdentifier
