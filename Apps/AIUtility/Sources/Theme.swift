@@ -257,27 +257,38 @@ struct StatusChip: View {
     }
 }
 
+/// Page title size: the tab bar layout (iPhone, narrow iPad windows) already shows the page name in the
+/// navigation bar, so its in-page title is smaller to leave more of the first screen for content.
+extension Font {
+    static func pageTitle(compact: Bool) -> Font { compact ? .title2.bold() : .largeTitle.bold() }
+}
+
 @MainActor struct PageHeader: View {
     let title: String
     let subtitle: String
+    @Environment(\.horizontalSizeClass) private var sizeClass
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let compact = sizeClass == .compact
+        VStack(alignment: .leading, spacing: compact ? 4 : 8) {
             Text("SERINA / TOOLBOX").font(.caption.monospaced().weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
-            Text(title).font(.largeTitle.bold()).foregroundStyle(UtilityTheme.ink)
+            Text(title).font(.pageTitle(compact: compact)).foregroundStyle(UtilityTheme.ink)
             Text(subtitle).font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
         }
         .legibleOnWallpaper()
-        .frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, compact ? 2 : 12)
     }
 }
 
 @MainActor struct WorkspacePage<Content: View>: View {
     private let content: Content
+    @Environment(\.horizontalSizeClass) private var sizeClass
     init(@ViewBuilder content: () -> Content) { self.content = content() }
     var body: some View {
+        let compact = sizeClass == .compact
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) { content }
-                .frame(maxWidth: 900).padding(20).frame(maxWidth: .infinity)
+            VStack(alignment: .leading, spacing: compact ? 16 : 20) { content }
+                .frame(maxWidth: 900).padding(.horizontal, compact ? 16 : 20).padding(.vertical, compact ? 12 : 20)
+                .frame(maxWidth: .infinity)
         }
         .background { WorkspaceBackdrop() }
         .scrollDismissesKeyboard(.interactively)

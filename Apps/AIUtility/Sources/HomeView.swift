@@ -6,6 +6,7 @@ import AIUtilityCore
 @MainActor struct HomeView: View {
     @EnvironmentObject private var app: AppModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var sizeClass
     let open: (Workspace) -> Void
 
     private struct Tile: Identifiable {
@@ -34,7 +35,7 @@ import AIUtilityCore
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
+            VStack(alignment: .leading, spacing: sizeClass == .compact ? 18 : 22) {
                 header
                 setupNotice
                 lowBalanceNotice
@@ -42,7 +43,8 @@ import AIUtilityCore
                 section("工具箱", tiles: media)
             }
             .frame(maxWidth: UtilityTheme.pageMaxWidth)
-            .padding(UtilityTheme.pagePadding)
+            .padding(.horizontal, sizeClass == .compact ? 16 : UtilityTheme.pagePadding)
+            .padding(.vertical, sizeClass == .compact ? 12 : UtilityTheme.pagePadding)
             .frame(maxWidth: .infinity)
         }
         .background { WorkspaceBackdrop() }
@@ -62,7 +64,7 @@ import AIUtilityCore
                 Text(Date.now, format: .dateTime.month().day().weekday(.wide))
                     .font(.caption.weight(.semibold)).foregroundStyle(UtilityTheme.brandStrong)
             }
-            Text("工作台").font(.largeTitle.bold()).foregroundStyle(UtilityTheme.ink)
+            Text("工作台").font(.pageTitle(compact: sizeClass == .compact)).foregroundStyle(UtilityTheme.ink)
             Text("翻译、字幕与工具箱的统一入口").font(.subheadline).foregroundStyle(UtilityTheme.inkSecondary)
         }
         .legibleOnWallpaper()

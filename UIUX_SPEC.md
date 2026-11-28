@@ -94,7 +94,7 @@
 
 | 用途 | 样式 |
 |---|---|
-| 页面标题 | `.largeTitle.bold()` |
+| 页面标题 | `.largeTitle.bold()`；底部标签栏布局（iPhone、iPad 窄窗口）用 `.title2.bold()`，页面边距 16、上下 12（2026-11-28） |
 | 主卡标题 | `.title2.bold()` |
 | 分区标题 | `.title3.bold()` |
 | 磁贴标题 | `.headline` |
