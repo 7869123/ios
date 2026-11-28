@@ -1,8 +1,9 @@
 # AIUtility 开发状态
 
-## 最新（Claude，2026-11-28）：iPhone 页面标题缩小（待 build_apple）
+## 最新（Claude，2026-11-28）：iPhone 页面标题缩小，build_apple 通过
 
 - 所有者反馈 iPhone 预览字太大：字号本身是系统默认，主要是导航栏标题加 34pt 页面大标题占了首屏近三分之一。底部标签栏布局（iPhone、iPad 窄窗口）下页面标题改为 `.title2`（22pt），页面边距 20→16、上下 20→12，标题块间距收紧；iPad 侧边栏布局不变。
+- 验证：[Actions 46148341700](https://github.com/7869123/ios/actions/runs/46148341700)（源 `44156af`）core-linux、apple、app 全部通过，62 张预览提交于 `521797b`；iPhone 首页两个供应商胶囊现在排在同一行。
 
 ## 最新（Claude，2026-11-22）：本地工具与截图识别的 4 处修正，build_apple 通过
 
